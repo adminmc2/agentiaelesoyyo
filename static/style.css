@@ -880,6 +880,7 @@ body[data-mood-active] .bento-card--mood {
     inset: 0;
     display: flex;
     overflow: hidden;
+    padding: 0 !important;
     transition:
         opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate),
         transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate);
@@ -955,6 +956,19 @@ body[data-mood-active] .bento-card--mood {
     width: 200px;
     height: 200px;
     cursor: pointer;
+}
+
+/* Título del taller */
+.workshop-title {
+    font-family: var(--md-sys-typescale-font-plain);
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--md-sys-color-on-surface);
+    text-align: center;
+    max-width: 380px;
+    margin: 0 0 var(--space-24) 0;
+    letter-spacing: 0.3px;
 }
 
 /* Campo de input */
@@ -1066,40 +1080,47 @@ body[data-mood-active] .bento-card--mood {
 
 /* Footer del login */
 .login-footer {
+    margin-top: var(--space-32);
+    text-align: center;
+    width: 100%;
+}
+
+.login-footer__line1,
+.login-footer__line2 {
+    margin: 0;
+    font-family: 'Dosis', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #9a928a;
+    line-height: 2;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: var(--space-4);
-    margin-top: auto;
-    padding-top: var(--space-32);
+    justify-content: center;
+    gap: 6px;
 }
 
-.login-footer__logo {
-    width: 36px;
-    height: 32px;
-    object-fit: contain;
-    padding: 4px 6px;
+.login-footer__line1 strong {
+    font-weight: 700;
+    color: #6b635b;
+}
+
+.login-footer__ico-prisma {
+    display: inline-block;
+    height: 18px;
+    width: 18px;
+    padding: 2px 3px;
     background: #1A2535;
-    border-radius: 6px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    object-fit: contain;
+    vertical-align: middle;
 }
 
-.login-footer__company {
-    font: var(--md-sys-typescale-label-medium);
-    color: var(--md-sys-color-on-surface-variant);
-    opacity: 0.8;
-}
-
-.login-footer__copyright {
-    font: var(--md-sys-typescale-body-small);
-    color: var(--md-sys-color-on-surface-variant);
-    opacity: 0.6;
-}
-
-.login-footer__version {
-    font: var(--md-sys-typescale-body-small);
-    color: var(--md-sys-color-on-surface-variant);
-    opacity: 0.5;
+.login-footer__ico-hablandis {
+    display: inline-block;
+    height: 28px;
+    width: auto;
+    object-fit: contain;
+    vertical-align: middle;
 }
 
 /* ============================================
