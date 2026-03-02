@@ -3,18 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#FBF8FF">
-    <title>Bellia</title>
-    <!-- Tipografías corporativas -->
+    <meta name="theme-color" content="#FDFAF5">
+    <title>Eliana</title>
+    <!-- Tipografías AgentiaELE -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dosis:wght@400;500;600;700&family=Inconsolata:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Phosphor Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/fill/style.css">
+    <!-- GSAP (animación creatures) -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/Draggable.min.js"></script>
+    <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
+    <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=5.0.0">
+    <link rel="stylesheet" href="/static/style.css?v=8.1.0">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -24,64 +29,93 @@
     <link rel="apple-touch-icon" sizes="167x167" href="/static/apple-touch-icon-167x167.png?v=4.0.0">
     <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon-180x180.png?v=4.0.0">
     <meta name="msapplication-TileImage" content="/static/mstile-150x150.png?v=4.0.0">
-    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="msapplication-TileColor" content="#D4826A">
     <link rel="manifest" href="/static/manifest.json?v=4.0.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Bellia">
+    <meta name="apple-mobile-web-app-title" content="Eliana">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Bellia">
+    <meta name="application-name" content="Eliana">
 </head>
 <body>
     <div class="app-container">
         <!-- ============================================
-             PANTALLA DE LOGIN
+             PANTALLA DE LOGIN (2 columnas)
              ============================================ -->
         <main class="main-content login-screen" id="login-screen">
-            <div class="login-content">
-                <!-- Título -->
-                <h1 class="login-title">Bellia</h1>
+            <div class="login-page">
+                <!-- Columna izquierda - Formulario -->
+                <div class="login-left">
+                    <div class="login-content">
+                        <!-- Nombre + Tagline -->
+                        <div class="login-hero">
+                            <h1 class="login-name">E L I A N A</h1>
+                            <p class="login-tagline">enseñanza · lenguas · IA · agentes</p>
+                        </div>
 
-                <!-- Orb -->
-                <div class="login-orb-wrapper">
-                    <div class="orb-container" id="login-orb-container"></div>
+                        <!-- Orb -->
+                        <div class="login-orb-wrapper">
+                            <div class="orb-container" id="login-orb-container"></div>
+                        </div>
+
+                        <!-- Campo usuario -->
+                        <div class="login-field" id="login-field-user">
+                            <i class="ph ph-user"></i>
+                            <input type="text" id="login-user" placeholder="Usuario" autocomplete="username" required>
+                        </div>
+
+                        <!-- Campo contraseña -->
+                        <div class="login-field" id="login-field-password">
+                            <i class="ph ph-lock"></i>
+                            <input type="password" id="login-password" placeholder="Contraseña" autocomplete="current-password" required>
+                        </div>
+
+                        <!-- Botón entrar -->
+                        <button class="login-btn" id="login-btn" type="button">
+                            Entrar
+                        </button>
+
+                        <!-- Face ID -->
+                        <button class="login-faceid" id="faceid-btn" type="button">
+                            <i class="ph ph-scan-smiley"></i>
+                            <span>Face ID</span>
+                        </button>
+
+                        <!-- Footer -->
+                        <footer class="login-footer">
+                            <img src="/static/prisma-logo.svg" alt="Prisma Consul" class="login-footer__logo">
+                            <span class="login-footer__company">Prisma Consul</span>
+                            <span class="login-footer__copyright">© 2026 Todos los derechos reservados</span>
+                            <span class="login-footer__version">Versión 3.8.2</span>
+                        </footer>
+                    </div>
                 </div>
 
-                <!-- Descripción -->
-                <p class="login-description">
-                    Sistema personalizado y especializado<br>de agentes IA para procesos de<br>venta y atención médica
-                </p>
-
-                <!-- Campo usuario -->
-                <div class="login-field" id="login-field-user">
-                    <i class="ph ph-user"></i>
-                    <input type="text" id="login-user" placeholder="Usuario" autocomplete="username" required>
+                <!-- Columna derecha - Animación interactiva -->
+                <div class="login-right">
+                    <div class="stage" id="creatures-stage"></div>
+                    <div class="press-text">
+                        <p class="press-line-1">Despierta al agente que llevas dentro<br>y únete al equipo</p>
+                        <p class="press-line-2">— Hay gente para todo y agentes también —</p>
+                    </div>
+                    <div class="awake-creatures-hint">
+                        <p class="hint-text">
+                            Despégalos y despiértalos,<br>
+                            despierta a tu agente<br>
+                            y despega
+                        </p>
+                        <span class="hint-arrow-down">↘</span>
+                    </div>
+                    <div class="sleeping-creature-hint">
+                        <p class="hint-text">
+                            No se despierta,<br>
+                            pero si la tocas<br>
+                            te permitirá<br>
+                            conocer al equipo<br>
+                            <span class="hint-arrow">↘</span>
+                        </p>
+                    </div>
                 </div>
-
-                <!-- Campo contraseña -->
-                <div class="login-field" id="login-field-password">
-                    <i class="ph ph-lock"></i>
-                    <input type="password" id="login-password" placeholder="Contraseña" autocomplete="current-password" required>
-                </div>
-
-                <!-- Botón entrar -->
-                <button class="login-btn" id="login-btn" type="button">
-                    Entrar
-                </button>
-
-                <!-- Face ID -->
-                <button class="login-faceid" id="faceid-btn" type="button">
-                    <i class="ph ph-scan-smiley"></i>
-                    <span>Face ID</span>
-                </button>
-
-                <!-- Footer con logo Prisma Consul -->
-                <footer class="login-footer">
-                    <img src="/static/prisma-logo.svg" alt="Prisma Consul" class="login-footer__logo">
-                    <span class="login-footer__company">Prisma Consul</span>
-                    <span class="login-footer__copyright">© 2026 Todos los derechos reservados</span>
-                    <span class="login-footer__version">Versión 3.8.2</span>
-                </footer>
             </div>
         </main>
 
@@ -95,9 +129,9 @@
                     <img src="/static/profile.jpg" alt="Perfil" class="profile-img">
                 </button>
                 <div class="header-actions">
-                    <button class="wake-word-toggle" id="wake-word-btn" title="Activar Hola, Bellia">
+                    <button class="wake-word-toggle" id="wake-word-btn" title="Activar Hola, Eliana">
                         <i class="ph ph-microphone-slash"></i>
-                        <span class="wake-word-label">Hola, Bellia · off</span>
+                        <span class="wake-word-label">Hola, Eliana · off</span>
                     </button>
                     <button class="header-icon-btn" id="faq-btn" title="Preguntas frecuentes">
                         <i class="ph ph-question"></i>
@@ -235,13 +269,13 @@
                 </button>
                 <div id="orb-container-chat-header" class="orb-container-chat-header"></div>
                 <div class="chat-title">
-                    <span class="chat-title-text">Bellia</span>
+                    <span class="chat-title-text">Eliana</span>
                     <span class="chat-status" id="chat-status">En línea</span>
                 </div>
                 <div class="header-actions">
-                    <button class="wake-word-toggle" id="chat-wake-word-btn" title="Activar Hola, Bellia">
+                    <button class="wake-word-toggle" id="chat-wake-word-btn" title="Activar Hola, Eliana">
                         <i class="ph ph-microphone-slash"></i>
-                        <span class="wake-word-label">Hola, Bellia · off</span>
+                        <span class="wake-word-label">Hola, Eliana · off</span>
                     </button>
                     <button class="header-icon-btn" id="chat-faq-btn" title="Preguntas frecuentes">
                         <i class="ph ph-question"></i>
@@ -282,7 +316,7 @@
                         <i class="ph ph-microphone"></i>
                         <span class="chat-action-label">Hablar</span>
                     </button>
-                    <button class="chat-action-btn chat-action-btn--voice" id="chat-voice-btn" title="Voz de Bellia">
+                    <button class="chat-action-btn chat-action-btn--voice" id="chat-voice-btn" title="Voz de Eliana">
                         <i class="ph-bold ph-waveform"></i>
                         <span class="chat-action-label">Voz IA</span>
                     </button>
@@ -489,6 +523,22 @@
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <!-- Orb 3D Canvas -->
     <script src="/static/orb.js?v=6.0.0"></script>
+    <!-- Creatures animation -->
+    <script>gsap.registerPlugin(Draggable, InertiaPlugin, Physics2DPlugin);</script>
+    <script src="/static/creatures.js?v=1.1.0"></script>
+    <script>
+        // Initialize creatures when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            const stage = document.getElementById('creatures-stage');
+            if (stage && typeof initCreatures === 'function') {
+                // Small delay to ensure layout is computed
+                requestAnimationFrame(() => {
+                    initCreatures(stage);
+                    console.log('[Creatures] Initialized on login stage');
+                });
+            }
+        });
+    </script>
     <script src="/static/app.js?v=5.0.0"></script>
 </body>
 </html>
