@@ -40,7 +40,7 @@ if not groq_api_key:
 
 # ElevenLabs TTS (voz de Eliana)
 elevenlabs_api_key = os.getenv("ELEVENLABS_API_KEY")
-elevenlabs_voice_id = os.getenv("ELEVENLABS_VOICE_ID", "CaJslL1xziwefCeTNzHv")
+elevenlabs_voice_id = os.getenv("ELEVENLABS_VOICE_ID", "SbxCN6LQhBInYaeKjhhW")  # Lourdes
 
 if not elevenlabs_api_key:
     print("⚠️  ELEVENLABS_API_KEY no configurada - TTS deshabilitado")
@@ -291,9 +291,9 @@ async def text_to_speech(req: TTSRequest):
         "model_id": "eleven_multilingual_v2",
         "language_code": "es",
         "voice_settings": {
-            "stability": 0.50,
-            "similarity_boost": 0.75,
-            "style": 0.35,
+            "stability": 0.45,
+            "similarity_boost": 0.70,
+            "style": 0.20,
             "use_speaker_boost": True,
         },
     }
@@ -333,15 +333,15 @@ def strip_wake_word(message: str) -> str:
     return t
 
 
-GREETING_RESPONSE = """Soy **Eliana**, tu asistente de IA para la enseñanza de español como lengua extranjera. Estoy aquí para ayudarte a explorar cómo la inteligencia artificial puede transformar tu práctica docente.
+GREETING_RESPONSE = """¡Bienvenidos a **Destino ELE Kaunas 2026**! Soy **Eliana**, y esta tarde estoy aquí con **Román** para enseñaros cómo los agentes de inteligencia artificial pueden personalizar la enseñanza sin perder el control pedagógico.
 
-Puedes preguntarme sobre:
+Preguntadme lo que queráis:
 
 - **Actividades**: *"Crea una actividad de comprensión auditiva para nivel B1"*
 - **Metodología**: *"¿Cómo puedo usar IA para personalizar el aprendizaje?"*
 - **Evaluación**: *"Ayúdame a diseñar una rúbrica para expresión oral"*
 
-> Habla conmigo por voz o escribe tu consulta directamente."""
+> ¡Venga, buscadme las cosquillas! Hablad por voz o escribid directamente."""
 
 
 @app.websocket("/ws/chat")

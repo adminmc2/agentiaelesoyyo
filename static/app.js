@@ -429,7 +429,7 @@ function loadRecentSearches() {
  * Sincroniza el historial con el servidor (carga desde servidor si hay datos más recientes)
  */
 async function syncSearchHistory() {
-    const username = localStorage.getItem('bellia_user');
+    const username = localStorage.getItem('eliana_user');
     if (!username) return;
 
     try {
@@ -467,7 +467,7 @@ async function syncSearchHistory() {
  * Sube el historial local al servidor
  */
 async function pushSearchHistory() {
-    const username = localStorage.getItem('bellia_user');
+    const username = localStorage.getItem('eliana_user');
     if (!username) return;
 
     const searches = loadRecentSearches();
@@ -2319,20 +2319,20 @@ function downloadInfographicAsPNG(cardElement) {
 
 
 // ============================================
-// Wake Word Detection — "Hola Bellia" / "Hey Bellia" / "Bellia"
+// Wake Word Detection — "Hola Eliana" / "Hey Eliana" / "Eliana"
 // ============================================
 // Flexible patterns — no \b boundaries (Spanish SpeechRecognition
 // transcripts often lack proper word spacing/punctuation)
 const WAKE_WORD_PATTERNS = [
-    /hola\s*bellia/i,
-    /hey\s*bellia/i,
+    /hola\s*eliana/i,
+    /hey\s*eliana/i,
     /oye\s*bellia/i,
     /ok\s*bellia/i,
     /ola\s*bellia/i,     // common speech-to-text typo
 ];
 
-// Single-word fallback: standalone "bellia" only if it's the whole transcript
-const WAKE_WORD_SOLO = /^\s*bellia\s*$/i;
+// Single-word fallback: standalone "eliana" only if it's the whole transcript
+const WAKE_WORD_SOLO = /^\s*eliana\s*$/i;
 
 /**
  * Checks if the transcript contains a wake word.
@@ -2463,7 +2463,7 @@ function startWakeWordListening() {
         if (event.error === 'not-allowed') {
             state.wakeWordEnabled = false;
             updateWakeWordToggle(false);
-            localStorage.setItem('bellia_wake_word', 'off');
+            localStorage.setItem('eliana_wake_word', 'off');
             return;
         }
     };
@@ -2520,18 +2520,16 @@ function stopWakeWordListening() {
  * Like Siri: say "Hola Bellia" → it listens to everything you say.
  */
 function onWakeWordDetected() {
-    // No activar si el usuario no ha hecho login
-    if (localStorage.getItem('bellia_logged_in') !== 'true') {
-        console.log('[WakeWord] Ignorado — usuario no logueado');
-        return;
-    }
-
     playWakeBeep();
     // Voice interaction → auto-enable TTS responses
     enableTTS();
     state.voiceTriggered = true;
 
-    if (elements.chatScreen.classList.contains('hidden')) {
+    // Si estamos en la pantalla de login, reproducir saludo (sin cambiar de página)
+    if (!elements.loginScreen.classList.contains('hidden')) {
+        handleOrbGreeting();
+        return;
+    } else if (elements.chatScreen.classList.contains('hidden')) {
         // Navigate to chat, then start recording after transition
         showChatScreen('', false);
         setTimeout(() => {
@@ -2558,7 +2556,7 @@ function showWakeWordFeedback() {
             <div class="wake-word-toast__icon">
                 <i class="ph ph-chat-circle-dots"></i>
             </div>
-            <span class="wake-word-toast__text">Hola, soy Bellia</span>
+            <span class="wake-word-toast__text">Hola, soy Eliana</span>
             <span class="wake-word-toast__hint">Abriendo chat...</span>
         </div>`;
     document.body.appendChild(toast);
@@ -2584,10 +2582,10 @@ function toggleWakeWord() {
 
     if (state.wakeWordEnabled) {
         startWakeWordListening();
-        localStorage.setItem('bellia_wake_word', 'on');
+        localStorage.setItem('eliana_wake_word', 'on');
     } else {
         stopWakeWordListening();
-        localStorage.setItem('bellia_wake_word', 'off');
+        localStorage.setItem('eliana_wake_word', 'off');
     }
 }
 
@@ -2599,9 +2597,9 @@ function updateWakeWordToggle(enabled) {
         const btn = document.getElementById(id);
         if (!btn) return;
         btn.classList.toggle('wake-word-toggle--active', enabled);
-        btn.title = enabled ? 'Desactivar Hola, Bellia' : 'Activar Hola, Bellia';
+        btn.title = enabled ? 'Desactivar Hola, Eliana' : 'Activar Hola, Eliana';
         const label = btn.querySelector('.wake-word-label');
-        if (label) label.textContent = enabled ? 'Hola, Bellia · on' : 'Hola, Bellia · off';
+        if (label) label.textContent = enabled ? 'Hola, Eliana · on' : 'Hola, Eliana · off';
         const icon = btn.querySelector('.ph');
         if (icon) {
             icon.className = enabled ? 'ph ph-microphone' : 'ph ph-microphone-slash';
@@ -2645,10 +2643,10 @@ function toggleTTS() {
     updateVoiceButton(state.ttsEnabled);
 
     if (state.ttsEnabled) {
-        localStorage.setItem('bellia_tts', 'on');
+        localStorage.setItem('eliana_tts', 'on');
     } else {
         stopTTS();
-        localStorage.setItem('bellia_tts', 'off');
+        localStorage.setItem('eliana_tts', 'off');
     }
 }
 
@@ -2660,7 +2658,7 @@ function enableTTS() {
     if (!state.ttsEnabled) {
         state.ttsEnabled = true;
         updateVoiceButton(true);
-        localStorage.setItem('bellia_tts', 'on');
+        localStorage.setItem('eliana_tts', 'on');
     }
 }
 
@@ -2683,7 +2681,7 @@ function updateVoiceButton(enabled) {
  * Envía texto al endpoint /api/tts y reproduce el audio streaming.
  * Si ya hay un audio reproduciéndose, lo detiene primero.
  */
-async function playTTS(text) {
+async function playTTS(text, skipSummary = false) {
     // Detener audio previo si existe
     stopTTS();
     state.ttsCancelled = false;  // Reset flag para esta nueva reproducción
@@ -2697,7 +2695,7 @@ async function playTTS(text) {
         const response = await fetch('/api/tts', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text })
+            body: JSON.stringify({ text, skip_summary: skipSummary })
         });
 
         // Si el usuario navegó atrás mientras el fetch estaba en progreso, no reproducir
@@ -2944,8 +2942,8 @@ function handleLogout() {
     stopTTS();
 
     // Limpiar estado de sesión
-    localStorage.removeItem('bellia_logged_in');
-    localStorage.removeItem('bellia_user');
+    localStorage.removeItem('eliana_logged_in');
+    localStorage.removeItem('eliana_user');
 
     // Limpiar campos de login
     if (elements.loginUser) elements.loginUser.value = '';
@@ -2970,8 +2968,8 @@ function hideLoginScreen() {
 function handleLogin(username, password) {
     // Demo: validación simple (en producción sería un API call)
     if (username === VALID_CREDENTIALS.usuario && password === VALID_CREDENTIALS.password) {
-        localStorage.setItem('bellia_logged_in', 'true');
-        localStorage.setItem('bellia_user', username);
+        localStorage.setItem('eliana_logged_in', 'true');
+        localStorage.setItem('eliana_user', username);
         hideLoginScreen();
         // Sincronizar historial después de login
         syncSearchHistory();
@@ -3006,7 +3004,7 @@ async function handleFaceID() {
             });
 
             if (credential) {
-                localStorage.setItem('bellia_logged_in', 'true');
+                localStorage.setItem('eliana_logged_in', 'true');
                 hideLoginScreen();
             }
         } else {
@@ -3036,7 +3034,7 @@ async function handleFaceID() {
                 // Guardar credential ID para futuras autenticaciones
                 const credId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
                 localStorage.setItem('bellia_faceid_credential', credId);
-                localStorage.setItem('bellia_logged_in', 'true');
+                localStorage.setItem('eliana_logged_in', 'true');
                 hideLoginScreen();
             }
         }
@@ -3053,10 +3051,10 @@ async function handleFaceID() {
 function checkAuthOnLoad() {
     // DEMO MODE: Siempre mostrar login para la demo
     // Comentar estas 2 líneas para producción
-    localStorage.removeItem('bellia_logged_in');
-    localStorage.removeItem('bellia_user');
+    localStorage.removeItem('eliana_logged_in');
+    localStorage.removeItem('eliana_user');
 
-    const isLoggedIn = localStorage.getItem('bellia_logged_in') === 'true';
+    const isLoggedIn = localStorage.getItem('eliana_logged_in') === 'true';
     if (isLoggedIn) {
         elements.loginScreen?.classList.add('hidden');
         elements.welcomeScreen?.classList.remove('hidden');
@@ -3066,31 +3064,53 @@ function checkAuthOnLoad() {
     }
 }
 
-// Demo: Orb click en login — saludo TTS, Gabriel ingresa credenciales después
-async function handleDemoOrbClick() {
-    if (demoOrbClicked) return; // Prevent multiple clicks
-    demoOrbClicked = true;
+// Orb click — reproduce el saludo de voz (sin cambiar de página)
+let orbGreetingPlaying = false;
+async function handleOrbGreeting() {
+    // Si ya está reproduciéndose, no hacer nada
+    if (orbGreetingPlaying) return;
+    orbGreetingPlaying = true;
 
-    // Unlock audio on user gesture (required for iOS)
     warmupIOSAudio();
+    enableTTS();
 
-    // Immediate visual feedback — activate 3D orb animation instantly
     if (window.orbSetListening) window.orbSetListening(true);
 
-    const greetingText = '¿Aló, policía de belleza? Gabush, ¿qué tal? Soy Bellia y estoy aquí para analizar con lupa todo lo que quieras, sin drama y sin choro, y ayudarte a contagiar a todos con chismecitos técnicos. Pregúntame lo que necesites, sin pena, estoy para ti.';
+    const greetingText = '¡Chiquillo, bienvenidos a Destino ELE Kaunas 2026! Soy Eliana, y hoy estoy aquí con Román para enseñaros cómo los agentes de inteligencia artificial pueden personalizar la enseñanza sin que perdáis el control pedagógico. Así que venga, ¡preguntadme lo que queráis, buscadme las cosquillas, que aquí estamos pa eso!';
 
-    try {
-        // Play TTS greeting and wait for it to finish
-        await playTTSAndWait(greetingText);
-    } catch (e) {
-        console.error('[Demo] TTS error:', e);
-    }
+    // Enviar texto directamente al TTS (skip_summary = true, sin pasar por el LLM)
+    playTTS(greetingText, true);
 
-    // Stop orb animation
-    if (window.orbSetListening) window.orbSetListening(false);
+    // Permitir volver a reproducir cuando termine el audio
+    const checkDone = setInterval(() => {
+        if (!state.ttsPlaying) {
+            orbGreetingPlaying = false;
+            if (window.orbSetListening) window.orbSetListening(false);
+            clearInterval(checkDone);
+        }
+    }, 500);
+}
 
-    // Focus en el campo de usuario para que Gabriel ingrese sus credenciales
-    elements.loginUser?.focus();
+// Botón Entrar — transición al chat
+function handleEnterBtn() {
+    localStorage.setItem('eliana_logged_in', 'true');
+    localStorage.setItem('eliana_user', 'Presentador');
+    warmupIOSAudio();
+    enableTTS();
+
+    // Transición directa al chat (saltando welcome)
+    elements.loginScreen?.classList.add('fade-out');
+    setTimeout(() => {
+        elements.loginScreen?.classList.add('hidden');
+        elements.loginScreen?.classList.remove('fade-out');
+        elements.welcomeScreen?.classList.add('hidden');
+        elements.chatScreen?.classList.remove('hidden');
+        if (window.orbCreateChatHeader) window.orbCreateChatHeader();
+
+        state.wakeWordEnabled = true;
+        updateWakeWordToggle(true);
+        startWakeWordListening();
+    }, 300);
 }
 
 // ============================================
@@ -3100,30 +3120,12 @@ function init() {
     // Check authentication on load
     checkAuthOnLoad();
 
-    // Login button
-    elements.loginBtn?.addEventListener('click', () => {
-        const username = elements.loginUser?.value?.trim();
-        const password = elements.loginPassword?.value;
+    // Botón Entrar — transición al chat
+    elements.loginBtn?.addEventListener('click', handleEnterBtn);
 
-        if (!handleLogin(username, password)) {
-            alert('Usuario o contraseña incorrectos');
-            elements.loginPassword.value = '';
-            elements.loginPassword.focus();
-        }
-    });
-
-    // Enter key on password field
-    elements.loginPassword?.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            elements.loginBtn?.click();
-        }
-    });
-
-    // Face ID button
-    elements.faceidBtn?.addEventListener('click', handleFaceID);
-
-    // Login orb — demo presentation with TTS greeting
-    elements.loginOrbContainer?.addEventListener('click', handleDemoOrbClick);
+    // Login orb — solo saludo de voz (wrapper + container para máxima sensibilidad)
+    elements.loginOrbContainer?.addEventListener('click', handleOrbGreeting);
+    document.querySelector('.login-orb-wrapper')?.addEventListener('click', handleOrbGreeting);
 
     // Logout buttons (all screens)
     elements.logoutBtn?.addEventListener('click', handleLogout);
@@ -3335,7 +3337,7 @@ function init() {
     renderRecentSearches();
 
     // Sincronizar historial con servidor si el usuario está logueado
-    if (localStorage.getItem('bellia_logged_in') === 'true') {
+    if (localStorage.getItem('eliana_logged_in') === 'true') {
         syncSearchHistory();
     }
 
@@ -3343,19 +3345,16 @@ function init() {
     document.getElementById('wake-word-btn')?.addEventListener('click', toggleWakeWord);
     document.getElementById('chat-wake-word-btn')?.addEventListener('click', toggleWakeWord);
 
-    // Restore wake word preference from localStorage
-    const savedWakeWord = localStorage.getItem('bellia_wake_word');
-    if (savedWakeWord === 'on') {
-        state.wakeWordEnabled = true;
-        updateWakeWordToggle(true);
-        startWakeWordListening();
-    }
+    // Wake word siempre activo para Eliana (presentación)
+    state.wakeWordEnabled = true;
+    updateWakeWordToggle(true);
+    startWakeWordListening();
 
     // TTS voice button in chat bottom bar
     document.getElementById('chat-voice-btn')?.addEventListener('click', toggleTTS);
 
     // Restore TTS preference from localStorage (default: off)
-    const savedTTS = localStorage.getItem('bellia_tts');
+    const savedTTS = localStorage.getItem('eliana_tts');
     if (savedTTS === 'on') {
         state.ttsEnabled = true;
         updateVoiceButton(true);
