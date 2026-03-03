@@ -1089,35 +1089,41 @@ body[data-mood-active] .bento-card--mood {
 .login-footer__line2 {
     margin: 0;
     font-family: 'Dosis', sans-serif;
-    font-size: 13px;
+    font-size: 17px;
     font-weight: 500;
     color: #9a928a;
-    line-height: 2;
+    line-height: 1.4;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 8px;
+}
+
+.login-footer__line1 {
+    margin-bottom: var(--space-12);
 }
 
 .login-footer__line1 strong {
     font-weight: 700;
-    color: #6b635b;
+    font-size: 19px;
+    color: var(--md-sys-color-on-surface);
+    letter-spacing: 0.3px;
 }
 
 .login-footer__ico-prisma {
     display: inline-block;
-    height: 18px;
-    width: 18px;
-    padding: 2px 3px;
+    height: 22px;
+    width: 22px;
+    padding: 3px 4px;
     background: #1A2535;
-    border-radius: 3px;
+    border-radius: 4px;
     object-fit: contain;
     vertical-align: middle;
 }
 
 .login-footer__ico-hablandis {
     display: inline-block;
-    height: 28px;
+    height: 34px;
     width: auto;
     object-fit: contain;
     vertical-align: middle;
