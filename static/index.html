@@ -507,8 +507,20 @@
     <!-- Orb 3D Canvas -->
     <script src="/static/orb.js?v=6.0.0"></script>
     <!-- Creatures animation -->
-    <script>gsap.registerPlugin(Draggable, InertiaPlugin, Physics2DPlugin);</script>
-    <script src="/static/creatures.js?v=1.1.0"></script>
+    <script>
+        // Register GSAP plugins safely — CodePen CDN plugins may fail to load
+        try {
+            const plugins = [Draggable];
+            if (typeof InertiaPlugin !== 'undefined') plugins.push(InertiaPlugin);
+            if (typeof Physics2DPlugin !== 'undefined') plugins.push(Physics2DPlugin);
+            gsap.registerPlugin(...plugins);
+            window._gsapPhysics2D = typeof Physics2DPlugin !== 'undefined';
+        } catch (e) {
+            console.warn('[GSAP] Plugin registration error:', e.message);
+            window._gsapPhysics2D = false;
+        }
+    </script>
+    <script src="/static/creatures.js?v=1.2.0"></script>
     <script>
         // Initialize creatures when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {

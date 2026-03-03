@@ -60,10 +60,25 @@ const spawnParticle = ($stage, {
     }
   });
 
-  tl.to($el, {
-    duration,
-    physics2D: { velocity, angle: particleAngle, gravity },
-  }, 0);
+  if (window._gsapPhysics2D) {
+    // Use Physics2D plugin if available
+    tl.to($el, {
+      duration,
+      physics2D: { velocity, angle: particleAngle, gravity },
+    }, 0);
+  } else {
+    // Fallback: simple x/y tween simulating physics
+    const rad = (particleAngle || 0) * Math.PI / 180;
+    const vx = (velocity || 100) * Math.cos(rad);
+    const vy = (velocity || 100) * Math.sin(rad);
+    const grav = gravity || 0;
+    tl.to($el, {
+      duration,
+      x: '+=' + (vx * duration),
+      y: '+=' + (vy * duration + 0.5 * grav * duration * duration),
+      ease: 'power1.out',
+    }, 0);
+  }
   tl.to($el, {
     duration,
     opacity: 0,

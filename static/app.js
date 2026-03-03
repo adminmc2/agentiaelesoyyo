@@ -1,5 +1,5 @@
 /**
- * Bellia - App Principal BELLIA
+ * Eliana - App Principal ELIANA
  * Chat con voz y transiciones
  */
 
@@ -30,6 +30,16 @@ const MOOD_CONFIG = {
         ]
     }
 };
+
+// Track si el usuario ya interactuó (click/touch) — necesario para reproducir audio
+let _userHasInteracted = false;
+const _markInteracted = () => {
+    _userHasInteracted = true;
+    document.removeEventListener('click', _markInteracted, true);
+    document.removeEventListener('touchstart', _markInteracted, true);
+};
+document.addEventListener('click', _markInteracted, true);
+document.addEventListener('touchstart', _markInteracted, true);
 
 // Estado global
 const state = {
@@ -350,12 +360,12 @@ function saveMoodToStorage() {
         date: getLocalDateStr(),
         timestamp: state.mood.timestamp
     };
-    localStorage.setItem('bellia_mood', JSON.stringify(data));
+    localStorage.setItem('eliana_mood', JSON.stringify(data));
 }
 
 function loadMoodFromStorage() {
     try {
-        const raw = localStorage.getItem('bellia_mood');
+        const raw = localStorage.getItem('eliana_mood');
         if (!raw) return;
 
         const data = JSON.parse(raw);
@@ -365,7 +375,7 @@ function loadMoodFromStorage() {
         if (data.date !== today) {
             const utcToday = new Date().toISOString().slice(0, 10);
             if (data.date !== utcToday) {
-                localStorage.removeItem('bellia_mood');
+                localStorage.removeItem('eliana_mood');
                 return;
             }
         }
@@ -386,7 +396,7 @@ function loadMoodFromStorage() {
 // ============================================
 // Búsquedas Recientes
 // ============================================
-const RECENT_SEARCHES_KEY = 'bellia_recent_searches';
+const RECENT_SEARCHES_KEY = 'eliana_recent_searches';
 const MAX_RECENT_SEARCHES = 10;
 
 // Iconos según tipo de búsqueda
@@ -400,7 +410,7 @@ const SEARCH_ICONS = {
 
 function classifySearchIcon(query) {
     const q = query.toLowerCase();
-    if (/producto|bellia|biopro|fbio|dvs|hialuronic|relleno/i.test(q)) return 'product';
+    if (/producto|eliana|biopro|fbio|dvs|hialuronic|relleno/i.test(q)) return 'product';
     if (/objeción|objecion|caro|no funciona|otra marca|profhilo/i.test(q)) return 'objection';
     if (/argumento|venta|presentar|dermatólogo|cirujano|perfil|ventaja/i.test(q)) return 'argument';
     return 'default';
@@ -409,7 +419,7 @@ function classifySearchIcon(query) {
 function getSearchDescription(query) {
     const type = classifySearchIcon(query);
     switch (type) {
-        case 'product':   return 'Consulta sobre productos BELLIA';
+        case 'product':   return 'Consulta sobre recursos ELE';
         case 'objection': return 'Manejo de objeciones médicas';
         case 'argument':  return 'Estrategia de argumentación comercial';
         default:          return 'Conversación con el asistente';
@@ -933,7 +943,7 @@ const ICON_MAP_HEADERS = {
     // Product-related
     'producto':     'package',
     'productos':    'package',
-    'bellia':    'drop',
+    'eliana':    'chalkboard-teacher',
     'biopro':       'drop',
     'bio pro':      'drop',
     'fbio':         'syringe',
@@ -1312,7 +1322,7 @@ function insertRagCoverageWarning(coverage, maxScore) {
             </div>
             <div class="rag-coverage-warning__content">
                 <strong>Fuentes externas</strong>
-                <span>Esta consulta no está cubierta en la base de conocimiento de BELLIA. La respuesta usa información externa general.</span>
+                <span>Esta consulta no está cubierta en la base de conocimiento de Eliana. La respuesta usa información externa general.</span>
             </div>
         `;
     } else {
@@ -1821,7 +1831,7 @@ async function transcribeAudio(audioBlob, extension = 'webm') {
             } else {
                 // Show capabilities message when transcription fails (only for normal queries)
                 if (!elements.chatScreen.classList.contains('hidden')) {
-                    addMessage('No pude entender lo que dijiste. Puedes preguntarme sobre:\n\n- **Productos**: "¿Qué es BioPRO?"\n- **Objeciones**: "Un médico dice que es caro"\n- **Argumentos**: "¿Cómo presento BELLIA a un dermatólogo?"', 'assistant');
+                    addMessage('No pude entender lo que dijiste. Puedes preguntarme sobre enseñanza de español como lengua extranjera, actividades didácticas, o estrategias de personalización con IA.', 'assistant');
                 }
             }
         }
@@ -1889,62 +1899,40 @@ function warmupIOSAudio() {
 // ============================================
 /**
  * Determina si un mensaje contiene una consulta real sobre
- * productos, objeciones o argumentos de BELLIA.
- * Solo muestra el selector de formato cuando hay contenido estética relevante.
+ * enseñanza de ELE, didáctica, o agentes IA en educación.
+ * Solo muestra el selector de formato cuando hay contenido relevante.
  * Cualquier otra cosa (saludos, frases vagas, charla) se envía directo.
  */
 function isActionableQuery(text) {
     const t = text.toLowerCase().trim()
         .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-    // Palabras clave que indican consulta real sobre el dominio estética/ventas
-    const pharmaKeywords = [
-        // Productos y sustancias BELLIA
-        /bellia/i, /biopro/i, /bio\s*pro/i, /fbio/i, /f\s*bio/i,
-        /dvs/i, /3dvs/i, /biomodulador/i, /relleno/i, /filler/i,
-        /hialuronico/i, /acido hialuronico/i, /reticulante/i,
-        /divinilsulfona/i, /microesfera/i, /bdde/i,
-        // Médico / clínico
-        /medico/i, /doctor/i, /paciente/i, /dosis/i,
-        /indicaci/i, /tratamiento/i, /clinico/i, /sesion/i,
-        /dermato/i, /cirujano/i, /plastico/i, /estetico/i, /estetica/i,
-        // Técnicas y protocolos
-        /v.?lift/i, /d.?lift/i, /lifting/i, /canula/i, /aguja/i,
-        /protocolo/i, /tecnica/i, /inyecci/i, /bolus/i, /fanning/i,
-        /retrotrazante/i, /subdermic/i, /supraperiostic/i,
-        // Zonas anatómicas
-        /facial/i, /ovalo/i, /pomulo/i, /mandibul/i, /menton/i,
-        /nasogeniano/i, /surco/i, /labio/i, /ojera/i, /lagrimal/i,
-        /temporal/i, /periorbital/i, /peribucal/i, /cuello/i,
-        // Condiciones estéticas
-        /flacidez/i, /arruga/i, /volumen/i, /rejuvenecimiento/i,
-        /envejecimiento/i, /firmeza/i, /colageno/i, /elastina/i,
-        /edema/i, /hinchaz/i, /hematoma/i,
-        // Objeciones
-        /caro/i, /costoso/i, /precio/i, /barato/i, /coste/i,
-        /no funciona/i, /no sirve/i, /no conoce/i,
-        /efecto.? secundario/i, /contraindicac/i,
-        /otra marca/i, /competencia/i, /objecion/i,
-        /profhilo/i, /juvederm/i,
-        // Ventas y argumentos
-        /argumento/i, /vender/i, /venta/i, /presentar/i, /visita/i,
-        /represent/i, /estrategi/i, /perfil/i, /diferenci/i,
-        /ventaja/i, /evidencia/i, /estudio/i, /pitch/i,
-        // Marca y certificaciones
-        /bellia/i, /fijie/i, /marcado ce/i, /certificac/i,
-        // Producto genérico
-        /producto/i, /composici/i, /concentraci/i, /cohesividad/i,
-        /calidad/i, /pureza/i, /purificacion/i,
-        // Seguridad
-        /embaraz/i, /anticoagulant/i, /herpes/i, /alergia/i,
-        /hialuronidasa/i, /complicaci/i, /vascular/i, /necrosis/i,
-        // Acciones del dominio
-        /recomiend/i, /recomendar/i, /comparar/i, /comparativ/i,
-        /que es\b/i, /para que sirve/i, /como funciona/i, /como respondo/i,
-        /como presento/i, /como vendo/i, /como aplico/i,
+    const eleKeywords = [
+        // ELE y didáctica
+        /ele\b/i, /espanol como lengua/i, /lengua extranjera/i,
+        /didactica/i, /ensenanza/i, /aprendizaje/i, /pedagogia/i,
+        /metodologia/i, /enfoque/i, /comunicativo/i,
+        // Niveles MCER
+        /mcer/i, /marco comun/i, /a1/i, /a2/i, /b1/i, /b2/i, /c1/i, /c2/i,
+        /nivel/i, /competencia/i, /destreza/i,
+        // Actividades y materiales
+        /actividad/i, /ejercicio/i, /material/i, /recurso/i, /secuencia/i,
+        /unidad didactica/i, /tarea/i, /dinamica/i, /juego/i,
+        // Agentes e IA
+        /agente/i, /inteligencia artificial/i, /personaliz/i, /ia\b/i,
+        /chatbot/i, /automatiz/i, /adapta/i, /feedback/i,
+        /retroalimentacion/i, /correccion/i,
+        // Evaluación
+        /evalua/i, /rubrica/i, /califica/i, /examen/i, /prueba/i,
+        // Habilidades lingüísticas
+        /gramatica/i, /vocabulario/i, /pronunciacion/i, /escritura/i,
+        /lectura/i, /comprension/i, /expresion oral/i, /interaccion/i,
+        // Acciones
+        /como enseno/i, /como puedo/i, /que actividad/i, /como evaluo/i,
+        /como corrijo/i, /como motivo/i, /como adapto/i,
     ];
 
-    return pharmaKeywords.some(kw => kw.test(t));
+    return eleKeywords.some(kw => kw.test(t));
 }
 
 function releaseCachedMicStream() {
@@ -1995,7 +1983,7 @@ async function askResponseModeByVoice(message) {
     indicator.className = 'voice-mode-asking';
     indicator.innerHTML = `
         <i class="ph ph-speaker-high"></i>
-        <span>Bellia pregunta: ¿Resumida o extendida?</span>
+        <span>Eliana pregunta: ¿Resumida o extendida?</span>
     `;
     elements.chatMessages.appendChild(indicator);
     elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
@@ -2249,7 +2237,7 @@ function renderInfographic(data, afterElement) {
         <div class="infographic-card__header">
             <div class="infographic-card__brand">
                 <i class="ph-bold ph-pulse"></i>
-                <span>Bellia</span>
+                <span>Eliana</span>
             </div>
             <h3 class="infographic-card__title">${data.titulo || 'Resumen'}</h3>
             ${data.subtitulo ? `<p class="infographic-card__subtitle">${data.subtitulo}</p>` : ''}
@@ -2261,7 +2249,7 @@ function renderInfographic(data, afterElement) {
             ${quoteHTML}
         </div>
         <div class="infographic-card__footer">
-            <span>Bellia &middot; Infograf&iacute;a generada por IA</span>
+            <span>Eliana &middot; Infograf&iacute;a generada por IA</span>
         </div>
         <div class="infographic-actions">
             <button class="infographic-actions__download" title="Descargar PNG">
@@ -2305,7 +2293,7 @@ function downloadInfographicAsPNG(cardElement) {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'infografia-bellia.png';
+            a.download = 'infografia-eliana.png';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -2326,13 +2314,25 @@ function downloadInfographicAsPNG(cardElement) {
 const WAKE_WORD_PATTERNS = [
     /hola\s*eliana/i,
     /hey\s*eliana/i,
-    /oye\s*bellia/i,
-    /ok\s*bellia/i,
-    /ola\s*bellia/i,     // common speech-to-text typo
+    /oye\s*eliana/i,
+    /ok\s*eliana/i,
+    /ola\s*eliana/i,      // STT typo sin h
+    /hola\s*iliana/i,     // STT variante
+    /hola\s*eliane/i,     // STT variante
+    /hola\s*elena/i,      // STT confusión común
+    /hey\s*iliana/i,
+    /oye\s*iliana/i,
+    /hola\s*liana/i,      // STT omite la E inicial
+    /hola\s*liliana/i,    // STT confusión con Liliana
+    /hey\s*liana/i,
+    /oye\s*liana/i,
+    /hola\s*lia/i,        // STT parcial
+    /hey\s*liliana/i,
+    /oye\s*liliana/i,
 ];
 
-// Single-word fallback: standalone "eliana" only if it's the whole transcript
-const WAKE_WORD_SOLO = /^\s*eliana\s*$/i;
+// Single-word fallback: standalone "eliana" (or variants) only if it's the whole transcript
+const WAKE_WORD_SOLO = /^\s*(eliana|iliana|eliane|elena|liana|liliana)\s*$/i;
 
 /**
  * Checks if the transcript contains a wake word.
@@ -2342,7 +2342,7 @@ function containsWakeWord(transcript) {
     if (!t) return false;
     // Multi-word patterns first (more specific)
     if (WAKE_WORD_PATTERNS.some(p => p.test(t))) return true;
-    // Solo "bellia" only if the entire transcript is just the word
+    // Solo "eliana" only if the entire transcript is just the word
     if (WAKE_WORD_SOLO.test(t)) return true;
     return false;
 }
@@ -2359,8 +2359,8 @@ function stripWakeWord(text) {
         t = t.replace(new RegExp(pattern.source + '[,\\s.!?]*', 'gi'), '').trim();
     }
 
-    // 2) Strip standalone "bellia" variations
-    t = t.replace(/\bbellia\b[,\s.!?]*/gi, '').trim();
+    // 2) Strip standalone "eliana" variations
+    t = t.replace(/\b(eliana|iliana|eliane|elena)\b[,\s.!?]*/gi, '').trim();
 
     // 3) If what remains is just a greeting word or nothing, return empty
     const leftover = t.toLowerCase()
@@ -2421,6 +2421,10 @@ function startWakeWordListening() {
     };
 
     recognition.onresult = (event) => {
+        // Ignorar mientras el TTS está sonando (evita que el micro capte la voz de Eliana)
+        if (state.ttsPlaying || orbGreetingPlaying) {
+            return;
+        }
         // Check all results and all alternatives
         for (let i = event.resultIndex; i < event.results.length; i++) {
             for (let a = 0; a < event.results[i].length; a++) {
@@ -2517,19 +2521,34 @@ function stopWakeWordListening() {
 /**
  * Called when the wake word is detected.
  * Plays beep, shows visual feedback, navigates to chat and starts recording.
- * Like Siri: say "Hola Bellia" → it listens to everything you say.
+ * Like Siri: say "Hola Eliana" → it listens to everything you say.
  */
 function onWakeWordDetected() {
+    // Si el navegador no permite audio aún (sin interacción), solo feedback visual
+    if (!_userHasInteracted) {
+        console.log('[WakeWord] Detectado pero sin interacción — solo feedback visual');
+        if (window.orbSetListening) window.orbSetListening(true);
+        setTimeout(() => {
+            if (window.orbSetListening) window.orbSetListening(false);
+        }, 3000);
+        return;
+    }
+
+    // Si estamos en la pantalla de login, SOLO reproducir saludo — sin LLM, sin grabación
+    if (!elements.loginScreen.classList.contains('hidden')) {
+        playWakeBeep();
+        handleOrbGreeting();
+        // Parar wake word — en login no se necesita más
+        stopWakeWordListening();
+        return;
+    }
+
     playWakeBeep();
     // Voice interaction → auto-enable TTS responses
     enableTTS();
     state.voiceTriggered = true;
 
-    // Si estamos en la pantalla de login, reproducir saludo (sin cambiar de página)
-    if (!elements.loginScreen.classList.contains('hidden')) {
-        handleOrbGreeting();
-        return;
-    } else if (elements.chatScreen.classList.contains('hidden')) {
+    if (elements.chatScreen.classList.contains('hidden')) {
         // Navigate to chat, then start recording after transition
         showChatScreen('', false);
         setTimeout(() => {
@@ -2670,10 +2689,10 @@ function updateVoiceButton(enabled) {
     if (!btn) return;
     if (enabled) {
         btn.classList.add('voice-orb--active');
-        btn.title = 'Voz de Bellia activada';
+        btn.title = 'Voz de Eliana activada';
     } else {
         btn.classList.remove('voice-orb--active');
-        btn.title = 'Voz de Bellia desactivada';
+        btn.title = 'Voz de Eliana desactivada';
     }
 }
 
@@ -2987,7 +3006,7 @@ async function handleFaceID() {
 
     try {
         // Verificar si ya hay credencial guardada
-        const credentialId = localStorage.getItem('bellia_faceid_credential');
+        const credentialId = localStorage.getItem('eliana_faceid_credential');
 
         if (credentialId) {
             // Autenticar con credencial existente
@@ -3015,11 +3034,11 @@ async function handleFaceID() {
             const credential = await navigator.credentials.create({
                 publicKey: {
                     challenge: new Uint8Array(32),
-                    rp: { name: 'Bellia', id: window.location.hostname },
+                    rp: { name: 'Eliana', id: window.location.hostname },
                     user: {
                         id: new Uint8Array(16),
-                        name: 'usuario@bellia.app',
-                        displayName: 'Usuario Bellia'
+                        name: 'usuario@eliana.app',
+                        displayName: 'Usuario Eliana'
                     },
                     pubKeyCredParams: [{ alg: -7, type: 'public-key' }],
                     timeout: 60000,
@@ -3033,7 +3052,7 @@ async function handleFaceID() {
             if (credential) {
                 // Guardar credential ID para futuras autenticaciones
                 const credId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
-                localStorage.setItem('bellia_faceid_credential', credId);
+                localStorage.setItem('eliana_faceid_credential', credId);
                 localStorage.setItem('eliana_logged_in', 'true');
                 hideLoginScreen();
             }
@@ -3082,6 +3101,7 @@ async function handleOrbGreeting() {
     playTTS(greetingText, true);
 
     // Permitir volver a reproducir cuando termine el audio
+    // NO reiniciar wake word en login — evita que grabe conversación ambiental
     const checkDone = setInterval(() => {
         if (!state.ttsPlaying) {
             orbGreetingPlaying = false;
@@ -3313,18 +3333,18 @@ function init() {
     // Si no hay búsquedas, o si las existentes no tienen 'answer' (versión vieja), reemplazar
     const SEED_DATA = [
         {
-            query: '¿Cuál es la diferencia entre BioPRO y FBio DVS?',
-            icon: 'product',
-            desc: 'Consulta sobre productos BELLIA',
+            query: '¿Cómo puede un agente de IA personalizar la enseñanza de ELE?',
+            icon: 'default',
+            desc: 'Consulta sobre agentes IA en ELE',
             timestamp: Date.now() - 3600000,
-            answer: 'BioPRO es un biomodulador de matriz celular (2ml) con triple acción celular (extracelular, intracelular y subcelular), indicado para lifting y rejuvenecimiento global con protocolos V-Lift y D-Lift. FBio DVS son rellenos dérmicos (1ml) en tres versiones: Light (zonas delicadas como ojeras), Medium (surcos nasogenianos, pómulos) y Volume (mentón, mandíbula). Todos usan la misma tecnología DVS con 20mg/ml de ácido hialurónico.'
+            answer: 'Un agente de IA puede personalizar la enseñanza de ELE adaptando contenidos al nivel MCER del estudiante (A1-C2), generando actividades específicas para sus necesidades, ofreciendo retroalimentación inmediata en producción escrita y oral, y ajustando el ritmo de aprendizaje. El profesor mantiene el control pedagógico definiendo los objetivos y validando las propuestas del agente.'
         },
         {
-            query: '¿Cómo manejar la objeción de que el precio es alto?',
-            icon: 'objection',
-            desc: 'Manejo de objeciones médicas',
+            query: '¿Qué actividades puedo crear con IA para una clase de B1?',
+            icon: 'default',
+            desc: 'Generación de materiales didácticos',
             timestamp: Date.now() - 7200000,
-            answer: 'Cuando un médico menciona el precio, es clave reencuadrar el valor:\n\n1) El efecto dura 12+ meses vs 6 meses de otros productos — menos sesiones de mantenimiento.\n2) Menor edema post-tratamiento gracias al DVS — menos quejas y menos retoques gratuitos.\n3) Triple acción celular única en el mercado — diferenciación como clínica premium.\n4) Propuesta de cierre: "¿Qué le parece si empezamos con un pack de prueba para que vea los resultados en sus propios pacientes?"'
+            answer: 'Para un nivel B1 puedes usar IA para crear:\n\n1) Diálogos situacionales adaptados (en una tienda, en el médico, pidiendo direcciones).\n2) Ejercicios de comprensión lectora con textos generados sobre temas de interés del grupo.\n3) Actividades de corrección de errores donde el estudiante identifica y corrige producciones.\n4) Juegos de rol con retroalimentación automática sobre gramática y vocabulario.'
         },
     ];
     const existing = loadRecentSearches();
@@ -3345,10 +3365,27 @@ function init() {
     document.getElementById('wake-word-btn')?.addEventListener('click', toggleWakeWord);
     document.getElementById('chat-wake-word-btn')?.addEventListener('click', toggleWakeWord);
 
-    // Wake word siempre activo para Eliana (presentación)
+    // Wake word: intentar activar inmediatamente al cargar la app
+    // Si el navegador bloquea el micrófono (requiere gesto), reintentamos tras primer click
     state.wakeWordEnabled = true;
     updateWakeWordToggle(true);
-    startWakeWordListening();
+    // Intentar iniciar directamente
+    try {
+        startWakeWordListening();
+        console.log('[WakeWord] Intentando inicio automático...');
+    } catch (e) {
+        console.log('[WakeWord] Inicio automático bloqueado, esperando primer click');
+    }
+    // Fallback: si no arrancó, iniciar tras primer gesto del usuario
+    const startWakeOnFirstClick = () => {
+        if (!state.wakeWordActive && state.wakeWordEnabled) {
+            startWakeWordListening();
+        }
+        document.removeEventListener('click', startWakeOnFirstClick);
+        document.removeEventListener('touchstart', startWakeOnFirstClick);
+    };
+    document.addEventListener('click', startWakeOnFirstClick);
+    document.addEventListener('touchstart', startWakeOnFirstClick);
 
     // TTS voice button in chat bottom bar
     document.getElementById('chat-voice-btn')?.addEventListener('click', toggleTTS);
@@ -3372,7 +3409,7 @@ function init() {
         releaseCachedMicStream();
     });
 
-    console.log('Bellia inicializada');
+    console.log('Eliana inicializada');
 }
 
 // Iniciar
