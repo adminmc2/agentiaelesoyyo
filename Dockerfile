@@ -1,42 +1,31 @@
-# Novia - Novacutan Assistant
-# Dockerfile para Hugging Face Spaces
+# Eliana - Asistente IA para ELE
+# Dockerfile para Railway
 
 FROM python:3.11-slim
 
-# Configurar variables de entorno
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Crear directorio de trabajo
 WORKDIR /app
 
-# Instalar dependencias del sistema (para numpy y otras libs)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Copiar requirements primero (para cache de Docker)
 COPY requirements.txt .
-
-# Instalar dependencias Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar código fuente
+# Copiar todo el proyecto
 COPY main.py .
 COPY agents/ ./agents/
 COPY knowledge_base.json .
-
-# Copiar archivos estáticos
 COPY static/ ./static/
+COPY user_data.json .
 
-# Crear usuario no-root (requerido por HF Spaces)
-RUN useradd -m -u 1000 user
-USER user
+# Railway asigna $PORT dinámicamente
+EXPOSE ${PORT:-8080}
 
-# Puerto por defecto de HF Spaces
-EXPOSE 7862
-
-# Comando de inicio
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7862"]
+# Usar shell form para que $PORT se resuelva en runtime
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}
