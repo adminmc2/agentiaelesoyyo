@@ -17,15 +17,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar todo el proyecto
+# Copiar código y archivos estáticos
 COPY main.py .
-COPY agents/ ./agents/
-COPY knowledge_base.json .
 COPY static/ ./static/
 COPY user_data.json .
 
 # Railway asigna $PORT dinámicamente
 EXPOSE ${PORT:-8080}
 
-# Usar shell form para que $PORT se resuelva en runtime
 CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}
