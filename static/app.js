@@ -75,7 +75,11 @@ const state = {
         category: 'happy',
         submitted: false,
         timestamp: null
-    }
+    },
+    // Activity / Conoce mode
+    activityMode: null,        // 'yo_nunca_nunca' | 'dime_algo' | 'pregunta_ia' | null
+    activityMessageCount: 0,
+    profileGenerated: false
 };
 
 // Elementos
@@ -107,6 +111,12 @@ const elements = {
     chatMicBtn: document.getElementById('chat-mic-btn'),
     chatSendBtn: document.getElementById('chat-send-btn'),
     chatStatus: document.getElementById('chat-status'),
+
+    // Conoce screen
+    conoceScreen: document.getElementById('conoce-screen'),
+
+    // Profile screen
+    profileScreen: document.getElementById('profile-screen'),
 
     // Plan screen
     planScreen: document.getElementById('plan-screen'),
@@ -885,6 +895,8 @@ function showWelcomeScreen() {
 
     elements.chatScreen.classList.add('hidden');
     elements.planScreen?.classList.add('hidden');
+    elements.conoceScreen?.classList.add('hidden');
+    elements.profileScreen?.classList.add('hidden');
     elements.welcomeScreen.classList.remove('hidden');
 
     // Limpiar chat
@@ -898,6 +910,11 @@ function showWelcomeScreen() {
 
     // Limpiar contexto previo
     state.priorContext = null;
+
+    // Reset activity state
+    state.activityMode = null;
+    state.activityMessageCount = 0;
+    state.profileGenerated = false;
 
     // Actualizar búsquedas recientes
     renderRecentSearches();
@@ -1382,6 +1399,10 @@ function sendToWebSocket(message, responseMode = 'full') {
     // Función para enviar el mensaje
     const sendMessage = () => {
         const payload = { message, response_mode: responseMode };
+        // Añadir activity_mode si estamos en modo actividad
+        if (state.activityMode) {
+            payload.activity_mode = state.activityMode;
+        }
         if (state.mood.submitted) {
             payload.mood = {
                 value: state.mood.value,
@@ -1455,10 +1476,25 @@ function sendToWebSocket(message, responseMode = 'full') {
                 }
                 addSpeakerButton(assistantMessage, state.currentMessage);
                 if (state.ttsEnabled || state.voiceTriggered) {
-                    playTTS(state.currentMessage);
+                    // En modo actividad, skip summary (respuestas ya son conversacionales)
+                    playTTS(state.currentMessage, !!state.activityMode);
                 }
             }
+
+            // Contar mensajes de actividad y mostrar botón de perfil
+            if (state.activityMode) {
+                state.activityMessageCount += 2; // user + assistant
+                if (state.activityMessageCount >= 8 && !state.profileGenerated) {
+                    showGenerateProfileButton();
+                }
+            }
+
             assistantMessage = null;
+        }
+        else if (data.type === 'profile_card') {
+            removeTypingIndicator();
+            elements.chatStatus.textContent = 'En línea';
+            showProfileScreen(data.data);
         }
         else if (data.type === 'agent_info') {
             console.log('Agente:', data.agent, '- Documentos:', data.context_docs, '- Cobertura RAG:', data.rag_coverage);
@@ -2954,6 +2990,11 @@ function showLoginScreen() {
     elements.welcomeScreen?.classList.add('hidden');
     elements.chatScreen?.classList.add('hidden');
     elements.planScreen?.classList.add('hidden');
+    elements.conoceScreen?.classList.add('hidden');
+    elements.profileScreen?.classList.add('hidden');
+    state.activityMode = null;
+    state.activityMessageCount = 0;
+    state.profileGenerated = false;
 }
 
 function handleLogout() {
@@ -3111,26 +3152,180 @@ async function handleOrbGreeting() {
     }, 500);
 }
 
-// Botón Entrar — transición al chat
+// Botón Entrar — transición a "Conoce a Eliana"
 function handleEnterBtn() {
     localStorage.setItem('eliana_logged_in', 'true');
     localStorage.setItem('eliana_user', 'Presentador');
     warmupIOSAudio();
     enableTTS();
 
-    // Transición directa al chat (saltando welcome)
+    // Transición a la pantalla "Conoce a Eliana"
     elements.loginScreen?.classList.add('fade-out');
     setTimeout(() => {
         elements.loginScreen?.classList.add('hidden');
         elements.loginScreen?.classList.remove('fade-out');
-        elements.welcomeScreen?.classList.add('hidden');
+        showConoceScreen();
+    }, 300);
+}
+
+// ============================================
+// Conoce a Eliana — Navegación y actividades
+// ============================================
+const ACTIVITY_LABELS = {
+    yo_nunca_nunca: 'Yo Nunca Nunca de Profe',
+    dime_algo: 'Dime Algo y Te Digo Quién Eres',
+    pregunta_ia: 'Lo Que Nunca Le Preguntas a una IA'
+};
+
+const ACTIVITY_OPENERS = {
+    yo_nunca_nunca: '¡Venga, vamos a jugar! Yo empiezo. A ver... Yo nunca nunca he explicado la diferencia entre "ser" y "estar" y he pensado "¿pero por qué es así realmente?"... ¿Te ha pasado?',
+    dime_algo: 'Bienvenido a mi consulta de perfilado psicológico docente. Esto es muy serio, ¿eh? Necesito que me digas... tu palabra favorita en español. La primera que te venga. Y que sea sincera, que estas cosas se notan.',
+    pregunta_ia: 'Vale, vamos a conocernos de verdad. Yo te pregunto algo, tú me respondes, y luego tú me preguntas lo que quieras. Sin filtros. Empiezo yo: ¿Cuál fue el momento exacto en que supiste que querías ser profe de idiomas?'
+};
+
+function showConoceScreen() {
+    stopTTS();
+    elements.loginScreen?.classList.add('hidden');
+    elements.welcomeScreen?.classList.add('hidden');
+    elements.chatScreen?.classList.add('hidden');
+    elements.planScreen?.classList.add('hidden');
+    elements.profileScreen?.classList.add('hidden');
+    elements.conoceScreen?.classList.remove('hidden');
+    elements.conoceScreen?.classList.remove('fade-out');
+
+    // Crear orb en el contenedor
+    const orbContainer = document.getElementById('conoce-orb-container');
+    if (orbContainer && window.orbCreateInElement) {
+        const orbSize = window.innerWidth <= 480 ? 280 : window.innerWidth <= 968 ? 320 : 220;
+        window.orbCreateInElement(orbContainer, orbSize);
+    }
+}
+
+function showActivityChat(activityMode) {
+    state.activityMode = activityMode;
+    state.activityMessageCount = 0;
+    state.profileGenerated = false;
+
+    // Cerrar WebSocket existente para conversación fresca
+    if (state.websocket) {
+        state.websocket.close();
+        state.websocket = null;
+    }
+
+    // Fade out conoce
+    elements.conoceScreen?.classList.add('fade-out');
+
+    setTimeout(() => {
+        elements.conoceScreen?.classList.add('hidden');
+        elements.conoceScreen?.classList.remove('fade-out');
         elements.chatScreen?.classList.remove('hidden');
+
+        // Limpiar chat previo
+        elements.chatMessages.innerHTML = '';
+
+        // Mostrar label de actividad
+        const activityLabel = document.getElementById('chat-activity-label');
+        if (activityLabel) {
+            activityLabel.textContent = ACTIVITY_LABELS[activityMode];
+            activityLabel.style.display = '';
+        }
+
+        // Crear orb en chat header
         if (window.orbCreateChatHeader) window.orbCreateChatHeader();
 
-        state.wakeWordEnabled = true;
-        updateWakeWordToggle(true);
-        startWakeWordListening();
+        // Eliana habla primero
+        const opener = ACTIVITY_OPENERS[activityMode];
+        addMessage(opener, 'assistant');
+        state.activityMessageCount++;
+
+        // TTS del opener
+        playTTS(opener, true);
+
+        elements.chatInput?.focus();
     }, 300);
+}
+
+function showProfileScreen(profileData) {
+    stopTTS();
+
+    elements.chatScreen?.classList.add('fade-out');
+
+    setTimeout(() => {
+        elements.chatScreen?.classList.add('hidden');
+        elements.chatScreen?.classList.remove('fade-out');
+        elements.profileScreen?.classList.remove('hidden');
+
+        renderProfileCard(profileData);
+
+        // Orb decorativo
+        const orbContainer = document.getElementById('profile-orb-container');
+        if (orbContainer && window.orbCreateInElement) {
+            window.orbCreateInElement(orbContainer, 80);
+        }
+    }, 300);
+}
+
+function renderProfileCard(data) {
+    try {
+        const profile = typeof data === 'string' ? JSON.parse(data) : data;
+
+        document.getElementById('profile-emoji').textContent = profile.emoji || '🎓';
+        document.getElementById('profile-title').textContent = profile.titulo || 'Profe Extraordinario';
+
+        const rasgosContainer = document.getElementById('profile-rasgos');
+        rasgosContainer.innerHTML = '';
+        (profile.rasgos || []).forEach(rasgo => {
+            const chip = document.createElement('span');
+            chip.className = 'profile-card__rasgo';
+            chip.textContent = rasgo;
+            rasgosContainer.appendChild(chip);
+        });
+
+        document.getElementById('profile-frase').textContent =
+            '"' + (profile.frase_memorable || '...') + '"';
+        document.getElementById('profile-superpoder').textContent =
+            profile.superpoder || 'Superpoder desconocido';
+        document.getElementById('profile-prediccion').textContent =
+            profile.prediccion || '';
+    } catch (e) {
+        console.error('[Profile] Error rendering:', e, data);
+        document.getElementById('profile-title').textContent = 'Tu perfil docente';
+        document.getElementById('profile-emoji').textContent = '🎓';
+    }
+}
+
+function showGenerateProfileButton() {
+    if (document.getElementById('generate-profile-floating-btn')) return;
+
+    const btn = document.createElement('button');
+    btn.id = 'generate-profile-floating-btn';
+    btn.className = 'generate-profile-btn';
+    btn.innerHTML = '<i class="ph ph-identification-card"></i> Generar mi perfil';
+    btn.addEventListener('click', requestProfileGeneration);
+
+    elements.chatMessages.appendChild(btn);
+    elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+}
+
+function requestProfileGeneration() {
+    if (state.profileGenerated) return;
+    state.profileGenerated = true;
+
+    // Quitar botón
+    const btn = document.getElementById('generate-profile-floating-btn');
+    if (btn) btn.remove();
+
+    // Indicador de carga
+    addTypingIndicator();
+    elements.chatStatus.textContent = 'Generando perfil...';
+
+    // Enviar por WebSocket
+    if (state.websocket && state.websocket.readyState === WebSocket.OPEN) {
+        state.websocket.send(JSON.stringify({
+            type: 'generate_profile',
+            activity_mode: state.activityMode
+        }));
+    }
 }
 
 // ============================================
@@ -3151,6 +3346,74 @@ function init() {
     elements.logoutBtn?.addEventListener('click', handleLogout);
     elements.chatLogoutBtn?.addEventListener('click', handleLogout);
     elements.planLogoutBtn?.addEventListener('click', handleLogout);
+
+    // Conoce a Eliana — activity card clicks
+    document.querySelectorAll('.activity-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const activity = card.dataset.activity;
+            if (activity) showActivityChat(activity);
+        });
+    });
+
+    // Conoce screen — back/logout
+    document.getElementById('conoce-back-btn')?.addEventListener('click', showLoginScreen);
+    document.getElementById('conoce-logout-btn')?.addEventListener('click', handleLogout);
+
+    // Profile screen actions
+    document.getElementById('profile-back-btn')?.addEventListener('click', () => {
+        elements.profileScreen?.classList.add('hidden');
+        state.activityMode = null;
+        state.activityMessageCount = 0;
+        state.profileGenerated = false;
+        showConoceScreen();
+    });
+
+    document.getElementById('profile-share-btn')?.addEventListener('click', async () => {
+        const card = document.getElementById('profile-card');
+        if (!card) return;
+        try {
+            // Intentar compartir como imagen usando canvas nativo
+            const { default: html2canvas } = await import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm');
+            const canvas = await html2canvas(card, { backgroundColor: '#FDFAF5', scale: 2 });
+            canvas.toBlob(async (blob) => {
+                if (navigator.share && navigator.canShare) {
+                    const file = new File([blob], 'mi-perfil-eliana.png', { type: 'image/png' });
+                    try {
+                        await navigator.share({
+                            title: 'Mi perfil de Eliana',
+                            text: 'Mi perfil docente generado por Eliana AI - Destino ELE Kaunas 2026',
+                            files: [file]
+                        });
+                    } catch (e) {
+                        console.log('[Share] Cancelled:', e);
+                    }
+                } else {
+                    // Fallback: download
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png');
+                    link.download = 'mi-perfil-eliana.png';
+                    link.click();
+                }
+            }, 'image/png');
+        } catch (e) {
+            console.error('[Share] Error:', e);
+        }
+    });
+
+    document.getElementById('profile-download-btn')?.addEventListener('click', async () => {
+        const card = document.getElementById('profile-card');
+        if (!card) return;
+        try {
+            const { default: html2canvas } = await import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm');
+            const canvas = await html2canvas(card, { backgroundColor: '#FDFAF5', scale: 2 });
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = 'mi-perfil-eliana.png';
+            link.click();
+        } catch (e) {
+            console.error('[Download] Error:', e);
+        }
+    });
 
     // Welcome screen
     elements.profileBtn?.addEventListener('click', () => {
@@ -3265,8 +3528,26 @@ function init() {
         }
     });
 
-    // Chat screen
-    elements.backBtn?.addEventListener('click', showWelcomeScreen);
+    // Chat screen — back button: volver a conoce si estamos en actividad
+    elements.backBtn?.addEventListener('click', () => {
+        if (state.activityMode) {
+            stopTTS();
+            state.activityMode = null;
+            state.activityMessageCount = 0;
+            state.profileGenerated = false;
+            elements.chatMessages.innerHTML = '';
+            const activityLabel = document.getElementById('chat-activity-label');
+            if (activityLabel) activityLabel.style.display = 'none';
+            if (state.websocket) {
+                state.websocket.close();
+                state.websocket = null;
+            }
+            elements.chatScreen?.classList.add('hidden');
+            showConoceScreen();
+        } else {
+            showWelcomeScreen();
+        }
+    });
 
     elements.chatMicBtn?.addEventListener('click', toggleRecording);
 

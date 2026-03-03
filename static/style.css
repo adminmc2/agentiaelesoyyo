@@ -1353,6 +1353,491 @@ body[data-mood-active] .bento-card--mood {
     }
 }
 
+/* ============================================
+   CONOCE A ELIANA — Pantalla de actividades
+   ============================================ */
+.conoce-screen {
+    padding: 0 !important;
+    overflow: hidden;
+    transition:
+        opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate),
+        transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate);
+}
+
+@media (max-width: 968px) {
+    .conoce-screen {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+.conoce-screen.fade-out {
+    opacity: 0;
+    transform: scale(0.98);
+}
+
+.conoce-page {
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-columns: 45% 55%;
+    background: var(--md-sys-color-surface);
+    overflow: hidden;
+}
+
+.conoce-left {
+    padding: 3rem 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.conoce-back-btn {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 20px;
+    transition: background 0.15s;
+    touch-action: manipulation;
+}
+
+.conoce-back-btn:active {
+    background: rgba(0, 0, 0, 0.12);
+}
+
+.conoce-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+}
+
+.conoce-orb-wrapper {
+    width: 220px;
+    height: 220px;
+    margin-bottom: var(--space-32);
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.conoce-orb-wrapper .orb-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.conoce-orb-wrapper .orb-container canvas {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.conoce-message {
+    font: 600 36px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    line-height: 1.2;
+    margin-bottom: var(--space-12);
+}
+
+.conoce-submessage {
+    font: var(--md-sys-typescale-body-large);
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+.conoce-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+}
+
+.activity-cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+    width: 100%;
+    max-width: 480px;
+}
+
+/* Activity cards — frosted glass style matching bento cards */
+.activity-card {
+    background: rgba(239, 237, 247, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: var(--md-sys-shape-extra-large);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    padding: var(--space-24);
+    display: flex;
+    align-items: center;
+    gap: var(--space-20);
+    position: relative;
+    overflow: hidden;
+    text-align: left;
+    box-shadow: var(--md-sys-elevation-1);
+    transition:
+        transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+        box-shadow var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* State layer overlay (M3) — same as bento cards */
+.activity-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+    pointer-events: none;
+}
+
+.activity-card:hover {
+    transform: scale(1.02);
+    box-shadow: var(--md-sys-elevation-2);
+}
+
+.activity-card:hover::after {
+    opacity: var(--md-sys-state-hover);
+}
+
+.activity-card:active {
+    transform: scale(0.97);
+    box-shadow: var(--md-sys-elevation-1);
+}
+
+.activity-card:active::after {
+    opacity: var(--md-sys-state-pressed);
+}
+
+/* Icon circle — colored per activity */
+.activity-card__icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 24px;
+}
+
+.activity-card__text {
+    flex: 1;
+    min-width: 0;
+}
+
+.activity-card__title {
+    font: 600 18px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    margin-bottom: var(--space-4);
+}
+
+.activity-card__desc {
+    font: 400 14px 'Inconsolata', monospace;
+    color: var(--md-sys-color-on-surface-variant);
+    line-height: 1.4;
+}
+
+/* Variant: Yo Nunca Nunca — Violet */
+.activity-card--nunca {
+    background: linear-gradient(
+        160deg,
+        rgba(243, 216, 240, 0.65) 0%,
+        rgba(239, 237, 247, 0.5) 100%
+    );
+}
+.activity-card--nunca::after { background: #994E95; }
+.activity-card--nunca .activity-card__icon {
+    background: rgba(153, 78, 149, 0.15);
+    color: #994E95;
+}
+
+/* Variant: Dime Algo — Cyan */
+.activity-card--dime {
+    background: linear-gradient(
+        160deg,
+        rgba(178, 232, 247, 0.55) 0%,
+        rgba(239, 237, 247, 0.5) 100%
+    );
+}
+.activity-card--dime::after { background: #31BEEF; }
+.activity-card--dime .activity-card__icon {
+    background: rgba(49, 190, 239, 0.15);
+    color: #2A9FCC;
+}
+
+/* Variant: Pregunta IA — Soft Blue */
+.activity-card--pregunta {
+    background: linear-gradient(
+        160deg,
+        rgba(161, 184, 242, 0.45) 0%,
+        rgba(239, 237, 247, 0.5) 100%
+    );
+}
+.activity-card--pregunta::after { background: #A1B8F2; }
+.activity-card--pregunta .activity-card__icon {
+    background: rgba(161, 184, 242, 0.2);
+    color: #6B82C4;
+}
+
+/* ============================================
+   PROFILE CARD — Tarjeta perfil docente
+   ============================================ */
+.profile-screen {
+    background: var(--md-sys-color-surface);
+}
+
+.profile-card-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    padding: var(--space-20);
+    gap: var(--space-24);
+}
+
+.profile-card {
+    background: rgba(239, 237, 247, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: var(--md-sys-shape-extra-large);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow:
+        0px 1px 3px 0px rgba(0, 0, 0, 0.30),
+        0px 4px 8px 3px rgba(0, 0, 0, 0.15);
+    padding: var(--space-32) var(--space-24);
+    max-width: 380px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.profile-card__orb {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 100px;
+    height: 100px;
+    opacity: 0.25;
+    pointer-events: none;
+}
+
+.profile-card__emoji {
+    font-size: 56px;
+    line-height: 1;
+    margin-bottom: var(--space-12);
+}
+
+.profile-card__title {
+    font: 600 28px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    margin-bottom: var(--space-16);
+}
+
+.profile-card__rasgos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+    justify-content: center;
+    margin-bottom: var(--space-16);
+}
+
+.profile-card__rasgo {
+    font: 500 13px 'Inconsolata', monospace;
+    background: rgba(212, 130, 106, 0.18);
+    color: var(--md-sys-color-primary);
+    border-radius: var(--md-sys-shape-full);
+    padding: var(--space-4) var(--space-16);
+    border: 1px solid rgba(212, 130, 106, 0.25);
+}
+
+.profile-card__frase {
+    font: 400 15px 'Inconsolata', monospace;
+    font-style: italic;
+    color: var(--md-sys-color-on-surface-variant);
+    border-left: 3px solid var(--md-sys-color-primary);
+    padding-left: var(--space-12);
+    margin: var(--space-16) 0;
+    text-align: left;
+    line-height: 1.5;
+}
+
+.profile-card__superpoder {
+    font: 500 16px 'Dosis', sans-serif;
+    color: var(--md-sys-color-primary);
+    margin-bottom: var(--space-8);
+}
+
+.profile-card__superpoder::before {
+    content: '⚡ ';
+}
+
+.profile-card__prediccion {
+    font: 400 13px 'Inconsolata', monospace;
+    color: var(--md-sys-color-on-surface-variant);
+    margin-bottom: var(--space-16);
+    line-height: 1.5;
+}
+
+.profile-card__footer {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    padding-top: var(--space-12);
+    margin-top: var(--space-8);
+}
+
+.profile-card__brand,
+.profile-card__event {
+    font: 500 11px 'Inconsolata', monospace;
+    color: var(--md-sys-color-on-surface-variant);
+    opacity: 0.5;
+}
+
+.profile-actions {
+    display: flex;
+    gap: var(--space-12);
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.profile-action-btn {
+    font: 500 14px 'Inconsolata', monospace;
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    padding: var(--space-12) var(--space-20);
+    border-radius: var(--md-sys-shape-full);
+    border: 1px solid rgba(198, 197, 208, 0.5);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+    transition: transform 0.15s, background 0.15s;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.profile-action-btn:active {
+    transform: scale(0.96);
+}
+
+.profile-action-btn--share {
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    border-color: transparent;
+}
+
+.profile-action-btn--share:active {
+    background: var(--md-sys-color-secondary);
+}
+
+/* Chat activity label */
+.chat-activity-label {
+    font: 500 11px 'Inconsolata', monospace;
+    color: var(--md-sys-color-primary);
+    opacity: 0.8;
+}
+
+/* Generate profile floating button */
+.generate-profile-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    padding: var(--space-12) var(--space-24);
+    margin: var(--space-16) auto;
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    border: none;
+    border-radius: var(--md-sys-shape-full);
+    font: 500 14px 'Inconsolata', monospace;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(212, 130, 106, 0.4);
+    animation: fadeInUp 0.4s cubic-bezier(0.05, 0.7, 0.1, 1);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.generate-profile-btn:active {
+    transform: scale(0.96);
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Conoce responsive */
+@media (max-width: 1200px) {
+    .conoce-page { grid-template-columns: 40% 60%; }
+    .conoce-left { padding: 2rem 2.5rem; }
+    .conoce-orb-wrapper { width: 180px; height: 180px; }
+    .conoce-message { font-size: 30px; }
+}
+
+@media (max-width: 968px) {
+    .conoce-page {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 3.5rem 1.5rem 2rem;
+        gap: 0;
+        position: relative;
+        box-sizing: border-box;
+    }
+    .conoce-back-btn {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 10;
+    }
+    .conoce-left {
+        padding: 0;
+        flex-shrink: 0;
+        width: 100%;
+        max-width: 480px;
+    }
+    .conoce-orb-wrapper { width: 320px; height: 320px; margin-bottom: var(--space-16); margin-top: -2.5rem; }
+    .conoce-message { font-size: 24px; margin-bottom: var(--space-8); }
+    .conoce-submessage { margin-bottom: var(--space-20); }
+    .conoce-right { padding: 0; flex-shrink: 0; width: 100%; max-width: 480px; }
+    .activity-cards { max-width: 100%; }
+}
+
+@media (max-width: 480px) {
+    .conoce-page { padding: 3rem 1rem 1.5rem; }
+    .conoce-orb-wrapper { width: 280px; height: 280px; margin-bottom: var(--space-12); margin-top: -2.5rem; }
+    .conoce-message { font-size: 22px; }
+    .activity-card { padding: var(--space-16); gap: var(--space-12); }
+    .activity-card__icon { width: 44px; height: 44px; font-size: 20px; }
+    .activity-card__title { font-size: 16px; }
+}
+
 .welcome-screen {
     transition:
         opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate),

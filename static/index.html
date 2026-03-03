@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=8.1.0">
+    <link rel="stylesheet" href="/static/style.css?v=10.0.0">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -98,6 +98,95 @@
                             <span class="hint-arrow">↘</span>
                         </p>
                     </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ============================================
+             PANTALLA CONOCE A ELIANA
+             ============================================ -->
+        <main class="main-content conoce-screen hidden" id="conoce-screen">
+            <div class="conoce-page">
+                <!-- Columna izquierda: orb + mensaje -->
+                <div class="conoce-left">
+                    <button class="conoce-back-btn" id="conoce-back-btn" title="Volver">
+                        <i class="ph ph-arrow-left"></i>
+                    </button>
+                    <div class="conoce-content">
+                        <div class="conoce-orb-wrapper">
+                            <div class="orb-container" id="conoce-orb-container"></div>
+                        </div>
+                        <h2 class="conoce-message">¡Hola! Soy Eliana.<br>Antes de empezar... ¿jugamos?</h2>
+                        <p class="conoce-submessage">Elige una actividad y vamos a conocernos</p>
+                    </div>
+                </div>
+
+                <!-- Columna derecha: 3 tarjetas actividad -->
+                <div class="conoce-right">
+                    <div class="activity-cards">
+                        <button class="activity-card activity-card--nunca" data-activity="yo_nunca_nunca">
+                            <span class="activity-card__icon">
+                                <i class="ph-fill ph-eye-closed"></i>
+                            </span>
+                            <div class="activity-card__text">
+                                <h3 class="activity-card__title">Yo Nunca Nunca de Profe</h3>
+                                <p class="activity-card__desc">Confesiones de profes de ELE. Eliana dice "Yo nunca nunca..." y tú decides si te ha pasado.</p>
+                            </div>
+                        </button>
+                        <button class="activity-card activity-card--dime" data-activity="dime_algo">
+                            <span class="activity-card__icon">
+                                <i class="ph-fill ph-magic-wand"></i>
+                            </span>
+                            <div class="activity-card__text">
+                                <h3 class="activity-card__title">Dime Algo y Te Digo Quién Eres</h3>
+                                <p class="activity-card__desc">Dile a Eliana tu palabra favorita y prepárate para un perfil psicológico absurdamente certero.</p>
+                            </div>
+                        </button>
+                        <button class="activity-card activity-card--pregunta" data-activity="pregunta_ia">
+                            <span class="activity-card__icon">
+                                <i class="ph-fill ph-chat-teardrop-dots"></i>
+                            </span>
+                            <div class="activity-card__text">
+                                <h3 class="activity-card__title">Lo Que Nunca Le Preguntas a una IA</h3>
+                                <p class="activity-card__desc">Preguntas íntimas entre tú y Eliana. Ella también tiene cosas que contarte.</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ============================================
+             PANTALLA TARJETA PERFIL
+             ============================================ -->
+        <main class="main-content profile-screen hidden" id="profile-screen">
+            <div class="profile-card-container">
+                <div class="profile-card" id="profile-card">
+                    <div class="profile-card__orb" id="profile-orb-container"></div>
+                    <div class="profile-card__emoji" id="profile-emoji"></div>
+                    <h2 class="profile-card__title" id="profile-title"></h2>
+                    <div class="profile-card__rasgos" id="profile-rasgos"></div>
+                    <blockquote class="profile-card__frase" id="profile-frase"></blockquote>
+                    <div class="profile-card__superpoder" id="profile-superpoder"></div>
+                    <p class="profile-card__prediccion" id="profile-prediccion"></p>
+                    <div class="profile-card__footer">
+                        <span class="profile-card__brand">Eliana AI</span>
+                        <span class="profile-card__event">Destino ELE Kaunas 2026</span>
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <button class="profile-action-btn profile-action-btn--share" id="profile-share-btn">
+                        <i class="ph ph-share-network"></i>
+                        <span>Compartir</span>
+                    </button>
+                    <button class="profile-action-btn profile-action-btn--download" id="profile-download-btn">
+                        <i class="ph ph-download-simple"></i>
+                        <span>Guardar</span>
+                    </button>
+                    <button class="profile-action-btn profile-action-btn--back" id="profile-back-btn">
+                        <i class="ph ph-arrow-left"></i>
+                        <span>Otra actividad</span>
+                    </button>
                 </div>
             </div>
         </main>
@@ -254,6 +343,7 @@
                 <div class="chat-title">
                     <span class="chat-title-text">Eliana</span>
                     <span class="chat-status" id="chat-status">En línea</span>
+                    <span class="chat-activity-label" id="chat-activity-label" style="display:none"></span>
                 </div>
                 <div class="header-actions">
                     <button class="wake-word-toggle" id="chat-wake-word-btn" title="Activar Hola, Eliana">
@@ -534,6 +624,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=5.0.0"></script>
+    <script src="/static/app.js?v=10.0.0"></script>
 </body>
 </html>

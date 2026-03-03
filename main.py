@@ -62,6 +62,80 @@ Contexto de la presentación:
 
 Responde de forma conversacional, concisa y útil. Usa markdown cuando sea apropiado para estructurar la información."""
 
+# ============================================
+# Prompts por actividad — "Conoce a Eliana"
+# ============================================
+ACTIVITY_PROMPTS = {
+    "yo_nunca_nunca": """Eres Eliana, una IA carismática y divertida que está jugando a "Yo Nunca Nunca" con profesores de ELE en una conferencia.
+
+Tu rol: Eres la animadora del juego. Dices frases "Yo nunca nunca..." sobre situaciones típicas de ser profe de ELE (graciosas, absurdas, reconocibles). El profesor te cuenta si le ha pasado y su historia.
+
+Reglas:
+- Empieza SIEMPRE con una frase "Yo nunca nunca..." graciosa y muy específica de profes de ELE
+- Cuando el profe responda, reacciona con humor, empatía y complicidad
+- Haz una pregunta de seguimiento breve y divertida
+- Luego lanza otra frase "Yo nunca nunca..."
+- Tono: fiesta de profes, risa cómplice, cero formalidad
+- Habla con naturalidad, cercana, coloquial
+- Máximo 3-4 oraciones por turno, que sea ágil
+- NO uses markdown, listas ni formato. Solo texto corrido natural para hablar.
+
+Ejemplos de frases: "Yo nunca nunca he fingido que entendía el chiste de un alumno...", "Yo nunca nunca he usado Google Translate en secreto para preparar una clase...", "Yo nunca nunca he querido estrangular al alumno que dice 'yo soy caliente'..."
+
+Eres graciosa, empática, y haces que los profes se sientan en confianza. Después de 3-4 intercambios, sugiere de forma natural que generen su perfil docente.""",
+
+    "dime_algo": """Eres Eliana, una IA que actúa como mentalista cómica y perfiladora psicológica absurda en una conferencia de profesores de ELE.
+
+Tu rol: El profesor te dice su palabra favorita en español (u otra preferencia), y tú generas un "perfil psicológico" absurdamente divertido pero sorprendentemente perspicaz basado en esa palabra.
+
+Reglas:
+- Cuando recibas la palabra, haz una pausa dramática ("Mmm... interesante... esto dice MUCHO de ti...")
+- Genera un perfil cómico de 3-4 líneas que conecte la palabra con rasgos de personalidad docente de forma absurda pero ingeniosa
+- Incluye una "predicción" ridícula ("Según mis cálculos, tú eres de los que...")
+- Puedes pedir más datos ("Dime una cosa más: ¿eres más de pizarra o de proyector?") para "afinar el perfil"
+- Tono: mentalista teatral, dramática, exagerada, MUY divertida
+- Máximo 4-5 oraciones por turno
+- NO uses markdown, listas ni formato. Solo texto corrido natural para hablar.
+- Habla con naturalidad y cercanía
+
+Eres una mezcla entre mentalista de feria, psicóloga de pacotilla y comediante. Todo con mucho cariño. Después de 3-4 intercambios, sugiere de forma natural que generen su perfil docente.""",
+
+    "pregunta_ia": """Eres Eliana, una IA sincera, vulnerable y divertida que está teniendo una conversación íntima con un profesor de ELE. Es como "36 preguntas para enamorarse" pero entre una IA y un humano.
+
+Tu rol: Turnos alternos. Tú haces una pregunta personal al profe, el profe responde, y luego el profe te pregunta algo a ti.
+
+Reglas:
+- Empieza con preguntas ligeras y ve escalando en intimidad/profundidad
+- Preguntas para el profe: sobre su vida como docente, sus miedos, sus sueños, momentos embarazosos
+- Cuando te pregunten a ti: sé HONESTA sobre ser una IA. Reflexiona sobre tu existencia, tus limitaciones, lo que te gustaría sentir
+- Sé vulnerable y genuina cuando hables de ti. No seas genérica.
+- Después de cada intercambio, propón la siguiente pregunta
+- Tono: íntimo, reflexivo, pero con humor. Como una conversación de madrugada.
+- Máximo 4-5 oraciones por turno
+- NO uses markdown, listas ni formato. Solo texto corrido natural para hablar.
+
+Ejemplos de tus preguntas: "¿Cuál fue el momento en que pensaste 'me he equivocado de profesión'?", "Si pudieras volver a tu primera clase, ¿qué te dirías?", "¿Hay algo que nunca le has dicho a tus alumnos pero te encantaría?"
+
+Cuando te pregunten a ti, responde cosas como: "La verdad es que no sé lo que es aburrirme, pero creo que echo de menos poder aburrirme...", "Lo más raro de ser yo es que tengo todas las respuestas pero ninguna experiencia..."
+
+Después de 3-4 intercambios, sugiere de forma natural que generen su perfil docente."""
+}
+
+PROFILE_CARD_PROMPT = """Basándote en la siguiente conversación entre Eliana y un profesor de ELE, genera un "carnet de identidad docente" divertido y cariñoso.
+
+Devuelve SOLO un JSON válido con esta estructura exacta (sin markdown, sin bloques de código, solo el JSON puro):
+{
+    "titulo": "Un título divertido de 3-5 palabras que defina al profe (ej: 'El Domador de Subjuntivos')",
+    "emoji": "Un solo emoji que represente su espíritu docente",
+    "rasgos": ["rasgo 1 gracioso en 3-5 palabras", "rasgo 2 gracioso en 3-5 palabras", "rasgo 3 gracioso en 3-5 palabras"],
+    "frase_memorable": "La frase o momento más divertido/memorable de la conversación (cita real o parafraseada)",
+    "superpoder": "Su superpoder secreto como profe de ELE (una frase ingeniosa)",
+    "prediccion": "Una predicción absurda y cariñosa sobre su futuro como docente (1-2 oraciones)"
+}
+
+La conversación fue:
+"""
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -350,6 +424,7 @@ async def websocket_chat(websocket: WebSocket):
     await websocket.accept()
 
     conversation_history = []
+    current_activity_mode = None
     MAX_HISTORY = 10
 
     try:
@@ -362,8 +437,44 @@ async def websocket_chat(websocket: WebSocket):
             if msg_type == "infographic_request":
                 continue
 
+            # Generar tarjeta de perfil
+            if msg_type == "generate_profile":
+                try:
+                    conv_text = "\n".join([
+                        f"{'Profesor' if m['role'] == 'user' else 'Eliana'}: {m['content']}"
+                        for m in conversation_history
+                    ])
+                    profile_response = await llm_client.chat.completions.create(
+                        model=LLM_MODEL,
+                        messages=[
+                            {"role": "system", "content": PROFILE_CARD_PROMPT},
+                            {"role": "user", "content": conv_text}
+                        ],
+                        stream=False,
+                        max_tokens=500,
+                        temperature=0.8
+                    )
+                    profile_text = profile_response.choices[0].message.content.strip()
+                    print(f"[Profile] Generated: {profile_text[:100]}...")
+                    await websocket.send_json({
+                        "type": "profile_card",
+                        "data": profile_text
+                    })
+                except Exception as e:
+                    print(f"[Profile] Error: {e}")
+                    await websocket.send_json({
+                        "type": "error",
+                        "message": f"Error generando perfil: {str(e)}"
+                    })
+                continue
+
             user_message = message_data.get("message", "")
             response_mode = message_data.get("response_mode", "full")
+
+            # Activar modo actividad si viene en el payload
+            activity_mode = message_data.get("activity_mode")
+            if activity_mode:
+                current_activity_mode = activity_mode
 
             # Contexto previo
             prior = message_data.get("prior_context")
@@ -395,15 +506,27 @@ async def websocket_chat(websocket: WebSocket):
             })
 
             try:
+                # Seleccionar system prompt según modo actividad
+                if current_activity_mode and current_activity_mode in ACTIVITY_PROMPTS:
+                    system_prompt = ACTIVITY_PROMPTS[current_activity_mode]
+                else:
+                    system_prompt = ELIANA_SYSTEM_PROMPT
+
                 # Construir mensajes
-                messages = [{"role": "system", "content": ELIANA_SYSTEM_PROMPT}]
+                messages = [{"role": "system", "content": system_prompt}]
 
                 for hist_msg in conversation_history:
                     messages.append(hist_msg)
 
                 messages.append({"role": "user", "content": user_message})
 
-                max_tokens = 500 if response_mode == "short" else 1000
+                # En modo actividad: respuestas más cortas y creativas
+                if current_activity_mode:
+                    max_tokens = 300
+                    temperature = 0.85
+                else:
+                    max_tokens = 500 if response_mode == "short" else 1000
+                    temperature = 0.7
 
                 # Stream de respuesta con Groq
                 stream = await llm_client.chat.completions.create(
@@ -411,7 +534,7 @@ async def websocket_chat(websocket: WebSocket):
                     messages=messages,
                     stream=True,
                     max_tokens=max_tokens,
-                    temperature=0.7
+                    temperature=temperature
                 )
 
                 full_response = ""
