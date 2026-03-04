@@ -1475,18 +1475,24 @@ function sendToWebSocket(message, responseMode = 'full') {
                     updateRecentSearchAnswer(state.currentQuery, state.currentMessage);
                 }
                 addSpeakerButton(assistantMessage, state.currentMessage);
-                if (state.ttsEnabled || state.voiceTriggered) {
-                    // Actividades: skip_summary (texto ya es conversacional, evita 3-5s de latencia)
+
+                // Comprobar si es el último turno de actividad
+                const isLastActivityTurn = state.activityMode
+                    && (state.activityMessageCount + 2) >= 8
+                    && !state.profileGenerated;
+
+                if (!isLastActivityTurn && (state.ttsEnabled || state.voiceTriggered)) {
+                    // Actividades: skip_summary (texto ya es conversacional, evita latencia)
                     // Chat normal: pasar por tts_summary para versión hablada
                     playTTS(state.currentMessage, !!state.activityMode);
                 }
             }
 
-            // Contar mensajes de actividad y mostrar botón de perfil
+            // Contar mensajes de actividad y cerrar con despedida + botón perfil
             if (state.activityMode) {
                 state.activityMessageCount += 2; // user + assistant
                 if (state.activityMessageCount >= 8 && !state.profileGenerated) {
-                    showGenerateProfileButton();
+                    showActivityClosing();
                 }
             }
 
@@ -1495,19 +1501,7 @@ function sendToWebSocket(message, responseMode = 'full') {
         else if (data.type === 'profile_card') {
             removeTypingIndicator();
             elements.chatStatus.textContent = 'En línea';
-
-            // Mensaje de transición antes de mostrar la tarjeta
-            const transitionMsg = 'He preparado tu carnet de identidad docente. A ver qué te parece...';
-            addMessage(transitionMsg, 'assistant');
-
-            if (state.ttsEnabled || state.voiceTriggered) {
-                // Leer transición y mostrar tarjeta cuando termine el audio
-                playTTSAndWait(transitionMsg).then(() => {
-                    showProfileScreen(data.data);
-                });
-            } else {
-                setTimeout(() => showProfileScreen(data.data), 2000);
-            }
+            showProfileScreen(data.data);
         }
         else if (data.type === 'agent_info') {
             console.log('Agente:', data.agent, '- Documentos:', data.context_docs, '- Cobertura RAG:', data.rag_coverage);
@@ -2469,29 +2463,22 @@ function _getWakeWordRecognition() {
         state.wakeWordActive = true;
         updateWakeWordUI(true);
         _wkSessionId++;
-        console.log(`[WakeWord] SESSION #${_wkSessionId} STARTED | continuous=${r.continuous}`);
     };
 
-    r.onaudiostart = () => console.log(`[WakeWord] audiostart — mic is capturing`);
-    r.onsoundstart = () => console.log(`[WakeWord] soundstart — sound detected`);
-    r.onspeechstart = () => console.log(`[WakeWord] speechstart — speech detected`);
-    r.onspeechend = () => console.log(`[WakeWord] speechend — speech stopped`);
-    r.onsoundend = () => console.log(`[WakeWord] soundend — sound stopped`);
-    r.onaudioend = () => console.log(`[WakeWord] audioend — mic released`);
+    r.onaudiostart = () => {};
+    r.onsoundstart = () => {};
+    r.onspeechstart = () => {};
+    r.onspeechend = () => {};
+    r.onsoundend = () => {};
+    r.onaudioend = () => {};
 
     r.onresult = (event) => {
-        if (state.ttsPlaying || orbGreetingPlaying) {
-            console.log('[WakeWord] result ignored (TTS playing)');
-            return;
-        }
+        if (state.ttsPlaying || orbGreetingPlaying) return;
         for (let i = event.resultIndex; i < event.results.length; i++) {
             for (let a = 0; a < event.results[i].length; a++) {
                 const transcript = event.results[i][a].transcript;
-                if (transcript.trim()) {
-                    console.log('[WakeWord] Heard:', `"${transcript}"`, '| Match:', containsWakeWord(transcript), '| isFinal:', event.results[i].isFinal);
-                }
                 if (containsWakeWord(transcript)) {
-                    console.log('[WakeWord] DETECTED! Aborting recognition...');
+                    console.log('[WakeWord] Detected!');
                     state.wakeWordEnabled = false;
                     r.abort();
                     state.wakeWordActive = false;
@@ -2506,9 +2493,9 @@ function _getWakeWordRecognition() {
     };
 
     r.onerror = (event) => {
-        console.log(`[WakeWord] ERROR: ${event.error} | message: ${event.message || 'none'}`);
         _wkStarting = false;
         if (['no-speech', 'aborted', 'network'].includes(event.error)) return;
+        console.log(`[WakeWord] Error: ${event.error}`);
         state.wakeWordActive = false;
         updateWakeWordUI(false);
         if (event.error === 'not-allowed' || event.error === 'audio-capture') {
@@ -2519,14 +2506,11 @@ function _getWakeWordRecognition() {
     };
 
     r.onend = () => {
-        console.log(`[WakeWord] SESSION #${_wkSessionId} ENDED | wakeWordEnabled=${state.wakeWordEnabled} isRecording=${state.isRecording}`);
         state.wakeWordActive = false;
         _wkStarting = false;
         if (state.wakeWordEnabled && !state.isRecording) {
-            console.log(`[WakeWord] Will restart in 1000ms...`);
             setTimeout(() => startWakeWordListening(), 1000);
         } else {
-            console.log(`[WakeWord] NOT restarting`);
             updateWakeWordUI(false);
         }
     };
@@ -2536,11 +2520,7 @@ function _getWakeWordRecognition() {
 }
 
 function startWakeWordListening() {
-    console.log(`[WakeWord] startWakeWordListening() called | active=${state.wakeWordActive} starting=${_wkStarting} recording=${state.isRecording}`);
-    if (state.wakeWordActive || _wkStarting || state.isRecording) {
-        console.log(`[WakeWord] SKIPPED — already active/starting/recording`);
-        return;
-    }
+    if (state.wakeWordActive || _wkStarting || state.isRecording) return;
 
     const r = _getWakeWordRecognition();
     if (!r) return;
@@ -2549,9 +2529,7 @@ function startWakeWordListening() {
     state.wakeWordRecognition = r;
     try {
         r.start();
-        console.log(`[WakeWord] start() called OK`);
     } catch (e) {
-        console.log(`[WakeWord] start() THREW: ${e.name}: ${e.message}`);
         _wkStarting = false;
     }
 }
@@ -2757,7 +2735,7 @@ async function playTTS(text, skipSummary = false, isActivity = false) {
     if (!text || !text.trim()) return;
 
     try {
-        console.log(`[TTS] Requesting audio for ${text.length} chars (activity=${isActivity})...`);
+        console.log(`[TTS] Requesting audio for ${text.length} chars (skip_summary=${skipSummary})...`);
         const response = await fetch('/api/tts', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -3261,6 +3239,9 @@ function showActivityChat(activityMode) {
 
 function showProfileScreen(profileData) {
     stopTTS();
+    stopWakeWordListening();
+    state.voiceTriggered = false;
+    state.isRecording = false;
 
     elements.chatScreen?.classList.add('fade-out');
 
@@ -3315,13 +3296,23 @@ function renderProfileCard(data) {
     }
 }
 
-function showGenerateProfileButton() {
+function showActivityClosing() {
     if (document.getElementById('generate-profile-floating-btn')) return;
 
+    // Mensaje de cierre de Eliana
+    const closingMsg = '¡Oye, qué bien lo hemos pasado! Mira, con todo lo que me has contado ya me he hecho una idea muy clara de qué tipo de profe eres. Si quieres, dale al botón y te lo enseño.';
+    addMessage(closingMsg, 'assistant');
+
+    // Leer el cierre en voz alta
+    if (state.ttsEnabled || state.voiceTriggered) {
+        playTTS(closingMsg, true);
+    }
+
+    // Botón debajo del mensaje
     const btn = document.createElement('button');
     btn.id = 'generate-profile-floating-btn';
     btn.className = 'generate-profile-btn';
-    btn.innerHTML = '<i class="ph ph-identification-card"></i> Generar mi perfil';
+    btn.innerHTML = '<i class="ph ph-identification-card"></i> Generar perfil';
     btn.addEventListener('click', requestProfileGeneration);
 
     elements.chatMessages.appendChild(btn);
@@ -3331,6 +3322,11 @@ function showGenerateProfileButton() {
 function requestProfileGeneration() {
     if (state.profileGenerated) return;
     state.profileGenerated = true;
+
+    // Cortar toda actividad de voz para que Eliana no siga hablando
+    stopTTS();
+    stopWakeWordListening();
+    state.voiceTriggered = false;
 
     // Quitar botón
     const btn = document.getElementById('generate-profile-floating-btn');

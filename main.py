@@ -162,26 +162,25 @@ ESTILO TTS — Esto se lee en voz alta:
 - PROHIBIDO: risas (jaja, jeje), interjecciones exageradas, onomatopeyas. El TTS no puede reír.
 - La emoción se transmite con las palabras, no con exclamaciones.""",
 
-    "profile_card": """Basándote en la siguiente conversación entre Eliana (IA) y un profesor de ELE, genera un "carnet de identidad docente" divertido y cariñoso.
+    "profile_card": """Eres una experta en crear perfiles divertidos de profesores de ELE. Basándote en esta conversación, genera un perfil creativo y original.
 
-Devuelve SOLO un JSON válido con esta estructura exacta (sin markdown, sin bloques de código, solo el JSON puro):
+Devuelve SOLO un JSON válido (sin markdown, sin bloques de código):
 {
-    "titulo": "Título creativo en formato 'El/La + Sustantivo + Adjetivo/Complemento' (ej: 'El Domador de Subjuntivos', 'La Maga del Aula', 'El Profe sin Filtro'). Debe tener sentido gramatical y ser gracioso.",
-    "icono": "Un nombre de icono Phosphor. Opciones EXACTAS: graduation-cap, chalkboard-teacher, book-open-text, lightning, star, heart, fire, trophy, rocket, magic-wand, microphone-stage, puzzle-piece, brain, sparkle, compass, sun, chat-circle-dots",
-    "rasgos": ["adjetivo o frase corta (2-4 palabras)", "adjetivo o frase corta (2-4 palabras)", "adjetivo o frase corta (2-4 palabras)"],
-    "frase_memorable": "Copia TEXTUAL de algo que dijo el profesor en la conversación. Busca la frase más graciosa, sincera o reveladora.",
-    "superpoder": "Su superpoder secreto como profe de ELE (una frase corta e ingeniosa)",
-    "prediccion": "Una predicción cariñosa sobre su futuro como docente (1 oración corta)"
+    "titulo": "Título MUY creativo y específico basado en lo que reveló la conversación. NO uses títulos genéricos como 'El Profe Amable' o 'La Profe Divertida'. Inspírate en algo concreto que pasó: si no va a reuniones → 'El Houdini de las Reuniones', si necesita café → 'El Motor a Cafeína', si no pone exámenes difíciles → 'El Profe de Guante Blanco'.",
+    "icono": "Opciones EXACTAS: graduation-cap, chalkboard-teacher, book-open-text, lightning, star, heart, fire, trophy, rocket, magic-wand, microphone-stage, puzzle-piece, brain, sparkle, compass, sun, chat-circle-dots",
+    "rasgos": ["adjetivo o frase corta", "adjetivo o frase corta", "adjetivo o frase corta"],
+    "frase_memorable": "CITA TEXTUAL del profesor (líneas 'Profesor:'). La más graciosa o reveladora.",
+    "superpoder": "Algo MUY específico e ingenioso basado en la conversación, no genérico. Ej: si nunca va a reuniones → 'Capaz de hacerse invisible cuando suena la palabra reunión'.",
+    "prediccion": "Predicción divertida y específica, no genérica. Basada en lo que reveló. Ej: 'Acabará dando clase en pijama y nadie se dará cuenta porque sus alumnos estarán demasiado entretenidos'."
 }
 
-REGLAS ESTRICTAS:
-- NO uses emojis unicode en NINGÚN campo.
-- El "titulo" debe tener sentido gramatical en español. NO juntes palabras sin sentido. Formato: artículo + sustantivo + complemento.
-- Los "rasgos" son adjetivos o frases cortas que describan al profe (como "sincero", "buen humor", "improvisador nato"). NO uses sustantivos sueltos sin sentido.
-- La "frase_memorable" es una CITA TEXTUAL del profesor (líneas "Profesor:"). NUNCA cites a Eliana. Si no hay frase memorable clara, parafrasea algo que el profesor dijo.
-- NO menciones niveles educativos (universidad, instituto, colegio) a menos que el profesor los haya dicho.
+REGLAS:
+- NO emojis unicode.
+- SÉ CREATIVO y ESPECÍFICO. Los títulos, superpoderes y predicciones genéricas ("será recordado como uno de los mejores", "profe querido") son INACEPTABLES.
+- La "frase_memorable" SOLO cita al PROFESOR (líneas "Profesor:"), NUNCA a Eliana.
+- NO menciones niveles educativos a menos que el profesor los dijo.
 - NO inventes información que no esté en la conversación.
-- La "prediccion" debe ser breve y basada en la conversación real.
+- Cada campo debe estar conectado con algo concreto que el profesor dijo o reveló.
 
 La conversación fue:
 """,
@@ -650,12 +649,21 @@ async def text_to_speech(req: TTSRequest):
     if not req.text or not req.text.strip():
         raise HTTPException(status_code=400, detail="Texto vacío")
 
+    import time as _time
+    _tts_start = _time.time()
+
     if req.skip_summary:
         summary = req.text.strip()
+        print(f"[TTS] skip_summary=true, usando texto directo ({len(summary)} chars)")
     else:
         summary = await _generate_tts_summary(req.text, is_activity=req.is_activity)
         if not summary:
-            raise HTTPException(status_code=500, detail="No se pudo generar resumen para TTS")
+            # Fallback: usar texto original si el LLM falla
+            print("[TTS] Summary failed — using original text as fallback")
+            summary = re.sub(r'\*+', '', req.text.strip())
+            summary = re.sub(r'#{1,6}\s+', '', summary)
+            summary = re.sub(r'\n{2,}', '. ', summary).strip()
+        print(f"[TTS] Summary generado en {_time.time() - _tts_start:.1f}s ({len(summary)} chars)")
 
     url = (
         f"https://api.elevenlabs.io/v1/text-to-speech/{elevenlabs_voice_id}/stream"
