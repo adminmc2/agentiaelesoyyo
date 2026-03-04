@@ -1476,12 +1476,7 @@ function sendToWebSocket(message, responseMode = 'full') {
                 }
                 addSpeakerButton(assistantMessage, state.currentMessage);
 
-                // Comprobar si es el último turno de actividad
-                const isLastActivityTurn = state.activityMode
-                    && (state.activityMessageCount + 2) >= 8
-                    && !state.profileGenerated;
-
-                if (!isLastActivityTurn && (state.ttsEnabled || state.voiceTriggered)) {
+                if (state.ttsEnabled || state.voiceTriggered) {
                     // Actividades: skip_summary (texto ya es conversacional, evita latencia)
                     // Chat normal: pasar por tts_summary para versión hablada
                     playTTS(state.currentMessage, !!state.activityMode);
@@ -1492,7 +1487,15 @@ function sendToWebSocket(message, responseMode = 'full') {
             if (state.activityMode) {
                 state.activityMessageCount += 2; // user + assistant
                 if (state.activityMessageCount >= 8 && !state.profileGenerated) {
-                    showActivityClosing();
+                    // Esperar a que termine el TTS de la respuesta antes del cierre
+                    const waitAndClose = () => {
+                        if (!state.ttsPlaying) {
+                            setTimeout(() => showActivityClosing(), 600);
+                        } else {
+                            setTimeout(waitAndClose, 200);
+                        }
+                    };
+                    waitAndClose();
                 }
             }
 
@@ -3168,7 +3171,7 @@ const ACTIVITY_LABELS = {
 
 const ACTIVITY_OPENERS = {
     yo_nunca_nunca: 'Vamos a jugar a Yo Nunca Nunca. Funciona así: yo digo una frase "yo nunca nunca he..." sobre cosas de profes, y tú me cuentas si te ha pasado. Pero antes, ¿cómo te llamas?',
-    dime_algo: 'Bienvenido a mi consulta de perfilado psicológico docente. Funciona así: tú me dices tu palabra favorita en español y yo te digo qué tipo de profe eres. Pero primero, ¿cómo te llamas?',
+    dime_algo: 'Bienvenido a mi consulta de perfilado psicológico docente. Funciona así: tú me dices tres palabras favoritas en español, una por una, y yo te digo qué tipo de profe eres. Pero primero, ¿cómo te llamas?',
     pregunta_ia: 'Vamos a conocernos de verdad. Funciona así: yo te hago una pregunta, tú me respondes, y luego tú me preguntas lo que quieras a mí. Pero antes, ¿cómo te llamas?'
 };
 
@@ -3299,16 +3302,7 @@ function renderProfileCard(data) {
 function showActivityClosing() {
     if (document.getElementById('generate-profile-floating-btn')) return;
 
-    // Mensaje de cierre de Eliana
-    const closingMsg = '¡Oye, qué bien lo hemos pasado! Mira, con todo lo que me has contado ya me he hecho una idea muy clara de qué tipo de profe eres. Si quieres, dale al botón y te lo enseño.';
-    addMessage(closingMsg, 'assistant');
-
-    // Leer el cierre en voz alta
-    if (state.ttsEnabled || state.voiceTriggered) {
-        playTTS(closingMsg, true);
-    }
-
-    // Botón debajo del mensaje
+    // Solo botón — el LLM ya incluyó el cierre en su última respuesta
     const btn = document.createElement('button');
     btn.id = 'generate-profile-floating-btn';
     btn.className = 'generate-profile-btn';
