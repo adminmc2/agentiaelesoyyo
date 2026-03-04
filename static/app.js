@@ -1614,14 +1614,24 @@ async function startRecording() {
         };
 
         state.mediaRecorder.onstop = async () => {
+            // Close tracks after each recording (iOS needs fresh stream each time)
+            stream.getTracks().forEach(track => track.stop());
+
+            // Si no hubo habla, descartar sin enviar
+            if (state._discardRecording) {
+                state._discardRecording = false;
+                console.log('[Recording] Discarded — no speech detected');
+                // Reanudar wake word
+                resumeWakeWordAfterRecording();
+                return;
+            }
+
             // Use the actual mimeType that was recorded
             const blobType = state.recordingMimeType || 'audio/webm';
             const extension = blobType.includes('mp4') ? 'mp4' : blobType.includes('aac') ? 'aac' : 'webm';
             const audioBlob = new Blob(state.audioChunks, { type: blobType });
             console.log('[Recording] Created blob:', blobType, 'size:', audioBlob.size);
             await transcribeAudio(audioBlob, extension);
-            // Close tracks after each recording (iOS needs fresh stream each time)
-            stream.getTracks().forEach(track => track.stop());
         };
 
         state.mediaRecorder.start();
@@ -1678,6 +1688,7 @@ function startSilenceDetection(stream) {
     const SILENCE_DURATION = isVoiceMode ? 1000 : 3000;   // 1s for mode, 3s normal
     const MIN_RECORDING = isVoiceMode ? 1000 : 1500;     // 1s for mode, 1.5s normal
     const MAX_RECORDING = 120000;   // Máximo absoluto: 2 minutos
+    const NO_SPEECH_TIMEOUT = 15000; // Si nadie habla en 15s, parar
 
     let silenceStart = null;
     let speechDetected = false;
@@ -1705,6 +1716,14 @@ function startSilenceDetection(stream) {
         // Detect real speech
         if (avg > SILENCE_THRESHOLD * 1.5) {
             speechDetected = true;
+        }
+
+        // Si nadie habla en 15s, parar sin enviar
+        if (!speechDetected && elapsed > NO_SPEECH_TIMEOUT) {
+            console.log('[Silence] No speech detected in 15s, cancelling');
+            state._discardRecording = true;
+            stopRecording();
+            return;
         }
 
         // Only evaluate silence after MIN_RECORDING and after speech was detected
@@ -2365,20 +2384,12 @@ const WAKE_WORD_PATTERNS = [
     /ola\s*eliana/i,      // STT typo sin h
     /hola\s*iliana/i,     // STT variante
     /hola\s*eliane/i,     // STT variante
-    /hola\s*elena/i,      // STT confusión común
     /hey\s*iliana/i,
     /oye\s*iliana/i,
-    /hola\s*liana/i,      // STT omite la E inicial
-    /hola\s*liliana/i,    // STT confusión con Liliana
-    /hey\s*liana/i,
-    /oye\s*liana/i,
-    /hola\s*lia/i,        // STT parcial
-    /hey\s*liliana/i,
-    /oye\s*liliana/i,
 ];
 
 // Single-word fallback: standalone "eliana" (or variants) only if it's the whole transcript
-const WAKE_WORD_SOLO = /^\s*(eliana|iliana|eliane|elena|liana|liliana)\s*$/i;
+const WAKE_WORD_SOLO = /^\s*(eliana|iliana|eliane)\s*$/i;
 
 /**
  * Checks if the transcript contains a wake word.
@@ -2405,8 +2416,8 @@ function stripWakeWord(text) {
         t = t.replace(new RegExp(pattern.source + '[,\\s.!?]*', 'gi'), '').trim();
     }
 
-    // 2) Strip standalone "eliana" variations
-    t = t.replace(/\b(eliana|iliana|eliane|elena)\b[,\s.!?]*/gi, '').trim();
+    // 2) Strip standalone "eliana" variations (NOT "elena" — it's a common name)
+    t = t.replace(/\b(eliana|iliana|eliane)\b[,\s.!?]*/gi, '').trim();
 
     // 3) If what remains is just a greeting word or nothing, return empty
     const leftover = t.toLowerCase()
@@ -3381,11 +3392,9 @@ function init() {
 
     document.getElementById('profile-share-btn')?.addEventListener('click', async () => {
         const card = document.getElementById('profile-card');
-        if (!card) return;
+        if (!card || !window.html2canvas) return;
         try {
-            // Intentar compartir como imagen usando canvas nativo
-            const { default: html2canvas } = await import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm');
-            const canvas = await html2canvas(card, { backgroundColor: '#FDFAF5', scale: 2 });
+            const canvas = await window.html2canvas(card, { backgroundColor: '#FDFAF5', scale: 2 });
             canvas.toBlob(async (blob) => {
                 if (navigator.share && navigator.canShare) {
                     const file = new File([blob], 'mi-perfil-eliana.png', { type: 'image/png' });
@@ -3413,10 +3422,9 @@ function init() {
 
     document.getElementById('profile-download-btn')?.addEventListener('click', async () => {
         const card = document.getElementById('profile-card');
-        if (!card) return;
+        if (!card || !window.html2canvas) return;
         try {
-            const { default: html2canvas } = await import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm');
-            const canvas = await html2canvas(card, { backgroundColor: '#FDFAF5', scale: 2 });
+            const canvas = await window.html2canvas(card, { backgroundColor: '#FDFAF5', scale: 2 });
             const link = document.createElement('a');
             link.href = canvas.toDataURL('image/png');
             link.download = 'mi-perfil-eliana.png';
