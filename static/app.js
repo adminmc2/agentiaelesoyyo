@@ -1476,8 +1476,9 @@ function sendToWebSocket(message, responseMode = 'full') {
                 }
                 addSpeakerButton(assistantMessage, state.currentMessage);
                 if (state.ttsEnabled || state.voiceTriggered) {
-                    // En modo actividad, pasar por tts_activity para versión hablada natural
-                    playTTS(state.currentMessage, false, !!state.activityMode);
+                    // Actividades: skip_summary (texto ya es conversacional, evita 3-5s de latencia)
+                    // Chat normal: pasar por tts_summary para versión hablada
+                    playTTS(state.currentMessage, !!state.activityMode);
                 }
             }
 
@@ -1494,7 +1495,19 @@ function sendToWebSocket(message, responseMode = 'full') {
         else if (data.type === 'profile_card') {
             removeTypingIndicator();
             elements.chatStatus.textContent = 'En línea';
-            showProfileScreen(data.data);
+
+            // Mensaje de transición antes de mostrar la tarjeta
+            const transitionMsg = 'He preparado tu carnet de identidad docente. A ver qué te parece...';
+            addMessage(transitionMsg, 'assistant');
+
+            if (state.ttsEnabled || state.voiceTriggered) {
+                // Leer transición y mostrar tarjeta cuando termine el audio
+                playTTSAndWait(transitionMsg).then(() => {
+                    showProfileScreen(data.data);
+                });
+            } else {
+                setTimeout(() => showProfileScreen(data.data), 2000);
+            }
         }
         else if (data.type === 'agent_info') {
             console.log('Agente:', data.agent, '- Documentos:', data.context_docs, '- Cobertura RAG:', data.rag_coverage);
@@ -2954,7 +2967,7 @@ function addSpeakerButton(messageElement, fullText) {
             btn.innerHTML = '<i class="ph ph-speaker-high"></i>';
             btn.title = 'Escuchar respuesta';
         } else {
-            playTTS(fullText, false, !!state.activityMode);
+            playTTS(fullText, !!state.activityMode);
             btn.innerHTML = '<i class="ph ph-stop"></i>';
             btn.title = 'Detener audio';
             // Restaurar icono cuando termine

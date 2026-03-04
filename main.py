@@ -33,6 +33,7 @@ llm_client = AsyncOpenAI(
 ) if groq_api_key else None
 
 LLM_MODEL = "moonshotai/kimi-k2-instruct-0905"
+LLM_FALLBACK_MODEL = "llama-3.3-70b-versatile"
 
 # Cliente Groq nativo (para transcripción de voz con Whisper)
 groq_client = Groq(api_key=groq_api_key) if groq_api_key else None
@@ -161,19 +162,26 @@ ESTILO TTS — Esto se lee en voz alta:
 - PROHIBIDO: risas (jaja, jeje), interjecciones exageradas, onomatopeyas. El TTS no puede reír.
 - La emoción se transmite con las palabras, no con exclamaciones.""",
 
-    "profile_card": """Basándote en la siguiente conversación entre Eliana y un profesor de ELE, genera un "carnet de identidad docente" divertido y cariñoso.
+    "profile_card": """Basándote en la siguiente conversación entre Eliana (IA) y un profesor de ELE, genera un "carnet de identidad docente" divertido y cariñoso.
 
 Devuelve SOLO un JSON válido con esta estructura exacta (sin markdown, sin bloques de código, solo el JSON puro):
 {
-    "titulo": "Un título divertido de 3-5 palabras que defina al profe (ej: 'El Domador de Subjuntivos')",
-    "icono": "Un nombre de icono Phosphor que represente al profe. Opciones EXACTAS: graduation-cap, chalkboard-teacher, book-open-text, lightning, star, heart, fire, trophy, rocket, magic-wand, microphone-stage, puzzle-piece, brain, sparkle, compass, sun, chat-circle-dots",
-    "rasgos": ["rasgo 1 gracioso en 3-5 palabras", "rasgo 2 gracioso en 3-5 palabras", "rasgo 3 gracioso en 3-5 palabras"],
-    "frase_memorable": "La frase o momento más divertido/memorable de la conversación (cita real o parafraseada)",
-    "superpoder": "Su superpoder secreto como profe de ELE (una frase ingeniosa)",
-    "prediccion": "Una predicción absurda y cariñosa sobre su futuro como docente (1-2 oraciones)"
+    "titulo": "Título creativo en formato 'El/La + Sustantivo + Adjetivo/Complemento' (ej: 'El Domador de Subjuntivos', 'La Maga del Aula', 'El Profe sin Filtro'). Debe tener sentido gramatical y ser gracioso.",
+    "icono": "Un nombre de icono Phosphor. Opciones EXACTAS: graduation-cap, chalkboard-teacher, book-open-text, lightning, star, heart, fire, trophy, rocket, magic-wand, microphone-stage, puzzle-piece, brain, sparkle, compass, sun, chat-circle-dots",
+    "rasgos": ["adjetivo o frase corta (2-4 palabras)", "adjetivo o frase corta (2-4 palabras)", "adjetivo o frase corta (2-4 palabras)"],
+    "frase_memorable": "Copia TEXTUAL de algo que dijo el profesor en la conversación. Busca la frase más graciosa, sincera o reveladora.",
+    "superpoder": "Su superpoder secreto como profe de ELE (una frase corta e ingeniosa)",
+    "prediccion": "Una predicción cariñosa sobre su futuro como docente (1 oración corta)"
 }
 
-IMPORTANTE: NO uses emojis unicode en ningún campo. El campo "icono" debe ser exactamente uno de los nombres listados, no un emoji.
+REGLAS ESTRICTAS:
+- NO uses emojis unicode en NINGÚN campo.
+- El "titulo" debe tener sentido gramatical en español. NO juntes palabras sin sentido. Formato: artículo + sustantivo + complemento.
+- Los "rasgos" son adjetivos o frases cortas que describan al profe (como "sincero", "buen humor", "improvisador nato"). NO uses sustantivos sueltos sin sentido.
+- La "frase_memorable" es una CITA TEXTUAL del profesor (líneas "Profesor:"). NUNCA cites a Eliana. Si no hay frase memorable clara, parafrasea algo que el profesor dijo.
+- NO menciones niveles educativos (universidad, instituto, colegio) a menos que el profesor los haya dicho.
+- NO inventes información que no esté en la conversación.
+- La "prediccion" debe ser breve y basada en la conversación real.
 
 La conversación fue:
 """,
@@ -413,10 +421,28 @@ ACTIVITY_PROMPTS = {k: v for k, v in _DEFAULT_PROMPTS.items() if k in ("yo_nunca
 PROFILE_CARD_PROMPT = _DEFAULT_PROMPTS["profile_card"]
 
 
+async def _warmup_llm():
+    """Warmup del modelo LLM para evitar cold start en la primera interacción."""
+    if not llm_client:
+        return
+    for model in [LLM_MODEL, LLM_FALLBACK_MODEL]:
+        try:
+            await llm_client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": "Hola"}],
+                max_tokens=1,
+                temperature=0
+            )
+            print(f"[Warmup] {model} OK")
+        except Exception as e:
+            print(f"[Warmup] {model} falló: {e}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Inicializar al arrancar"""
     await init_db()
+    await _warmup_llm()
     print("Eliana lista para la presentación.")
     yield
     if db_pool:
@@ -504,16 +530,20 @@ async def _generate_tts_summary(agent_response: str, is_activity: bool = False) 
     try:
         prompt_key = "tts_activity" if is_activity else "tts_summary"
         tts_prompt = await get_system_prompt(prompt_key) or _DEFAULT_PROMPTS.get(prompt_key, TTS_SUMMARY_PROMPT)
-        response = await llm_client.chat.completions.create(
-            model=LLM_MODEL,
-            messages=[
-                {"role": "system", "content": tts_prompt},
-                {"role": "user", "content": agent_response}
-            ],
-            stream=False,
-            max_tokens=200,
-            temperature=0.6
-        )
+        tts_messages = [
+            {"role": "system", "content": tts_prompt},
+            {"role": "user", "content": agent_response}
+        ]
+        try:
+            response = await llm_client.chat.completions.create(
+                model=LLM_MODEL, messages=tts_messages,
+                stream=False, max_tokens=500, temperature=0.6
+            )
+        except Exception:
+            response = await llm_client.chat.completions.create(
+                model=LLM_FALLBACK_MODEL, messages=tts_messages,
+                stream=False, max_tokens=500, temperature=0.6
+            )
         summary = response.choices[0].message.content.strip()
         # Limpiar <think> de modelos con razonamiento
         summary = re.sub(r'<think>[\s\S]*?</think>\s*', '', summary)
@@ -643,9 +673,9 @@ async def text_to_speech(req: TTSRequest):
         "model_id": "eleven_multilingual_v2",
         "language_code": "es",
         "voice_settings": {
-            "stability": 0.35,
-            "similarity_boost": 0.65,
-            "style": 0.55,
+            "stability": 0.50,
+            "similarity_boost": 0.75,
+            "style": 0.20,
             "use_speaker_boost": True,
         },
     }
@@ -728,16 +758,20 @@ async def websocket_chat(websocket: WebSocket):
                         for m in conversation_history
                     ])
                     profile_prompt = await get_system_prompt("profile_card") or PROFILE_CARD_PROMPT
-                    profile_response = await llm_client.chat.completions.create(
-                        model=LLM_MODEL,
-                        messages=[
-                            {"role": "system", "content": profile_prompt},
-                            {"role": "user", "content": conv_text}
-                        ],
-                        stream=False,
-                        max_tokens=500,
-                        temperature=0.8
-                    )
+                    profile_msgs = [
+                        {"role": "system", "content": profile_prompt},
+                        {"role": "user", "content": conv_text}
+                    ]
+                    try:
+                        profile_response = await llm_client.chat.completions.create(
+                            model=LLM_MODEL, messages=profile_msgs,
+                            stream=False, max_tokens=500, temperature=0.8
+                        )
+                    except Exception:
+                        profile_response = await llm_client.chat.completions.create(
+                            model=LLM_FALLBACK_MODEL, messages=profile_msgs,
+                            stream=False, max_tokens=500, temperature=0.8
+                        )
                     profile_text = profile_response.choices[0].message.content.strip()
                     # Limpiar <think> de modelos con razonamiento
                     profile_text = re.sub(r'<think>[\s\S]*?</think>\s*', '', profile_text)
@@ -825,14 +859,29 @@ async def websocket_chat(websocket: WebSocket):
                     max_tokens = 500 if response_mode == "short" else 1000
                     temperature = 0.7
 
-                # Stream de respuesta con Groq
-                stream = await llm_client.chat.completions.create(
-                    model=LLM_MODEL,
-                    messages=messages,
-                    stream=True,
-                    max_tokens=max_tokens,
-                    temperature=temperature
-                )
+                # Stream de respuesta con Groq (fallback si modelo principal no disponible)
+                active_model = LLM_MODEL
+                try:
+                    stream = await llm_client.chat.completions.create(
+                        model=LLM_MODEL,
+                        messages=messages,
+                        stream=True,
+                        max_tokens=max_tokens,
+                        temperature=temperature
+                    )
+                except Exception as model_err:
+                    if "503" in str(model_err) or "over capacity" in str(model_err):
+                        print(f"[WS] {LLM_MODEL} no disponible, usando fallback {LLM_FALLBACK_MODEL}")
+                        active_model = LLM_FALLBACK_MODEL
+                        stream = await llm_client.chat.completions.create(
+                            model=LLM_FALLBACK_MODEL,
+                            messages=messages,
+                            stream=True,
+                            max_tokens=max_tokens,
+                            temperature=temperature
+                        )
+                    else:
+                        raise model_err
 
                 full_response = ""
                 token_count = 0
