@@ -365,7 +365,7 @@
         const existing = orbInstances.find(o => o && o.id === 'orb-container-chat-header');
         if (existing) return;
 
-        const chatOrb = createOrb('orb-container-chat-header', 40);
+        const chatOrb = createOrb('orb-container-chat-header', 140);
         if (chatOrb) orbInstances.push(chatOrb);
     };
 

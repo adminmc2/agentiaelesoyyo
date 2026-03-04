@@ -1623,20 +1623,30 @@ body[data-mood-active] .bento-card--mood {
 }
 
 .profile-card {
-    background: rgba(239, 237, 247, 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: linear-gradient(145deg, #ffffff 0%, #fdf8f4 40%, #f5ebe4 100%);
     border-radius: var(--md-sys-shape-extra-large);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(212, 130, 106, 0.15);
     box-shadow:
-        0px 1px 3px 0px rgba(0, 0, 0, 0.30),
-        0px 4px 8px 3px rgba(0, 0, 0, 0.15);
-    padding: var(--space-32) var(--space-24);
+        0 8px 32px rgba(212, 130, 106, 0.12),
+        0 2px 8px rgba(0, 0, 0, 0.06);
+    padding: var(--space-32) var(--space-24) var(--space-24);
     max-width: 380px;
     width: 100%;
     position: relative;
     overflow: hidden;
     text-align: center;
+}
+
+/* Decorative accent bar at top */
+.profile-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--md-sys-color-primary), var(--md-sys-color-secondary), var(--md-sys-color-tertiary));
+    border-radius: var(--md-sys-shape-extra-large) var(--md-sys-shape-extra-large) 0 0;
 }
 
 .profile-card__orb {
@@ -1645,20 +1655,32 @@ body[data-mood-active] .bento-card--mood {
     right: -20px;
     width: 100px;
     height: 100px;
-    opacity: 0.25;
+    opacity: 0.15;
     pointer-events: none;
 }
 
 .profile-card__emoji {
-    font-size: 56px;
-    line-height: 1;
-    margin-bottom: var(--space-12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    margin: 0 auto var(--space-16);
+    background: linear-gradient(135deg, var(--md-sys-color-primary), var(--md-sys-color-secondary));
+    border-radius: 50%;
+    color: #fff;
+    font-size: 32px;
+}
+
+.profile-card__emoji i {
+    font-size: 32px;
 }
 
 .profile-card__title {
-    font: 600 28px 'Dosis', sans-serif;
+    font: 700 26px 'Dosis', sans-serif;
     color: var(--md-sys-color-on-surface);
     margin-bottom: var(--space-16);
+    letter-spacing: -0.01em;
 }
 
 .profile-card__rasgos {
@@ -1666,59 +1688,67 @@ body[data-mood-active] .bento-card--mood {
     flex-wrap: wrap;
     gap: var(--space-8);
     justify-content: center;
-    margin-bottom: var(--space-16);
+    margin-bottom: var(--space-20);
 }
 
 .profile-card__rasgo {
-    font: 500 13px 'Inconsolata', monospace;
-    background: rgba(212, 130, 106, 0.18);
+    font: 600 12px 'Inconsolata', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: rgba(212, 130, 106, 0.12);
     color: var(--md-sys-color-primary);
     border-radius: var(--md-sys-shape-full);
-    padding: var(--space-4) var(--space-16);
-    border: 1px solid rgba(212, 130, 106, 0.25);
+    padding: 6px var(--space-16);
+    border: 1px solid rgba(212, 130, 106, 0.2);
 }
 
 .profile-card__frase {
-    font: 400 15px 'Inconsolata', monospace;
+    font: 400 14px/1.6 'Inconsolata', monospace;
     font-style: italic;
     color: var(--md-sys-color-on-surface-variant);
+    background: rgba(212, 130, 106, 0.06);
     border-left: 3px solid var(--md-sys-color-primary);
-    padding-left: var(--space-12);
-    margin: var(--space-16) 0;
+    border-radius: 0 8px 8px 0;
+    padding: var(--space-12) var(--space-16);
+    margin: 0 0 var(--space-20);
     text-align: left;
-    line-height: 1.5;
 }
 
 .profile-card__superpoder {
-    font: 500 16px 'Dosis', sans-serif;
+    font: 600 15px 'Dosis', sans-serif;
     color: var(--md-sys-color-primary);
-    margin-bottom: var(--space-8);
+    margin-bottom: var(--space-12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 
-.profile-card__superpoder::before {
-    content: '⚡ ';
+.profile-card__superpoder i {
+    font-size: 18px;
 }
 
 .profile-card__prediccion {
-    font: 400 13px 'Inconsolata', monospace;
+    font: 400 13px/1.6 'Inconsolata', monospace;
     color: var(--md-sys-color-on-surface-variant);
     margin-bottom: var(--space-16);
-    line-height: 1.5;
 }
 
 .profile-card__footer {
     display: flex;
     justify-content: space-between;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    align-items: center;
+    border-top: 1px solid rgba(212, 130, 106, 0.15);
     padding-top: var(--space-12);
     margin-top: var(--space-8);
 }
 
 .profile-card__brand,
 .profile-card__event {
-    font: 500 11px 'Inconsolata', monospace;
+    font: 600 11px 'Inconsolata', monospace;
     color: var(--md-sys-color-on-surface-variant);
-    opacity: 0.5;
+    opacity: 0.4;
+    letter-spacing: 0.03em;
 }
 
 .profile-actions {
@@ -1729,17 +1759,17 @@ body[data-mood-active] .bento-card--mood {
 }
 
 .profile-action-btn {
-    font: 500 14px 'Inconsolata', monospace;
+    font: 600 14px 'Inconsolata', monospace;
     display: flex;
     align-items: center;
     gap: var(--space-8);
     padding: var(--space-12) var(--space-20);
     border-radius: var(--md-sys-shape-full);
-    border: 1px solid rgba(198, 197, 208, 0.5);
-    background: rgba(255, 255, 255, 0.6);
+    border: 1.5px solid rgba(198, 197, 208, 0.4);
+    background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(8px);
     cursor: pointer;
-    transition: transform 0.15s, background 0.15s;
+    transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
 }
@@ -1749,9 +1779,10 @@ body[data-mood-active] .bento-card--mood {
 }
 
 .profile-action-btn--share {
-    background: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary);
+    background: linear-gradient(135deg, var(--md-sys-color-primary), var(--md-sys-color-secondary));
+    color: #fff;
     border-color: transparent;
+    box-shadow: 0 4px 16px rgba(212, 130, 106, 0.3);
 }
 
 .profile-action-btn--share:active {
@@ -1933,17 +1964,16 @@ body[data-mood-active] .bento-card--mood {
 
 /* Orb logo en chat header */
 .orb-container-chat-header {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--md-sys-shape-full);
-    overflow: hidden;
+    width: 56px;
+    height: 56px;
     flex-shrink: 0;
+    overflow: hidden;
 }
 
 .orb-container-chat-header canvas {
     display: block;
-    width: 100% !important;
-    height: 100% !important;
+    width: 56px !important;
+    height: 56px !important;
 }
 
 .chat-title {
@@ -2655,8 +2685,13 @@ body[data-mood-active] .message.assistant {
     }
 
     .orb-container-chat-header {
-        width: 32px;
-        height: 32px;
+        width: 48px;
+        height: 48px;
+    }
+
+    .orb-container-chat-header canvas {
+        width: 48px !important;
+        height: 48px !important;
     }
 
     .chat-title-text {

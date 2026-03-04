@@ -1302,9 +1302,9 @@ function addMessage(text, role) {
         row.className = 'message-row assistant';
         const avatar = document.createElement('div');
         avatar.className = 'message-avatar';
-        // Crear orb animado real dentro del avatar
+        // Crear orb animado real dentro del avatar (140 = 200 partículas, CSS lo escala)
         if (window.orbCreateInElement) {
-            window.orbCreateInElement(avatar, 28);
+            window.orbCreateInElement(avatar, 140);
         }
         row.appendChild(avatar);
         row.appendChild(messageDiv);
@@ -1365,7 +1365,7 @@ function addTypingIndicator() {
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar';
     if (window.orbCreateInElement) {
-        window.orbCreateInElement(avatar, 28);
+        window.orbCreateInElement(avatar, 140);
     }
     const indicator = document.createElement('div');
     indicator.className = 'message assistant typing';
@@ -1476,8 +1476,8 @@ function sendToWebSocket(message, responseMode = 'full') {
                 }
                 addSpeakerButton(assistantMessage, state.currentMessage);
                 if (state.ttsEnabled || state.voiceTriggered) {
-                    // En modo actividad, skip summary (respuestas ya son conversacionales)
-                    playTTS(state.currentMessage, !!state.activityMode);
+                    // En modo actividad, pasar por tts_activity para versión hablada natural
+                    playTTS(state.currentMessage, false, !!state.activityMode);
                 }
             }
 
@@ -1833,13 +1833,13 @@ async function transcribeAudio(audioBlob, extension = 'webm') {
 
             if (!elements.chatScreen.classList.contains('hidden')) {
                 addMessage(cleanText, 'user');
-                if (actionable && state.voiceTriggered) {
-                    // Voice: ask mode by TTS and listen
+                if (actionable && state.voiceTriggered && !state.activityMode) {
+                    // Voice: ask mode by TTS and listen (skip in activity mode)
                     // Return here — askResponseModeByVoice manages its own recording cycle
                     askResponseModeByVoice(cleanText);
                     return;
                 } else {
-                    // Non-actionable: send directly
+                    // Non-actionable or activity mode: send directly
                     sendToWebSocket(cleanText);
                 }
             } else {
@@ -2736,7 +2736,7 @@ function updateVoiceButton(enabled) {
  * Envía texto al endpoint /api/tts y reproduce el audio streaming.
  * Si ya hay un audio reproduciéndose, lo detiene primero.
  */
-async function playTTS(text, skipSummary = false) {
+async function playTTS(text, skipSummary = false, isActivity = false) {
     // Detener audio previo si existe
     stopTTS();
     state.ttsCancelled = false;  // Reset flag para esta nueva reproducción
@@ -2746,11 +2746,11 @@ async function playTTS(text, skipSummary = false) {
     if (!text || !text.trim()) return;
 
     try {
-        console.log(`[TTS] Requesting audio for ${text.length} chars...`);
+        console.log(`[TTS] Requesting audio for ${text.length} chars (activity=${isActivity})...`);
         const response = await fetch('/api/tts', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text, skip_summary: skipSummary })
+            body: JSON.stringify({ text, skip_summary: skipSummary, is_activity: isActivity })
         });
 
         // Si el usuario navegó atrás mientras el fetch estaba en progreso, no reproducir
@@ -2956,7 +2956,7 @@ function addSpeakerButton(messageElement, fullText) {
             btn.innerHTML = '<i class="ph ph-speaker-high"></i>';
             btn.title = 'Escuchar respuesta';
         } else {
-            playTTS(fullText);
+            playTTS(fullText, false, !!state.activityMode);
             btn.innerHTML = '<i class="ph ph-stop"></i>';
             btn.title = 'Detener audio';
             // Restaurar icono cuando termine
@@ -3178,9 +3178,9 @@ const ACTIVITY_LABELS = {
 };
 
 const ACTIVITY_OPENERS = {
-    yo_nunca_nunca: '¡Venga, vamos a jugar! Yo empiezo. A ver... Yo nunca nunca he explicado la diferencia entre "ser" y "estar" y he pensado "¿pero por qué es así realmente?"... ¿Te ha pasado?',
-    dime_algo: 'Bienvenido a mi consulta de perfilado psicológico docente. Esto es muy serio, ¿eh? Necesito que me digas... tu palabra favorita en español. La primera que te venga. Y que sea sincera, que estas cosas se notan.',
-    pregunta_ia: 'Vale, vamos a conocernos de verdad. Yo te pregunto algo, tú me respondes, y luego tú me preguntas lo que quieras. Sin filtros. Empiezo yo: ¿Cuál fue el momento exacto en que supiste que querías ser profe de idiomas?'
+    yo_nunca_nunca: 'Vamos a jugar a Yo Nunca Nunca. Funciona así: yo digo una frase "yo nunca nunca he..." sobre cosas de profes, y tú me cuentas si te ha pasado. Pero antes, ¿cómo te llamas?',
+    dime_algo: 'Bienvenido a mi consulta de perfilado psicológico docente. Funciona así: tú me dices tu palabra favorita en español y yo te digo qué tipo de profe eres. Pero primero, ¿cómo te llamas?',
+    pregunta_ia: 'Vamos a conocernos de verdad. Funciona así: yo te hago una pregunta, tú me respondes, y luego tú me preguntas lo que quieras a mí. Pero antes, ¿cómo te llamas?'
 };
 
 function showConoceScreen() {
@@ -3223,15 +3223,18 @@ function showActivityChat(activityMode) {
         // Limpiar chat previo
         elements.chatMessages.innerHTML = '';
 
-        // Mostrar label de actividad
+        // Ocultar label de actividad — solo mostrar "En línea"
         const activityLabel = document.getElementById('chat-activity-label');
         if (activityLabel) {
-            activityLabel.textContent = ACTIVITY_LABELS[activityMode];
-            activityLabel.style.display = '';
+            activityLabel.style.display = 'none';
         }
 
-        // Crear orb en chat header
-        if (window.orbCreateChatHeader) window.orbCreateChatHeader();
+        // Crear orb en chat header — mismo orb que login/conoce (200 partículas = size > 100)
+        const chatOrbContainer = document.getElementById('orb-container-chat-header');
+        if (chatOrbContainer && window.orbCreateInElement) {
+            chatOrbContainer.innerHTML = '';
+            window.orbCreateInElement(chatOrbContainer, 140);
+        }
 
         // Eliana habla primero
         const opener = ACTIVITY_OPENERS[activityMode];
@@ -3269,7 +3272,12 @@ function renderProfileCard(data) {
     try {
         const profile = typeof data === 'string' ? JSON.parse(data) : data;
 
-        document.getElementById('profile-emoji').textContent = profile.emoji || '🎓';
+        // Phosphor icon en vez de emoji unicode
+        const iconName = profile.icono || profile.emoji || 'graduation-cap';
+        const iconEl = document.getElementById('profile-emoji');
+        iconEl.textContent = '';
+        iconEl.innerHTML = `<i class="ph-bold ph-${iconName}"></i>`;
+
         document.getElementById('profile-title').textContent = profile.titulo || 'Profe Extraordinario';
 
         const rasgosContainer = document.getElementById('profile-rasgos');
@@ -3283,14 +3291,16 @@ function renderProfileCard(data) {
 
         document.getElementById('profile-frase').textContent =
             '"' + (profile.frase_memorable || '...') + '"';
-        document.getElementById('profile-superpoder').textContent =
-            profile.superpoder || 'Superpoder desconocido';
+
+        const superpoderEl = document.getElementById('profile-superpoder');
+        superpoderEl.innerHTML = `<i class="ph-bold ph-lightning"></i> ${profile.superpoder || 'Superpoder desconocido'}`;
+
         document.getElementById('profile-prediccion').textContent =
             profile.prediccion || '';
     } catch (e) {
         console.error('[Profile] Error rendering:', e, data);
         document.getElementById('profile-title').textContent = 'Tu perfil docente';
-        document.getElementById('profile-emoji').textContent = '🎓';
+        document.getElementById('profile-emoji').innerHTML = '<i class="ph-bold ph-graduation-cap"></i>';
     }
 }
 
