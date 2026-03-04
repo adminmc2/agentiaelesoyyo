@@ -2431,54 +2431,58 @@ function playWakeBeep() {
 }
 
 /**
- * Starts continuous SpeechRecognition listening for the wake word.
- * When detected, stops listening and triggers MediaRecorder recording.
+ * WakeWord — uses a SINGLE reused SpeechRecognition instance.
+ * Creating new instances causes Chrome to abort (only 1 allowed at a time).
+ * continuous=false is more reliable; we restart in onend.
  */
-function startWakeWordListening() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-        console.warn('[WakeWord] SpeechRecognition not supported in this browser');
-        return;
-    }
+let _wkRecog = null;          // single instance, created once
+let _wkStarting = false;      // synchronous guard: true between start() and onstart/onerror
 
-    // Don't start if already running or currently recording
-    if (state.wakeWordActive || state.isRecording) return;
+function _getWakeWordRecognition() {
+    if (_wkRecog) return _wkRecog;
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'es-ES';
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.maxAlternatives = 3; // more alternatives = better chance of matching
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return null;
 
-    recognition.onstart = () => {
+    const r = new SR();
+    r.lang = 'es-ES';
+    r.continuous = true;        // keep mic open — no restart flicker
+    r.interimResults = true;
+    r.maxAlternatives = 3;
+
+    let _wkSessionId = 0;
+    r.onstart = () => {
+        _wkStarting = false;
         state.wakeWordActive = true;
         updateWakeWordUI(true);
-        console.log('[WakeWord] Listening for wake word...');
+        _wkSessionId++;
+        console.log(`[WakeWord] SESSION #${_wkSessionId} STARTED | continuous=${r.continuous}`);
     };
 
-    recognition.onresult = (event) => {
-        // Ignorar mientras el TTS está sonando (evita que el micro capte la voz de Eliana)
+    r.onaudiostart = () => console.log(`[WakeWord] audiostart — mic is capturing`);
+    r.onsoundstart = () => console.log(`[WakeWord] soundstart — sound detected`);
+    r.onspeechstart = () => console.log(`[WakeWord] speechstart — speech detected`);
+    r.onspeechend = () => console.log(`[WakeWord] speechend — speech stopped`);
+    r.onsoundend = () => console.log(`[WakeWord] soundend — sound stopped`);
+    r.onaudioend = () => console.log(`[WakeWord] audioend — mic released`);
+
+    r.onresult = (event) => {
         if (state.ttsPlaying || orbGreetingPlaying) {
+            console.log('[WakeWord] result ignored (TTS playing)');
             return;
         }
-        // Check all results and all alternatives
         for (let i = event.resultIndex; i < event.results.length; i++) {
             for (let a = 0; a < event.results[i].length; a++) {
                 const transcript = event.results[i][a].transcript;
-                // Debug: log what the browser heard
                 if (transcript.trim()) {
-                    console.log('[WakeWord] Heard:', `"${transcript}"`, '| Match:', containsWakeWord(transcript));
+                    console.log('[WakeWord] Heard:', `"${transcript}"`, '| Match:', containsWakeWord(transcript), '| isFinal:', event.results[i].isFinal);
                 }
                 if (containsWakeWord(transcript)) {
-                    console.log('[WakeWord] Wake word detected:', transcript);
-                    // Prevent onend from restarting listening during the transition
+                    console.log('[WakeWord] DETECTED! Aborting recognition...');
                     state.wakeWordEnabled = false;
-                    recognition.abort();
+                    r.abort();
                     state.wakeWordActive = false;
-
-                    // Brief delay to release mic, then start recording
                     setTimeout(() => {
-                        // Re-enable wake word (will restart after recording)
                         state.wakeWordEnabled = true;
                         onWakeWordDetected();
                     }, 400);
@@ -2488,67 +2492,61 @@ function startWakeWordListening() {
         }
     };
 
-    recognition.onerror = (event) => {
-        // Log ALL errors for debugging (including no-speech)
-        console.log('[WakeWord] Event error:', event.error);
-        // 'no-speech', 'aborted', 'network' are normal in continuous mode
-        if (['no-speech', 'aborted', 'network'].includes(event.error)) {
-            return;
-        }
-        console.warn('[WakeWord] Error:', event.error);
+    r.onerror = (event) => {
+        console.log(`[WakeWord] ERROR: ${event.error} | message: ${event.message || 'none'}`);
+        _wkStarting = false;
+        if (['no-speech', 'aborted', 'network'].includes(event.error)) return;
         state.wakeWordActive = false;
         updateWakeWordUI(false);
-
-        // If permission denied, disable wake word
-        if (event.error === 'not-allowed') {
+        if (event.error === 'not-allowed' || event.error === 'audio-capture') {
             state.wakeWordEnabled = false;
             updateWakeWordToggle(false);
             localStorage.setItem('eliana_wake_word', 'off');
-            return;
         }
     };
 
-    recognition.onend = () => {
-        console.log('[WakeWord] Session ended, will restart...');
+    r.onend = () => {
+        console.log(`[WakeWord] SESSION #${_wkSessionId} ENDED | wakeWordEnabled=${state.wakeWordEnabled} isRecording=${state.isRecording}`);
         state.wakeWordActive = false;
-        // Auto-restart: always restart if enabled, with a very short delay
-        // Chrome stops continuous mode after ~5-10s of silence, so this is critical
+        _wkStarting = false;
         if (state.wakeWordEnabled && !state.isRecording) {
-            setTimeout(() => {
-                if (state.wakeWordEnabled && !state.isRecording && !state.wakeWordActive) {
-                    startWakeWordListening();
-                }
-            }, 150); // shorter delay = faster recovery
+            console.log(`[WakeWord] Will restart in 1000ms...`);
+            setTimeout(() => startWakeWordListening(), 1000);
         } else {
+            console.log(`[WakeWord] NOT restarting`);
             updateWakeWordUI(false);
         }
     };
 
-    state.wakeWordRecognition = recognition;
+    _wkRecog = r;
+    return r;
+}
 
+function startWakeWordListening() {
+    console.log(`[WakeWord] startWakeWordListening() called | active=${state.wakeWordActive} starting=${_wkStarting} recording=${state.isRecording}`);
+    if (state.wakeWordActive || _wkStarting || state.isRecording) {
+        console.log(`[WakeWord] SKIPPED — already active/starting/recording`);
+        return;
+    }
+
+    const r = _getWakeWordRecognition();
+    if (!r) return;
+
+    _wkStarting = true;
+    state.wakeWordRecognition = r;
     try {
-        recognition.start();
+        r.start();
+        console.log(`[WakeWord] start() called OK`);
     } catch (e) {
-        console.warn('[WakeWord] Failed to start:', e);
-        state.wakeWordActive = false;
-        // Retry after a brief pause
-        if (state.wakeWordEnabled) {
-            setTimeout(() => {
-                if (state.wakeWordEnabled && !state.isRecording && !state.wakeWordActive) {
-                    startWakeWordListening();
-                }
-            }, 1000);
-        }
+        console.log(`[WakeWord] start() THREW: ${e.name}: ${e.message}`);
+        _wkStarting = false;
     }
 }
 
-/**
- * Stops wake word listening.
- */
 function stopWakeWordListening() {
-    if (state.wakeWordRecognition) {
-        state.wakeWordRecognition.abort();
-        state.wakeWordRecognition = null;
+    _wkStarting = false;
+    if (_wkRecog) {
+        try { _wkRecog.abort(); } catch(e) {}
     }
     state.wakeWordActive = false;
     updateWakeWordUI(false);
@@ -3656,18 +3654,11 @@ function init() {
     document.getElementById('wake-word-btn')?.addEventListener('click', toggleWakeWord);
     document.getElementById('chat-wake-word-btn')?.addEventListener('click', toggleWakeWord);
 
-    // Wake word: intentar activar inmediatamente al cargar la app
-    // Si el navegador bloquea el micrófono (requiere gesto), reintentamos tras primer click
+    // Wake word: activar solo tras primer gesto del usuario
+    // Chrome requiere interacción del usuario para acceder al micrófono —
+    // sin gesto, start() aborta inmediatamente y crea un bucle infinito
     state.wakeWordEnabled = true;
     updateWakeWordToggle(true);
-    // Intentar iniciar directamente
-    try {
-        startWakeWordListening();
-        console.log('[WakeWord] Intentando inicio automático...');
-    } catch (e) {
-        console.log('[WakeWord] Inicio automático bloqueado, esperando primer click');
-    }
-    // Fallback: si no arrancó, iniciar tras primer gesto del usuario
     const startWakeOnFirstClick = () => {
         if (!state.wakeWordActive && state.wakeWordEnabled) {
             startWakeWordListening();

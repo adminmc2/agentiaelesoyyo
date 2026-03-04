@@ -292,6 +292,22 @@ async def init_db():
                     created_at TIMESTAMP DEFAULT NOW()
                 )
             """)
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS prompt_cards (
+                    id SERIAL PRIMARY KEY,
+                    letter VARCHAR(2) NOT NULL,
+                    level INTEGER NOT NULL DEFAULT 1,
+                    category VARCHAR(100),
+                    situation TEXT NOT NULL,
+                    option_a TEXT NOT NULL,
+                    option_b TEXT NOT NULL,
+                    option_c TEXT NOT NULL,
+                    correct_answer CHAR(1) NOT NULL,
+                    explanation TEXT NOT NULL,
+                    color VARCHAR(20) DEFAULT 'pink',
+                    created_at TIMESTAMP DEFAULT NOW()
+                )
+            """)
 
             # Sync: actualizar prompts desde código (siempre aplica la versión más reciente)
             for key, content in _DEFAULT_PROMPTS.items():
@@ -1073,6 +1089,77 @@ async def test_models(message: str = "Me llamo Silvia", activity: str = "yo_nunc
 
     results = await asyncio.gather(*[call_model(m) for m in models])
     return {"message": message, "activity": activity, "results": results}
+
+
+# ============================================
+# API: Tarjetas de Prompting
+# ============================================
+
+@app.get("/api/prompt-cards")
+async def list_prompt_cards(letter: Optional[str] = None, level: Optional[int] = None):
+    """Listar tarjetas de prompting con filtros opcionales."""
+    if not db_pool:
+        raise HTTPException(status_code=503, detail="Base de datos no disponible")
+
+    query = "SELECT * FROM prompt_cards WHERE 1=1"
+    params = []
+    idx = 1
+
+    if letter:
+        query += f" AND letter = ${idx}"
+        params.append(letter)
+        idx += 1
+    if level:
+        query += f" AND level = ${idx}"
+        params.append(level)
+        idx += 1
+
+    query += " ORDER BY letter, id"
+
+    async with db_pool.acquire() as conn:
+        rows = await conn.fetch(query, *params)
+        return [dict(r) for r in rows]
+
+
+@app.get("/api/prompt-cards/random")
+async def random_prompt_card(letter: Optional[str] = None, level: Optional[int] = None):
+    """Obtener una tarjeta aleatoria con filtros opcionales."""
+    if not db_pool:
+        raise HTTPException(status_code=503, detail="Base de datos no disponible")
+
+    query = "SELECT * FROM prompt_cards WHERE 1=1"
+    params = []
+    idx = 1
+
+    if letter:
+        query += f" AND letter = ${idx}"
+        params.append(letter)
+        idx += 1
+    if level:
+        query += f" AND level = ${idx}"
+        params.append(level)
+        idx += 1
+
+    query += " ORDER BY RANDOM() LIMIT 1"
+
+    async with db_pool.acquire() as conn:
+        row = await conn.fetchrow(query, *params)
+        if not row:
+            raise HTTPException(status_code=404, detail="No hay tarjetas disponibles")
+        return dict(row)
+
+
+@app.get("/api/prompt-cards/stats")
+async def prompt_cards_stats():
+    """Estadísticas de tarjetas por letra y nivel."""
+    if not db_pool:
+        raise HTTPException(status_code=503, detail="Base de datos no disponible")
+
+    async with db_pool.acquire() as conn:
+        rows = await conn.fetch(
+            "SELECT letter, level, color, COUNT(*) as count FROM prompt_cards GROUP BY letter, level, color ORDER BY letter, level"
+        )
+        return [dict(r) for r in rows]
 
 
 if __name__ == "__main__":
