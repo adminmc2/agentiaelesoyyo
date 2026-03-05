@@ -6339,30 +6339,30 @@ body[data-mood-active] .message.assistant {
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
     }
-    /* Tarjeta arriba — ocupa lo que necesite, sin comprimir */
+    /* Tarjeta arriba — espacio generoso, sin solapamientos */
     .juego-modal__right {
         order: -1;
-        margin: 0.75rem;
+        margin: 1rem;
         flex-direction: column;
-        padding: 1.5rem;
+        padding: 1.5rem 1.25rem;
         flex-shrink: 0;
         min-height: auto;
-        gap: var(--space-16);
+        gap: var(--space-20);
     }
     .juego-modal__card-front {
         flex: 0 0 auto;
         flex-direction: row;
-        padding: var(--space-12) var(--space-16);
-        gap: var(--space-12);
+        padding: var(--space-14, 14px) var(--space-16);
+        gap: var(--space-14, 14px);
     }
     .juego-modal__card-front-icon { font-size: 28px; }
     .juego-modal__card-front-name { font-size: 13px; }
     .juego-modal__card-back {
-        padding: var(--space-16);
-        gap: var(--space-12);
+        padding: var(--space-20);
+        gap: var(--space-16);
     }
-    .juego-card__situation { font-size: 14px; line-height: 1.6; }
-    .juego-option-btn { padding: var(--space-12) var(--space-14, 14px); font-size: 13.5px; }
+    .juego-card__situation { font-size: 14.5px; line-height: 1.7; margin-bottom: var(--space-4); }
+    .juego-option-btn { padding: var(--space-14, 14px) var(--space-16); font-size: 14px; line-height: 1.5; }
     /* Chat debajo — scroll propio si hace falta */
     .juego-modal__left {
         padding: 0.75rem;
@@ -6383,7 +6383,7 @@ body[data-mood-active] .message.assistant {
     .juego-intro__how { padding: var(--space-16); }
     .juego-intro__step-num { width: 26px; height: 26px; min-width: 26px; font-size: 13px; line-height: 26px; }
     .juego-intro__step-text { font-size: 13px; }
-    .juego-start-btn { font-size: 15px; padding: var(--space-14) var(--space-32); min-width: auto; width: 100%; }
+    .juego-start-btn { font-size: 18px; padding: var(--space-20) var(--space-32); min-width: auto; width: 100%; border-radius: var(--md-sys-shape-extra-large); }
     .juego-card__situation { font-size: 13px; }
     .juego-option-btn { font-size: 12.5px; padding: var(--space-10) var(--space-12); }
     .juego-carousel { height: 250px; }
