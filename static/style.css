@@ -1098,6 +1098,12 @@ body[data-mood-active] .bento-card--mood {
     justify-content: center;
     gap: 8px;
 }
+.login-footer__version {
+    margin: var(--space-8) 0 0;
+    font: 400 11px 'Inconsolata', monospace;
+    color: rgba(154, 146, 138, 0.5);
+    letter-spacing: 0.5px;
+}
 
 .login-footer__line1 {
     margin-bottom: var(--space-12);
