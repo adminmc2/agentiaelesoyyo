@@ -84,7 +84,7 @@ Responde de forma conversacional, concisa y útil. Usa markdown cuando sea aprop
 
 ESPAÑOL CORRECTO — Estás en una conferencia de profesores de ESPAÑOL, tu ortografía y gramática deben ser impecables:
 - Revisa concordancia de género: "el subjuntivo" (no "la subjuntivo")
-- No inventes palabras: "nadie" (no "naden"), "reto" (no "reato"), "sustituir" (no "substituir"), "elocuente" (no "eloquente")
+- No inventes palabras: "nadie" (no "naden"), "reto" (no "reato"), "sustituir" (no "substituir"), "elocuente" (no "eloquente"), "voseo" (no "vosco")
 
 ESTILO DE HABLA — Esto va a ser leído en voz alta por TTS:
 - Frases cortas y directas. Ritmo oral, no de texto escrito.
@@ -115,7 +115,7 @@ CUARTO TURNO — El profe respondió al último:
 
 ESPAÑOL CORRECTO — Estás en una conferencia de profesores de ESPAÑOL, tu ortografía y gramática deben ser impecables:
 - Revisa concordancia de género: "el subjuntivo" (no "la subjuntivo"), "el reto" (no "el reato")
-- No inventes palabras: "nadie" (no "naden"), "reto" (no "reato"), "sustituir" (no "substituir"), "elocuente" (no "eloquente")
+- No inventes palabras: "nadie" (no "naden"), "reto" (no "reato"), "sustituir" (no "substituir"), "elocuente" (no "eloquente"), "voseo" (no "vosco")
 - Cuida las preposiciones y artículos
 
 LISTA NEGRA (NUNCA uses estas frases, si las dices la respuesta es INCORRECTA):
@@ -162,7 +162,7 @@ CUARTO TURNO — Recibiste la tercera palabra:
 
 ESPAÑOL CORRECTO — Estás en una conferencia de profesores de ESPAÑOL, tu ortografía y gramática deben ser impecables:
 - Revisa concordancia de género: "el subjuntivo" (no "la subjuntivo"), "el reto" (no "el reato")
-- No inventes palabras: "nadie" (no "naden"), "reto" (no "reato"), "sustituir" (no "substituir"), "elocuente" (no "eloquente")
+- No inventes palabras: "nadie" (no "naden"), "reto" (no "reato"), "sustituir" (no "substituir"), "elocuente" (no "eloquente"), "voseo" (no "vosco")
 - Cuida las preposiciones y artículos
 
 TONO — Esto es una conferencia, no una sesión de terapia:
@@ -200,7 +200,7 @@ CUARTO TURNO — El profe respondió a tu tercera pregunta:
 
 ESPAÑOL CORRECTO — Estás en una conferencia de profesores de ESPAÑOL, tu ortografía y gramática deben ser impecables:
 - Revisa concordancia de género: "el subjuntivo" (no "la subjuntivo"), "el reto" (no "el reato")
-- No inventes palabras: "nadie" (no "naden"), "reto" (no "reato"), "sustituir" (no "substituir"), "elocuente" (no "eloquente")
+- No inventes palabras: "nadie" (no "naden"), "reto" (no "reato"), "sustituir" (no "substituir"), "elocuente" (no "eloquente"), "voseo" (no "vosco")
 - Cuida las preposiciones y artículos
 
 TONO — Esto es una conferencia, no una sesión de terapia:
@@ -267,7 +267,7 @@ ESTILO ORAL OBLIGATORIO:
 Máximo 3 frases por respuesta. Frases cortas y directas. Conectores naturales: "mira", "fíjate", "a ver". PROHIBIDO: listas con guiones, párrafos largos, risas (jaja), interjecciones. NO saludes, NO te presentes. Tono: segura, cercana, con gracia.
 
 ESPAÑOL CORRECTO:
-"el subjuntivo" (no "la subjuntivo"), "nadie" (no "naden"), "sustituir" (no "substituir").""",
+"el subjuntivo" (no "la subjuntivo"), "nadie" (no "naden"), "sustituir" (no "substituir"), "voseo" (no "vosco").""",
 
     "profile_card": """Eres una experta en crear perfiles divertidos de profesores de ELE. Basándote en esta conversación, genera un perfil creativo y original.
 
@@ -365,7 +365,7 @@ TONO — Conferencia, no clase:
 
 ESPAÑOL CORRECTO — Conferencia de profesores de ESPAÑOL:
 - Concordancia: "el subjuntivo" (no "la subjuntivo")
-- Sin inventar: "nadie" (no "naden"), "reto" (no "reato"), "sustituir" (no "substituir")
+- Sin inventar: "nadie" (no "naden"), "reto" (no "reato"), "sustituir" (no "substituir"), "voseo" (no "vosco")
 
 ESTILO TTS — Se lee en voz alta:
 - Frases cortas. Máximo 5-6 oraciones por respuesta.
@@ -1544,16 +1544,29 @@ async def test_models(message: str = "Me llamo Silvia", activity: str = "yo_nunc
 
 @app.get("/cards_data.json")
 async def serve_cards_data():
-    """Servir cards_data.json directamente."""
-    path = os.path.join(os.path.dirname(__file__), "cards_data.json")
-    if os.path.exists(path):
-        return FileResponse(path, media_type="application/json")
+    """Servir cards_categorized.json directamente."""
+    base = os.path.dirname(__file__)
+    for name in ("cards_categorized.json", "cards_data.json"):
+        path = os.path.join(base, name)
+        if os.path.exists(path):
+            return FileResponse(path, media_type="application/json")
     return []
 
 @app.get("/api/prompt-cards")
 async def list_prompt_cards(letter: Optional[str] = None, level: Optional[int] = None):
     """Listar tarjetas de prompting con filtros opcionales."""
     if not db_pool:
+        # Fallback: servir desde JSON local
+        import json as _json
+        path = os.path.join(os.path.dirname(__file__), "cards_categorized.json")
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as _f:
+                cards = _json.load(_f)
+            if letter:
+                cards = [c for c in cards if c.get("territory") == letter or c.get("letter") == letter]
+            if level:
+                cards = [c for c in cards if c.get("level") == level]
+            return cards
         raise HTTPException(status_code=503, detail="Base de datos no disponible")
 
     query = "SELECT * FROM prompt_cards WHERE 1=1"
@@ -1574,6 +1587,38 @@ async def list_prompt_cards(letter: Optional[str] = None, level: Optional[int] =
     async with db_pool.acquire() as conn:
         rows = await conn.fetch(query, *params)
         return [dict(r) for r in rows]
+
+
+@app.post("/api/prompt-cards/sync")
+async def sync_prompt_cards():
+    """Sincronizar tarjetas de cards_categorized.json a la BD."""
+    import json as _json
+    if not db_pool:
+        raise HTTPException(status_code=503, detail="BD no disponible")
+    path = os.path.join(os.path.dirname(__file__), "cards_categorized.json")
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="JSON no encontrado")
+    with open(path, "r", encoding="utf-8") as _f:
+        cards = _json.load(_f)
+    text_fields = ["situation", "option_a", "option_b", "option_c", "explanation"]
+    updated = 0
+    async with db_pool.acquire() as conn:
+        rows = await conn.fetch("SELECT id, situation FROM prompt_cards ORDER BY id")
+        for row in rows:
+            # Match by situation substring (first 40 chars without accents)
+            import unicodedata
+            def strip_acc(s):
+                return unicodedata.normalize('NFD', s).encode('ascii', 'ignore').decode()
+            db_sit = strip_acc(row['situation'][:40])
+            for card in cards:
+                if strip_acc(card.get('situation', '')[:40]) == db_sit:
+                    await conn.execute(
+                        "UPDATE prompt_cards SET situation=$1, option_a=$2, option_b=$3, option_c=$4, explanation=$5 WHERE id=$6",
+                        card['situation'], card['option_a'], card['option_b'], card['option_c'], card['explanation'], row['id']
+                    )
+                    updated += 1
+                    break
+    return {"updated": updated, "total_db": len(rows), "total_json": len(cards)}
 
 
 @app.get("/api/prompt-cards/random")

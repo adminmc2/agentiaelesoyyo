@@ -1845,6 +1845,17 @@ function updateRecordingUI(recording, processing = false) {
         blindaMicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
     }
 
+    // Juego modal — same toggle for juego mic button
+    const juegoMicBtn = document.getElementById('juego-mic-btn');
+    if (juegoMicBtn) {
+        juegoMicBtn.classList.toggle('recording', recording);
+        const icon = juegoMicBtn.querySelector('.ph');
+        if (icon) {
+            icon.className = recording ? 'ph ph-stop-circle' : 'ph ph-microphone';
+        }
+        juegoMicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
+    }
+
     // Diapo5 screen — same toggle for diapo5 mic button
     const diapo5MicBtn = document.getElementById('diapo5-mic-btn');
     if (diapo5MicBtn) {
@@ -1943,6 +1954,16 @@ async function transcribeAudio(audioBlob, extension = 'webm') {
             // Si estamos en Blinda (diapo 3), enviar al chat de Blinda, NO al chat principal
             if (isOnBlindaScreen()) {
                 sendBlindaMessage(cleanText);
+                updateRecordingUI(false);
+                resumeWakeWordAfterRecording();
+                return;
+            }
+
+            // Si estamos en Juego (diapo 4) con modal abierto, enviar como pista
+            if (isOnJuegoModal() && !state._juegoHintUsed) {
+                const input = document.getElementById('juego-chat-input');
+                if (input) { input.value = cleanText; }
+                document.getElementById('juego-chat-send')?.click();
                 updateRecordingUI(false);
                 resumeWakeWordAfterRecording();
                 return;
@@ -2936,7 +2957,7 @@ function forceEnableTTS() {
  */
 function updateVoiceButton(enabled) {
     // Update both chat and blinda voice buttons
-    ['chat-voice-btn', 'blinda-voice-btn', 'diapo5-voice-btn'].forEach(id => {
+    ['chat-voice-btn', 'blinda-voice-btn', 'diapo5-voice-btn', 'juego-voice-btn'].forEach(id => {
         const btn = document.getElementById(id);
         if (!btn) return;
         if (enabled) {
@@ -3643,6 +3664,10 @@ function hideBlindaScreen() {
 
 function isOnBlindaScreen() {
     return elements.blindaScreen && !elements.blindaScreen.classList.contains('hidden');
+}
+function isOnJuegoModal() {
+    const modal = document.getElementById('juego-card-modal');
+    return modal && !modal.classList.contains('hidden');
 }
 
 function addBlindaChatBubble(text, role) {
@@ -4835,12 +4860,12 @@ async function startJuegoGame() {
 
 function showJuegoCarousel() {
     const carousel = document.getElementById('juego-carousel');
-    const cardContainer = document.getElementById('juego-card-container');
     const feedback = document.getElementById('juego-feedback');
+    const modal = document.getElementById('juego-card-modal');
     if (!carousel) return;
 
-    cardContainer?.classList.add('hidden');
     feedback?.classList.add('hidden');
+    if (modal) modal.classList.add('hidden');
 
     const idx = state.juegoIndex;
     document.getElementById('juego-progress-text').textContent = `${idx + 1} / ${BLINDA_CARDS_PER_ROUND}`;
@@ -4859,15 +4884,18 @@ function showJuegoCarousel() {
         const mini = document.createElement('div');
         mini.className = 'juego-carousel__mini';
         mini.dataset.letter = letter;
-        const iconClass = BLINDA_ICONS[letter] || 'ph-fill ph-shield-check';
-        mini.innerHTML = `<span>${letter}</span><i class="${iconClass}"></i>`;
+        const tName = BLINDA_TERRITORIES[letter] || letter;
+        const tIcon = BLINDA_ICONS[letter] || 'ph-fill ph-shield-check';
+        const tColor = BLINDA_COLORS[letter] || '#6B8F71';
+        mini.style.background = tColor;
+        mini.innerHTML = `<i class="${tIcon} juego-carousel__mini-icon"></i><img src="/static/imagenes/logo_juego.png" class="juego-carousel__mini-logo" alt=""><span class="juego-carousel__mini-name">${tName}</span>`;
         if (i === selectedIdx) mini.id = 'juego-selected-mini';
         track.appendChild(mini);
     }
     carousel.appendChild(track);
 
-    const miniWidth = 92;
-    const carouselCenter = carousel.offsetWidth / 2 - 40;
+    const miniWidth = 200;
+    const carouselCenter = carousel.offsetWidth / 2 - 90;
     const targetX = -(selectedIdx * miniWidth) + carouselCenter;
 
     gsap.set(track, { x: carousel.offsetWidth });
@@ -4885,65 +4913,152 @@ function showJuegoCarousel() {
 
 function openJuegoCard(card) {
     const container = document.getElementById('juego-card-container');
-    const cardEl = document.getElementById('juego-card');
-    const letterEl = document.getElementById('juego-card-letter');
-    if (!container || !cardEl) return;
+    if (!container) return;
 
     const color = BLINDA_COLORS[card.letter] || card.color || '#6B8F71';
     const displayCat = (card.category || '').replace(/^T\d-/, '') || BLINDA_TERRITORIES[card.letter] || '';
+    const territoryName = BLINDA_TERRITORIES[card.letter] || card.letter;
     const icon = BLINDA_ICONS[card.letter] || 'ph-fill ph-shield-check';
     const level = card.level || 1;
+    const levelDots = Array.from({ length: 3 }, (_, i) =>
+        `<span class="juego-card__level-dot ${i < level ? 'juego-card__level-dot--active' : ''}" style="${i < level ? `background:${color}` : ''}"></span>`
+    ).join('');
 
-    const front = cardEl.querySelector('.juego-card__front');
-    if (front) {
-        front.style.background = `linear-gradient(145deg, ${color}, ${color}dd)`;
-    }
-
-    letterEl.textContent = card.letter;
-
-    // Build card back content
-    const back = cardEl.querySelector('.juego-card__back');
-    if (back) {
-        const levelDots = Array.from({ length: 3 }, (_, i) =>
-            `<span class="juego-card__level-dot ${i < level ? 'juego-card__level-dot--active' : ''}" style="${i < level ? `background:${color}` : ''}"></span>`
-        ).join('');
-
-        back.innerHTML = `
+    // Render card-pair format (same as diapo 3)
+    container.innerHTML = `
+        <div class="juego-modal__card-front" style="background: linear-gradient(145deg, ${color}, ${color}bb)">
+            <i class="${icon} juego-modal__card-front-icon"></i>
+            <div class="juego-modal__card-front-name">${territoryName}</div>
+            <div class="juego-modal__card-front-cat">${displayCat}</div>
+            <div class="juego-card__level" style="margin-top: auto;">${levelDots}</div>
+        </div>
+        <div class="juego-modal__card-back" style="border-top: 5px solid ${color};">
             <div class="juego-card__header" style="border-bottom-color: ${color}33">
                 <div class="juego-card__category">
                     <i class="${icon}" style="color:${color}"></i>
                     <span>${displayCat}</span>
                 </div>
-                <div class="juego-card__level" title="Dificultad ${level}/3">
-                    ${levelDots}
-                </div>
+                <div class="juego-card__level" title="Dificultad ${level}/3">${levelDots}</div>
             </div>
             <p class="juego-card__situation" id="juego-card-situation">${card.situation}</p>
-            <div class="juego-card__options" id="juego-card-options"></div>`;
+            <div class="juego-card__options" id="juego-card-options"></div>
+        </div>`;
 
-        const optionsEl = back.querySelector('#juego-card-options');
-        const options = [
-            { label: 'A', text: card.option_a },
-            { label: 'B', text: card.option_b },
-            { label: 'C', text: card.option_c }
-        ];
-        options.forEach(opt => {
-            const btn = document.createElement('button');
-            btn.className = 'juego-option-btn';
-            btn.innerHTML = `<span class="juego-option-btn__label" style="color:${color}">${opt.label}</span><span>${opt.text}</span>`;
-            btn.addEventListener('click', () => selectJuegoOption(opt.label, card));
-            optionsEl.appendChild(btn);
-        });
-    }
-
-    cardEl.classList.remove('flipped');
-    container.classList.remove('hidden');
-
-    gsap.fromTo(container, { scale: 0.8, opacity: 0 }, {
-        scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(1.4)'
+    const optionsEl = container.querySelector('#juego-card-options');
+    [{ label: 'A', text: card.option_a }, { label: 'B', text: card.option_b }, { label: 'C', text: card.option_c }].forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'juego-option-btn';
+        btn.innerHTML = `<span class="juego-option-btn__label" style="color:${color}">${opt.label}</span><span>${opt.text}</span>`;
+        btn.addEventListener('click', () => selectJuegoOption(opt.label, card));
+        optionsEl.appendChild(btn);
     });
 
-    setTimeout(() => cardEl.classList.add('flipped'), 800);
+    // Open modal
+    const modal = document.getElementById('juego-card-modal');
+    if (modal) modal.classList.remove('hidden');
+
+    // Wire close button & backdrop
+    const closeBtn = document.getElementById('juego-modal-close');
+    const backdrop = document.getElementById('juego-modal-backdrop');
+    const closeModal = () => {
+        stopTTS();
+        if (modal) modal.classList.add('hidden');
+        const inp = document.getElementById('juego-chat-input');
+        if (inp) { inp.disabled = false; inp.placeholder = 'Pregunta a Eliana...'; }
+    };
+    if (closeBtn) { closeBtn.onclick = closeModal; }
+    if (backdrop) { backdrop.onclick = closeModal; }
+
+    // Reset chat
+    const chatMessages = document.getElementById('juego-chat-messages');
+    if (chatMessages) {
+        chatMessages.innerHTML = '<div class="blinda-chat__bubble blinda-chat__bubble--assistant">Puedes preguntarme una pista antes de elegir tu respuesta.</div>';
+    }
+    state._juegoHintUsed = false;
+
+    // Wire chat send
+    const sendBtn = document.getElementById('juego-chat-send');
+    const input = document.getElementById('juego-chat-input');
+    const sendHint = () => {
+        const text = input?.value.trim();
+        if (!text || state._juegoHintUsed) return;
+        input.value = '';
+        state._juegoHintUsed = true;
+        sendJuegoHint(text, card);
+    };
+    if (sendBtn) sendBtn.onclick = sendHint;
+    if (input) {
+        input.onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendHint(); } };
+    }
+
+    // Animate entrance
+    const frontEl = container.querySelector('.juego-modal__card-front');
+    const backEl = container.querySelector('.juego-modal__card-back');
+    if (frontEl) gsap.fromTo(frontEl, { x: -30, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: 'power2.out' });
+    if (backEl) gsap.fromTo(backEl, { x: 30, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, delay: 0.2, ease: 'power2.out' });
+}
+
+function sendJuegoHint(message, card) {
+    const chatMessages = document.getElementById('juego-chat-messages');
+    if (!chatMessages) return;
+
+    // Add user bubble
+    const userBubble = document.createElement('div');
+    userBubble.className = 'blinda-chat__bubble blinda-chat__bubble--user';
+    userBubble.textContent = message;
+    chatMessages.appendChild(userBubble);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Typing indicator
+    const typing = document.createElement('div');
+    typing.className = 'blinda-chat__bubble blinda-chat__bubble--assistant blinda-chat__typing';
+    typing.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+    chatMessages.appendChild(typing);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Disable input after one question
+    const input = document.getElementById('juego-chat-input');
+    if (input) { input.disabled = true; input.placeholder = 'Solo una pregunta por tarjeta'; }
+
+    const territory = BLINDA_TERRITORIES[card.letter] || '';
+    const hintPrompt = `El profesor juega a Blindapalabras. Territorio: "${territory}". Situación: "${card.situation}". Opciones: A) ${card.option_a} B) ${card.option_b} C) ${card.option_c}. Correcta: ${card.correct_answer}. El profesor pregunta: "${message}". Da una pista breve (2-3 frases) sin revelar la respuesta directamente. Sé motivadora y divertida.`;
+
+    let assistantBubble = null;
+    let fullResponse = '';
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+
+    const handleMsg = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'token') {
+            if (!assistantBubble) {
+                typing.remove();
+                assistantBubble = document.createElement('div');
+                assistantBubble.className = 'blinda-chat__bubble blinda-chat__bubble--assistant';
+                chatMessages.appendChild(assistantBubble);
+            }
+            fullResponse += data.content;
+            assistantBubble.textContent = fullResponse;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        } else if (data.type === 'end') {
+            state._juegoHintWs.onmessage = null;
+            if (fullResponse && (state.ttsEnabled || state.voiceTriggered)) {
+                playTTS(fullResponse, true);
+            }
+        }
+    };
+
+    const doSend = () => {
+        state._juegoHintWs.onmessage = handleMsg;
+        state._juegoHintWs.send(JSON.stringify({ message: hintPrompt, response_mode: 'full', activity_mode: 'blinda' }));
+    };
+
+    if (state._juegoHintWs && state._juegoHintWs.readyState === WebSocket.OPEN) {
+        doSend();
+        return;
+    }
+    if (state._juegoHintWs) { state._juegoHintWs.close(); state._juegoHintWs = null; }
+    state._juegoHintWs = new WebSocket(`${wsProtocol}//${window.location.host}/ws/chat`);
+    state._juegoHintWs.onopen = doSend;
 }
 
 function selectJuegoOption(chosen, card) {
@@ -4963,7 +5078,39 @@ function selectJuegoOption(chosen, card) {
         btn.classList.add('juego-option-btn--disabled');
     });
 
-    setTimeout(() => showJuegoFeedback(correct, card.explanation), 600);
+    // Show feedback in the chat panel
+    const chatMessages = document.getElementById('juego-chat-messages');
+    if (chatMessages) {
+        const feedbackBubble = document.createElement('div');
+        feedbackBubble.className = 'blinda-chat__bubble blinda-chat__bubble--assistant';
+        const icon = correct ? '<i class="ph-fill ph-check-circle" style="color:#4CAF50"></i>' : '<i class="ph-fill ph-x-circle" style="color:var(--md-sys-color-primary)"></i>';
+        const resultText = correct
+            ? `${icon} <strong>Correcto.</strong> ${card.explanation}`
+            : `${icon} <strong>Incorrecto.</strong> La respuesta correcta era <strong>${card.correct_answer}</strong>. ${card.explanation}`;
+        feedbackBubble.innerHTML = resultText;
+        chatMessages.appendChild(feedbackBubble);
+
+        // TTS del feedback
+        const spokenText = correct
+            ? `Correcto. ${card.explanation}`
+            : `Incorrecto. La respuesta correcta era ${card.correct_answer}. ${card.explanation}`;
+        if (state.ttsEnabled || state.voiceTriggered) {
+            playTTS(spokenText, true);
+        }
+
+        // Add "Siguiente tarjeta" button in chat
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'juego-chat-next-btn';
+        nextBtn.innerHTML = 'Siguiente tarjeta <i class="ph ph-arrow-right"></i>';
+        nextBtn.addEventListener('click', () => {
+            stopTTS();
+            const modal = document.getElementById('juego-card-modal');
+            if (modal) modal.classList.add('hidden');
+            nextJuegoCard();
+        });
+        chatMessages.appendChild(nextBtn);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 }
 
 function showJuegoFeedback(correct, explanation) {
@@ -5014,7 +5161,7 @@ function showJuegoSummary() {
     if (Object.keys(wrongByCategory).length > 0) {
         const title = document.createElement('h3');
         title.className = 'juego-summary__areas-title';
-        title.textContent = 'Areas a reforzar';
+        title.innerHTML = '<i class="ph ph-target"></i> Áreas a reforzar';
         areasEl.appendChild(title);
         const tagContainer = document.createElement('div');
         tagContainer.className = 'juego-summary__area-tags';
@@ -5048,12 +5195,14 @@ function showJuegoSummary() {
     // Discusion en parejas
     const discussionEl = document.getElementById('juego-summary-discussion');
     const categories = Object.keys(wrongByCategory);
-    let html = '<h3 class="juego-summary__discuss-title">Para comentar en pareja</h3><ul class="juego-discuss-list">';
-    html += '<li>Cual os ha sorprendido mas?</li>';
+    let html = '<h3 class="juego-summary__discuss-title"><i class="ph ph-chat-circle-dots"></i> Para comentar en pareja</h3><ul class="juego-discuss-list">';
+    html += '<li>¿Qué tarjeta os ha hecho dudar más? ¿Por qué?</li>';
+    html += '<li>¿Habéis usado IA generativa en algún curso o actividad de clase? ¿Qué resultado obtuvisteis?</li>';
     if (categories.length > 0) {
-        html += `<li>Habeis tenido problemas con: ${categories.join(', ')}. Como las detectariais en el futuro?</li>`;
+        html += `<li>De las tarjetas que habéis fallado (${categories.join(', ')}), ¿os ha pasado algo parecido en la práctica?</li>`;
     }
-    html += '<li>Que le pediriais a la IA de forma diferente ahora?</li></ul>';
+    html += '<li>Después de ver vuestros resultados, ¿qué haríais diferente la próxima vez que uséis IA en ELE?</li>';
+    html += '<li>¿Qué os ha sorprendido más: lo que la IA hace bien o lo que hace mal?</li></ul>';
     discussionEl.innerHTML = html;
 }
 
@@ -5140,6 +5289,26 @@ function init() {
         }
     });
 
+    // Juego modal — mic (STT)
+    document.getElementById('juego-mic-btn')?.addEventListener('click', () => {
+        enableTTS();
+        state.voiceTriggered = true;
+        if (state.isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    });
+
+    // Juego modal — voice toggle (TTS on/off)
+    document.getElementById('juego-voice-btn')?.addEventListener('click', () => {
+        if (state.ttsEnabled) {
+            disableTTS();
+        } else {
+            enableTTS();
+        }
+    });
+
     // Diapo 5 — El Agente segun los Grandes Maestros
     document.getElementById('diapo5-nav-back')?.addEventListener('click', hideDiapo5Screen);
     document.getElementById('diapo5-nav-next')?.addEventListener('click', () => {
@@ -5166,10 +5335,13 @@ function init() {
         }
     });
     // Diapo5 chat — mic
+    // Al APAGAR el mic manualmente → descartar audio (evita que Whisper
+    // transcriba ruido residual: "gracias", "hola", etc.)
     document.getElementById('diapo5-mic-btn')?.addEventListener('click', () => {
         enableTTS();
         state.voiceTriggered = true;
         if (state.isRecording) {
+            state._discardRecording = true;
             stopRecording();
         } else {
             startRecording();
