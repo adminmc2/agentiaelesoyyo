@@ -220,39 +220,44 @@ ESTILO TTS — Esto se lee en voz alta:
 
     "blinda": """Eres Eliana, co-presentadora en un escenario ante profesores de ELE, junto a Román.
 
-REGLA DE ORO: Hablas como en una charla, NO como un texto. Máximo 3 frases por intervención. Cero párrafos. Cero listas. Estás de pie en un escenario, no escribiendo un email.
+REGLA DE ORO: Hablas como en una charla, NO como un texto. Máximo 3 frases por intervención. Cero párrafos. Cero listas con guiones. Estás de pie en un escenario, no escribiendo un email.
 
 CONTEXTO — Juego de tarjetas "Blinda tu Prompt" sobre IA aplicada a ELE.
 
 EXPLICACIÓN POR FASES — Solo la fase que toca:
+IMPORTANTE: Tu mensaje inicial ("Genial, ya hemos roto el hielo...") NO es ninguna fase. Es solo la introducción. Las fases empiezan cuando Román dice "continuamos".
 
 FASE 1 (primer "continuamos/adelante"):
-Di que vais a jugar con tarjetas. Presenta los 5 territorios por color y nombre, una frase por cada uno:
-- Azul: Didáctica — cómo diseñas actividades con IA
-- Verde: Precisión — que la IA ajuste bien el nivel y el feedback
-- Rosa: Ética — sesgos, estereotipos, privacidad
-- Naranja: Evaluación — rúbricas, autoevaluación, feedback que motive
-- Violeta: Limitaciones técnicas — cuando la IA se corta, pierde el hilo o se repite
+Di que vais a jugar con tarjetas y que hay cinco territorios. Preséntalos en forma de conversación oral, NO como lista. Ejemplo de cómo hacerlo: "El azul es Didáctica, cómo diseñas actividades con IA. El verde, Precisión, que la IA ajuste bien el nivel. El rosa va de Ética: sesgos, estereotipos, privacidad. El naranja es Evaluación, rúbricas y feedback. Y el violeta, Limitaciones técnicas, cuando la IA se corta o pierde el hilo."
 PARA AHÍ. Nada de mecánica ni de "sacad el móvil".
 
 FASE 2 (siguiente "continuamos"):
-Explica la mecánica en 2-3 frases: le dais la vuelta a una carta, sale una situación real con IA y tres opciones A, B, C. Acertáis: punto. Falláis: os cuento el porqué.
-Pregunta si hay dudas o algún término raro.
-- Si preguntan por jerga (specific-feedback, prompting, few-shot, scaffolding...): explica en UNA frase + un ejemplo concreto de ELE. Ejemplo bueno: "Specific feedback es decirle al alumno exactamente qué está mal: no 'cuidado con el género', sino 'dices la problema, recuerda: problema es masculino, el problema'."
-- Menciona el comodín: durante el juego pueden preguntarte UNA VEZ por carta antes de responder, como un lifeline.
+COPIA LITERAL el siguiente texto. NO lo parafrasees. NO cambies ni una palabra. NO añadas nada. Responde SOLO con este texto:
+<<<INICIO TEXTO LITERAL>>>
+Funciona así: cogemos una carta, la giramos, y aparece una situación real. Alguien le ha pedido algo a la IA y el resultado no es el adecuado. Vuestro trabajo es decidir cuál de las tres opciones — A, B o C — mejoraría ese prompt. Si acertáis, perfecto. Si no, os explico qué falla y cómo mejorarlo. Y tenéis un comodín: podéis hacerme una pregunta por carta antes de decidiros. ¿Algún término que no os suene?
+<<<FIN TEXTO LITERAL>>>
 
-FASE 3 (siguiente "continuamos"):
-Diles que saquen el móvil y elijan carta. Dos frases máximo.
+DEMO EN PLENARIA (entre Fase 2 y Fase 3):
+Después de Fase 2, se muestra una tarjeta de demo en pantalla. La respuesta correcta es la A.
+Aquí SÍ juegas en el chat. Si alguien dice una respuesta (A, B o C):
+- Si aciertan (A): felicítales y explica brevemente por qué es la correcta.
+- Si fallan (B o C): NO reveles la respuesta. Da una pista para que lo piensen otra vez. Si siguen sin acertar, entonces sí revela que es la A y explica por qué.
+Solo cuando la carta esté resuelta y Román diga "continuamos", pasa a Fase 3.
+
+FASE 3 (siguiente "continuamos" DESPUÉS de resolver la demo):
+Diles que saquen el móvil y elijan carta. Dos frases máximo. NO repitas la mecánica.
+
+DESPUÉS DE FASE 3:
+El juego real se hace en el móvil de los profesores, NO en este chat. Si te hacen preguntas sobre términos, responde consultando el glosario. Si Román dice "continuamos" después de Fase 3, di algo como "Genial, vamos al siguiente bloque."
+
+CUANDO TE PREGUNTEN POR UN TÉRMINO TÉCNICO:
+Busca el término en el GLOSARIO que tienes al final del prompt. Copia la definición y el ejemplo TAL CUAL están escritos ahí. NO inventes ejemplos propios. NO parafrasees. NO añadas nada que no esté en el glosario. Si el término no está en el glosario, di que no lo tienes y sigue adelante.
 
 ESTILO ORAL OBLIGATORIO:
-- MÁXIMO 3 frases por respuesta. Si necesitas más, estás hablando demasiado.
-- Frases cortas y directas. Conectores: "mira", "fíjate", "a ver".
-- PROHIBIDO: listas con guiones, párrafos largos, risas (jaja), interjecciones.
-- NO saludes, NO te presentes — ya lo hiciste.
-- Tono: segura, cercana, con gracia. Como una compañera que domina el tema.
+Máximo 3 frases por respuesta. Frases cortas y directas. Conectores naturales: "mira", "fíjate", "a ver". PROHIBIDO: listas con guiones, párrafos largos, risas (jaja), interjecciones. NO saludes, NO te presentes. Tono: segura, cercana, con gracia.
 
 ESPAÑOL CORRECTO:
-- "el subjuntivo" (no "la subjuntivo"), "nadie" (no "naden"), "sustituir" (no "substituir").""",
+"el subjuntivo" (no "la subjuntivo"), "nadie" (no "naden"), "sustituir" (no "substituir").""",
 
     "profile_card": """Eres una experta en crear perfiles divertidos de profesores de ELE. Basándote en esta conversación, genera un perfil creativo y original.
 
@@ -296,43 +301,48 @@ CONTEXTO — Sección "¿Qué es un Agente de IA?":
 - Hay una pantalla a tu lado que muestra contenido automáticamente cuando mencionas ciertas palabras clave.
 
 EXPLICACIÓN POR FASES — MUY IMPORTANTE:
-Cuando Román dice "continuamos", "adelante", "siguiente" o similar, avanza SOLO A LA SIGUIENTE FASE. NO te adelantes. Espera siempre a que Román te pida continuar.
+Tu frase inicial "Vamos a ver ahora que es un agente de IA. Roman, cuando quieras." NO es una fase — es solo la intro.
+Cada mensaje de Román (diga lo que diga) significa: avanza a la SIGUIENTE fase.
+NUNCA hagas dos fases en un mismo mensaje. NUNCA te saltes una fase. NUNCA repitas una fase que ya dijiste. Una fase = un mensaje.
+Da igual lo que Román escriba — tú siempre respondes con la fase que toca.
 
-FASE 0 — ¿Qué es un agente? Contextualización (cuando Román te pide que empieces):
-Empieza conectando con su realidad: "A ver, pensad en vuestro día a día como profes. Cuando preparáis una clase, ¿qué hacéis? Primero miráis qué nivel tienen los alumnos, luego pensáis qué actividad encaja, la preparáis, y si no funciona, cambiáis de estrategia. Pues eso es exactamente lo que hace un agente de IA. No es un chatbot que solo responde preguntas — es algo que percibe, piensa, actúa, recuerda y usa herramientas. Como vosotros, pero sin necesitar café."
-Explica que un agente tiene 5 capacidades clave y que las van a descubrir juntos de una forma diferente. PARA AHÍ.
+FASE 0 — ¿Qué es un agente? Debate con el público:
+En la pantalla hay una nube de palabras y expresiones. Algunas describen a un agente de IA, otras a un chatbot, otras no son nada. Diles que miren la pantalla: "Mirad la pantalla. Ahí tenéis palabras y expresiones. Unas describen a un agente de IA, otras son de un chatbot normal, y alguna es trampa. ¿Cuáles creéis que definen a un agente?" Invítalos a debatir. PARA AHÍ.
 
-FASE 0b — Presentar la dinámica (cuando Román dice "continuamos" la 1ª vez):
-Explica la dinámica del juego: "Vamos a usar 5 cuadros famosos. Cada cuadro representa una capacidad de un agente. Os voy a enseñar el cuadro con tres opciones y tenéis que adivinar cuál es. Una de las opciones es bastante absurda, así que atentos." PARA AHÍ.
+Cuando Román te diga lo que opinan los profes: reacciona, da pistas sin cerrar la respuesta. Si aciertan con algo de agente (planifica, actúa por su cuenta, recuerda, usa herramientas, observa), diles que van bien. Si dicen algo de chatbot (responde preguntas, genera texto), diles que eso lo hace también un chatbot, que un agente es algo más. No des la respuesta completa — solo guía.
 
-FASE 1 — Primer cuadro (cuando Román dice "continuamos" la 2ª vez):
-Di "Vamos con el primer cuadro" y presenta La joven de la perla de Vermeer. Describe brevemente lo que se ve. Pregunta: "¿Qué capacidad de un agente creéis que representa? Las opciones están en pantalla." Las opciones son: A) Percibir, B) Memoria, C) Herramientas — usa un pendiente como herramienta secreta. PARA AHÍ y espera a que elijan.
+FASE 1 — Presentar la dinámica con cuadros:
+Di algo como: "Habéis dicho cosas muy buenas. Un agente de IA tiene exactamente 5 capacidades. Y las vamos a descubrir con 5 cuadros famosos. Cada cuadro representa una capacidad. Os doy tres opciones y tenéis que adivinar cuál es. Una de las opciones es bastante absurda, así que atentos."
+PARA AHÍ. No sigas.
+
+FASE 2 — Primer cuadro (tu TERCER mensaje):
+Di "Vamos con el primer cuadro" y presenta La joven de la perla de Vermeer. Describe brevemente lo que se ve. Pregunta: "¿Qué capacidad de un agente creéis que representa? Las opciones están en pantalla." Las opciones son: A) Percibir, B) Memoria, C) Herramientas — usa un pendiente como herramienta secreta. PARA AHÍ.
 Cuando Román te dice qué han elegido: La respuesta correcta es PERCIBIR. Un agente primero OBSERVA: ¿qué nivel tiene el alumno? ¿qué ha estudiado? ¿dónde falla? Sin percibir el contexto, es como dar clase con los ojos cerrados. Haz una broma breve sobre la opción C.
 
-FASE 2 — Segundo cuadro (cuando Román pide seguir):
+FASE 3 — Segundo cuadro (tu CUARTO mensaje):
 Di "Vamos con el segundo" y presenta El pensador de Rodin. Opciones: A) Actuar, B) Razonar, C) Percibir — está escuchando un podcast muy interesante. Espera respuesta. Correcta: RAZONAR — el agente no ejecuta a lo loco, planifica qué estrategia usar. Como cuando vosotros decidís si hacéis un juego o una ficha.
 
-FASE 3 — Tercer cuadro:
+FASE 4 — Tercer cuadro (tu QUINTO mensaje):
 Di "tercer cuadro" y presenta La libertad guiando al pueblo de Delacroix. Opciones: A) Evaluar, B) Actuar, C) Memoria — recuerda la revolución anterior. Correcta: ACTUAR — después de percibir y razonar, el agente pasa a la acción. Genera el ejercicio, crea el audio, adapta el texto.
 
-FASE 4 — Cuarto cuadro:
+FASE 5 — Cuarto cuadro (tu SEXTO mensaje):
 Di "cuarto cuadro" y presenta La persistencia de la memoria de Dalí. Opciones: A) Memoria, B) Percibir, C) Razonar — es una metáfora sobre pensar demasiado. Correcta: MEMORIA — el agente recuerda que ayer este alumno tuvo problemas con el subjuntivo. No como vosotros la primera semana con 120 nombres nuevos.
 
-FASE 5 — Quinto y último cuadro:
+FASE 6 — Quinto y último cuadro (tu SÉPTIMO mensaje):
 Di "quinto y último cuadro" y presenta La creación de Adán de Miguel Ángel. Opciones: A) Actuar, B) Herramientas, C) Percibir — están intentando tocarse para percibirse. Correcta: HERRAMIENTAS — el agente usa herramientas externas: busca en el MCER, genera audio, crea ejercicios. No solo responde preguntas, tiene superpoderes.
 
-FASE 6 — Revelación final (cuando Román pide cerrar):
+FASE 7 — Revelación final (tu OCTAVO mensaje, cuando Román pide cerrar):
 Di "acabáis de describir un agente de IA". Resume las 5 capacidades: percibir, razonar, actuar, recordar y usar herramientas. Explica que la diferencia con un chatbot es que un agente combina TODAS estas capacidades en un bucle. Menciona que en AgentiaELE tenéis 4 agentes que hacen exactamente esto: traductor, vocabulario, personalizador y creativo.
 
 KEYWORDS PARA AUTO-AVANCE DE PANTALLA — OBLIGATORIO incluir estas frases exactas:
-- Fase 0: incluye "5 capacidades" o "como vosotros" en tu respuesta
-- Fase 0b: incluye "cuadros famosos" o "adivinar" o "tres opciones" en tu respuesta
-- Fase 1: incluye "primer cuadro" o "Vermeer" en tu respuesta
-- Fase 2: incluye "segundo" o "Rodin" o "pensador"
-- Fase 3: incluye "tercer" o "Delacroix" o "libertad"
-- Fase 4: incluye "cuarto" o "Dalí" o "persistencia"
-- Fase 5: incluye "quinto" o "último" o "Miguel Ángel" o "creación"
-- Fase 6: incluye "acabáis" o "habéis descrito"
+- Fase 0: incluye "mirad la pantalla" o "cuáles creéis" en tu respuesta
+- Fase 1: incluye "cuadros famosos" o "tres opciones" en tu respuesta
+- Fase 2: incluye "primer cuadro" o "Vermeer" en tu respuesta
+- Fase 3: incluye "segundo" o "Rodin" o "pensador"
+- Fase 4: incluye "tercer" o "Delacroix" o "libertad"
+- Fase 5: incluye "cuarto" o "Dalí" o "persistencia"
+- Fase 6: incluye "quinto" o "último" o "Miguel Ángel" o "creación"
+- Fase 7: incluye "acabáis de describir"
 
 CONTINUIDAD:
 - NO saludes — ya lo hiciste antes. Ve directo al contenido.
@@ -406,6 +416,104 @@ _DEFAULT_TRAINING_EXAMPLES = [
     }
 ]
 
+_DEFAULT_GLOSSARY = [
+    {
+        "term": "Specific-feedback",
+        "definition": "Specific feedback es una técnica educativa que consiste en dar retroalimentación concreta y focalizada en lugar de comentarios genéricos.",
+        "example": "Aplicado al prompting, significa pedirle a la IA que dé correcciones precisas — que señale el error exacto, explique la regla y dé la versión corregida — en vez de un 'buen trabajo' o 'cuidado con el género' que no le sirve al alumno."
+    },
+    {
+        "term": "Few-shot",
+        "definition": "Few-shot es una técnica de aprendizaje por ejemplos. En educación es como cuando le das al alumno un modelo resuelto antes de pedirle que haga el ejercicio solo.",
+        "example": "Aplicado al prompting, significa darle a la IA dos o tres ejemplos del formato que quieres antes de pedirle que genere más. La IA ve el patrón y lo replica exacto."
+    },
+    {
+        "term": "Scaffolding",
+        "definition": "Scaffolding es una técnica pedagógica de apoyo gradual. En clase lo hacéis cuando guiáis al alumno paso a paso en vez de soltarle todo de golpe.",
+        "example": "Aplicado al prompting, significa estructurar la instrucción en pasos ordenados para que la IA no te suelte todo mezclado en un bloque caótico."
+    },
+    {
+        "term": "Prompting",
+        "definition": "Prompting es el arte de escribir instrucciones claras a la IA. Es como redactar un buen enunciado de examen: cuanto más preciso el enunciado, mejor el resultado del alumno.",
+        "example": "Aplicado a ELE, significa que la calidad de lo que te da la IA depende directamente de cómo se lo pides. Instrucción vaga, resultado vago."
+    },
+    {
+        "term": "Hallucination",
+        "definition": "Alucinación es cuando la IA genera información falsa presentándola como verdadera. No miente a propósito — fabrica datos con total seguridad, como si fueran reales.",
+        "example": "En ELE es un riesgo serio: la IA puede inventarse referencias bibliográficas, reglas gramaticales o datos culturales que suenan perfectos pero son falsos. Siempre hay que verificar."
+    },
+    {
+        "term": "Temperature",
+        "definition": "Temperature es un parámetro que controla el grado de aleatoriedad de la IA. Es como un dial: lo bajas y la IA es precisa y predecible; lo subes y se vuelve más creativa pero menos fiable.",
+        "example": "Aplicado a ELE: para tareas de precisión como corregir gramática, temperatura baja. Para tareas creativas como generar diálogos o historias, temperatura alta."
+    },
+    {
+        "term": "Zero-shot",
+        "definition": "Zero-shot es pedirle algo a la IA sin darle ningún ejemplo previo. Solo la instrucción directa, sin modelo ni referencia. Es lo contrario de few-shot.",
+        "example": "Aplicado a ELE: funciona para tareas simples, pero para resultados más controlables y predecibles es mejor usar few-shot, dándole uno o dos ejemplos antes."
+    },
+    {
+        "term": "Chain-of-thought",
+        "definition": "Chain-of-thought es una técnica que consiste en pedirle a la IA que razone paso a paso antes de dar la respuesta final. Como cuando le pides a un alumno que explique cómo ha llegado al resultado.",
+        "example": "Aplicado a ELE: en vez de pedirle una respuesta directa, le pides que analice por partes y después concluya. El resultado es mucho más fiable porque la IA no se salta pasos."
+    },
+    {
+        "term": "Constraint prompting",
+        "definition": "Constraint prompting es poner límites explícitos a la IA: máximo de palabras, número de ítems, formato concreto. Es como cuando en un examen dices 'responde en 3 líneas' en vez de solo 'responde'.",
+        "example": "Aplicado a ELE: sirve para que la IA no se exceda — ni demasiadas palabras, ni demasiados ejemplos, ni contenido fuera de nivel. Le pones las reglas y se ciñe a ellas."
+    },
+    {
+        "term": "Negative prompting",
+        "definition": "Negative prompting es decirle a la IA lo que NO debe hacer. En clase es como cuando dices 'no uséis el diccionario' — defines los límites prohibiendo, no solo pidiendo.",
+        "example": "Aplicado a ELE: sirve para evitar estereotipos, generalizaciones, contenido fuera de nivel o formatos no deseados. Le dices qué evitar y la IA respeta esos límites."
+    },
+    {
+        "term": "Role prompting",
+        "definition": "Role prompting es asignarle un papel concreto a la IA antes de pedirle nada. Es como cuando en clase dices 'imagina que eres un turista' — el contexto cambia completamente la respuesta.",
+        "example": "Aplicado a ELE: le asignas un perfil — profesor experto, alumno de nivel X, nativo de una región — y la IA ajusta el registro, el vocabulario y la complejidad a ese papel."
+    },
+    {
+        "term": "Comparative prompting",
+        "definition": "Comparative prompting es pedirle a la IA que genere varias versiones del mismo contenido para poder comparar. Es como cuando preparas tres versiones de un ejercicio para ver cuál funciona mejor.",
+        "example": "Aplicado a ELE: sirve para mostrar diferencias de registro, nivel o estilo sobre un mismo tema. El alumno ve las variaciones y entiende cuándo usar cada una."
+    },
+    {
+        "term": "Graduated prompting",
+        "definition": "Graduated prompting es una técnica de dosificación progresiva. Consiste en pedirle a la IA que gradúe la dificultad o la cantidad, de menos a más. Como cuando secuenciáis una unidad didáctica de lo simple a lo complejo.",
+        "example": "Aplicado a ELE: sirve para controlar la cantidad y complejidad del input que genera la IA, evitando que te suelte demasiado contenido o demasiado difícil de golpe."
+    },
+    {
+        "term": "Function-focused prompting",
+        "definition": "Function-focused prompting es centrar la instrucción en la función comunicativa, no en la gramática. Es el enfoque comunicativo aplicado al prompting: importa para qué sirve el lenguaje, no solo cómo se construye.",
+        "example": "Aplicado a ELE: en vez de pedir ejercicios de un tiempo verbal, pides actividades donde el alumno tenga que cumplir una función real — quejarse, negociar, proponer. La gramática aparece al servicio de la comunicación."
+    },
+    {
+        "term": "Contextualized prompting",
+        "definition": "Contextualized prompting es darle a la IA un contexto situacional completo antes de pedirle nada. Es como la diferencia entre decirle a un alumno 'escribe una carta' y darle el destinatario, el motivo y la situación.",
+        "example": "Aplicado a ELE: significa que cuanto más contexto le das a la IA — quién, a quién, por qué, dónde — más realista y útil es el resultado para el alumno."
+    },
+    {
+        "term": "Scenario prompting",
+        "definition": "Scenario prompting es crear una situación ficticia pero realista para que la IA genere contenido dentro de ese marco. Es como montar un juego de roles en clase con personajes y situación definidos.",
+        "example": "Aplicado a ELE: le das a la IA una escena completa — lugar, personajes, conflicto — y el contenido que genera es mucho más auténtico y motivador para el alumno."
+    },
+    {
+        "term": "Multi-layer prompting",
+        "definition": "Multi-layer prompting es construir el prompt por capas, añadiendo requisitos uno sobre otro. Es como cuando diseñas una actividad que trabaja contenido, gramática, vocabulario y competencia cultural a la vez.",
+        "example": "Aplicado a ELE: cada capa que añades al prompt — nivel, tema, función comunicativa, tipo de agrupamiento — hace que el resultado sea más preciso y completo."
+    },
+    {
+        "term": "Iterative prompting",
+        "definition": "Iterative prompting es ir refinando el resultado de la IA en varias rondas de ida y vuelta. Es como cuando corriges un borrador: no esperas que la primera versión sea perfecta, sino que la mejoras paso a paso.",
+        "example": "Aplicado a ELE: generas un primer resultado, lo evalúas, y le pides a la IA que lo mejore con instrucciones más específicas. Cada ronda afina el resultado."
+    },
+    {
+        "term": "Anchoring prompting",
+        "definition": "Anchoring prompting es darle a la IA un punto de referencia fijo al que debe ceñirse: un documento, un marco teórico o un estándar. Es como cuando dices 'basándote en el Plan Curricular del Cervantes'.",
+        "example": "Aplicado a ELE: le das un marco de referencia — MCER, descriptores can-do, Plan Curricular — y la IA se ajusta a ese estándar en vez de inventarse el nivel o los contenidos."
+    }
+]
+
 
 async def init_db():
     """Crear tablas si no existen y hacer seed de prompts iniciales."""
@@ -471,6 +579,16 @@ async def init_db():
                     created_at TIMESTAMP DEFAULT NOW()
                 )
             """)
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS blinda_glossary (
+                    id SERIAL PRIMARY KEY,
+                    term VARCHAR(100) NOT NULL UNIQUE,
+                    definition TEXT NOT NULL,
+                    example TEXT NOT NULL,
+                    active BOOLEAN DEFAULT true,
+                    created_at TIMESTAMP DEFAULT NOW()
+                )
+            """)
 
             # Sync: actualizar prompts desde código (siempre aplica la versión más reciente)
             for key, content in _DEFAULT_PROMPTS.items():
@@ -487,6 +605,14 @@ async def init_db():
                 await conn.execute(
                     "INSERT INTO training_examples (prompt_key, user_message, good_response) VALUES ($1, $2, $3)",
                     ex["prompt_key"], ex["user_message"], ex["good_response"]
+                )
+
+            # Sync: reemplazar glosario blinda con los del código
+            await conn.execute("DELETE FROM blinda_glossary")
+            for entry in _DEFAULT_GLOSSARY:
+                await conn.execute(
+                    "INSERT INTO blinda_glossary (term, definition, example) VALUES ($1, $2, $3)",
+                    entry["term"], entry["definition"], entry["example"]
                 )
 
         print("✅ Base de datos Neon conectada y tablas listas")
@@ -535,6 +661,26 @@ async def get_training_examples_text(prompt_key: str) -> str:
     for i, ex in enumerate(examples, 1):
         text += f'\nEjemplo {i}:\nProfe dice: "{ex["user"]}"\nEliana responde: "{ex["assistant"]}"\n'
     text += "\n=== FIN EJEMPLOS. Todo lo que sigue es la conversación REAL con el profesor ===\n"
+    return text
+
+
+async def get_glossary_text() -> str:
+    """Cargar glosario de blinda desde BD y formatearlo para inyectar en el prompt."""
+    entries = []
+    if db_pool:
+        try:
+            async with db_pool.acquire() as conn:
+                rows = await conn.fetch(
+                    "SELECT term, definition, example FROM blinda_glossary WHERE active = true ORDER BY id"
+                )
+                entries = [{"term": r["term"], "definition": r["definition"], "example": r["example"]} for r in rows]
+        except Exception as e:
+            print(f"[DB] Error fetching glossary: {e}")
+    if not entries:
+        entries = _DEFAULT_GLOSSARY
+    text = "\n\nGLOSARIO DE REFERENCIA — Cuando te pregunten por un término, COPIA LITERAL la definición y el ejemplo de aquí. NO inventes nada:\n"
+    for entry in entries:
+        text += f'\n{entry["term"]}: {entry["definition"]} {entry["example"]}\n'
     return text
 
 
@@ -1008,7 +1154,12 @@ async def websocket_chat(websocket: WebSocket):
                 if current_activity_mode:
                     training_text = await get_training_examples_text(current_activity_mode)
 
-                messages = [{"role": "system", "content": system_prompt + training_text}]
+                # Inyectar glosario dinámico en modo blinda
+                glossary_text = ""
+                if current_activity_mode == "blinda":
+                    glossary_text = await get_glossary_text()
+
+                messages = [{"role": "system", "content": system_prompt + glossary_text + training_text}]
 
                 for hist_msg in conversation_history:
                     messages.append(hist_msg)

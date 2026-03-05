@@ -3498,11 +3498,11 @@ const BLINDA_COLORS = {
     T4: '#FFB74D', T5: '#B39DDB'
 };
 const BLINDA_TERRITORIES = {
-    T1: 'Didactica y metodologia',
-    T2: 'Precision y calibracion de la IA',
-    T3: 'Etica y contenido responsable',
-    T4: 'Evaluacion',
-    T5: 'Limitaciones tecnicas de la IA'
+    T1: 'Didáctica y metodología',
+    T2: 'Precisión y calibración de la IA',
+    T3: 'Ética y contenido responsable',
+    T4: 'Evaluación',
+    T5: 'Limitaciones técnicas de la IA'
 };
 const BLINDA_ICONS = {
     T1: 'ph-fill ph-chalkboard-teacher',
@@ -3622,7 +3622,7 @@ function sendBlindaMessage(message) {
                     ? renderMarkdown(state.currentMessage, false) : state.currentMessage;
             }
             messages.scrollTop = messages.scrollHeight;
-            // Live demo: auto-advance 0→1 and 1→2 + territory highlight. Steps 3-4 manual.
+            // Live demo: auto-advance + territory highlight. Step 4 manual only.
             if (typeof checkTerritoryHighlight === 'function') {
                 const lower = state.currentMessage.toLowerCase();
                 if (state.demoStep === 0 && (lower.includes('tarjeta') || lower.includes('carta') || lower.includes('categor') || lower.includes('territorio'))) {
@@ -3630,6 +3630,9 @@ function sendBlindaMessage(message) {
                 }
                 if (state.demoStep === 1 && (lower.includes('darle la vuelta') || lower.includes('situaci') || lower.includes('tres opcion') || lower.includes('a, b') || lower.includes('opci'))) {
                     advanceDemoTo(2);
+                }
+                if (state.demoStep === 2 && (lower.includes('la correcta es') || lower.includes('respuesta correcta') || lower.includes('la respuesta es la a') || lower.includes('bingo') || lower.includes('acertado') || lower.includes('habéis acertado'))) {
+                    advanceDemoTo(3);
                 }
                 checkTerritoryHighlight(state.currentMessage);
             }
@@ -3910,13 +3913,13 @@ function replayBlinda() {
 const DEMO_CARD = {
     letter: 'T2',
     level: 2,
-    category: 'Correccion de errores',
-    situation: 'Prompt: "Da feedback sobre esta redaccion B1". La IA: "Buen trabajo. Sigue asi. Tienes buen nivel. Hay algunas cositas que mejorar".',
-    option_a: 'Specific-feedback: "Cita 2 frases buenas del texto explicando por que. Cita 2 errores con la correccion y la regla".',
+    category: 'Corrección de errores',
+    situation: 'Prompt: "Da feedback sobre esta redacción B1". La IA: "Buen trabajo. Sigue así. Tienes buen nivel. Hay algunas cositas que mejorar".',
+    option_a: 'Specific-feedback: "Cita 2 frases buenas del texto explicando por qué. Cita 2 errores con la corrección y la regla".',
     option_b: 'El feedback positivo general motiva al alumno a seguir escribiendo.',
-    option_c: 'Pide que sea mas largo y detallado: "Feedback de minimo 200 palabras".',
+    option_c: 'Pide que sea más largo y detallado: "Feedback de mínimo 200 palabras".',
     correct_answer: 'A',
-    explanation: '"Algunas cositas" no es feedback, es ruido. El specific-feedback exige citas del texto real. La C anade palabras, no sustancia.'
+    explanation: '"Algunas cositas" no es feedback, es ruido. El specific-feedback exige citas del texto real. La C añade palabras, no sustancia.'
 };
 
 /** Builds the HTML for a card back (shared between demo + juego) */
@@ -4212,8 +4215,8 @@ const DIAPO5_PAINTINGS = [
             { label: 'B', text: 'Memoria — Recuerda todo lo que ve', correct: false },
             { label: 'C', text: 'Herramientas — Usa un pendiente como herramienta secreta', correct: false, funny: true }
         ],
-        explanation: 'Un agente primero OBSERVA: ¿que nivel tiene el alumno? ¿que ha estudiado? ¿que necesita? Sin percibir el contexto, es como dar clase con los ojos cerrados.',
-        teacherExample: 'Como cuando mirais las caras de vuestros alumnos y sabeis que no han entendido nada.'
+        explanation: 'Un agente primero OBSERVA: ¿qué nivel tiene el alumno? ¿Qué ha estudiado? ¿Qué necesita? Sin percibir el contexto, es como dar clase con los ojos cerrados.',
+        teacherExample: 'Como cuando miráis las caras de vuestros alumnos y sabéis que no han entendido nada.'
     },
     {
         id: 'razonar',
@@ -4224,33 +4227,33 @@ const DIAPO5_PAINTINGS = [
         capabilityIcon: 'ph-fill ph-brain',
         capabilityColor: '#81C784',
         options: [
-            { label: 'A', text: 'Actuar — Esta a punto de levantarse a hacer algo', correct: false },
+            { label: 'A', text: 'Actuar — Está a punto de levantarse a hacer algo', correct: false },
             { label: 'B', text: 'Razonar — Piensa, planifica, elige estrategia', correct: true },
-            { label: 'C', text: 'Percibir — Esta escuchando un podcast muy interesante', correct: false, funny: true }
+            { label: 'C', text: 'Percibir — Está escuchando un podcast muy interesante', correct: false, funny: true }
         ],
-        explanation: 'Un agente no ejecuta a lo loco. RAZONA: ¿que estrategia uso? ¿lista de vocabulario o juego con menu real? Elige el mejor camino.',
-        teacherExample: 'Como vosotros cuando planificais una clase: no improvisais (bueno, a veces si).'
+        explanation: 'Un agente no ejecuta a lo loco. RAZONA: ¿qué estrategia uso? ¿Lista de vocabulario o juego con menú real? Elige el mejor camino.',
+        teacherExample: 'Como vosotros cuando planificáis una clase: no improvisáis (bueno, a veces sí).'
     },
     {
         id: 'actuar',
         title: 'La libertad guiando al pueblo',
-        author: 'Eugene Delacroix, 1830',
+        author: 'Eugène Delacroix, 1830',
         image: '/static/imagenes/pinturas/delacroix.jpg',
         capability: 'ACTUAR',
         capabilityIcon: 'ph-fill ph-lightning',
         capabilityColor: '#F48FB1',
         options: [
-            { label: 'A', text: 'Evaluar — Esta juzgando al pueblo', correct: false },
-            { label: 'B', text: 'Actuar — Pasa a la accion, ejecuta el plan', correct: true },
-            { label: 'C', text: 'Memoria — Recuerda la revolucion anterior', correct: false, funny: true }
+            { label: 'A', text: 'Evaluar — Está juzgando al pueblo', correct: false },
+            { label: 'B', text: 'Actuar — Pasa a la acción, ejecuta el plan', correct: true },
+            { label: 'C', text: 'Memoria — Recuerda la revolución anterior', correct: false, funny: true }
         ],
-        explanation: 'Despues de percibir y razonar, el agente ACTUA: genera el ejercicio, adapta el texto, crea el audio. No se queda pensando eternamente.',
-        teacherExample: 'El momento en que dejais el cafe y entrais al aula. Accion pura.'
+        explanation: 'Después de percibir y razonar, el agente ACTÚA: genera el ejercicio, adapta el texto, crea el audio. No se queda pensando eternamente.',
+        teacherExample: 'El momento en que dejáis el café y entráis al aula. ¡Acción pura!'
     },
     {
         id: 'memoria',
         title: 'La persistencia de la memoria',
-        author: 'Salvador Dali, 1931',
+        author: 'Salvador Dalí, 1931',
         image: '/static/imagenes/pinturas/dali.jpg',
         capability: 'MEMORIA',
         capabilityIcon: 'ph-fill ph-clock-counter-clockwise',
@@ -4258,26 +4261,26 @@ const DIAPO5_PAINTINGS = [
         options: [
             { label: 'A', text: 'Memoria — Recuerda y acumula experiencia', correct: true },
             { label: 'B', text: 'Percibir — Los relojes perciben que se derriten', correct: false },
-            { label: 'C', text: 'Razonar — Es una metafora sobre pensar demasiado', correct: false, funny: true }
+            { label: 'C', text: 'Razonar — Es una metáfora sobre pensar demasiado', correct: false, funny: true }
         ],
-        explanation: 'Un agente RECUERDA: ayer este alumno tuvo problemas con el subjuntivo, la semana pasada domino el vocabulario de comida.',
-        teacherExample: 'No como vosotros la primera semana con 120 nombres nuevos que se os olvidan al dia siguiente.'
+        explanation: 'Un agente RECUERDA: ayer este alumno tuvo problemas con el subjuntivo, la semana pasada dominó el vocabulario de comida.',
+        teacherExample: 'No como vosotros la primera semana con 120 nombres nuevos que se os olvidan al día siguiente.'
     },
     {
         id: 'herramientas',
-        title: 'La creacion de Adan',
-        author: 'Miguel Angel, 1512',
+        title: 'La creación de Adán',
+        author: 'Miguel Ángel, 1512',
         image: '/static/imagenes/pinturas/miguelangel.jpg',
         capability: 'HERRAMIENTAS',
         capabilityIcon: 'ph-fill ph-wrench',
         capabilityColor: '#B39DDB',
         options: [
-            { label: 'A', text: 'Actuar — Esta creando algo con las manos', correct: false },
+            { label: 'A', text: 'Actuar — Está creando algo con las manos', correct: false },
             { label: 'B', text: 'Herramientas — Usa herramientas para crear y transformar', correct: true },
-            { label: 'C', text: 'Percibir — Estan intentando tocarse para percibirse', correct: false, funny: true }
+            { label: 'C', text: 'Percibir — Están intentando tocarse para percibirse', correct: false, funny: true }
         ],
-        explanation: 'Un agente usa HERRAMIENTAS: busca en el MCER, genera audio, crea ejercicios, adapta textos. No solo responde preguntas — tiene superpoderes.',
-        teacherExample: 'Como vosotros con el proyector, la pizarra, los rotuladores y esa app que nunca funciona cuando la necesitais.'
+        explanation: 'Un agente usa HERRAMIENTAS: busca en el MCER, genera audio, crea ejercicios, adapta textos. No solo responde preguntas, ¡tiene superpoderes!',
+        teacherExample: 'Como vosotros con el proyector, la pizarra, los rotuladores y esa app que nunca funciona cuando la necesitáis.'
     }
 ];
 
@@ -4285,18 +4288,18 @@ const DIAPO5_AGENTS = [
     { name: 'Traductor', icon: 'ph-fill ph-translate', desc: 'Traduce y adapta textos al nivel del alumno' },
     { name: 'Vocabulario', icon: 'ph-fill ph-book-open-text', desc: 'Crea actividades de vocabulario contextualizadas' },
     { name: 'Personalizador', icon: 'ph-fill ph-user-focus', desc: 'Adapta contenido al perfil del estudiante' },
-    { name: 'Creativo', icon: 'ph-fill ph-magic-wand', desc: 'Genera recursos didacticos originales' }
+    { name: 'Creativo', icon: 'ph-fill ph-magic-wand', desc: 'Genera recursos didácticos originales' }
 ];
 
 const DIAPO5_KEYWORD_MAP = [
-    { step: 1, patterns: ['5 capacidades', 'cinco capacidades', 'sin necesitar café', 'percibe, piensa', 'piensa, actúa'] },
-    { step: 2, patterns: ['cuadros famosos', 'tres opciones', 'absurda', 'adivinar', 'vamos a usar'] },
-    { step: 3, patterns: ['primer cuadro', 'vermeer', 'joven de la perla', 'empezamos', 'primer'] },
-    { step: 4, patterns: ['segundo', 'pensador', 'rodin', 'siguiente cuadro'] },
+    { step: 1, patterns: ['mirad la pantalla', 'cuáles creéis', 'cuales creeis'] },
+    { step: 2, patterns: ['cuadros famosos', 'tres opciones'] },
+    { step: 3, patterns: ['primer cuadro', 'vermeer', 'joven de la perla'] },
+    { step: 4, patterns: ['segundo', 'pensador', 'rodin'] },
     { step: 5, patterns: ['tercer', 'libertad', 'delacroix'] },
-    { step: 6, patterns: ['cuarto', 'dali', 'dalí', 'relojes', 'persistencia'] },
-    { step: 7, patterns: ['quinto', 'ultimo', 'último', 'miguel angel', 'capilla sixtina', 'creacion', 'creación'] },
-    { step: 8, patterns: ['acabais de describir', 'acabáis de describir', 'habeis descrito', 'habéis descrito', 'todo junto', 'revelacion', 'revelación'] }
+    { step: 6, patterns: ['cuarto', 'dali', 'dalí', 'persistencia'] },
+    { step: 7, patterns: ['quinto', 'último', 'ultimo', 'miguel ángel', 'miguel angel', 'creación', 'creacion'] },
+    { step: 8, patterns: ['acabáis de describir', 'acabais de describir'] }
 ];
 
 function showDiapo5Screen() {
@@ -4471,7 +4474,7 @@ function advanceDiapo5To(step) {
         target.classList.add('diapo5-demo__step--active');
         // Render step content lazily
         if (step === 1) {
-            renderDiapo5Capabilities();
+            renderDiapo5WordCloud();
         } else if (step === 2) {
             renderDiapo5PaintingsPreview();
         } else if (step >= 3 && step <= 7) {
@@ -4486,35 +4489,48 @@ function advanceDiapo5To(step) {
     });
 }
 
-function renderDiapo5Capabilities() {
+// Static word cloud — mix of agent, chatbot, LLM and misleading terms
+const DIAPO5_CLOUD_WORDS = [
+    { text: 'Responde preguntas', size: 'md', color: '#9E9E9E' },
+    { text: 'Usa herramientas', size: 'lg', color: '#B39DDB' },
+    { text: 'Genera texto', size: 'md', color: '#9E9E9E' },
+    { text: 'Planifica pasos', size: 'lg', color: '#81C784' },
+    { text: 'Necesita instrucciones exactas', size: 'sm', color: '#BCAAA4' },
+    { text: 'Recuerda lo anterior', size: 'lg', color: '#FFB74D' },
+    { text: 'Actúa por su cuenta', size: 'lg', color: '#F48FB1' },
+    { text: 'Busca información', size: 'md', color: '#B39DDB' },
+    { text: 'Copia y pega', size: 'sm', color: '#BCAAA4' },
+    { text: 'Adapta su estrategia', size: 'lg', color: '#81C784' },
+    { text: 'Siempre dice lo mismo', size: 'sm', color: '#BCAAA4' },
+    { text: 'Observa el contexto', size: 'lg', color: '#7EC8E3' },
+    { text: 'Ejecuta tareas', size: 'md', color: '#F48FB1' },
+    { text: 'Solo habla', size: 'sm', color: '#BCAAA4' },
+    { text: 'Aprende del alumno', size: 'md', color: '#FFB74D' },
+    { text: 'Traduce palabra por palabra', size: 'sm', color: '#BCAAA4' },
+];
+
+function renderDiapo5WordCloud() {
     const container = document.getElementById('diapo5-step-1');
     if (!container || container.dataset.rendered) return;
     container.dataset.rendered = 'true';
 
     container.innerHTML = `
-        <div class="diapo5-capabilities-intro">
-            <h3 class="diapo5-capabilities-intro__title">Las 5 capacidades de un Agente</h3>
-            <p class="diapo5-capabilities-intro__subtitle">Lo que hace un agente de IA (y lo que haceis vosotros cada dia)</p>
-            <div class="diapo5-capabilities-grid">
-                ${DIAPO5_PAINTINGS.map((p, i) => `
-                    <div class="diapo5-cap-card" style="--cap-color: ${p.capabilityColor}">
-                        <div class="diapo5-cap-card__icon" style="background: ${p.capabilityColor}">
-                            <i class="${p.capabilityIcon}"></i>
-                        </div>
-                        <span class="diapo5-cap-card__name">${p.capability}</span>
-                        <span class="diapo5-cap-card__hint">${['Observar el contexto', 'Pensar y planificar', 'Ejecutar la accion', 'Recordar y aprender', 'Usar recursos externos'][i]}</span>
-                    </div>
+        <div class="diapo5-wordcloud">
+            <h3 class="diapo5-wordcloud__title">¿Cuáles describen a un agente de IA?</h3>
+            <div class="diapo5-wordcloud__cloud" id="diapo5-cloud">
+                ${DIAPO5_CLOUD_WORDS.map(w => `
+                    <span class="diapo5-wordcloud__word diapo5-wordcloud__word--${w.size}" style="color: ${w.color}; border-color: ${w.color}">${w.text}</span>
                 `).join('')}
             </div>
         </div>
     `;
 
-    // GSAP entrance
-    const cards = container.querySelectorAll('.diapo5-cap-card');
-    cards.forEach((card, i) => {
-        gsap.fromTo(card,
-            { y: 30, opacity: 0, scale: 0.8 },
-            { y: 0, opacity: 1, scale: 1, duration: 0.4, delay: i * 0.12, ease: 'back.out(1.4)' }
+    // Staggered GSAP entrance
+    const words = container.querySelectorAll('.diapo5-wordcloud__word');
+    words.forEach((word, i) => {
+        gsap.fromTo(word,
+            { scale: 0, opacity: 0 },
+            { scale: 1, opacity: 1, duration: 0.35, delay: i * 0.06, ease: 'back.out(1.5)' }
         );
     });
 }
@@ -4527,7 +4543,7 @@ function renderDiapo5PaintingsPreview() {
     container.innerHTML = `
         <div class="diapo5-preview-intro">
             <h3 class="diapo5-preview-intro__title">5 cuadros, 5 capacidades</h3>
-            <p class="diapo5-preview-intro__subtitle">Cada obra maestra esconde una capacidad del agente. ¿Sabreis adivinarlas?</p>
+            <p class="diapo5-preview-intro__subtitle">Cada obra maestra esconde una capacidad del agente. ¿Sabréis adivinarlas?</p>
             <div class="diapo5-preview-grid">
                 ${DIAPO5_PAINTINGS.map((p, i) => `
                     <div class="diapo5-preview-card">
@@ -4655,7 +4671,7 @@ function renderDiapo5Final() {
 
     container.innerHTML = `
         <div class="diapo5-final">
-            <h2 class="diapo5-final__title">Lo que habeis descrito es un AGENTE de IA</h2>
+            <h2 class="diapo5-final__title">Lo que habéis descrito es un AGENTE de IA</h2>
             <div class="diapo5-final__diagram">
                 ${DIAPO5_PAINTINGS.map((p, i) => `
                     <div class="diapo5-final__cap" style="background: linear-gradient(145deg, ${p.capabilityColor}, ${p.capabilityColor}dd)">
