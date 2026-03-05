@@ -4702,7 +4702,7 @@ body[data-mood-active] .message.assistant {
     flex-direction: column;
     align-items: center;
     position: relative;
-    overflow: hidden;
+    min-height: 0;
 }
 
 .blinda-orb-wrapper {
@@ -4735,7 +4735,6 @@ body[data-mood-active] .message.assistant {
     border-radius: var(--md-sys-shape-extra-large);
     background: var(--md-sys-color-surface-container-low);
     border: 1px solid rgba(198, 197, 208, 0.25);
-    overflow: hidden;
 }
 
 .blinda-chat__messages {
@@ -4744,11 +4743,11 @@ body[data-mood-active] .message.assistant {
     padding: var(--space-16);
     display: flex;
     flex-direction: column;
-    gap: var(--space-10);
+    gap: var(--space-16);
 }
 
 .blinda-chat__bubble {
-    padding: var(--space-12) var(--space-16);
+    padding: var(--space-14, 14px) var(--space-16);
     font: var(--md-sys-typescale-body-large);
     line-height: 1.55;
     animation: messageEnter var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-decelerate);
@@ -4775,16 +4774,28 @@ body[data-mood-active] .message.assistant {
     max-width: 85%;
 }
 
-/* -- Chat input row (same style as main chat) -- */
+/* -- Chat input container (same structure as main chat-input-container) -- */
+.blinda-chat__input-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 10px 12px;
+    border-top: 1px solid rgba(198, 197, 208, 0.2);
+}
+
 .blinda-chat__input-row {
     display: flex;
     align-items: flex-end;
     gap: 8px;
-    padding: 10px 12px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(198, 197, 208, 0.2);
+    margin-bottom: 8px;
+}
+
+.blinda-chat__actions-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* Alinear con el borde derecho del textarea (52px = botón enviar 44px + gap 8px) */
+    margin-right: 52px;
 }
 
 .blinda-chat__textarea {
@@ -4995,7 +5006,7 @@ body[data-mood-active] .message.assistant {
     justify-content: center;
     gap: var(--space-4);
     flex-shrink: 0;
-    font: 700 24px 'Dosis', sans-serif;
+    font: 700 22px 'Dosis', sans-serif;
     color: #fff;
     box-shadow: var(--md-sys-elevation-1);
     transition: transform 300ms ease, box-shadow 300ms ease;
@@ -5009,24 +5020,23 @@ body[data-mood-active] .message.assistant {
     box-shadow: var(--md-sys-elevation-3);
 }
 
-/* Card colors by letter */
-.blinda-carousel__mini[data-letter="U"] { background: linear-gradient(145deg, #D4826A, #c06e56); }
-.blinda-carousel__mini[data-letter="N"] { background: linear-gradient(145deg, #994E95, #7d3f79); }
-.blinda-carousel__mini[data-letter="R"] { background: linear-gradient(145deg, #31BEEF, #28a0cc); }
-.blinda-carousel__mini[data-letter="L"] { background: linear-gradient(145deg, #A1B8F2, #8599d4); }
-.blinda-carousel__mini[data-letter="T"] { background: linear-gradient(145deg, #E8A08A, #d08b75); }
-.blinda-carousel__mini[data-letter="D"] { background: linear-gradient(145deg, #6B8F71, #587660); }
+/* Card colors by territory */
+.blinda-carousel__mini[data-letter="T1"] { background: linear-gradient(145deg, #7EC8E3, #5fb3d0); }
+.blinda-carousel__mini[data-letter="T2"] { background: linear-gradient(145deg, #81C784, #65af68); }
+.blinda-carousel__mini[data-letter="T3"] { background: linear-gradient(145deg, #F48FB1, #e06d93); }
+.blinda-carousel__mini[data-letter="T4"] { background: linear-gradient(145deg, #FFB74D, #e9a03a); }
+.blinda-carousel__mini[data-letter="T5"] { background: linear-gradient(145deg, #B39DDB, #957fc4); }
 
 /* Flip card */
 .blinda-card-container {
-    perspective: 1000px;
-    width: 100%;
-    max-width: 460px;
+    perspective: 1200px;
+    width: 340px;
+    max-width: 90%;
 }
 .blinda-card {
     position: relative;
     width: 100%;
-    min-height: 320px;
+    min-height: 480px;
     transform-style: preserve-3d;
     transition: transform 600ms var(--md-sys-motion-easing-emphasized);
 }
@@ -5038,7 +5048,7 @@ body[data-mood-active] .message.assistant {
     position: absolute;
     inset: 0;
     backface-visibility: hidden;
-    border-radius: var(--md-sys-shape-extra-large);
+    border-radius: 16px;
     padding: var(--space-32);
     display: flex;
     flex-direction: column;
@@ -5046,38 +5056,124 @@ body[data-mood-active] .message.assistant {
     justify-content: center;
 }
 .blinda-card__front {
-    background: linear-gradient(145deg, #6B8F71, #587660);
     color: #fff;
-    gap: var(--space-16);
+    gap: var(--space-20);
     cursor: pointer;
-    box-shadow: var(--md-sys-elevation-2);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
 }
 .blinda-card__front:hover {
-    box-shadow: var(--md-sys-elevation-3);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+}
+.blinda-card__front-territory {
+    font: 700 15px 'Dosis', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.9;
 }
 .blinda-card__letter {
     font: 700 64px 'Dosis', sans-serif;
     opacity: 0.9;
 }
 .blinda-card__front-icon {
-    font-size: 32px;
-    opacity: 0.6;
+    font-size: 48px;
+    opacity: 0.8;
 }
 .blinda-card__back {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: var(--md-sys-elevation-2);
+    background: #fff;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
     transform: rotateY(180deg);
-    gap: var(--space-20);
+    gap: var(--space-16);
     justify-content: flex-start;
-    padding-top: var(--space-24);
+    padding: var(--space-24) var(--space-24);
+    border-top: 5px solid var(--card-accent-color, #6B8F71);
+}
+/* Demo card pair — two faces side by side */
+.blinda-demo__card-pair {
+    display: flex;
+    gap: var(--space-20);
+    align-items: stretch;
+    width: 100%;
+    max-width: 580px;
+}
+.blinda-demo__card-front {
+    flex: 0 0 160px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-12);
+    color: #fff;
+    padding: var(--space-24) var(--space-16);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+}
+.blinda-demo__card-front-name {
+    font: 700 14px 'Dosis', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+    line-height: 1.3;
+}
+.blinda-demo__card-front-cat {
+    font: 500 12px 'Dosis', sans-serif;
+    opacity: 0.85;
+    text-align: center;
+}
+.blinda-demo__card-back {
+    flex: 1;
+    background: #fff;
+    border-radius: 16px;
+    padding: var(--space-20) var(--space-20);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-14);
+}
+/* Card header — category + difficulty */
+.blinda-card__header,
+.juego-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding-bottom: var(--space-10);
+    border-bottom: 1.5px solid rgba(0, 0, 0, 0.06);
+    margin-bottom: var(--space-4);
+}
+.blinda-card__category,
+.juego-card__category {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    font: 700 13px 'Dosis', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+.blinda-card__category i,
+.juego-card__category i {
+    font-size: 17px;
+}
+.blinda-card__level,
+.juego-card__level {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.blinda-card__level-dot,
+.juego-card__level-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.15);
+    transition: background 200ms ease;
+}
+.blinda-card__level-dot--active,
+.juego-card__level-dot--active {
+    /* Color set inline from JS */
 }
 .blinda-card__situation {
-    font: 400 15px 'Inconsolata', monospace;
-    color: var(--md-sys-color-on-surface);
-    line-height: 1.55;
+    font: 500 15px/1.7 'Inconsolata', monospace;
+    color: #1a1a1a;
     text-align: left;
     width: 100%;
 }
@@ -5090,36 +5186,34 @@ body[data-mood-active] .message.assistant {
 .blinda-option-btn {
     display: flex;
     align-items: flex-start;
-    gap: var(--space-10);
-    padding: var(--space-12) var(--space-16);
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(8px);
-    border: 1.5px solid rgba(0, 0, 0, 0.08);
-    border-radius: var(--md-sys-shape-large);
-    font: 400 13.5px 'Inconsolata', monospace;
-    color: var(--md-sys-color-on-surface);
-    line-height: 1.45;
+    gap: var(--space-12);
+    padding: var(--space-12) var(--space-14, 14px);
+    background: var(--md-sys-color-surface-container-lowest, #fafafa);
+    border: 1.5px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    font: 400 14.5px/1.5 'Dosis', sans-serif;
+    color: #2a2a2a;
     text-align: left;
     cursor: pointer;
     transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
 }
 .blinda-option-btn:hover {
     transform: scale(1.01);
-    border-color: rgba(107, 143, 113, 0.4);
-    background: rgba(107, 143, 113, 0.06);
+    border-color: rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.95);
 }
 .blinda-option-btn:active {
     transform: scale(0.98);
 }
 .blinda-option-btn__label {
-    font-weight: 700;
-    color: #6B8F71;
+    font: 800 16px 'Dosis', sans-serif;
     flex-shrink: 0;
-    min-width: 20px;
+    min-width: 22px;
 }
 .blinda-option-btn--correct {
-    background: rgba(107, 143, 113, 0.15) !important;
-    border-color: #6B8F71 !important;
+    background: rgba(76, 175, 80, 0.1) !important;
+    border-color: #4CAF50 !important;
+    font-weight: 600;
 }
 .blinda-option-btn--wrong {
     background: rgba(212, 130, 106, 0.12) !important;
@@ -5133,8 +5227,8 @@ body[data-mood-active] .message.assistant {
 /* Feedback panel */
 .blinda-feedback {
     width: 100%;
-    max-width: 460px;
-    padding: var(--space-20);
+    max-width: 520px;
+    padding: var(--space-24);
     border-radius: var(--md-sys-shape-extra-large);
     display: flex;
     flex-direction: column;
@@ -5156,9 +5250,8 @@ body[data-mood-active] .message.assistant {
 .blinda-feedback--correct .blinda-feedback__icon { color: #6B8F71; }
 .blinda-feedback--wrong .blinda-feedback__icon { color: var(--md-sys-color-primary); }
 .blinda-feedback__text {
-    font: 400 14px 'Inconsolata', monospace;
+    font: 400 15.5px/1.65 'Dosis', sans-serif;
     color: var(--md-sys-color-on-surface);
-    line-height: 1.55;
     text-align: center;
 }
 .blinda-next-btn {
@@ -5296,7 +5389,9 @@ body[data-mood-active] .message.assistant {
     .blinda-orb-wrapper { width: 80px; height: 80px; }
     .blinda-right { padding: 1.5rem; flex-shrink: 0; width: 100%; max-width: 480px; margin: 0 0 1rem; border-radius: 12px; }
     .blinda-title { font-size: 28px; }
-    .blinda-card__back { padding: var(--space-16); }
+    .blinda-card-container { width: 300px; }
+    .blinda-card { min-height: 420px; }
+    .blinda-card__back { padding: var(--space-20); }
     .blinda-card__situation { font-size: 14px; }
     .blinda-option-btn { font-size: 13px; padding: var(--space-10) var(--space-12); }
     .blinda-summary-card { padding: var(--space-20); }
@@ -5308,4 +5403,1014 @@ body[data-mood-active] .message.assistant {
     .blinda-orb-wrapper { width: 64px; height: 64px; }
     .blinda-card__situation { font-size: 13px; }
     .blinda-option-btn { font-size: 12.5px; }
+}
+
+/* ============================================
+   BLINDA DEMO — Visual demo for diapo 3
+   ============================================ */
+.blinda-demo {
+    width: 100%;
+    max-width: 460px;
+    position: relative;
+}
+.blinda-demo__step {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-24);
+    animation: blindaSlideUp 400ms var(--md-sys-motion-easing-emphasized-decelerate);
+}
+.blinda-demo__step--active {
+    display: flex;
+}
+.blinda-demo__cards-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-24);
+    justify-content: center;
+    width: 100%;
+    max-width: 600px;
+}
+.blinda-demo__territory-card {
+    width: 100%;
+    max-width: 160px;
+    aspect-ratio: 3 / 2;
+    border-radius: var(--md-sys-shape-large);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-8);
+    color: #fff;
+    box-shadow: var(--md-sys-elevation-2);
+    cursor: default;
+    padding: var(--space-8);
+}
+.blinda-demo__territory-card--highlight {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2), 0 0 0 3px rgba(255,255,255,0.6);
+    z-index: 2;
+}
+.blinda-demo__cards-preview:has(.blinda-demo__territory-card--highlight) .blinda-demo__territory-card:not(.blinda-demo__territory-card--highlight) {
+    opacity: 0.45;
+    filter: grayscale(0.3);
+    transition: opacity 0.4s ease, filter 0.4s ease;
+}
+.blinda-demo__territory-card i {
+    font-size: 24px;
+    opacity: 0.9;
+}
+.blinda-demo__territory-name {
+    font: 600 12px 'Dosis', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    opacity: 0.95;
+    text-align: center;
+    line-height: 1.25;
+    padding: 0 var(--space-4);
+    max-width: 100%;
+}
+.blinda-demo__handoff-icon {
+    font-size: 48px;
+    color: var(--md-sys-color-primary);
+}
+.blinda-demo__handoff-title {
+    font: 700 28px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+}
+.blinda-demo__handoff-text {
+    font: 400 15px 'Inconsolata', monospace;
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Demo stepper dots */
+.blinda-demo__stepper {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: var(--space-8);
+}
+.demo-stepper__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transition: all 200ms ease;
+    padding: 0;
+}
+.demo-stepper__dot:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+.demo-stepper__dot--active {
+    background: var(--md-sys-color-primary);
+    width: 28px;
+    border-radius: var(--md-sys-shape-full);
+}
+
+/* ============================================
+   JUEGO SCREEN — Full game (diapo 4, mobile-first)
+   ============================================ */
+.juego-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem !important;
+    min-height: 100vh;
+    min-height: 100dvh;
+    gap: var(--space-24);
+    background: var(--md-sys-color-surface);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transition:
+        opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate),
+        transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate);
+    position: relative;
+}
+.juego-screen.fade-out {
+    opacity: 0;
+    transform: scale(0.98);
+}
+
+/* Nav button */
+.juego-nav-btn {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 20px;
+    transition: background 0.15s;
+    touch-action: manipulation;
+}
+.juego-nav-btn:hover { background: rgba(0, 0, 0, 0.08); }
+.juego-nav-btn:active { background: rgba(0, 0, 0, 0.12); }
+.juego-nav-btn--right { left: auto; right: 1rem; }
+
+/* Header */
+.juego-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-12);
+    width: 100%;
+    max-width: 520px;
+    margin-top: 2rem;
+}
+.juego-header__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #6B8F71, #587660);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+.juego-header__title {
+    font: 700 28px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    letter-spacing: -0.5px;
+}
+
+/* Intro */
+.juego-intro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-20);
+    max-width: 420px;
+}
+.juego-intro__text {
+    font: 400 15px 'Inconsolata', monospace;
+    color: var(--md-sys-color-on-surface-variant);
+    line-height: 1.55;
+}
+.juego-start-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-10);
+    padding: var(--space-16) var(--space-40, 2.5rem);
+    background: linear-gradient(145deg, #6B8F71, #587660);
+    color: #fff;
+    border: none;
+    border-radius: var(--md-sys-shape-full);
+    font: 600 17px 'Dosis', sans-serif;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: transform 200ms ease, box-shadow 200ms ease;
+    box-shadow: var(--md-sys-elevation-1);
+    min-width: 180px;
+}
+.juego-start-btn:hover { transform: scale(1.04); box-shadow: var(--md-sys-elevation-3); }
+.juego-start-btn:active { transform: scale(0.97); }
+
+/* Game phase */
+.juego-game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 520px;
+    gap: var(--space-24);
+}
+
+/* Progress */
+.juego-progress {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+}
+.juego-progress__text {
+    font: 600 14px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    text-align: center;
+}
+.juego-progress__bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: var(--md-sys-shape-full);
+    overflow: hidden;
+}
+.juego-progress__fill {
+    height: 100%;
+    width: 20%;
+    background: #6B8F71;
+    border-radius: var(--md-sys-shape-full);
+    transition: width 400ms var(--md-sys-motion-easing-standard);
+}
+
+/* Carousel */
+.juego-carousel {
+    width: 100%;
+    height: 120px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.juego-carousel__track {
+    display: flex;
+    gap: var(--space-12);
+    position: absolute;
+    left: 0;
+}
+.juego-carousel__mini {
+    width: 80px;
+    height: 100px;
+    border-radius: var(--md-sys-shape-large);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    flex-shrink: 0;
+    font: 700 22px 'Dosis', sans-serif;
+    color: #fff;
+    box-shadow: var(--md-sys-elevation-1);
+    transition: transform 300ms ease, box-shadow 300ms ease;
+}
+.juego-carousel__mini i { font-size: 20px; opacity: 0.8; }
+.juego-carousel__mini--selected { transform: scale(1.15); box-shadow: var(--md-sys-elevation-3); }
+
+/* Card colors (reuse same as blinda) */
+.juego-carousel__mini[data-letter="T1"] { background: linear-gradient(145deg, #7EC8E3, #5fb3d0); }
+.juego-carousel__mini[data-letter="T2"] { background: linear-gradient(145deg, #81C784, #65af68); }
+.juego-carousel__mini[data-letter="T3"] { background: linear-gradient(145deg, #F48FB1, #e06d93); }
+.juego-carousel__mini[data-letter="T4"] { background: linear-gradient(145deg, #FFB74D, #e9a03a); }
+.juego-carousel__mini[data-letter="T5"] { background: linear-gradient(145deg, #B39DDB, #957fc4); }
+
+/* Flip card */
+.juego-card-container {
+    perspective: 1000px;
+    width: 100%;
+    max-width: 460px;
+}
+.juego-card {
+    position: relative;
+    width: 100%;
+    min-height: 320px;
+    transform-style: preserve-3d;
+    transition: transform 600ms var(--md-sys-motion-easing-emphasized);
+}
+.juego-card.flipped { transform: rotateY(180deg); }
+.juego-card__front,
+.juego-card__back {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: var(--md-sys-shape-extra-large);
+    padding: var(--space-32);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.juego-card__front {
+    background: linear-gradient(145deg, #6B8F71, #587660);
+    color: #fff;
+    gap: var(--space-16);
+    box-shadow: var(--md-sys-elevation-2);
+}
+.juego-card__letter {
+    font: 700 64px 'Dosis', sans-serif;
+    opacity: 0.9;
+}
+.juego-card__front-icon {
+    font-size: 32px;
+    opacity: 0.6;
+}
+.juego-card__back {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: var(--md-sys-elevation-2);
+    transform: rotateY(180deg);
+    gap: var(--space-12);
+    justify-content: flex-start;
+    padding: var(--space-20) var(--space-24);
+}
+.juego-card__situation {
+    font: 400 14.5px/1.6 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    text-align: left;
+    width: 100%;
+}
+.juego-card__options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+    width: 100%;
+}
+.juego-option-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-10);
+    padding: var(--space-12) var(--space-16);
+    background: rgba(255, 255, 255, 0.75);
+    border: 1.5px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--md-sys-shape-large);
+    font: 400 13.5px/1.5 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    text-align: left;
+    cursor: pointer;
+    transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
+}
+.juego-option-btn:hover {
+    transform: scale(1.01);
+    border-color: rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.95);
+}
+.juego-option-btn:active { transform: scale(0.98); }
+.juego-option-btn__label {
+    font: 700 15px 'Dosis', sans-serif;
+    flex-shrink: 0;
+    min-width: 20px;
+    /* Color set inline from JS */
+}
+.juego-option-btn--correct {
+    background: rgba(107, 143, 113, 0.15) !important;
+    border-color: #6B8F71 !important;
+}
+.juego-option-btn--wrong {
+    background: rgba(212, 130, 106, 0.12) !important;
+    border-color: var(--md-sys-color-primary) !important;
+}
+.juego-option-btn--disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* Feedback */
+.juego-feedback {
+    width: 100%;
+    max-width: 460px;
+    padding: var(--space-20);
+    border-radius: var(--md-sys-shape-extra-large);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-16);
+    animation: blindaSlideUp 300ms var(--md-sys-motion-easing-emphasized-decelerate);
+}
+.juego-feedback--correct {
+    background: rgba(107, 143, 113, 0.1);
+    border: 1px solid rgba(107, 143, 113, 0.2);
+}
+.juego-feedback--wrong {
+    background: rgba(212, 130, 106, 0.08);
+    border: 1px solid rgba(212, 130, 106, 0.15);
+}
+.juego-feedback__icon { font-size: 36px; }
+.juego-feedback--correct .juego-feedback__icon { color: #6B8F71; }
+.juego-feedback--wrong .juego-feedback__icon { color: var(--md-sys-color-primary); }
+.juego-feedback__text {
+    font: 400 14px/1.6 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    text-align: center;
+}
+.juego-next-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-8);
+    padding: var(--space-10) var(--space-24);
+    background: var(--md-sys-color-on-surface);
+    color: var(--md-sys-color-surface);
+    border: none;
+    border-radius: var(--md-sys-shape-full);
+    font: 600 14px 'Dosis', sans-serif;
+    cursor: pointer;
+    transition: transform 150ms ease;
+}
+.juego-next-btn:hover { transform: scale(1.03); }
+.juego-next-btn:active { transform: scale(0.97); }
+
+/* Summary */
+.juego-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-20);
+    max-width: 420px;
+    width: 100%;
+    animation: blindaSlideUp 400ms var(--md-sys-motion-easing-emphasized-decelerate);
+}
+.juego-summary-card {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: var(--md-sys-shape-extra-large);
+    padding: var(--space-32);
+    box-shadow: var(--md-sys-elevation-1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-20);
+    text-align: center;
+}
+.juego-summary__title {
+    font: 700 24px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+}
+.juego-summary__score {
+    font: 700 48px 'Dosis', sans-serif;
+    color: #6B8F71;
+}
+
+/* Areas de mejora */
+.juego-summary__areas { width: 100%; }
+.juego-summary__areas-title {
+    font: 600 16px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    margin-bottom: var(--space-10);
+    text-align: left;
+}
+.juego-summary__area-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+}
+.juego-area-tag {
+    padding: var(--space-6, 6px) var(--space-12);
+    background: rgba(212, 130, 106, 0.12);
+    border: 1px solid rgba(212, 130, 106, 0.2);
+    border-radius: var(--md-sys-shape-full);
+    font: 500 12px 'Inconsolata', monospace;
+    color: var(--md-sys-color-primary);
+}
+
+/* Learnings */
+.juego-summary__learnings {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+    width: 100%;
+    text-align: left;
+}
+.juego-learning-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-10);
+    font: 400 13px 'Inconsolata', monospace;
+    color: var(--md-sys-color-on-surface);
+    line-height: 1.45;
+    padding: var(--space-10) var(--space-14, 14px);
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: var(--md-sys-shape-medium);
+    border-left: 3px solid;
+}
+.juego-learning-item--correct { border-left-color: #6B8F71; }
+.juego-learning-item--wrong { border-left-color: var(--md-sys-color-primary); }
+.juego-learning__icon { flex-shrink: 0; font-size: 16px; }
+.juego-learning-item--correct .juego-learning__icon { color: #6B8F71; }
+.juego-learning-item--wrong .juego-learning__icon { color: var(--md-sys-color-primary); }
+.juego-learning__explanation {
+    margin-top: var(--space-4);
+    font-size: 12px;
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Discussion */
+.juego-summary__discussion { width: 100%; text-align: left; }
+.juego-summary__discuss-title {
+    font: 600 16px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    margin-bottom: var(--space-10);
+}
+.juego-discuss-list {
+    margin: 0;
+    padding-left: var(--space-20);
+    font: 400 13px 'Inconsolata', monospace;
+    color: var(--md-sys-color-on-surface-variant);
+    line-height: 1.6;
+}
+.juego-discuss-list li { margin-bottom: var(--space-6, 6px); }
+
+/* Summary actions */
+.juego-summary-actions {
+    display: flex;
+    gap: var(--space-12);
+}
+.juego-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-8);
+    padding: var(--space-12) var(--space-20);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--md-sys-shape-full);
+    font: 600 14px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    cursor: pointer;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.juego-action-btn:hover { transform: scale(1.03); box-shadow: var(--md-sys-elevation-1); }
+.juego-action-btn:active { transform: scale(0.97); }
+
+/* Juego responsive */
+@media (max-width: 480px) {
+    .juego-screen { padding: 1rem 0.75rem !important; }
+    .juego-header { margin-top: 2.5rem; }
+    .juego-card__situation { font-size: 13px; }
+    .juego-option-btn { font-size: 12.5px; padding: var(--space-10) var(--space-12); }
+    .juego-carousel__mini { width: 64px; height: 82px; font-size: 20px; }
+    .juego-summary-card { padding: var(--space-20); }
+}
+
+/* ============================================
+   DIAPO 5 — El Agente segun los Grandes Maestros
+   ============================================ */
+.diapo5-page {
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-columns: 45% 55%;
+    background: var(--md-sys-color-surface);
+    overflow: hidden;
+}
+.diapo5-left {
+    padding: 2rem 1.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+.diapo5-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 2rem 2.5rem 3.5rem;
+    position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin: 1cm;
+    border-radius: 12px;
+    background: var(--md-sys-color-surface-container-high);
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.06),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+/* Demo container + step toggling */
+.diapo5-demo {
+    width: 100%;
+    max-width: 600px;
+    position: relative;
+}
+.diapo5-demo__step {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-20);
+    animation: blindaSlideUp 400ms var(--md-sys-motion-easing-emphasized-decelerate);
+}
+.diapo5-demo__step--active {
+    display: flex;
+}
+
+/* Stepper dots (reuses blinda pattern) */
+.diapo5-demo__stepper {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: var(--space-8);
+}
+
+/* -- Painting card -- */
+.diapo5-painting {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-16);
+}
+.diapo5-painting__frame {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow:
+        0 6px 28px rgba(0, 0, 0, 0.18),
+        inset 0 0 0 5px rgba(180, 150, 90, 0.35);
+    border: 4px solid rgba(180, 150, 90, 0.3);
+}
+.diapo5-painting__img {
+    width: 100%;
+    max-height: 360px;
+    object-fit: cover;
+    display: block;
+}
+.diapo5-painting__info {
+    text-align: center;
+}
+.diapo5-painting__title {
+    font: 600 20px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    margin: 0;
+}
+.diapo5-painting__author {
+    font: 400 15px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    margin: 0;
+}
+
+/* -- Quiz options -- */
+.diapo5-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+    width: 100%;
+    max-width: 520px;
+}
+.diapo5-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-16);
+    padding: var(--space-16) var(--space-20);
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1.5px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--md-sys-shape-large);
+    cursor: pointer;
+    transition: transform 150ms ease, box-shadow 150ms ease, border-color 200ms ease;
+    font: 500 16px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    text-align: left;
+}
+.diapo5-option:hover {
+    transform: scale(1.02);
+    box-shadow: var(--md-sys-elevation-1);
+}
+.diapo5-option__label {
+    font-weight: 700;
+    font-size: 18px;
+    min-width: 28px;
+    text-align: center;
+    flex-shrink: 0;
+}
+.diapo5-option--correct {
+    border-color: #6B8F71;
+    background: rgba(107, 143, 113, 0.12);
+}
+.diapo5-option--correct .diapo5-option__label { color: #6B8F71; }
+.diapo5-option--wrong {
+    opacity: 0.4;
+    pointer-events: none;
+}
+.diapo5-option--funny {
+    opacity: 0.4;
+    text-decoration: line-through;
+    pointer-events: none;
+}
+.diapo5-option--disabled {
+    pointer-events: none;
+}
+
+/* -- Capability reveal -- */
+.diapo5-reveal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-20);
+    padding: var(--space-32);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: var(--md-sys-shape-extra-large);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    max-width: 520px;
+    width: 100%;
+    animation: blindaSlideUp 400ms var(--md-sys-motion-easing-emphasized-decelerate);
+}
+.diapo5-reveal__icon {
+    font-size: 48px;
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+.diapo5-reveal__capability {
+    font: 700 30px 'Dosis', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+.diapo5-reveal__explanation {
+    font: 400 16px 'Dosis', sans-serif;
+    line-height: 1.6;
+    color: var(--md-sys-color-on-surface-variant);
+    text-align: center;
+}
+.diapo5-reveal__teacher-example {
+    font: 500 15px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    font-style: italic;
+    text-align: center;
+    padding-top: var(--space-12);
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    width: 100%;
+}
+
+/* -- Final reveal (step 6) -- */
+.diapo5-final {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-24);
+    width: 100%;
+}
+.diapo5-final__title {
+    font: 700 26px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    text-align: center;
+}
+.diapo5-final__diagram {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-16);
+    max-width: 560px;
+}
+.diapo5-final__cap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-8);
+    width: 120px;
+    padding: var(--space-16);
+    border-radius: var(--md-sys-shape-large);
+    color: #fff;
+    box-shadow: var(--md-sys-elevation-2);
+}
+.diapo5-final__cap i { font-size: 28px; }
+.diapo5-final__cap-name {
+    font: 600 13px 'Dosis', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    text-align: center;
+}
+.diapo5-agents {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-16);
+    width: 100%;
+    max-width: 500px;
+}
+.diapo5-agent-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-10);
+    padding: var(--space-20);
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    border-radius: var(--md-sys-shape-large);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: var(--md-sys-elevation-1);
+}
+.diapo5-agent-card__icon {
+    font-size: 34px;
+    color: var(--md-sys-color-primary);
+}
+.diapo5-agent-card__name {
+    font: 600 15px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    text-align: center;
+}
+.diapo5-agent-card__desc {
+    font: 400 13px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    text-align: center;
+    line-height: 1.4;
+}
+
+/* Diapo5 Step 1: Capabilities intro */
+.diapo5-capabilities-intro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-20);
+    padding: var(--space-16) 0;
+}
+.diapo5-capabilities-intro__title {
+    font: 700 24px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    text-align: center;
+}
+.diapo5-capabilities-intro__subtitle {
+    font: 400 15px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    text-align: center;
+    margin-top: -8px;
+}
+.diapo5-capabilities-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-16);
+    max-width: 560px;
+}
+.diapo5-cap-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-8);
+    padding: var(--space-16) var(--space-12);
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.06);
+    width: 140px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.diapo5-cap-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+.diapo5-cap-card__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #fff;
+}
+.diapo5-cap-card__name {
+    font: 700 15px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.diapo5-cap-card__hint {
+    font: 400 12px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    text-align: center;
+    line-height: 1.3;
+}
+
+/* Diapo5 Step 2: Paintings preview */
+.diapo5-preview-intro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-20);
+    padding: var(--space-16) 0;
+}
+.diapo5-preview-intro__title {
+    font: 700 24px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    text-align: center;
+}
+.diapo5-preview-intro__subtitle {
+    font: 400 15px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    text-align: center;
+    margin-top: -8px;
+}
+.diapo5-preview-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-16);
+    max-width: 600px;
+}
+.diapo5-preview-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-8);
+    width: 160px;
+    perspective: 600px;
+}
+.diapo5-preview-card__frame {
+    width: 140px;
+    height: 120px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 3px solid #c9a84c;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12), inset 0 0 8px rgba(201,168,76,0.2);
+}
+.diapo5-preview-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.diapo5-preview-card__title {
+    font: 500 12px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    text-align: center;
+    line-height: 1.3;
+}
+.diapo5-preview-card__question {
+    font: 800 28px 'Dosis', sans-serif;
+    opacity: 0.7;
+}
+
+/* Diapo5 responsive */
+@media (max-width: 1200px) {
+    .diapo5-page { grid-template-columns: 40% 60%; }
+    .diapo5-left { padding: 1.5rem 1rem 1rem; }
+}
+@media (max-width: 968px) {
+    .diapo5-screen { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .diapo5-page {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 3.5rem 1rem 1rem;
+        gap: var(--space-16);
+        position: relative;
+    }
+    .diapo5-left { padding: 0; flex-shrink: 0; width: 100%; max-width: 480px; }
+    .diapo5-right { padding: 1.5rem; flex-shrink: 0; width: 100%; max-width: 480px; margin: 0 0 1rem; border-radius: 12px; }
+}
+@media (max-width: 480px) {
+    .diapo5-page { padding: 3rem 0.75rem 1rem; }
+    .diapo5-painting__img { max-height: 220px; }
+    .diapo5-option { font-size: 12.5px; padding: var(--space-10) var(--space-12); }
+    .diapo5-reveal__capability { font-size: 20px; }
+    .diapo5-agents { grid-template-columns: 1fr; }
+    .diapo5-cap-card { width: 120px; padding: var(--space-12) var(--space-8); }
+    .diapo5-cap-card__icon { width: 44px; height: 44px; font-size: 22px; }
+    .diapo5-preview-card { width: 130px; }
+    .diapo5-preview-card__frame { width: 110px; height: 90px; }
+    .diapo5-capabilities-intro__title,
+    .diapo5-preview-intro__title { font-size: 20px; }
 }

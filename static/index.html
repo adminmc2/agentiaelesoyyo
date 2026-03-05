@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=15.2.0">
+    <link rel="stylesheet" href="/static/style.css?v=17.3.1">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -180,95 +180,260 @@
                         <div class="blinda-chat__messages" id="blinda-chat-messages">
                             <!-- Mensajes de Eliana aparecen aquí -->
                             <div class="blinda-chat__bubble blinda-chat__bubble--assistant">
-                                Vamos a poner a prueba vuestro ojo crítico. Os presento situaciones reales con IA y vosotros decidís.
+                                Genial, ya hemos roto el hielo. Ahora vamos a poner a prueba vuestro ojo critico como profes. He preparado unas tarjetas que os van a sorprender. Roman, cuando quieras.
                             </div>
                         </div>
-                        <div class="blinda-chat__input-row">
-                            <textarea
-                                id="blinda-chat-input"
-                                class="blinda-chat__textarea"
-                                placeholder="Escribe a Eliana..."
-                                rows="1"
-                                autocomplete="off"
-                            ></textarea>
-                            <button class="blinda-chat__send" id="blinda-chat-send" title="Enviar">
-                                <i class="ph ph-paper-plane-tilt"></i>
-                            </button>
+                        <div class="blinda-chat__input-container">
+                            <div class="blinda-chat__input-row">
+                                <textarea
+                                    id="blinda-chat-input"
+                                    class="blinda-chat__textarea"
+                                    placeholder="Escribe a Eliana..."
+                                    rows="1"
+                                    autocomplete="off"
+                                ></textarea>
+                                <button class="blinda-chat__send" id="blinda-chat-send" title="Enviar">
+                                    <i class="ph ph-paper-plane-tilt"></i>
+                                </button>
+                            </div>
+                            <div class="blinda-chat__actions-row">
+                                <button class="chat-action-btn" id="blinda-photo-btn" title="Subir imagen">
+                                    <i class="ph ph-camera"></i>
+                                    <span class="chat-action-label">Imagen</span>
+                                </button>
+                                <button class="chat-action-btn" id="blinda-mic-btn" title="Grabar voz">
+                                    <i class="ph ph-microphone"></i>
+                                    <span class="chat-action-label">Hablar</span>
+                                </button>
+                                <button class="chat-action-btn chat-action-btn--voice" id="blinda-voice-btn" title="Voz de Eliana">
+                                    <i class="ph-bold ph-waveform"></i>
+                                    <span class="chat-action-label">Voz IA</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Columna derecha: juego -->
+                <!-- Columna derecha: demo visual -->
                 <div class="blinda-right">
                     <button class="blinda-nav-btn blinda-nav-btn--next" id="blinda-nav-next" title="Siguiente escena">
                         <i class="ph ph-arrow-right"></i>
                     </button>
 
-                    <!-- Fase intro -->
-                    <div class="blinda-intro" id="blinda-intro">
-                        <div class="blinda-intro__icon">
-                            <i class="ph-fill ph-shield-check"></i>
-                        </div>
-                        <h2 class="blinda-title">Blinda tu Prompt</h2>
-                        <p class="blinda-subtitle">¿Sabes detectar cuándo la IA te la cuela? Pon a prueba tu criterio docente.</p>
-                        <button class="blinda-start-btn" id="blinda-start-btn">
-                            <i class="ph-fill ph-play"></i> Empezar
-                        </button>
-                    </div>
-
-                    <!-- Fase juego (oculta) -->
-                    <div class="blinda-game hidden" id="blinda-game">
-                        <!-- Progreso -->
-                        <div class="blinda-progress">
-                            <span class="blinda-progress__text" id="blinda-progress-text">1 / 5</span>
-                            <div class="blinda-progress__bar">
-                                <div class="blinda-progress__fill" id="blinda-progress-fill"></div>
+                    <!-- Demo visual (5 pasos) -->
+                    <div class="blinda-demo" id="blinda-demo">
+                        <!-- Paso 0: Titulo inicial -->
+                        <div class="blinda-demo__step blinda-demo__step--active" data-demo-step="0">
+                            <div class="blinda-intro__icon">
+                                <i class="ph-fill ph-shield-check"></i>
                             </div>
+                            <h2 class="blinda-title">Blinda tu Prompt</h2>
+                            <p class="blinda-subtitle">Demo interactiva</p>
                         </div>
-
-                        <!-- Carrusel de tarjetas -->
-                        <div class="blinda-carousel" id="blinda-carousel"></div>
-
-                        <!-- Tarjeta activa (flip) -->
-                        <div class="blinda-card-container hidden" id="blinda-card-container">
-                            <div class="blinda-card" id="blinda-card">
-                                <div class="blinda-card__front">
-                                    <div class="blinda-card__letter" id="blinda-card-letter">U</div>
-                                    <i class="ph-fill ph-shield-check blinda-card__front-icon"></i>
-                                </div>
-                                <div class="blinda-card__back">
-                                    <p class="blinda-card__situation" id="blinda-card-situation"></p>
-                                    <div class="blinda-card__options" id="blinda-card-options"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Feedback -->
-                        <div class="blinda-feedback hidden" id="blinda-feedback">
-                            <div class="blinda-feedback__icon" id="blinda-feedback-icon"></div>
-                            <p class="blinda-feedback__text" id="blinda-feedback-text"></p>
-                            <button class="blinda-next-btn" id="blinda-next-btn">
-                                <i class="ph ph-arrow-right"></i> Siguiente
-                            </button>
+                        <!-- Paso 1: Tarjetas boca abajo -->
+                        <div class="blinda-demo__step" data-demo-step="1" id="demo-step-1"></div>
+                        <!-- Paso 2: Tarjeta se abre con situacion + opciones -->
+                        <div class="blinda-demo__step" data-demo-step="2" id="demo-step-2"></div>
+                        <!-- Paso 3: Feedback de ejemplo -->
+                        <div class="blinda-demo__step" data-demo-step="3" id="demo-step-3"></div>
+                        <!-- Paso 4: Handoff a los profes -->
+                        <div class="blinda-demo__step" data-demo-step="4">
+                            <i class="ph-fill ph-device-mobile blinda-demo__handoff-icon"></i>
+                            <h3 class="blinda-demo__handoff-title">Ahora os toca a vosotros</h3>
+                            <p class="blinda-demo__handoff-text">Sacad el movil y jugad</p>
                         </div>
                     </div>
 
-                    <!-- Fase resumen (oculta) -->
-                    <div class="blinda-summary hidden" id="blinda-summary">
-                        <div class="blinda-summary-card" id="blinda-summary-card">
-                            <h2 class="blinda-summary__title">Tu resultado</h2>
-                            <div class="blinda-summary__score" id="blinda-summary-score"></div>
-                            <div class="blinda-summary__learnings" id="blinda-summary-learnings"></div>
-                            <p class="blinda-summary__pair">Comenta con tu compañero/a: ¿cuál te ha sorprendido más?</p>
+                    <!-- Stepper dots (control manual backup) -->
+                    <div class="blinda-demo__stepper" id="demo-stepper">
+                        <button class="demo-stepper__dot demo-stepper__dot--active" data-step="0"></button>
+                        <button class="demo-stepper__dot" data-step="1"></button>
+                        <button class="demo-stepper__dot" data-step="2"></button>
+                        <button class="demo-stepper__dot" data-step="3"></button>
+                        <button class="demo-stepper__dot" data-step="4"></button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ============================================
+             PANTALLA JUEGO BLINDA (diapo 4 — individual en movil)
+             ============================================ -->
+        <main class="main-content juego-screen hidden" id="juego-screen">
+            <button class="juego-nav-btn" id="juego-nav-back" title="Volver">
+                <i class="ph ph-arrow-left"></i>
+            </button>
+            <button class="juego-nav-btn juego-nav-btn--right" id="juego-nav-next" title="Siguiente">
+                <i class="ph ph-arrow-right"></i>
+            </button>
+
+            <!-- Header -->
+            <div class="juego-header">
+                <div class="juego-header__icon">
+                    <i class="ph-fill ph-shield-check"></i>
+                </div>
+                <h1 class="juego-header__title">Blinda tu Prompt</h1>
+            </div>
+
+            <!-- Intro -->
+            <div class="juego-intro" id="juego-intro">
+                <p class="juego-intro__text">Pon a prueba tu criterio docente con la IA</p>
+                <button class="juego-start-btn" id="juego-start-btn">
+                    <i class="ph-fill ph-play"></i> Empezar
+                </button>
+            </div>
+
+            <!-- Game phase -->
+            <div class="juego-game hidden" id="juego-game">
+                <!-- Progreso -->
+                <div class="juego-progress">
+                    <span class="juego-progress__text" id="juego-progress-text">1 / 5</span>
+                    <div class="juego-progress__bar">
+                        <div class="juego-progress__fill" id="juego-progress-fill"></div>
+                    </div>
+                </div>
+
+                <!-- Carrusel -->
+                <div class="juego-carousel" id="juego-carousel"></div>
+
+                <!-- Tarjeta activa (flip) -->
+                <div class="juego-card-container hidden" id="juego-card-container">
+                    <div class="juego-card" id="juego-card">
+                        <div class="juego-card__front">
+                            <div class="juego-card__letter" id="juego-card-letter">U</div>
+                            <i class="ph-fill ph-shield-check juego-card__front-icon"></i>
                         </div>
-                        <div class="blinda-summary-actions">
-                            <button class="blinda-action-btn" id="blinda-replay-btn">
-                                <i class="ph ph-arrow-counter-clockwise"></i> Jugar otra vez
-                            </button>
-                            <button class="blinda-action-btn" id="blinda-back-btn">
-                                <i class="ph ph-arrow-left"></i> Volver
-                            </button>
+                        <div class="juego-card__back">
+                            <p class="juego-card__situation" id="juego-card-situation"></p>
+                            <div class="juego-card__options" id="juego-card-options"></div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Feedback -->
+                <div class="juego-feedback hidden" id="juego-feedback">
+                    <div class="juego-feedback__icon" id="juego-feedback-icon"></div>
+                    <p class="juego-feedback__text" id="juego-feedback-text"></p>
+                    <button class="juego-next-btn" id="juego-next-btn">
+                        <i class="ph ph-arrow-right"></i> Siguiente
+                    </button>
+                </div>
+            </div>
+
+            <!-- Resumen mejorado -->
+            <div class="juego-summary hidden" id="juego-summary">
+                <div class="juego-summary-card">
+                    <h2 class="juego-summary__title">Tu resultado</h2>
+                    <div class="juego-summary__score" id="juego-summary-score"></div>
+                    <div class="juego-summary__areas" id="juego-summary-areas"></div>
+                    <div class="juego-summary__learnings" id="juego-summary-learnings"></div>
+                    <div class="juego-summary__discussion" id="juego-summary-discussion"></div>
+                </div>
+                <div class="juego-summary-actions">
+                    <button class="juego-action-btn" id="juego-replay-btn">
+                        <i class="ph ph-arrow-counter-clockwise"></i> Jugar otra vez
+                    </button>
+                    <button class="juego-action-btn" id="juego-back-btn">
+                        <i class="ph ph-arrow-left"></i> Volver
+                    </button>
+                    <button class="juego-action-btn" id="juego-next-screen-btn">
+                        <i class="ph ph-arrow-right"></i> Siguiente
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- ============================================
+             DIAPO 5 — ¿QUE ES UN AGENTE? (Grandes Maestros)
+             ============================================ -->
+        <main class="main-content diapo5-screen hidden" id="diapo5-screen">
+            <div class="diapo5-page">
+                <!-- Columna izquierda: Eliana (orb + chat) -->
+                <div class="diapo5-left">
+                    <button class="blinda-nav-btn blinda-nav-btn--back" id="diapo5-nav-back" title="Volver">
+                        <i class="ph ph-arrow-left"></i>
+                    </button>
+
+                    <!-- Orb compacto -->
+                    <div class="blinda-orb-wrapper">
+                        <div class="orb-container" id="diapo5-orb-container"></div>
+                    </div>
+
+                    <!-- Chat panel -->
+                    <div class="blinda-chat" id="diapo5-chat">
+                        <div class="blinda-chat__messages" id="diapo5-chat-messages">
+                            <div class="blinda-chat__bubble blinda-chat__bubble--assistant">
+                                Vamos a ver ahora que es un agente de IA. Roman, cuando quieras.
+                            </div>
+                        </div>
+                        <div class="blinda-chat__input-container">
+                            <div class="blinda-chat__input-row">
+                                <textarea
+                                    id="diapo5-chat-input"
+                                    class="blinda-chat__textarea"
+                                    placeholder="Escribe a Eliana..."
+                                    rows="1"
+                                    autocomplete="off"
+                                ></textarea>
+                                <button class="blinda-chat__send" id="diapo5-chat-send" title="Enviar">
+                                    <i class="ph ph-paper-plane-tilt"></i>
+                                </button>
+                            </div>
+                            <div class="blinda-chat__actions-row">
+                                <button class="chat-action-btn" id="diapo5-mic-btn" title="Grabar voz">
+                                    <i class="ph ph-microphone"></i>
+                                    <span class="chat-action-label">Hablar</span>
+                                </button>
+                                <button class="chat-action-btn chat-action-btn--voice" id="diapo5-voice-btn" title="Voz de Eliana">
+                                    <i class="ph-bold ph-waveform"></i>
+                                    <span class="chat-action-label">Voz IA</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna derecha: quiz artistico -->
+                <div class="diapo5-right">
+                    <button class="blinda-nav-btn blinda-nav-btn--next" id="diapo5-nav-next" title="Siguiente">
+                        <i class="ph ph-arrow-right"></i>
+                    </button>
+
+                    <!-- Demo visual (9 pasos: titulo + capacidades + preview + 5 cuadros + revelacion) -->
+                    <div class="diapo5-demo" id="diapo5-demo">
+                        <!-- Paso 0: Titulo -->
+                        <div class="diapo5-demo__step diapo5-demo__step--active" data-diapo5-step="0">
+                            <div class="blinda-intro__icon">
+                                <i class="ph-fill ph-paint-brush"></i>
+                            </div>
+                            <h2 class="blinda-title">¿Que es un Agente de IA?</h2>
+                            <p class="blinda-subtitle">Descubrelo con los Grandes Maestros</p>
+                        </div>
+                        <!-- Paso 1: 5 capacidades del agente (acompaña Fase 0) -->
+                        <div class="diapo5-demo__step" data-diapo5-step="1" id="diapo5-step-1"></div>
+                        <!-- Paso 2: Preview de los 5 cuadros (acompaña Fase 0b) -->
+                        <div class="diapo5-demo__step" data-diapo5-step="2" id="diapo5-step-2"></div>
+                        <!-- Pasos 3-7: Cuadros individuales (renderizados dinámicamente) -->
+                        <div class="diapo5-demo__step" data-diapo5-step="3" id="diapo5-step-3"></div>
+                        <div class="diapo5-demo__step" data-diapo5-step="4" id="diapo5-step-4"></div>
+                        <div class="diapo5-demo__step" data-diapo5-step="5" id="diapo5-step-5"></div>
+                        <div class="diapo5-demo__step" data-diapo5-step="6" id="diapo5-step-6"></div>
+                        <div class="diapo5-demo__step" data-diapo5-step="7" id="diapo5-step-7"></div>
+                        <!-- Paso 8: Revelacion final -->
+                        <div class="diapo5-demo__step" data-diapo5-step="8" id="diapo5-step-8"></div>
+                    </div>
+
+                    <!-- Stepper dots -->
+                    <div class="diapo5-demo__stepper" id="diapo5-stepper">
+                        <button class="demo-stepper__dot demo-stepper__dot--active" data-diapo5-dot="0"></button>
+                        <button class="demo-stepper__dot" data-diapo5-dot="1"></button>
+                        <button class="demo-stepper__dot" data-diapo5-dot="2"></button>
+                        <button class="demo-stepper__dot" data-diapo5-dot="3"></button>
+                        <button class="demo-stepper__dot" data-diapo5-dot="4"></button>
+                        <button class="demo-stepper__dot" data-diapo5-dot="5"></button>
+                        <button class="demo-stepper__dot" data-diapo5-dot="6"></button>
+                        <button class="demo-stepper__dot" data-diapo5-dot="7"></button>
+                        <button class="demo-stepper__dot" data-diapo5-dot="8"></button>
                     </div>
                 </div>
             </div>
@@ -742,6 +907,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=15.2.0"></script>
+    <script src="/static/app.js?v=17.3.1"></script>
 </body>
 </html>

@@ -85,7 +85,19 @@ const state = {
     blindaRound: [],           // 5 cards for current round
     blindaIndex: 0,            // current card (0-4)
     blindaScore: 0,            // correct answers
-    blindaAnswers: []          // [{card, chosen, correct}]
+    blindaAnswers: [],         // [{card, chosen, correct}]
+    _blindaContextSent: false, // prior_context sent flag
+    demoStep: 0,               // demo visual step (0-4)
+    // Juego (diapo 4)
+    juegoRound: [],
+    juegoIndex: 0,
+    juegoScore: 0,
+    juegoAnswers: [],
+    // Diapo 5 — Agentes
+    diapo5Step: 0,
+    _diapo5Ws: null,
+    _diapo5ContextSent: false,
+    _diapo5SmdParser: null
 };
 
 // Elementos
@@ -126,6 +138,12 @@ const elements = {
 
     // Blinda screen
     blindaScreen: document.getElementById('blinda-screen'),
+
+    // Juego screen (diapo 4)
+    juegoScreen: document.getElementById('juego-screen'),
+
+    // Diapo 5 screen
+    diapo5Screen: document.getElementById('diapo5-screen'),
 
     // Plan screen
     planScreen: document.getElementById('plan-screen'),
@@ -1786,6 +1804,28 @@ function updateRecordingUI(recording, processing = false) {
         elements.chatMicBtn.title = recording ? 'Parar grabación' : 'Micrófono';
     }
 
+    // Blinda screen — same toggle for blinda mic button
+    const blindaMicBtn = document.getElementById('blinda-mic-btn');
+    if (blindaMicBtn) {
+        blindaMicBtn.classList.toggle('recording', recording);
+        const icon = blindaMicBtn.querySelector('.ph');
+        if (icon) {
+            icon.className = recording ? 'ph ph-stop-circle' : 'ph ph-microphone';
+        }
+        blindaMicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
+    }
+
+    // Diapo5 screen — same toggle for diapo5 mic button
+    const diapo5MicBtn = document.getElementById('diapo5-mic-btn');
+    if (diapo5MicBtn) {
+        diapo5MicBtn.classList.toggle('recording', recording);
+        const icon = diapo5MicBtn.querySelector('.ph');
+        if (icon) {
+            icon.className = recording ? 'ph ph-stop-circle' : 'ph ph-microphone';
+        }
+        diapo5MicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
+    }
+
     // Orb 3D
     if (window.orbSetListening) window.orbSetListening(recording);
 
@@ -1868,6 +1908,22 @@ async function transcribeAudio(audioBlob, extension = 'webm') {
             // Guardar en búsquedas recientes (como voz)
             saveRecentSearch(cleanText, true);
             const actionable = isActionableQuery(cleanText);
+
+            // Si estamos en Blinda (diapo 3), enviar al chat de Blinda, NO al chat principal
+            if (isOnBlindaScreen()) {
+                sendBlindaMessage(cleanText);
+                updateRecordingUI(false);
+                resumeWakeWordAfterRecording();
+                return;
+            }
+
+            // Si estamos en Diapo 5, enviar al chat de Diapo 5
+            if (isOnDiapo5Screen()) {
+                sendDiapo5Message(cleanText);
+                updateRecordingUI(false);
+                resumeWakeWordAfterRecording();
+                return;
+            }
 
             if (!elements.chatScreen.classList.contains('hidden')) {
                 addMessage(cleanText, 'user');
@@ -2395,12 +2451,14 @@ const WAKE_WORD_PATTERNS = [
     /hola\s*eliane/i,     // STT variante
     /hey\s*iliana/i,
     /oye\s*iliana/i,
-    /seguimos\s*eliana/i,  // presenter: "seguimos, Eliana"
-    /bueno\s*eliana/i,     // presenter: "bueno, Eliana"
-    /pues\s*eliana/i,      // presenter: "pues, Eliana"
-    /venga\s*eliana/i,     // presenter: "venga, Eliana"
-    /vale\s*eliana/i,      // presenter: "vale, Eliana"
-    /vamos\s*eliana/i,     // presenter: "vamos, Eliana"
+    /seguimos\s*eliana/i,      // presenter: "seguimos, Eliana"
+    /continuamos\s*eliana/i,   // presenter: "continuamos, Eliana"
+    /adelante\s*eliana/i,      // presenter: "adelante, Eliana"
+    /bueno\s*eliana/i,         // presenter: "bueno, Eliana"
+    /pues\s*eliana/i,          // presenter: "pues, Eliana"
+    /venga\s*eliana/i,         // presenter: "venga, Eliana"
+    /vale\s*eliana/i,          // presenter: "vale, Eliana"
+    /vamos\s*eliana/i,         // presenter: "vamos, Eliana"
 ];
 
 // Single-word fallback: standalone "eliana" (or variants) only if it's the whole transcript
@@ -2441,6 +2499,21 @@ function stripWakeWord(text) {
         return '';
     }
 
+    return t;
+}
+
+/**
+ * Strips wake word for Blinda context — only removes "eliana" variants and pure greetings.
+ * Preserves action words like "seguimos", "continuamos", "adelante", "vamos", etc.
+ * that are meaningful instructions to Eliana in the blinda chat.
+ */
+function stripWakeWordForBlinda(text) {
+    if (!text) return '';
+    let t = text.trim();
+    // Remove only the name "eliana" and variants (not the action verbs)
+    t = t.replace(/\b(eliana|iliana|eliane)\b[,\s.!?]*/gi, '').trim();
+    // Remove pure greeting prefixes
+    t = t.replace(/^(hola|hey|oye|ok|bueno|pues|venga|vale)\b[,\s]*/gi, '').trim();
     return t;
 }
 
@@ -2507,13 +2580,14 @@ function _getWakeWordRecognition() {
             for (let a = 0; a < event.results[i].length; a++) {
                 const transcript = event.results[i][a].transcript;
                 if (containsWakeWord(transcript)) {
-                    console.log('[WakeWord] Detected!');
+                    console.log('[WakeWord] Detected!', transcript);
                     state.wakeWordEnabled = false;
                     r.abort();
                     state.wakeWordActive = false;
+                    const fullTranscript = transcript;
                     setTimeout(() => {
                         state.wakeWordEnabled = true;
-                        onWakeWordDetected();
+                        onWakeWordDetected(fullTranscript);
                     }, 400);
                     return;
                 }
@@ -2577,7 +2651,7 @@ function stopWakeWordListening() {
  * Plays beep, shows visual feedback, navigates to chat and starts recording.
  * Like Siri: say "Hola Eliana" → it listens to everything you say.
  */
-function onWakeWordDetected() {
+function onWakeWordDetected(transcript = '') {
     // Si el navegador no permite audio aún (sin interacción), solo feedback visual
     if (!_userHasInteracted) {
         console.log('[WakeWord] Detectado pero sin interacción — solo feedback visual');
@@ -2603,12 +2677,42 @@ function onWakeWordDetected() {
     state.voiceTriggered = true;
 
     // Si estamos en la pantalla de Blinda, NO navegar al chat.
-    // Feedback visual en el orb de Blinda y empezar grabación in-situ.
+    // Extraer contenido útil del transcript del wake word y enviarlo directamente.
     if (elements.blindaScreen && !elements.blindaScreen.classList.contains('hidden')) {
         console.log('[WakeWord] En Blinda — interacción en contexto');
         const blindaOrb = document.getElementById('blinda-orb-container');
         if (blindaOrb && window.orbSetListening) window.orbSetListening(true);
-        startRecording();
+
+        // Extraer texto significativo del transcript (quitar solo "eliana" y variantes)
+        const blindaText = stripWakeWordForBlinda(transcript);
+        if (blindaText) {
+            // El usuario dijo algo útil junto al wake word → enviar directamente
+            console.log('[WakeWord] Blinda text:', blindaText);
+            sendBlindaMessage(blindaText);
+            if (window.orbSetListening) window.orbSetListening(false);
+            resumeWakeWordAfterRecording();
+        } else {
+            // Solo dijo el wake word → abrir grabación para que hable
+            startRecording();
+        }
+        return;
+    }
+
+    // Si estamos en Diapo 5, misma logica que Blinda
+    if (elements.diapo5Screen && !elements.diapo5Screen.classList.contains('hidden')) {
+        console.log('[WakeWord] En Diapo5 — interaccion en contexto');
+        const diapo5Orb = document.getElementById('diapo5-orb-container');
+        if (diapo5Orb && window.orbSetListening) window.orbSetListening(true);
+
+        const diapo5Text = stripWakeWordForBlinda(transcript);
+        if (diapo5Text) {
+            console.log('[WakeWord] Diapo5 text:', diapo5Text);
+            sendDiapo5Message(diapo5Text);
+            if (window.orbSetListening) window.orbSetListening(false);
+            resumeWakeWordAfterRecording();
+        } else {
+            startRecording();
+        }
         return;
     }
 
@@ -2749,15 +2853,18 @@ function enableTTS() {
  * Updates the voice orb button UI in the chat bottom bar.
  */
 function updateVoiceButton(enabled) {
-    const btn = document.getElementById('chat-voice-btn');
-    if (!btn) return;
-    if (enabled) {
-        btn.classList.add('voice-orb--active');
-        btn.title = 'Voz de Eliana activada';
-    } else {
-        btn.classList.remove('voice-orb--active');
-        btn.title = 'Voz de Eliana desactivada';
-    }
+    // Update both chat and blinda voice buttons
+    ['chat-voice-btn', 'blinda-voice-btn', 'diapo5-voice-btn'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        if (enabled) {
+            btn.classList.add('voice-orb--active');
+            btn.title = 'Voz de Eliana activada';
+        } else {
+            btn.classList.remove('voice-orb--active');
+            btn.title = 'Voz de Eliana desactivada';
+        }
+    });
 }
 
 /**
@@ -3020,6 +3127,9 @@ function showLoginScreen() {
     elements.planScreen?.classList.add('hidden');
     elements.conoceScreen?.classList.add('hidden');
     elements.profileScreen?.classList.add('hidden');
+    elements.blindaScreen?.classList.add('hidden');
+    elements.juegoScreen?.classList.add('hidden');
+    elements.diapo5Screen?.classList.add('hidden');
     state.activityMode = null;
     state.activityMessageCount = 0;
     state.profileGenerated = false;
@@ -3219,6 +3329,8 @@ function showConoceScreen() {
     elements.planScreen?.classList.add('hidden');
     elements.profileScreen?.classList.add('hidden');
     elements.blindaScreen?.classList.add('hidden');
+    elements.juegoScreen?.classList.add('hidden');
+    elements.diapo5Screen?.classList.add('hidden');
     elements.conoceScreen?.classList.remove('hidden');
     elements.conoceScreen?.classList.remove('fade-out');
 
@@ -3380,10 +3492,24 @@ function requestProfileGeneration() {
 // BLINDA TU PROMPT — Quiz de tarjetas
 // ============================================
 
-const BLINDA_LETTERS = ['U', 'N', 'R', 'L', 'T', 'D'];
+const BLINDA_LETTERS = ['T1', 'T2', 'T3', 'T4', 'T5'];
 const BLINDA_COLORS = {
-    U: '#D4826A', N: '#994E95', R: '#31BEEF',
-    L: '#A1B8F2', T: '#E8A08A', D: '#6B8F71'
+    T1: '#7EC8E3', T2: '#81C784', T3: '#F48FB1',
+    T4: '#FFB74D', T5: '#B39DDB'
+};
+const BLINDA_TERRITORIES = {
+    T1: 'Didactica y metodologia',
+    T2: 'Precision y calibracion de la IA',
+    T3: 'Etica y contenido responsable',
+    T4: 'Evaluacion',
+    T5: 'Limitaciones tecnicas de la IA'
+};
+const BLINDA_ICONS = {
+    T1: 'ph-fill ph-chalkboard-teacher',
+    T2: 'ph-fill ph-crosshair',
+    T3: 'ph-fill ph-shield-check',
+    T4: 'ph-fill ph-clipboard-text',
+    T5: 'ph-fill ph-gear'
 };
 const BLINDA_CARDS_PER_ROUND = 5;
 
@@ -3396,14 +3522,16 @@ function showBlindaScreen() {
     elements.loginScreen?.classList.add('hidden');
     elements.welcomeScreen?.classList.add('hidden');
     elements.planScreen?.classList.add('hidden');
+    elements.juegoScreen?.classList.add('hidden');
+    elements.diapo5Screen?.classList.add('hidden');
 
     elements.blindaScreen?.classList.remove('hidden');
     elements.blindaScreen?.classList.remove('fade-out');
 
-    // Reset to intro phase
-    document.getElementById('blinda-intro')?.classList.remove('hidden');
-    document.getElementById('blinda-game')?.classList.add('hidden');
-    document.getElementById('blinda-summary')?.classList.add('hidden');
+    // Reset demo to step 0
+    state.demoStep = 0;
+    if (typeof advanceDemoTo === 'function') advanceDemoTo(0);
+    if (typeof resetTerritoryHighlight === 'function') resetTerritoryHighlight();
 
     // Orb — compact size for blinda (120px desktop, smaller on mobile)
     const orbContainer = document.getElementById('blinda-orb-container');
@@ -3420,6 +3548,134 @@ function hideBlindaScreen() {
         elements.blindaScreen?.classList.remove('fade-out');
         showConoceScreen();
     }, 300);
+}
+
+// ---- Blinda Chat (interacción con Eliana dentro de diapo 3) ----
+
+function isOnBlindaScreen() {
+    return elements.blindaScreen && !elements.blindaScreen.classList.contains('hidden');
+}
+
+function addBlindaChatBubble(text, role) {
+    const messages = document.getElementById('blinda-chat-messages');
+    if (!messages) return null;
+    const bubble = document.createElement('div');
+    bubble.className = `blinda-chat__bubble blinda-chat__bubble--${role}`;
+    if (role === 'assistant' && text) {
+        bubble.innerHTML = typeof renderMarkdown === 'function' ? renderMarkdown(text) : text;
+    } else {
+        bubble.textContent = text;
+    }
+    messages.appendChild(bubble);
+    messages.scrollTop = messages.scrollHeight;
+    return bubble;
+}
+
+function sendBlindaMessage(message) {
+    // Add user bubble
+    addBlindaChatBubble(message, 'user');
+
+    // Typing indicator
+    const messages = document.getElementById('blinda-chat-messages');
+    const typing = document.createElement('div');
+    typing.className = 'blinda-chat__bubble blinda-chat__bubble--assistant blinda-chat__typing';
+    typing.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+    messages.appendChild(typing);
+    messages.scrollTop = messages.scrollHeight;
+
+    state.currentMessage = '';
+    let assistantBubble = null;
+
+    const doSend = () => {
+        // activity_mode: "blinda" → prompt de co-presentadora (no pregunta nombre, habla ante la sala)
+        const payload = { message, response_mode: 'full', activity_mode: 'blinda' };
+        // Primera vez: enviar el texto estático como contexto previo para que Eliana no repita saludo
+        if (!state._blindaContextSent) {
+            payload.prior_context = {
+                question: 'Eliana, ya hemos terminado las actividades. ¿Qué viene ahora?',
+                answer: 'Genial, ya hemos roto el hielo. Ahora vamos a poner a prueba vuestro ojo crítico como profes. He preparado unas tarjetas que os van a sorprender. Román, cuando quieras.'
+            };
+            state._blindaContextSent = true;
+        }
+        state._blindaWs.send(JSON.stringify(payload));
+    };
+
+    const handleBlindaMessage = (event) => {
+        const data = JSON.parse(event.data);
+
+        if (data.type === 'token') {
+            if (!assistantBubble) {
+                typing.remove();
+                assistantBubble = addBlindaChatBubble('', 'assistant');
+                if (window.smd && assistantBubble) {
+                    const renderer = window.smd.default_renderer(assistantBubble);
+                    state._blindaSmdParser = window.smd.parser(renderer);
+                } else {
+                    state._blindaSmdParser = null;
+                }
+            }
+            state.currentMessage += data.content;
+            if (state._blindaSmdParser) {
+                window.smd.parser_write(state._blindaSmdParser, data.content);
+            } else if (assistantBubble) {
+                assistantBubble.innerHTML = typeof renderMarkdown === 'function'
+                    ? renderMarkdown(state.currentMessage, false) : state.currentMessage;
+            }
+            messages.scrollTop = messages.scrollHeight;
+            // Live demo: auto-advance 0→1 and 1→2 + territory highlight. Steps 3-4 manual.
+            if (typeof checkTerritoryHighlight === 'function') {
+                const lower = state.currentMessage.toLowerCase();
+                if (state.demoStep === 0 && (lower.includes('tarjeta') || lower.includes('carta') || lower.includes('categor') || lower.includes('territorio'))) {
+                    advanceDemoTo(1);
+                }
+                if (state.demoStep === 1 && (lower.includes('darle la vuelta') || lower.includes('situaci') || lower.includes('tres opcion') || lower.includes('a, b') || lower.includes('opci'))) {
+                    advanceDemoTo(2);
+                }
+                checkTerritoryHighlight(state.currentMessage);
+            }
+        }
+        else if (data.type === 'end') {
+            if (state._blindaSmdParser) {
+                window.smd.parser_end(state._blindaSmdParser);
+                state._blindaSmdParser = null;
+            }
+            // TTS
+            if (state.currentMessage && (state.ttsEnabled || state.voiceTriggered)) {
+                playTTS(state.currentMessage, true);
+            }
+            // Demo: avance de pasos 2-4 es manual (dots/flecha).
+            // Paso 0→1 ya se hace en streaming (token handler).
+            assistantBubble = null;
+            resumeWakeWordAfterRecording();
+        }
+        else if (data.type === 'error') {
+            typing.remove();
+            addBlindaChatBubble('Error: ' + data.message, 'assistant');
+            assistantBubble = null;
+        }
+    };
+
+    // Use a SEPARATE WebSocket for Blinda (so it doesn't inherit activity_mode from diapo 2)
+    if (state._blindaWs && state._blindaWs.readyState === WebSocket.OPEN) {
+        state._blindaWs.onmessage = handleBlindaMessage;
+        doSend();
+        return;
+    }
+
+    if (state._blindaWs) {
+        state._blindaWs.close();
+        state._blindaWs = null;
+        state._blindaContextSent = false;
+    }
+
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    state._blindaWs = new WebSocket(`${wsProtocol}//${window.location.host}/ws/chat`);
+    state._blindaWs.onopen = doSend;
+    state._blindaWs.onmessage = handleBlindaMessage;
+    state._blindaWs.onerror = () => {
+        typing.remove();
+        addBlindaChatBubble('Error de conexión', 'assistant');
+    };
 }
 
 async function fetchBlindaCards() {
@@ -3495,7 +3751,8 @@ function showCarouselAnimation() {
         const mini = document.createElement('div');
         mini.className = 'blinda-carousel__mini';
         mini.dataset.letter = letter;
-        mini.innerHTML = `<span>${letter}</span><i class="ph-fill ph-shield-check"></i>`;
+        const iconClass = BLINDA_ICONS[letter] || 'ph-fill ph-shield-check';
+        mini.innerHTML = `<span>${letter}</span><i class="${iconClass}"></i>`;
         if (i === selectedIdx) mini.id = 'blinda-selected-mini';
         track.appendChild(mini);
     }
@@ -3647,6 +3904,1048 @@ function replayBlinda() {
 }
 
 // ============================================
+// BLINDA DEMO — Visual companion for diapo 3
+// ============================================
+
+const DEMO_CARD = {
+    letter: 'T2',
+    level: 2,
+    category: 'Correccion de errores',
+    situation: 'Prompt: "Da feedback sobre esta redaccion B1". La IA: "Buen trabajo. Sigue asi. Tienes buen nivel. Hay algunas cositas que mejorar".',
+    option_a: 'Specific-feedback: "Cita 2 frases buenas del texto explicando por que. Cita 2 errores con la correccion y la regla".',
+    option_b: 'El feedback positivo general motiva al alumno a seguir escribiendo.',
+    option_c: 'Pide que sea mas largo y detallado: "Feedback de minimo 200 palabras".',
+    correct_answer: 'A',
+    explanation: '"Algunas cositas" no es feedback, es ruido. El specific-feedback exige citas del texto real. La C anade palabras, no sustancia.'
+};
+
+/** Builds the HTML for a card back (shared between demo + juego) */
+function buildCardBackHTML(card, color, prefix = 'blinda') {
+    const territory = BLINDA_TERRITORIES[card.letter] || '';
+    const category = card.category || '';
+    // Show category if available, otherwise territory name
+    const displayCat = category.replace(/^T\d-/, '') || territory;
+    const icon = BLINDA_ICONS[card.letter] || 'ph-fill ph-shield-check';
+    const level = card.level || 1;
+    const levelDots = Array.from({ length: 3 }, (_, i) =>
+        `<span class="${prefix}-card__level-dot ${i < level ? `${prefix}-card__level-dot--active` : ''}" style="${i < level ? `background:${color}` : ''}"></span>`
+    ).join('');
+
+    return `
+        <div class="${prefix}-card__header" style="border-bottom-color: ${color}33">
+            <div class="${prefix}-card__category">
+                <i class="${icon}" style="color:${color}"></i>
+                <span>${displayCat}</span>
+            </div>
+            <div class="${prefix}-card__level" title="Dificultad ${level}/3">
+                ${levelDots}
+            </div>
+        </div>
+        <p class="${prefix}-card__situation">${card.situation}</p>
+        <div class="${prefix}-card__options">
+            ${['A', 'B', 'C'].map(l => {
+                const text = card[`option_${l.toLowerCase()}`];
+                return `<div class="${prefix}-option-btn ${prefix}-option-btn--disabled">
+                    <span class="${prefix}-option-btn__label" style="color:${color}">${l}</span><span>${text}</span>
+                </div>`;
+            }).join('')}
+        </div>`;
+}
+
+const DEMO_KEYWORD_MAP = [
+    { step: 1, patterns: ['tarjeta', 'tarjetas', 'carta', 'cartas', 'baraja', 'boca abajo', 'categor'] },
+    { step: 2, patterns: ['darle la vuelta', 'abre', 'ejemplo', 'situaci', 'tres opcion'] },
+    { step: 3, patterns: ['acert', 'correct', 'os explico', 'no pasa nada', 'felicit', 'respond'] },
+    { step: 4, patterns: ['os toca', 'vosotros', 'sacad el', 'vuestro turno', 'movil', 'a jugar'] }
+];
+
+// Map territory keywords to letters for live highlight during streaming
+const TERRITORY_KEYWORD_MAP = [
+    { letter: 'T1', patterns: ['azul', 'didáctica', 'didactica', 'metodolog'] },
+    { letter: 'T2', patterns: ['verde', 'precisión', 'precision', 'calibrac'] },
+    { letter: 'T3', patterns: ['rosa', 'ética', 'etica', 'responsable'] },
+    { letter: 'T4', patterns: ['naranja', 'evaluación', 'evaluacion'] },
+    { letter: 'T5', patterns: ['violeta', 'limitacion', 'limitaciones', 'técnica', 'tecnica'] }
+];
+
+// Track which territories have been highlighted so we go in order
+let _lastHighlightedIndex = -1;
+
+function checkTerritoryHighlight(streamingText) {
+    const lower = streamingText.toLowerCase();
+    // Only highlight if we're on demo step 1 (territory cards visible)
+    if (state.demoStep !== 1) return;
+
+    for (let i = 0; i < TERRITORY_KEYWORD_MAP.length; i++) {
+        if (i <= _lastHighlightedIndex) continue; // Only forward
+        const mapping = TERRITORY_KEYWORD_MAP[i];
+        for (const pat of mapping.patterns) {
+            if (lower.includes(pat)) {
+                highlightTerritoryCard(mapping.letter, i);
+                _lastHighlightedIndex = i;
+                return; // One at a time
+            }
+        }
+    }
+}
+
+function highlightTerritoryCard(letter) {
+    // Remove highlight from all
+    document.querySelectorAll('.blinda-demo__territory-card').forEach(card => {
+        card.classList.remove('blinda-demo__territory-card--highlight');
+        gsap.to(card, { scale: 1, duration: 0.4, ease: 'power2.out' });
+    });
+    // Highlight the matching card
+    const target = document.querySelector(`.blinda-demo__territory-card[data-letter="${letter}"]`);
+    if (target) {
+        target.classList.add('blinda-demo__territory-card--highlight');
+        gsap.to(target, { scale: 1.18, duration: 0.5, ease: 'back.out(1.7)' });
+    }
+}
+
+function resetTerritoryHighlight() {
+    _lastHighlightedIndex = -1;
+    document.querySelectorAll('.blinda-demo__territory-card').forEach(card => {
+        card.classList.remove('blinda-demo__territory-card--highlight');
+        gsap.to(card, { scale: 1, duration: 0.3 });
+    });
+}
+
+function checkDemoAdvance(fullText) {
+    const lower = fullText.toLowerCase();
+    let targetStep = state.demoStep;
+    for (const mapping of DEMO_KEYWORD_MAP) {
+        if (mapping.step > state.demoStep) {
+            for (const pat of mapping.patterns) {
+                if (lower.includes(pat)) {
+                    targetStep = Math.max(targetStep, mapping.step);
+                    break;
+                }
+            }
+        }
+    }
+    if (targetStep > state.demoStep) {
+        advanceDemoTo(targetStep);
+    }
+}
+
+function advanceDemoTo(step) {
+    state.demoStep = step;
+    document.querySelectorAll('.blinda-demo__step').forEach(el => {
+        el.classList.remove('blinda-demo__step--active');
+    });
+    const target = document.querySelector(`[data-demo-step="${step}"]`);
+    if (target) {
+        target.classList.add('blinda-demo__step--active');
+        if (step === 1) renderDemoPreview();
+        if (step === 2) renderDemoFlip();
+        if (step === 3) renderDemoFeedback();
+    }
+    document.querySelectorAll('.demo-stepper__dot').forEach(dot => {
+        dot.classList.toggle('demo-stepper__dot--active', parseInt(dot.dataset.step) === step);
+    });
+}
+
+function renderDemoPreview() {
+    const container = document.getElementById('demo-step-1');
+    if (!container || container.children.length > 0) return;
+    const grid = document.createElement('div');
+    grid.className = 'blinda-demo__cards-preview';
+    BLINDA_LETTERS.forEach((letter, i) => {
+        const card = document.createElement('div');
+        card.className = 'blinda-demo__territory-card';
+        card.dataset.letter = letter;
+        const color = BLINDA_COLORS[letter] || '#6B8F71';
+        const icon = BLINDA_ICONS[letter] || 'ph-fill ph-shield-check';
+        const name = BLINDA_TERRITORIES[letter] || letter;
+        card.style.background = `linear-gradient(145deg, ${color}, ${color}dd)`;
+        card.innerHTML = `
+            <i class="${icon}"></i>
+            <span class="blinda-demo__territory-name">${name}</span>`;
+        card.style.opacity = '0';
+        card.style.transform = 'scale(0.8) translateY(20px)';
+        grid.appendChild(card);
+        setTimeout(() => {
+            gsap.to(card, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: 'back.out(1.4)' });
+        }, i * 150);
+    });
+    container.appendChild(grid);
+}
+
+function renderDemoFlip() {
+    const container = document.getElementById('demo-step-2');
+    if (!container || container.querySelector('.blinda-card-container')) return;
+    const card = DEMO_CARD;
+    const color = BLINDA_COLORS[card.letter] || '#6B8F71';
+
+    const icon = BLINDA_ICONS[card.letter] || 'ph-fill ph-shield-check';
+    const territoryName = BLINDA_TERRITORIES[card.letter] || card.letter;
+    const displayCat = (card.category || '').replace(/^T\d-/, '') || territoryName;
+    const level = card.level || 1;
+    const levelDots = Array.from({ length: 3 }, (_, i) =>
+        `<span class="blinda-card__level-dot ${i < level ? 'blinda-card__level-dot--active' : ''}" style="${i < level ? `background:${color}` : ''}"></span>`
+    ).join('');
+    container.innerHTML = `
+        <div class="blinda-demo__card-pair">
+            <!-- Front face -->
+            <div class="blinda-demo__card-front" style="background: linear-gradient(145deg, ${color}, ${color}bb)">
+                <i class="${icon}" style="font-size: 36px; opacity: 0.85;"></i>
+                <div class="blinda-demo__card-front-name">${territoryName}</div>
+                <div class="blinda-demo__card-front-cat">${displayCat}</div>
+                <div class="blinda-card__level" style="margin-top: auto;">${levelDots}</div>
+            </div>
+            <!-- Back face -->
+            <div class="blinda-demo__card-back" style="border-top: 5px solid ${color};">
+                <p class="blinda-card__situation">${card.situation}</p>
+                <div class="blinda-card__options">
+                    ${['A', 'B', 'C'].map(l => {
+                        const text = card['option_' + l.toLowerCase()];
+                        return `<div class="blinda-option-btn" style="border-left: 3px solid ${color}">
+                            <span class="blinda-option-btn__label" style="color:${color}">${l}</span><span>${text}</span>
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>
+        </div>`;
+
+    // Animate pair entrance
+    const front = container.querySelector('.blinda-demo__card-front');
+    const back = container.querySelector('.blinda-demo__card-back');
+    if (front) gsap.fromTo(front, { x: -30, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: 'power2.out' });
+    if (back) gsap.fromTo(back, { x: 30, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, delay: 0.2, ease: 'power2.out' });
+}
+
+function renderDemoFeedback() {
+    const container = document.getElementById('demo-step-3');
+    if (!container || container.children.length > 0) return;
+    const card = DEMO_CARD;
+    const color = BLINDA_COLORS[card.letter] || '#6B8F71';
+    const territoryName = BLINDA_TERRITORIES[card.letter] || card.letter;
+    const feedbackIcon = BLINDA_ICONS[card.letter] || 'ph-fill ph-shield-check';
+    const displayCat = (card.category || '').replace(/^T\d-/, '') || territoryName;
+    const level = card.level || 1;
+    const levelDots = Array.from({ length: 3 }, (_, i) =>
+        `<span class="blinda-card__level-dot ${i < level ? 'blinda-card__level-dot--active' : ''}" style="${i < level ? `background:${color}` : ''}"></span>`
+    ).join('');
+
+    container.innerHTML = `
+        <div class="blinda-demo__card-pair">
+            <div class="blinda-demo__card-front" style="background: linear-gradient(145deg, ${color}, ${color}bb)">
+                <i class="${feedbackIcon}" style="font-size: 36px; opacity: 0.85;"></i>
+                <div class="blinda-demo__card-front-name">${territoryName}</div>
+                <div class="blinda-demo__card-front-cat">${displayCat}</div>
+                <div class="blinda-card__level" style="margin-top: auto;">${levelDots}</div>
+            </div>
+            <div class="blinda-demo__card-back" style="border-top: 5px solid ${color};">
+                <p class="blinda-card__situation">${card.situation}</p>
+                <div class="blinda-card__options">
+                    ${['A', 'B', 'C'].map(l => {
+                        const text = card['option_' + l.toLowerCase()];
+                        const isCorrect = l === card.correct_answer;
+                        const cls = isCorrect ? 'blinda-option-btn blinda-option-btn--correct' : 'blinda-option-btn';
+                        const style = isCorrect
+                            ? 'border-left: 3px solid #4CAF50'
+                            : `border-left: 3px solid ${color}; opacity: 0.4`;
+                        return `<div class="${cls}" style="${style}">
+                            <span class="blinda-option-btn__label" style="color:${isCorrect ? '#4CAF50' : color}">${l}</span><span>${text}</span>
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>
+        </div>
+        <div class="blinda-feedback blinda-feedback--correct" style="margin-top: var(--space-16); border-left: 4px solid ${color};">
+            <div class="blinda-feedback__icon" style="color: ${color}"><i class="ph-fill ph-check-circle"></i></div>
+            <p class="blinda-feedback__text">${card.explanation}</p>
+        </div>`;
+
+    gsap.fromTo(container.querySelector('.blinda-feedback'), { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, delay: 0.3, ease: 'power2.out' });
+}
+
+// ============================================
+// JUEGO SCREEN — Full game (diapo 4)
+// ============================================
+
+function showJuegoScreen() {
+    stopTTS();
+    elements.loginScreen?.classList.add('hidden');
+    elements.conoceScreen?.classList.add('hidden');
+    elements.chatScreen?.classList.add('hidden');
+    elements.welcomeScreen?.classList.add('hidden');
+    elements.planScreen?.classList.add('hidden');
+    elements.profileScreen?.classList.add('hidden');
+    elements.blindaScreen?.classList.add('hidden');
+    elements.diapo5Screen?.classList.add('hidden');
+
+    elements.juegoScreen?.classList.remove('hidden');
+    elements.juegoScreen?.classList.remove('fade-out');
+
+    // Reset to intro
+    document.getElementById('juego-intro')?.classList.remove('hidden');
+    document.getElementById('juego-game')?.classList.add('hidden');
+    document.getElementById('juego-summary')?.classList.add('hidden');
+}
+
+function hideJuegoScreen() {
+    elements.juegoScreen?.classList.add('fade-out');
+    setTimeout(() => {
+        elements.juegoScreen?.classList.add('hidden');
+        elements.juegoScreen?.classList.remove('fade-out');
+        showBlindaScreen();
+    }, 300);
+}
+
+// ============================================
+// DIAPO 5 — El Agente segun los Grandes Maestros
+// ============================================
+
+const DIAPO5_PAINTINGS = [
+    {
+        id: 'percibir',
+        title: 'La joven de la perla',
+        author: 'Johannes Vermeer, 1665',
+        image: '/static/imagenes/pinturas/vermeer.jpg',
+        capability: 'PERCIBIR',
+        capabilityIcon: 'ph-fill ph-eye',
+        capabilityColor: '#7EC8E3',
+        options: [
+            { label: 'A', text: 'Percibir — Observa y analiza antes de actuar', correct: true },
+            { label: 'B', text: 'Memoria — Recuerda todo lo que ve', correct: false },
+            { label: 'C', text: 'Herramientas — Usa un pendiente como herramienta secreta', correct: false, funny: true }
+        ],
+        explanation: 'Un agente primero OBSERVA: ¿que nivel tiene el alumno? ¿que ha estudiado? ¿que necesita? Sin percibir el contexto, es como dar clase con los ojos cerrados.',
+        teacherExample: 'Como cuando mirais las caras de vuestros alumnos y sabeis que no han entendido nada.'
+    },
+    {
+        id: 'razonar',
+        title: 'El pensador',
+        author: 'Auguste Rodin, 1904',
+        image: '/static/imagenes/pinturas/rodin.jpg',
+        capability: 'RAZONAR',
+        capabilityIcon: 'ph-fill ph-brain',
+        capabilityColor: '#81C784',
+        options: [
+            { label: 'A', text: 'Actuar — Esta a punto de levantarse a hacer algo', correct: false },
+            { label: 'B', text: 'Razonar — Piensa, planifica, elige estrategia', correct: true },
+            { label: 'C', text: 'Percibir — Esta escuchando un podcast muy interesante', correct: false, funny: true }
+        ],
+        explanation: 'Un agente no ejecuta a lo loco. RAZONA: ¿que estrategia uso? ¿lista de vocabulario o juego con menu real? Elige el mejor camino.',
+        teacherExample: 'Como vosotros cuando planificais una clase: no improvisais (bueno, a veces si).'
+    },
+    {
+        id: 'actuar',
+        title: 'La libertad guiando al pueblo',
+        author: 'Eugene Delacroix, 1830',
+        image: '/static/imagenes/pinturas/delacroix.jpg',
+        capability: 'ACTUAR',
+        capabilityIcon: 'ph-fill ph-lightning',
+        capabilityColor: '#F48FB1',
+        options: [
+            { label: 'A', text: 'Evaluar — Esta juzgando al pueblo', correct: false },
+            { label: 'B', text: 'Actuar — Pasa a la accion, ejecuta el plan', correct: true },
+            { label: 'C', text: 'Memoria — Recuerda la revolucion anterior', correct: false, funny: true }
+        ],
+        explanation: 'Despues de percibir y razonar, el agente ACTUA: genera el ejercicio, adapta el texto, crea el audio. No se queda pensando eternamente.',
+        teacherExample: 'El momento en que dejais el cafe y entrais al aula. Accion pura.'
+    },
+    {
+        id: 'memoria',
+        title: 'La persistencia de la memoria',
+        author: 'Salvador Dali, 1931',
+        image: '/static/imagenes/pinturas/dali.jpg',
+        capability: 'MEMORIA',
+        capabilityIcon: 'ph-fill ph-clock-counter-clockwise',
+        capabilityColor: '#FFB74D',
+        options: [
+            { label: 'A', text: 'Memoria — Recuerda y acumula experiencia', correct: true },
+            { label: 'B', text: 'Percibir — Los relojes perciben que se derriten', correct: false },
+            { label: 'C', text: 'Razonar — Es una metafora sobre pensar demasiado', correct: false, funny: true }
+        ],
+        explanation: 'Un agente RECUERDA: ayer este alumno tuvo problemas con el subjuntivo, la semana pasada domino el vocabulario de comida.',
+        teacherExample: 'No como vosotros la primera semana con 120 nombres nuevos que se os olvidan al dia siguiente.'
+    },
+    {
+        id: 'herramientas',
+        title: 'La creacion de Adan',
+        author: 'Miguel Angel, 1512',
+        image: '/static/imagenes/pinturas/miguelangel.jpg',
+        capability: 'HERRAMIENTAS',
+        capabilityIcon: 'ph-fill ph-wrench',
+        capabilityColor: '#B39DDB',
+        options: [
+            { label: 'A', text: 'Actuar — Esta creando algo con las manos', correct: false },
+            { label: 'B', text: 'Herramientas — Usa herramientas para crear y transformar', correct: true },
+            { label: 'C', text: 'Percibir — Estan intentando tocarse para percibirse', correct: false, funny: true }
+        ],
+        explanation: 'Un agente usa HERRAMIENTAS: busca en el MCER, genera audio, crea ejercicios, adapta textos. No solo responde preguntas — tiene superpoderes.',
+        teacherExample: 'Como vosotros con el proyector, la pizarra, los rotuladores y esa app que nunca funciona cuando la necesitais.'
+    }
+];
+
+const DIAPO5_AGENTS = [
+    { name: 'Traductor', icon: 'ph-fill ph-translate', desc: 'Traduce y adapta textos al nivel del alumno' },
+    { name: 'Vocabulario', icon: 'ph-fill ph-book-open-text', desc: 'Crea actividades de vocabulario contextualizadas' },
+    { name: 'Personalizador', icon: 'ph-fill ph-user-focus', desc: 'Adapta contenido al perfil del estudiante' },
+    { name: 'Creativo', icon: 'ph-fill ph-magic-wand', desc: 'Genera recursos didacticos originales' }
+];
+
+const DIAPO5_KEYWORD_MAP = [
+    { step: 1, patterns: ['5 capacidades', 'cinco capacidades', 'sin necesitar café', 'percibe, piensa', 'piensa, actúa'] },
+    { step: 2, patterns: ['cuadros famosos', 'tres opciones', 'absurda', 'adivinar', 'vamos a usar'] },
+    { step: 3, patterns: ['primer cuadro', 'vermeer', 'joven de la perla', 'empezamos', 'primer'] },
+    { step: 4, patterns: ['segundo', 'pensador', 'rodin', 'siguiente cuadro'] },
+    { step: 5, patterns: ['tercer', 'libertad', 'delacroix'] },
+    { step: 6, patterns: ['cuarto', 'dali', 'dalí', 'relojes', 'persistencia'] },
+    { step: 7, patterns: ['quinto', 'ultimo', 'último', 'miguel angel', 'capilla sixtina', 'creacion', 'creación'] },
+    { step: 8, patterns: ['acabais de describir', 'acabáis de describir', 'habeis descrito', 'habéis descrito', 'todo junto', 'revelacion', 'revelación'] }
+];
+
+function showDiapo5Screen() {
+    stopTTS();
+    elements.loginScreen?.classList.add('hidden');
+    elements.conoceScreen?.classList.add('hidden');
+    elements.chatScreen?.classList.add('hidden');
+    elements.welcomeScreen?.classList.add('hidden');
+    elements.planScreen?.classList.add('hidden');
+    elements.profileScreen?.classList.add('hidden');
+    elements.blindaScreen?.classList.add('hidden');
+    elements.juegoScreen?.classList.add('hidden');
+
+    elements.diapo5Screen?.classList.remove('hidden');
+    elements.diapo5Screen?.classList.remove('fade-out');
+
+    // Reset demo to step 0
+    state.diapo5Step = 0;
+    advanceDiapo5To(0);
+
+    // Orb
+    const orbContainer = document.getElementById('diapo5-orb-container');
+    if (orbContainer && window.orbCreateInElement) {
+        const orbSize = window.innerWidth <= 480 ? 64 : window.innerWidth <= 968 ? 80 : 120;
+        window.orbCreateInElement(orbContainer, orbSize);
+    }
+}
+
+function hideDiapo5Screen() {
+    elements.diapo5Screen?.classList.add('fade-out');
+    setTimeout(() => {
+        elements.diapo5Screen?.classList.add('hidden');
+        elements.diapo5Screen?.classList.remove('fade-out');
+        showJuegoScreen();
+    }, 300);
+}
+
+function isOnDiapo5Screen() {
+    return elements.diapo5Screen && !elements.diapo5Screen.classList.contains('hidden');
+}
+
+function addDiapo5ChatBubble(text, role) {
+    const messages = document.getElementById('diapo5-chat-messages');
+    if (!messages) return null;
+    const bubble = document.createElement('div');
+    bubble.className = `blinda-chat__bubble blinda-chat__bubble--${role}`;
+    if (role === 'assistant' && text) {
+        bubble.innerHTML = typeof renderMarkdown === 'function' ? renderMarkdown(text) : text;
+    } else {
+        bubble.textContent = text;
+    }
+    messages.appendChild(bubble);
+    messages.scrollTop = messages.scrollHeight;
+    return bubble;
+}
+
+function sendDiapo5Message(message) {
+    addDiapo5ChatBubble(message, 'user');
+
+    const messages = document.getElementById('diapo5-chat-messages');
+    const typing = document.createElement('div');
+    typing.className = 'blinda-chat__bubble blinda-chat__bubble--assistant blinda-chat__typing';
+    typing.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+    messages.appendChild(typing);
+    messages.scrollTop = messages.scrollHeight;
+
+    state.currentMessage = '';
+    let assistantBubble = null;
+
+    const doSend = () => {
+        const payload = { message, response_mode: 'full', activity_mode: 'agentes' };
+        if (!state._diapo5ContextSent) {
+            payload.prior_context = {
+                question: 'Eliana, vamos a explicar que es un agente de IA.',
+                answer: 'Vamos a ver ahora que es un agente de IA. Roman, cuando quieras.'
+            };
+            state._diapo5ContextSent = true;
+        }
+        state._diapo5Ws.send(JSON.stringify(payload));
+    };
+
+    const handleDiapo5Message = (event) => {
+        const data = JSON.parse(event.data);
+
+        if (data.type === 'token') {
+            if (!assistantBubble) {
+                typing.remove();
+                assistantBubble = addDiapo5ChatBubble('', 'assistant');
+                if (window.smd && assistantBubble) {
+                    const renderer = window.smd.default_renderer(assistantBubble);
+                    state._diapo5SmdParser = window.smd.parser(renderer);
+                } else {
+                    state._diapo5SmdParser = null;
+                }
+            }
+            state.currentMessage += data.content;
+            if (state._diapo5SmdParser) {
+                window.smd.parser_write(state._diapo5SmdParser, data.content);
+            } else if (assistantBubble) {
+                assistantBubble.innerHTML = typeof renderMarkdown === 'function'
+                    ? renderMarkdown(state.currentMessage, false) : state.currentMessage;
+            }
+            messages.scrollTop = messages.scrollHeight;
+            // Live auto-advance: detect keywords while Eliana speaks (streaming)
+            checkDiapo5Advance(state.currentMessage);
+        }
+        else if (data.type === 'end') {
+            if (state._diapo5SmdParser) {
+                window.smd.parser_end(state._diapo5SmdParser);
+                state._diapo5SmdParser = null;
+            }
+            if (state.currentMessage && (state.ttsEnabled || state.voiceTriggered)) {
+                playTTS(state.currentMessage, true);
+            }
+            // Final check in case streaming missed a keyword
+            if (state.currentMessage) {
+                checkDiapo5Advance(state.currentMessage);
+            }
+            assistantBubble = null;
+            resumeWakeWordAfterRecording();
+        }
+        else if (data.type === 'error') {
+            typing.remove();
+            addDiapo5ChatBubble('Error: ' + data.message, 'assistant');
+            assistantBubble = null;
+        }
+    };
+
+    if (state._diapo5Ws && state._diapo5Ws.readyState === WebSocket.OPEN) {
+        state._diapo5Ws.onmessage = handleDiapo5Message;
+        doSend();
+        return;
+    }
+
+    if (state._diapo5Ws) {
+        state._diapo5Ws.close();
+        state._diapo5Ws = null;
+        state._diapo5ContextSent = false;
+    }
+
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    state._diapo5Ws = new WebSocket(`${wsProtocol}//${window.location.host}/ws/chat`);
+    state._diapo5Ws.onopen = doSend;
+    state._diapo5Ws.onmessage = handleDiapo5Message;
+    state._diapo5Ws.onerror = () => {
+        typing.remove();
+        addDiapo5ChatBubble('Error de conexion', 'assistant');
+    };
+}
+
+function checkDiapo5Advance(fullText) {
+    const lower = fullText.toLowerCase();
+    // Only check for the NEXT step — never skip steps
+    const nextStep = state.diapo5Step + 1;
+    const mapping = DIAPO5_KEYWORD_MAP.find(m => m.step === nextStep);
+    if (!mapping) return;
+    for (const pat of mapping.patterns) {
+        if (lower.includes(pat)) {
+            advanceDiapo5To(nextStep);
+            return;
+        }
+    }
+}
+
+function advanceDiapo5To(step) {
+    state.diapo5Step = step;
+    document.querySelectorAll('.diapo5-demo__step').forEach(el => {
+        el.classList.remove('diapo5-demo__step--active');
+    });
+    const target = document.querySelector(`[data-diapo5-step="${step}"]`);
+    if (target) {
+        target.classList.add('diapo5-demo__step--active');
+        // Render step content lazily
+        if (step === 1) {
+            renderDiapo5Capabilities();
+        } else if (step === 2) {
+            renderDiapo5PaintingsPreview();
+        } else if (step >= 3 && step <= 7) {
+            renderDiapo5Painting(step - 3);
+        } else if (step === 8) {
+            renderDiapo5Final();
+        }
+    }
+    // Update stepper dots
+    document.querySelectorAll('[data-diapo5-dot]').forEach(dot => {
+        dot.classList.toggle('demo-stepper__dot--active', parseInt(dot.dataset.diapo5Dot) === step);
+    });
+}
+
+function renderDiapo5Capabilities() {
+    const container = document.getElementById('diapo5-step-1');
+    if (!container || container.dataset.rendered) return;
+    container.dataset.rendered = 'true';
+
+    container.innerHTML = `
+        <div class="diapo5-capabilities-intro">
+            <h3 class="diapo5-capabilities-intro__title">Las 5 capacidades de un Agente</h3>
+            <p class="diapo5-capabilities-intro__subtitle">Lo que hace un agente de IA (y lo que haceis vosotros cada dia)</p>
+            <div class="diapo5-capabilities-grid">
+                ${DIAPO5_PAINTINGS.map((p, i) => `
+                    <div class="diapo5-cap-card" style="--cap-color: ${p.capabilityColor}">
+                        <div class="diapo5-cap-card__icon" style="background: ${p.capabilityColor}">
+                            <i class="${p.capabilityIcon}"></i>
+                        </div>
+                        <span class="diapo5-cap-card__name">${p.capability}</span>
+                        <span class="diapo5-cap-card__hint">${['Observar el contexto', 'Pensar y planificar', 'Ejecutar la accion', 'Recordar y aprender', 'Usar recursos externos'][i]}</span>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+    // GSAP entrance
+    const cards = container.querySelectorAll('.diapo5-cap-card');
+    cards.forEach((card, i) => {
+        gsap.fromTo(card,
+            { y: 30, opacity: 0, scale: 0.8 },
+            { y: 0, opacity: 1, scale: 1, duration: 0.4, delay: i * 0.12, ease: 'back.out(1.4)' }
+        );
+    });
+}
+
+function renderDiapo5PaintingsPreview() {
+    const container = document.getElementById('diapo5-step-2');
+    if (!container || container.dataset.rendered) return;
+    container.dataset.rendered = 'true';
+
+    container.innerHTML = `
+        <div class="diapo5-preview-intro">
+            <h3 class="diapo5-preview-intro__title">5 cuadros, 5 capacidades</h3>
+            <p class="diapo5-preview-intro__subtitle">Cada obra maestra esconde una capacidad del agente. ¿Sabreis adivinarlas?</p>
+            <div class="diapo5-preview-grid">
+                ${DIAPO5_PAINTINGS.map((p, i) => `
+                    <div class="diapo5-preview-card">
+                        <div class="diapo5-preview-card__frame">
+                            <img class="diapo5-preview-card__img" src="${p.image}" alt="${p.title}">
+                        </div>
+                        <span class="diapo5-preview-card__title">${p.title}</span>
+                        <span class="diapo5-preview-card__question" style="color: ${p.capabilityColor}">?</span>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+    // GSAP entrance
+    const cards = container.querySelectorAll('.diapo5-preview-card');
+    cards.forEach((card, i) => {
+        gsap.fromTo(card,
+            { rotateY: 90, opacity: 0 },
+            { rotateY: 0, opacity: 1, duration: 0.5, delay: i * 0.15, ease: 'power2.out' }
+        );
+    });
+}
+
+function renderDiapo5Painting(paintingIndex) {
+    const painting = DIAPO5_PAINTINGS[paintingIndex];
+    if (!painting) return;
+    const container = document.getElementById(`diapo5-step-${paintingIndex + 3}`);
+    if (!container || container.dataset.rendered) return;
+    container.dataset.rendered = 'true';
+
+    // Phase: painting + options
+    container.innerHTML = `
+        <div class="diapo5-painting">
+            <div class="diapo5-painting__frame">
+                <img class="diapo5-painting__img" src="${painting.image}" alt="${painting.title}">
+            </div>
+            <div class="diapo5-painting__info">
+                <p class="diapo5-painting__title">${painting.title}</p>
+                <p class="diapo5-painting__author">${painting.author}</p>
+            </div>
+        </div>
+        <div class="diapo5-options" id="diapo5-options-${paintingIndex}">
+            ${painting.options.map((opt, i) => `
+                <div class="diapo5-option" data-painting="${paintingIndex}" data-option="${i}">
+                    <span class="diapo5-option__label" style="color: ${painting.capabilityColor}">${opt.label}</span>
+                    <span>${opt.text}</span>
+                </div>
+            `).join('')}
+        </div>
+        <div class="diapo5-reveal-container" id="diapo5-reveal-${paintingIndex}"></div>
+    `;
+
+    // GSAP entrance
+    const frame = container.querySelector('.diapo5-painting__frame');
+    const opts = container.querySelectorAll('.diapo5-option');
+    gsap.fromTo(frame, { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.4)' });
+    opts.forEach((opt, i) => {
+        gsap.fromTo(opt,
+            { x: -20, opacity: 0 },
+            { x: 0, opacity: 1, duration: 0.3, delay: 0.3 + i * 0.1, ease: 'power2.out' }
+        );
+    });
+
+    // Click handler for options
+    opts.forEach(opt => {
+        opt.addEventListener('click', () => {
+            const pi = parseInt(opt.dataset.painting);
+            const oi = parseInt(opt.dataset.option);
+            handleDiapo5OptionClick(pi, oi);
+        });
+    });
+}
+
+function handleDiapo5OptionClick(paintingIndex, optionIndex) {
+    const painting = DIAPO5_PAINTINGS[paintingIndex];
+    const optionsContainer = document.getElementById(`diapo5-options-${paintingIndex}`);
+    if (!optionsContainer || optionsContainer.dataset.answered) return;
+    optionsContainer.dataset.answered = 'true';
+
+    const allOpts = optionsContainer.querySelectorAll('.diapo5-option');
+    allOpts.forEach((opt, i) => {
+        opt.classList.add('diapo5-option--disabled');
+        const optData = painting.options[i];
+        if (optData.correct) {
+            opt.classList.add('diapo5-option--correct');
+        } else if (optData.funny) {
+            opt.classList.add('diapo5-option--funny');
+        } else {
+            opt.classList.add('diapo5-option--wrong');
+        }
+    });
+
+    // Shrink painting
+    const frame = document.querySelector(`#diapo5-step-${paintingIndex + 3} .diapo5-painting__frame`);
+    if (frame) {
+        gsap.to(frame, { scale: 0.7, opacity: 0.6, duration: 0.4, ease: 'power2.inOut' });
+    }
+
+    // Show reveal
+    const revealContainer = document.getElementById(`diapo5-reveal-${paintingIndex}`);
+    if (revealContainer) {
+        revealContainer.innerHTML = `
+            <div class="diapo5-reveal">
+                <div class="diapo5-reveal__icon" style="background: ${painting.capabilityColor}">
+                    <i class="${painting.capabilityIcon}"></i>
+                </div>
+                <div class="diapo5-reveal__capability" style="color: ${painting.capabilityColor}">${painting.capability}</div>
+                <p class="diapo5-reveal__explanation">${painting.explanation}</p>
+                <p class="diapo5-reveal__teacher-example">${painting.teacherExample}</p>
+            </div>
+        `;
+        const reveal = revealContainer.querySelector('.diapo5-reveal');
+        gsap.fromTo(reveal,
+            { y: 30, opacity: 0, scale: 0.9 },
+            { y: 0, opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.4)' }
+        );
+    }
+}
+
+function renderDiapo5Final() {
+    const container = document.getElementById('diapo5-step-8');
+    if (!container || container.dataset.rendered) return;
+    container.dataset.rendered = 'true';
+
+    container.innerHTML = `
+        <div class="diapo5-final">
+            <h2 class="diapo5-final__title">Lo que habeis descrito es un AGENTE de IA</h2>
+            <div class="diapo5-final__diagram">
+                ${DIAPO5_PAINTINGS.map((p, i) => `
+                    <div class="diapo5-final__cap" style="background: linear-gradient(145deg, ${p.capabilityColor}, ${p.capabilityColor}dd)">
+                        <i class="${p.capabilityIcon}"></i>
+                        <span class="diapo5-final__cap-name">${p.capability}</span>
+                    </div>
+                `).join('')}
+            </div>
+            <h3 style="font: 600 16px 'Dosis', sans-serif; color: var(--md-sys-color-on-surface); margin-top: var(--space-16);">Nuestros agentes en AgentiaELE</h3>
+            <div class="diapo5-agents">
+                ${DIAPO5_AGENTS.map((a, i) => `
+                    <div class="diapo5-agent-card">
+                        <i class="${a.icon} diapo5-agent-card__icon"></i>
+                        <span class="diapo5-agent-card__name">${a.name}</span>
+                        <span class="diapo5-agent-card__desc">${a.desc}</span>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+    // Animate capabilities
+    const caps = container.querySelectorAll('.diapo5-final__cap');
+    caps.forEach((cap, i) => {
+        gsap.fromTo(cap,
+            { scale: 0, opacity: 0 },
+            { scale: 1, opacity: 1, duration: 0.4, delay: i * 0.15, ease: 'back.out(1.7)' }
+        );
+    });
+
+    // Animate agent cards
+    const agents = container.querySelectorAll('.diapo5-agent-card');
+    agents.forEach((card, i) => {
+        gsap.fromTo(card,
+            { y: 20, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.4, delay: 0.8 + i * 0.1, ease: 'power2.out' }
+        );
+    });
+}
+
+// ---- End Diapo 5 ----
+
+async function startJuegoGame() {
+    const cards = await fetchBlindaCards();
+    if (cards.length === 0) {
+        console.error('[Juego] No cards available');
+        return;
+    }
+
+    state.juegoRound = pickRandomCards(cards, BLINDA_CARDS_PER_ROUND);
+    state.juegoIndex = 0;
+    state.juegoScore = 0;
+    state.juegoAnswers = [];
+
+    document.getElementById('juego-intro')?.classList.add('hidden');
+    document.getElementById('juego-summary')?.classList.add('hidden');
+    document.getElementById('juego-game')?.classList.remove('hidden');
+
+    showJuegoCarousel();
+}
+
+function showJuegoCarousel() {
+    const carousel = document.getElementById('juego-carousel');
+    const cardContainer = document.getElementById('juego-card-container');
+    const feedback = document.getElementById('juego-feedback');
+    if (!carousel) return;
+
+    cardContainer?.classList.add('hidden');
+    feedback?.classList.add('hidden');
+
+    const idx = state.juegoIndex;
+    document.getElementById('juego-progress-text').textContent = `${idx + 1} / ${BLINDA_CARDS_PER_ROUND}`;
+    document.getElementById('juego-progress-fill').style.width = `${((idx + 1) / BLINDA_CARDS_PER_ROUND) * 100}%`;
+
+    const currentCard = state.juegoRound[idx];
+    const miniCount = 12;
+    const selectedIdx = 8;
+
+    carousel.innerHTML = '';
+    const track = document.createElement('div');
+    track.className = 'juego-carousel__track';
+
+    for (let i = 0; i < miniCount; i++) {
+        const letter = i === selectedIdx ? currentCard.letter : BLINDA_LETTERS[Math.floor(Math.random() * BLINDA_LETTERS.length)];
+        const mini = document.createElement('div');
+        mini.className = 'juego-carousel__mini';
+        mini.dataset.letter = letter;
+        const iconClass = BLINDA_ICONS[letter] || 'ph-fill ph-shield-check';
+        mini.innerHTML = `<span>${letter}</span><i class="${iconClass}"></i>`;
+        if (i === selectedIdx) mini.id = 'juego-selected-mini';
+        track.appendChild(mini);
+    }
+    carousel.appendChild(track);
+
+    const miniWidth = 92;
+    const carouselCenter = carousel.offsetWidth / 2 - 40;
+    const targetX = -(selectedIdx * miniWidth) + carouselCenter;
+
+    gsap.set(track, { x: carousel.offsetWidth });
+    gsap.to(track, {
+        x: targetX,
+        duration: 1.8,
+        ease: 'power4.out',
+        onComplete: () => {
+            const selected = document.getElementById('juego-selected-mini');
+            if (selected) selected.classList.add('juego-carousel__mini--selected');
+            setTimeout(() => openJuegoCard(currentCard), 500);
+        }
+    });
+}
+
+function openJuegoCard(card) {
+    const container = document.getElementById('juego-card-container');
+    const cardEl = document.getElementById('juego-card');
+    const letterEl = document.getElementById('juego-card-letter');
+    if (!container || !cardEl) return;
+
+    const color = BLINDA_COLORS[card.letter] || card.color || '#6B8F71';
+    const displayCat = (card.category || '').replace(/^T\d-/, '') || BLINDA_TERRITORIES[card.letter] || '';
+    const icon = BLINDA_ICONS[card.letter] || 'ph-fill ph-shield-check';
+    const level = card.level || 1;
+
+    const front = cardEl.querySelector('.juego-card__front');
+    if (front) {
+        front.style.background = `linear-gradient(145deg, ${color}, ${color}dd)`;
+    }
+
+    letterEl.textContent = card.letter;
+
+    // Build card back content
+    const back = cardEl.querySelector('.juego-card__back');
+    if (back) {
+        const levelDots = Array.from({ length: 3 }, (_, i) =>
+            `<span class="juego-card__level-dot ${i < level ? 'juego-card__level-dot--active' : ''}" style="${i < level ? `background:${color}` : ''}"></span>`
+        ).join('');
+
+        back.innerHTML = `
+            <div class="juego-card__header" style="border-bottom-color: ${color}33">
+                <div class="juego-card__category">
+                    <i class="${icon}" style="color:${color}"></i>
+                    <span>${displayCat}</span>
+                </div>
+                <div class="juego-card__level" title="Dificultad ${level}/3">
+                    ${levelDots}
+                </div>
+            </div>
+            <p class="juego-card__situation" id="juego-card-situation">${card.situation}</p>
+            <div class="juego-card__options" id="juego-card-options"></div>`;
+
+        const optionsEl = back.querySelector('#juego-card-options');
+        const options = [
+            { label: 'A', text: card.option_a },
+            { label: 'B', text: card.option_b },
+            { label: 'C', text: card.option_c }
+        ];
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'juego-option-btn';
+            btn.innerHTML = `<span class="juego-option-btn__label" style="color:${color}">${opt.label}</span><span>${opt.text}</span>`;
+            btn.addEventListener('click', () => selectJuegoOption(opt.label, card));
+            optionsEl.appendChild(btn);
+        });
+    }
+
+    cardEl.classList.remove('flipped');
+    container.classList.remove('hidden');
+
+    gsap.fromTo(container, { scale: 0.8, opacity: 0 }, {
+        scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(1.4)'
+    });
+
+    setTimeout(() => cardEl.classList.add('flipped'), 800);
+}
+
+function selectJuegoOption(chosen, card) {
+    const correct = chosen === card.correct_answer;
+    if (correct) state.juegoScore++;
+    state.juegoAnswers.push({ card, chosen, correct });
+
+    const optionsEl = document.getElementById('juego-card-options');
+    const buttons = optionsEl.querySelectorAll('.juego-option-btn');
+    buttons.forEach(btn => {
+        const label = btn.querySelector('.juego-option-btn__label').textContent;
+        if (label === card.correct_answer) {
+            btn.classList.add('juego-option-btn--correct');
+        } else if (label === chosen && !correct) {
+            btn.classList.add('juego-option-btn--wrong');
+        }
+        btn.classList.add('juego-option-btn--disabled');
+    });
+
+    setTimeout(() => showJuegoFeedback(correct, card.explanation), 600);
+}
+
+function showJuegoFeedback(correct, explanation) {
+    const feedback = document.getElementById('juego-feedback');
+    const icon = document.getElementById('juego-feedback-icon');
+    const text = document.getElementById('juego-feedback-text');
+    if (!feedback) return;
+
+    feedback.className = `juego-feedback juego-feedback--${correct ? 'correct' : 'wrong'}`;
+    icon.innerHTML = correct
+        ? '<i class="ph-fill ph-check-circle"></i>'
+        : '<i class="ph-fill ph-x-circle"></i>';
+    text.textContent = correct
+        ? explanation
+        : explanation;
+
+    feedback.classList.remove('hidden');
+}
+
+function nextJuegoCard() {
+    state.juegoIndex++;
+    if (state.juegoIndex >= BLINDA_CARDS_PER_ROUND) {
+        showJuegoSummary();
+    } else {
+        showJuegoCarousel();
+    }
+}
+
+function showJuegoSummary() {
+    document.getElementById('juego-game')?.classList.add('hidden');
+    const summary = document.getElementById('juego-summary');
+    summary?.classList.remove('hidden');
+
+    // Score
+    const scoreEl = document.getElementById('juego-summary-score');
+    scoreEl.textContent = `${state.juegoScore} / ${BLINDA_CARDS_PER_ROUND}`;
+
+    // Areas de mejora (agrupadas por categoria)
+    const areasEl = document.getElementById('juego-summary-areas');
+    areasEl.innerHTML = '';
+    const wrongByCategory = {};
+    state.juegoAnswers.filter(a => !a.correct).forEach(a => {
+        const cat = (a.card.category || a.card.letter || '').replace(/^T\d-/, '');
+        if (!wrongByCategory[cat]) wrongByCategory[cat] = 0;
+        wrongByCategory[cat]++;
+    });
+
+    if (Object.keys(wrongByCategory).length > 0) {
+        const title = document.createElement('h3');
+        title.className = 'juego-summary__areas-title';
+        title.textContent = 'Areas a reforzar';
+        areasEl.appendChild(title);
+        const tagContainer = document.createElement('div');
+        tagContainer.className = 'juego-summary__area-tags';
+        for (const [cat, count] of Object.entries(wrongByCategory)) {
+            const tag = document.createElement('span');
+            tag.className = 'juego-area-tag';
+            tag.textContent = `${cat} (${count})`;
+            tagContainer.appendChild(tag);
+        }
+        areasEl.appendChild(tagContainer);
+    }
+
+    // Learnings detallados
+    const learningsEl = document.getElementById('juego-summary-learnings');
+    learningsEl.innerHTML = '';
+    state.juegoAnswers.forEach(a => {
+        const div = document.createElement('div');
+        div.className = `juego-learning-item juego-learning-item--${a.correct ? 'correct' : 'wrong'}`;
+        const catName = (a.card.category || '').replace(/^T\d-/, '') || BLINDA_TERRITORIES[a.card.letter] || a.card.letter;
+        if (a.correct) {
+            div.innerHTML = `<span class="juego-learning__icon"><i class="ph-fill ph-check-circle"></i></span>
+                             <span>${catName}: Correcto</span>`;
+        } else {
+            div.innerHTML = `<span class="juego-learning__icon"><i class="ph-fill ph-x-circle"></i></span>
+                             <div><strong>${catName}</strong>: Elegiste ${a.chosen}, correcta era ${a.card.correct_answer}
+                             <p class="juego-learning__explanation">${a.card.explanation}</p></div>`;
+        }
+        learningsEl.appendChild(div);
+    });
+
+    // Discusion en parejas
+    const discussionEl = document.getElementById('juego-summary-discussion');
+    const categories = Object.keys(wrongByCategory);
+    let html = '<h3 class="juego-summary__discuss-title">Para comentar en pareja</h3><ul class="juego-discuss-list">';
+    html += '<li>Cual os ha sorprendido mas?</li>';
+    if (categories.length > 0) {
+        html += `<li>Habeis tenido problemas con: ${categories.join(', ')}. Como las detectariais en el futuro?</li>`;
+    }
+    html += '<li>Que le pediriais a la IA de forma diferente ahora?</li></ul>';
+    discussionEl.innerHTML = html;
+}
+
+function replayJuego() {
+    startJuegoGame();
+}
+
+// ============================================
 // Event Listeners
 // ============================================
 function init() {
@@ -3673,15 +4972,100 @@ function init() {
         });
     });
 
-    // Blinda tu Prompt
-    document.getElementById('blinda-start-btn')?.addEventListener('click', startBlindaGame);
-    document.getElementById('blinda-next-btn')?.addEventListener('click', nextBlindaCard);
-    document.getElementById('blinda-replay-btn')?.addEventListener('click', replayBlinda);
-    document.getElementById('blinda-back-btn')?.addEventListener('click', hideBlindaScreen);
+    // Blinda tu Prompt — demo (diapo 3)
     document.getElementById('blinda-nav-back')?.addEventListener('click', hideBlindaScreen);
-    document.getElementById('blinda-nav-next')?.addEventListener('click', () => {
-        // Next presentation scene (placeholder)
-        console.log('[Blinda] Next scene');
+    document.getElementById('blinda-nav-next')?.addEventListener('click', showJuegoScreen);
+    // Demo stepper dots (manual backup)
+    document.querySelectorAll('.demo-stepper__dot').forEach(dot => {
+        dot.addEventListener('click', () => advanceDemoTo(parseInt(dot.dataset.step)));
+    });
+
+    // Juego (diapo 4)
+    document.getElementById('juego-start-btn')?.addEventListener('click', startJuegoGame);
+    document.getElementById('juego-next-btn')?.addEventListener('click', nextJuegoCard);
+    document.getElementById('juego-replay-btn')?.addEventListener('click', replayJuego);
+    document.getElementById('juego-back-btn')?.addEventListener('click', hideJuegoScreen);
+    document.getElementById('juego-nav-back')?.addEventListener('click', hideJuegoScreen);
+    document.getElementById('juego-nav-next')?.addEventListener('click', showDiapo5Screen);
+    document.getElementById('juego-next-screen-btn')?.addEventListener('click', showDiapo5Screen);
+
+    // Blinda chat — send text
+    document.getElementById('blinda-chat-send')?.addEventListener('click', () => {
+        const input = document.getElementById('blinda-chat-input');
+        const text = input?.value.trim();
+        if (!text) return;
+        input.value = '';
+        sendBlindaMessage(text);
+    });
+    document.getElementById('blinda-chat-input')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            document.getElementById('blinda-chat-send')?.click();
+        }
+    });
+
+    // Blinda chat — mic (same as main chat mic)
+    document.getElementById('blinda-mic-btn')?.addEventListener('click', () => {
+        enableTTS();
+        state.voiceTriggered = true;
+        if (state.isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    });
+
+    // Blinda chat — voice toggle (TTS on/off)
+    document.getElementById('blinda-voice-btn')?.addEventListener('click', () => {
+        if (state.ttsEnabled) {
+            disableTTS();
+        } else {
+            enableTTS();
+        }
+    });
+
+    // Diapo 5 — El Agente segun los Grandes Maestros
+    document.getElementById('diapo5-nav-back')?.addEventListener('click', hideDiapo5Screen);
+    document.getElementById('diapo5-nav-next')?.addEventListener('click', () => {
+        // Future: next screen after diapo5
+        // For now advance demo step
+        if (state.diapo5Step < 8) advanceDiapo5To(state.diapo5Step + 1);
+    });
+    // Stepper dots
+    document.querySelectorAll('[data-diapo5-dot]').forEach(dot => {
+        dot.addEventListener('click', () => advanceDiapo5To(parseInt(dot.dataset.diapo5Dot)));
+    });
+    // Diapo5 chat — send text
+    document.getElementById('diapo5-chat-send')?.addEventListener('click', () => {
+        const input = document.getElementById('diapo5-chat-input');
+        const text = input?.value.trim();
+        if (!text) return;
+        input.value = '';
+        sendDiapo5Message(text);
+    });
+    document.getElementById('diapo5-chat-input')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            document.getElementById('diapo5-chat-send')?.click();
+        }
+    });
+    // Diapo5 chat — mic
+    document.getElementById('diapo5-mic-btn')?.addEventListener('click', () => {
+        enableTTS();
+        state.voiceTriggered = true;
+        if (state.isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    });
+    // Diapo5 chat — voice toggle
+    document.getElementById('diapo5-voice-btn')?.addEventListener('click', () => {
+        if (state.ttsEnabled) {
+            disableTTS();
+        } else {
+            enableTTS();
+        }
     });
 
     // Conoce screen — back/next/logout
