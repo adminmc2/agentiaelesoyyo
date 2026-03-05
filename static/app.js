@@ -1664,6 +1664,7 @@ async function startRecording() {
         state.mediaRecorder.start();
         state.isRecording = true;
         state._recordingStartTime = Date.now();
+        state._discardRecording = false;
 
         // Start silence detection (auto-stop after 5s silence)
         startSilenceDetection(stream);
@@ -2680,7 +2681,7 @@ function onWakeWordDetected(transcript = '') {
 
     playWakeBeep();
     // Voice interaction → auto-enable TTS responses
-    enableTTS();
+    forceEnableTTS();
     state.voiceTriggered = true;
 
     // Si estamos en la pantalla de Blinda, NO navegar al chat.
@@ -2865,6 +2866,13 @@ function enableTTS() {
         updateVoiceButton(true);
         localStorage.setItem('eliana_tts', 'on');
     }
+}
+
+function forceEnableTTS() {
+    state.ttsManuallyDisabled = false;
+    state.ttsEnabled = true;
+    updateVoiceButton(true);
+    localStorage.setItem('eliana_tts', 'on');
 }
 
 /**

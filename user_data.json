@@ -111,6 +111,18 @@
   "Presentador": {
     "searches": [
       {
+        "query": "Continúa",
+        "icon": "voice",
+        "desc": "Conversación con el asistente",
+        "timestamp": 1772738846449
+      },
+      {
+        "query": "¿Me puedes decir cómo va la tarjeta? ¿Me puedes decir la tarjeta? ¿Me puedes decir cómo va la tarjeta? Gracias.",
+        "icon": "voice",
+        "desc": "Conversación con el asistente",
+        "timestamp": 1772738740200
+      },
+      {
         "query": "¡Hola!",
         "icon": "voice",
         "desc": "Conversación con el asistente",
@@ -157,20 +169,8 @@
         "icon": "voice",
         "desc": "Conversación con el asistente",
         "timestamp": 1772735297341
-      },
-      {
-        "query": "me puedes decir cómo se ve una tarjeta",
-        "icon": "voice",
-        "desc": "Conversación con el asistente",
-        "timestamp": 1772735217513
-      },
-      {
-        "query": "Bueno, pasemos entonces a la respuesta correcta.",
-        "icon": "voice",
-        "desc": "Conversación con el asistente",
-        "timestamp": 1772730336057
       }
     ],
-    "last_sync": 1772736301.62814
+    "last_sync": 1772738846.4517288
   }
 }
