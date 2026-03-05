@@ -3513,7 +3513,13 @@ const BLINDA_ICONS = {
 };
 const BLINDA_CARDS_PER_ROUND = 5;
 
+function isMobile() {
+    return window.innerWidth <= 968;
+}
+
 function showBlindaScreen() {
+    // Diapo 3 solo en escritorio — en móvil saltar a diapo 4 (juego)
+    if (isMobile()) { showJuegoScreen(); return; }
     stopTTS();
     // Hide all screens (can come from profile or conoce)
     elements.profileScreen?.classList.add('hidden');
