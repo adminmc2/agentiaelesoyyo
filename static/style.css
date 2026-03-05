@@ -1363,6 +1363,7 @@ body[data-mood-active] .bento-card--mood {
    CONOCE A ELIANA — Pantalla de actividades
    ============================================ */
 .conoce-screen {
+    position: relative;
     padding: 0 !important;
     overflow: hidden;
     transition:
@@ -1423,6 +1424,28 @@ body[data-mood-active] .bento-card--mood {
 .conoce-back-btn:active {
     background: rgba(0, 0, 0, 0.12);
 }
+
+.conoce-next-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 20px;
+    transition: background 0.15s;
+    touch-action: manipulation;
+    z-index: 10;
+}
+.conoce-next-btn:hover { background: rgba(0, 0, 0, 0.08); }
+.conoce-next-btn:active { background: rgba(0, 0, 0, 0.12); }
 
 .conoce-content {
     display: flex;
@@ -1603,6 +1626,42 @@ body[data-mood-active] .bento-card--mood {
 .activity-card--pregunta .activity-card__icon {
     background: rgba(161, 184, 242, 0.2);
     color: #6B82C4;
+}
+
+/* Variant: Blinda tu Prompt — Forest Green */
+.activity-card--blinda {
+    background: linear-gradient(
+        160deg,
+        rgba(107, 143, 113, 0.35) 0%,
+        rgba(239, 237, 247, 0.5) 100%
+    );
+}
+.activity-card--blinda::after { background: #6B8F71; }
+.activity-card--blinda .activity-card__icon {
+    background: rgba(107, 143, 113, 0.15);
+    color: #6B8F71;
+}
+
+/* Divider between activities and challenge */
+.conoce-divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-12);
+    padding: var(--space-4) 0;
+}
+.conoce-divider span {
+    font: 600 13px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    white-space: nowrap;
+}
+.conoce-divider::before,
+.conoce-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.08);
 }
 
 /* ============================================
@@ -4608,4 +4667,645 @@ body[data-mood-active] .message.assistant {
         padding: 4px 8px;
         font-size: 0.8125rem;
     }
+}
+
+/* ============================================
+   BLINDA TU PROMPT — Quiz de tarjetas
+   ============================================ */
+.blinda-screen {
+    padding: 0 !important;
+    overflow: hidden;
+    transition:
+        opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate),
+        transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate);
+}
+.blinda-screen.fade-out {
+    opacity: 0;
+    transform: scale(0.98);
+}
+
+/* -- 2-column layout (mirrors conoce-screen exactly) -- */
+.blinda-page {
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-columns: 45% 55%;
+    background: var(--md-sys-color-surface);
+    overflow: hidden;
+}
+
+/* -- Left column: orb on top + chat panel below -- */
+.blinda-left {
+    padding: 2rem 1.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.blinda-orb-wrapper {
+    width: 120px;
+    height: 120px;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: var(--space-16);
+}
+.blinda-orb-wrapper .orb-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.blinda-orb-wrapper .orb-container canvas {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* -- Chat panel (same visual style as main chat) -- */
+.blinda-chat {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    border-radius: var(--md-sys-shape-extra-large);
+    background: var(--md-sys-color-surface-container-low);
+    border: 1px solid rgba(198, 197, 208, 0.25);
+    overflow: hidden;
+}
+
+.blinda-chat__messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-16);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+}
+
+.blinda-chat__bubble {
+    padding: var(--space-12) var(--space-16);
+    font: var(--md-sys-typescale-body-large);
+    line-height: 1.55;
+    animation: messageEnter var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-decelerate);
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.blinda-chat__bubble--assistant {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(198, 197, 208, 0.3);
+    color: var(--md-sys-color-on-surface);
+    align-self: flex-start;
+    border-radius: var(--md-sys-shape-large);
+    width: 100%;
+}
+
+.blinda-chat__bubble--user {
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    align-self: flex-end;
+    border-radius: var(--md-sys-shape-large);
+    max-width: 85%;
+}
+
+/* -- Chat input row (same style as main chat) -- */
+.blinda-chat__input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(198, 197, 208, 0.2);
+}
+
+.blinda-chat__textarea {
+    flex: 1;
+    border: 1.5px solid rgba(198, 197, 208, 0.4);
+    border-radius: 20px;
+    background: var(--md-sys-color-surface-container-low);
+    font: var(--md-sys-typescale-body-large);
+    color: var(--md-sys-color-on-surface);
+    padding: 10px 16px;
+    min-height: 44px;
+    max-height: 100px;
+    resize: none;
+    outline: none;
+    transition: border-color 200ms ease;
+}
+.blinda-chat__textarea:focus {
+    border-color: var(--md-sys-color-primary);
+}
+.blinda-chat__textarea::placeholder {
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+.blinda-chat__send {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border: none;
+    border-radius: 50%;
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 150ms ease, background 150ms ease;
+}
+.blinda-chat__send:hover {
+    transform: scale(1.06);
+    background: var(--md-sys-color-secondary);
+}
+.blinda-chat__send:active {
+    transform: scale(0.92);
+}
+
+/* -- Nav arrows (same style as conoce-back-btn/conoce-next-btn) -- */
+.blinda-nav-btn {
+    position: absolute;
+    top: 1.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 20px;
+    transition: background 0.15s;
+    touch-action: manipulation;
+    z-index: 10;
+}
+.blinda-nav-btn:hover { background: rgba(0, 0, 0, 0.08); }
+.blinda-nav-btn:active { background: rgba(0, 0, 0, 0.12); }
+.blinda-nav-btn--back { left: 1.5rem; }
+.blinda-nav-btn--next { right: 1.5rem; }
+
+/* -- Right column: game "TV frame" (same shape as login-right) -- */
+.blinda-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    position: relative;
+    overflow: hidden;
+    margin: 1cm;
+    border-radius: 12px;
+    background: var(--md-sys-color-surface-container-high);
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.06),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+/* -- Intro phase -- */
+.blinda-intro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-24);
+    max-width: 420px;
+}
+
+.blinda-intro__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #6B8F71, #587660);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+.blinda-title {
+    font: 700 32px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    letter-spacing: -0.5px;
+}
+
+.blinda-subtitle {
+    font: 400 15px 'Inconsolata', monospace;
+    color: var(--md-sys-color-on-surface-variant);
+    line-height: 1.55;
+    margin-top: calc(-1 * var(--space-12));
+}
+
+.blinda-start-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-10);
+    padding: var(--space-16) var(--space-40, 2.5rem);
+    background: linear-gradient(145deg, #6B8F71, #587660);
+    color: #fff;
+    border: none;
+    border-radius: var(--md-sys-shape-full);
+    font: 600 17px 'Dosis', sans-serif;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: transform 200ms ease, box-shadow 200ms ease;
+    box-shadow: var(--md-sys-elevation-1);
+    min-width: 180px;
+}
+.blinda-start-btn:hover {
+    transform: scale(1.04);
+    box-shadow: var(--md-sys-elevation-3);
+}
+.blinda-start-btn:active {
+    transform: scale(0.97);
+}
+
+/* -- Game phase -- */
+.blinda-game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 520px;
+    gap: var(--space-24);
+}
+
+/* Progress bar */
+.blinda-progress {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+}
+.blinda-progress__text {
+    font: 600 14px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    text-align: center;
+}
+.blinda-progress__bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: var(--md-sys-shape-full);
+    overflow: hidden;
+}
+.blinda-progress__fill {
+    height: 100%;
+    width: 20%;
+    background: #6B8F71;
+    border-radius: var(--md-sys-shape-full);
+    transition: width 400ms var(--md-sys-motion-easing-standard);
+}
+
+/* Carousel */
+.blinda-carousel {
+    width: 100%;
+    height: 120px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.blinda-carousel__track {
+    display: flex;
+    gap: var(--space-12);
+    position: absolute;
+    left: 0;
+}
+.blinda-carousel__mini {
+    width: 80px;
+    height: 100px;
+    border-radius: var(--md-sys-shape-large);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    flex-shrink: 0;
+    font: 700 24px 'Dosis', sans-serif;
+    color: #fff;
+    box-shadow: var(--md-sys-elevation-1);
+    transition: transform 300ms ease, box-shadow 300ms ease;
+}
+.blinda-carousel__mini i {
+    font-size: 20px;
+    opacity: 0.8;
+}
+.blinda-carousel__mini--selected {
+    transform: scale(1.15);
+    box-shadow: var(--md-sys-elevation-3);
+}
+
+/* Card colors by letter */
+.blinda-carousel__mini[data-letter="U"] { background: linear-gradient(145deg, #D4826A, #c06e56); }
+.blinda-carousel__mini[data-letter="N"] { background: linear-gradient(145deg, #994E95, #7d3f79); }
+.blinda-carousel__mini[data-letter="R"] { background: linear-gradient(145deg, #31BEEF, #28a0cc); }
+.blinda-carousel__mini[data-letter="L"] { background: linear-gradient(145deg, #A1B8F2, #8599d4); }
+.blinda-carousel__mini[data-letter="T"] { background: linear-gradient(145deg, #E8A08A, #d08b75); }
+.blinda-carousel__mini[data-letter="D"] { background: linear-gradient(145deg, #6B8F71, #587660); }
+
+/* Flip card */
+.blinda-card-container {
+    perspective: 1000px;
+    width: 100%;
+    max-width: 460px;
+}
+.blinda-card {
+    position: relative;
+    width: 100%;
+    min-height: 320px;
+    transform-style: preserve-3d;
+    transition: transform 600ms var(--md-sys-motion-easing-emphasized);
+}
+.blinda-card.flipped {
+    transform: rotateY(180deg);
+}
+.blinda-card__front,
+.blinda-card__back {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: var(--md-sys-shape-extra-large);
+    padding: var(--space-32);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.blinda-card__front {
+    background: linear-gradient(145deg, #6B8F71, #587660);
+    color: #fff;
+    gap: var(--space-16);
+    cursor: pointer;
+    box-shadow: var(--md-sys-elevation-2);
+}
+.blinda-card__front:hover {
+    box-shadow: var(--md-sys-elevation-3);
+}
+.blinda-card__letter {
+    font: 700 64px 'Dosis', sans-serif;
+    opacity: 0.9;
+}
+.blinda-card__front-icon {
+    font-size: 32px;
+    opacity: 0.6;
+}
+.blinda-card__back {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: var(--md-sys-elevation-2);
+    transform: rotateY(180deg);
+    gap: var(--space-20);
+    justify-content: flex-start;
+    padding-top: var(--space-24);
+}
+.blinda-card__situation {
+    font: 400 15px 'Inconsolata', monospace;
+    color: var(--md-sys-color-on-surface);
+    line-height: 1.55;
+    text-align: left;
+    width: 100%;
+}
+.blinda-card__options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+    width: 100%;
+}
+.blinda-option-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-10);
+    padding: var(--space-12) var(--space-16);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--md-sys-shape-large);
+    font: 400 13.5px 'Inconsolata', monospace;
+    color: var(--md-sys-color-on-surface);
+    line-height: 1.45;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
+}
+.blinda-option-btn:hover {
+    transform: scale(1.01);
+    border-color: rgba(107, 143, 113, 0.4);
+    background: rgba(107, 143, 113, 0.06);
+}
+.blinda-option-btn:active {
+    transform: scale(0.98);
+}
+.blinda-option-btn__label {
+    font-weight: 700;
+    color: #6B8F71;
+    flex-shrink: 0;
+    min-width: 20px;
+}
+.blinda-option-btn--correct {
+    background: rgba(107, 143, 113, 0.15) !important;
+    border-color: #6B8F71 !important;
+}
+.blinda-option-btn--wrong {
+    background: rgba(212, 130, 106, 0.12) !important;
+    border-color: var(--md-sys-color-primary) !important;
+}
+.blinda-option-btn--disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* Feedback panel */
+.blinda-feedback {
+    width: 100%;
+    max-width: 460px;
+    padding: var(--space-20);
+    border-radius: var(--md-sys-shape-extra-large);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-16);
+    animation: blindaSlideUp 300ms var(--md-sys-motion-easing-emphasized-decelerate);
+}
+.blinda-feedback--correct {
+    background: rgba(107, 143, 113, 0.1);
+    border: 1px solid rgba(107, 143, 113, 0.2);
+}
+.blinda-feedback--wrong {
+    background: rgba(212, 130, 106, 0.08);
+    border: 1px solid rgba(212, 130, 106, 0.15);
+}
+.blinda-feedback__icon {
+    font-size: 36px;
+}
+.blinda-feedback--correct .blinda-feedback__icon { color: #6B8F71; }
+.blinda-feedback--wrong .blinda-feedback__icon { color: var(--md-sys-color-primary); }
+.blinda-feedback__text {
+    font: 400 14px 'Inconsolata', monospace;
+    color: var(--md-sys-color-on-surface);
+    line-height: 1.55;
+    text-align: center;
+}
+.blinda-next-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-8);
+    padding: var(--space-10) var(--space-24);
+    background: var(--md-sys-color-on-surface);
+    color: var(--md-sys-color-surface);
+    border: none;
+    border-radius: var(--md-sys-shape-full);
+    font: 600 14px 'Dosis', sans-serif;
+    cursor: pointer;
+    transition: transform 150ms ease;
+}
+.blinda-next-btn:hover { transform: scale(1.03); }
+.blinda-next-btn:active { transform: scale(0.97); }
+
+@keyframes blindaSlideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* -- Summary phase -- */
+.blinda-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-20);
+    max-width: 420px;
+    animation: blindaSlideUp 400ms var(--md-sys-motion-easing-emphasized-decelerate);
+}
+.blinda-summary-card {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: var(--md-sys-shape-extra-large);
+    padding: var(--space-32);
+    box-shadow: var(--md-sys-elevation-1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-20);
+    text-align: center;
+}
+.blinda-summary__title {
+    font: 700 24px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+}
+.blinda-summary__score {
+    font: 700 48px 'Dosis', sans-serif;
+    color: #6B8F71;
+}
+.blinda-summary__learnings {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+    width: 100%;
+    text-align: left;
+}
+.blinda-learning-item {
+    font: 400 13px 'Inconsolata', monospace;
+    color: var(--md-sys-color-on-surface);
+    line-height: 1.45;
+    padding: var(--space-10) var(--space-14);
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: var(--md-sys-shape-medium);
+    border-left: 3px solid;
+}
+.blinda-learning-item--correct { border-left-color: #6B8F71; }
+.blinda-learning-item--wrong { border-left-color: var(--md-sys-color-primary); }
+.blinda-summary__pair {
+    font: 500 15px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    font-style: italic;
+}
+.blinda-summary-actions {
+    display: flex;
+    gap: var(--space-12);
+}
+.blinda-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-8);
+    padding: var(--space-12) var(--space-20);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--md-sys-shape-full);
+    font: 600 14px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    cursor: pointer;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.blinda-action-btn:hover {
+    transform: scale(1.03);
+    box-shadow: var(--md-sys-elevation-1);
+}
+.blinda-action-btn:active { transform: scale(0.97); }
+
+/* Blinda responsive */
+@media (max-width: 1200px) {
+    .blinda-page { grid-template-columns: 40% 60%; }
+    .blinda-left { padding: 1.5rem 1rem 1rem; }
+    .blinda-orb-wrapper { width: 100px; height: 100px; }
+}
+
+@media (max-width: 968px) {
+    .blinda-screen { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .blinda-page {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 3.5rem 1rem 1rem;
+        gap: var(--space-16);
+        position: relative;
+        box-sizing: border-box;
+    }
+    .blinda-nav-btn--back { position: fixed; top: 1rem; left: 1rem; z-index: 10; }
+    .blinda-nav-btn--next { position: fixed; top: 1rem; right: 1rem; z-index: 10; }
+    .blinda-left {
+        padding: 0;
+        flex-shrink: 0;
+        width: 100%;
+        max-width: 480px;
+        max-height: 40vh;
+    }
+    .blinda-orb-wrapper { width: 80px; height: 80px; }
+    .blinda-right { padding: 1.5rem; flex-shrink: 0; width: 100%; max-width: 480px; margin: 0 0 1rem; border-radius: 12px; }
+    .blinda-title { font-size: 28px; }
+    .blinda-card__back { padding: var(--space-16); }
+    .blinda-card__situation { font-size: 14px; }
+    .blinda-option-btn { font-size: 13px; padding: var(--space-10) var(--space-12); }
+    .blinda-summary-card { padding: var(--space-20); }
+    .blinda-carousel__mini { width: 64px; height: 82px; font-size: 20px; }
+}
+
+@media (max-width: 480px) {
+    .blinda-page { padding: 3rem 0.75rem 1rem; }
+    .blinda-orb-wrapper { width: 64px; height: 64px; }
+    .blinda-card__situation { font-size: 13px; }
+    .blinda-option-btn { font-size: 12.5px; }
 }

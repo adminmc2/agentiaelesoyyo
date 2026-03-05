@@ -1208,6 +1208,14 @@ async def test_models(message: str = "Me llamo Silvia", activity: str = "yo_nunc
 # API: Tarjetas de Prompting
 # ============================================
 
+@app.get("/cards_data.json")
+async def serve_cards_data():
+    """Servir cards_data.json directamente."""
+    path = os.path.join(os.path.dirname(__file__), "cards_data.json")
+    if os.path.exists(path):
+        return FileResponse(path, media_type="application/json")
+    return []
+
 @app.get("/api/prompt-cards")
 async def list_prompt_cards(letter: Optional[str] = None, level: Optional[int] = None):
     """Listar tarjetas de prompting con filtros opcionales."""

@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=10.4.0">
+    <link rel="stylesheet" href="/static/style.css?v=15.2.0">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -106,6 +106,9 @@
              PANTALLA CONOCE A ELIANA
              ============================================ -->
         <main class="main-content conoce-screen hidden" id="conoce-screen">
+            <button class="conoce-next-btn" id="conoce-next-btn" title="Siguiente escena">
+                <i class="ph ph-arrow-right"></i>
+            </button>
             <div class="conoce-page">
                 <!-- Columna izquierda: orb + mensaje -->
                 <div class="conoce-left">
@@ -151,6 +154,121 @@
                                 <p class="activity-card__desc">Preguntas íntimas entre tú y Eliana. Ella también tiene cosas que contarte.</p>
                             </div>
                         </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ============================================
+             PANTALLA BLINDA TU PROMPT
+             ============================================ -->
+        <main class="main-content blinda-screen hidden" id="blinda-screen">
+            <div class="blinda-page">
+                <!-- Columna izquierda: Eliana (orb + chat) -->
+                <div class="blinda-left">
+                    <button class="blinda-nav-btn blinda-nav-btn--back" id="blinda-nav-back" title="Volver">
+                        <i class="ph ph-arrow-left"></i>
+                    </button>
+
+                    <!-- Orb compacto -->
+                    <div class="blinda-orb-wrapper">
+                        <div class="orb-container" id="blinda-orb-container"></div>
+                    </div>
+
+                    <!-- Chat panel: mensajes de Eliana + input -->
+                    <div class="blinda-chat" id="blinda-chat">
+                        <div class="blinda-chat__messages" id="blinda-chat-messages">
+                            <!-- Mensajes de Eliana aparecen aquí -->
+                            <div class="blinda-chat__bubble blinda-chat__bubble--assistant">
+                                Vamos a poner a prueba vuestro ojo crítico. Os presento situaciones reales con IA y vosotros decidís.
+                            </div>
+                        </div>
+                        <div class="blinda-chat__input-row">
+                            <textarea
+                                id="blinda-chat-input"
+                                class="blinda-chat__textarea"
+                                placeholder="Escribe a Eliana..."
+                                rows="1"
+                                autocomplete="off"
+                            ></textarea>
+                            <button class="blinda-chat__send" id="blinda-chat-send" title="Enviar">
+                                <i class="ph ph-paper-plane-tilt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna derecha: juego -->
+                <div class="blinda-right">
+                    <button class="blinda-nav-btn blinda-nav-btn--next" id="blinda-nav-next" title="Siguiente escena">
+                        <i class="ph ph-arrow-right"></i>
+                    </button>
+
+                    <!-- Fase intro -->
+                    <div class="blinda-intro" id="blinda-intro">
+                        <div class="blinda-intro__icon">
+                            <i class="ph-fill ph-shield-check"></i>
+                        </div>
+                        <h2 class="blinda-title">Blinda tu Prompt</h2>
+                        <p class="blinda-subtitle">¿Sabes detectar cuándo la IA te la cuela? Pon a prueba tu criterio docente.</p>
+                        <button class="blinda-start-btn" id="blinda-start-btn">
+                            <i class="ph-fill ph-play"></i> Empezar
+                        </button>
+                    </div>
+
+                    <!-- Fase juego (oculta) -->
+                    <div class="blinda-game hidden" id="blinda-game">
+                        <!-- Progreso -->
+                        <div class="blinda-progress">
+                            <span class="blinda-progress__text" id="blinda-progress-text">1 / 5</span>
+                            <div class="blinda-progress__bar">
+                                <div class="blinda-progress__fill" id="blinda-progress-fill"></div>
+                            </div>
+                        </div>
+
+                        <!-- Carrusel de tarjetas -->
+                        <div class="blinda-carousel" id="blinda-carousel"></div>
+
+                        <!-- Tarjeta activa (flip) -->
+                        <div class="blinda-card-container hidden" id="blinda-card-container">
+                            <div class="blinda-card" id="blinda-card">
+                                <div class="blinda-card__front">
+                                    <div class="blinda-card__letter" id="blinda-card-letter">U</div>
+                                    <i class="ph-fill ph-shield-check blinda-card__front-icon"></i>
+                                </div>
+                                <div class="blinda-card__back">
+                                    <p class="blinda-card__situation" id="blinda-card-situation"></p>
+                                    <div class="blinda-card__options" id="blinda-card-options"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Feedback -->
+                        <div class="blinda-feedback hidden" id="blinda-feedback">
+                            <div class="blinda-feedback__icon" id="blinda-feedback-icon"></div>
+                            <p class="blinda-feedback__text" id="blinda-feedback-text"></p>
+                            <button class="blinda-next-btn" id="blinda-next-btn">
+                                <i class="ph ph-arrow-right"></i> Siguiente
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Fase resumen (oculta) -->
+                    <div class="blinda-summary hidden" id="blinda-summary">
+                        <div class="blinda-summary-card" id="blinda-summary-card">
+                            <h2 class="blinda-summary__title">Tu resultado</h2>
+                            <div class="blinda-summary__score" id="blinda-summary-score"></div>
+                            <div class="blinda-summary__learnings" id="blinda-summary-learnings"></div>
+                            <p class="blinda-summary__pair">Comenta con tu compañero/a: ¿cuál te ha sorprendido más?</p>
+                        </div>
+                        <div class="blinda-summary-actions">
+                            <button class="blinda-action-btn" id="blinda-replay-btn">
+                                <i class="ph ph-arrow-counter-clockwise"></i> Jugar otra vez
+                            </button>
+                            <button class="blinda-action-btn" id="blinda-back-btn">
+                                <i class="ph ph-arrow-left"></i> Volver
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -624,6 +742,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=12.8.0"></script>
+    <script src="/static/app.js?v=15.2.0"></script>
 </body>
 </html>

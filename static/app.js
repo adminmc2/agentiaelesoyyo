@@ -79,7 +79,13 @@ const state = {
     // Activity / Conoce mode
     activityMode: null,        // 'yo_nunca_nunca' | 'dime_algo' | 'pregunta_ia' | null
     activityMessageCount: 0,
-    profileGenerated: false
+    profileGenerated: false,
+    // Blinda tu Prompt
+    blindaCards: [],            // all fetched cards (cached)
+    blindaRound: [],           // 5 cards for current round
+    blindaIndex: 0,            // current card (0-4)
+    blindaScore: 0,            // correct answers
+    blindaAnswers: []          // [{card, chosen, correct}]
 };
 
 // Elementos
@@ -117,6 +123,9 @@ const elements = {
 
     // Profile screen
     profileScreen: document.getElementById('profile-screen'),
+
+    // Blinda screen
+    blindaScreen: document.getElementById('blinda-screen'),
 
     // Plan screen
     planScreen: document.getElementById('plan-screen'),
@@ -2386,6 +2395,12 @@ const WAKE_WORD_PATTERNS = [
     /hola\s*eliane/i,     // STT variante
     /hey\s*iliana/i,
     /oye\s*iliana/i,
+    /seguimos\s*eliana/i,  // presenter: "seguimos, Eliana"
+    /bueno\s*eliana/i,     // presenter: "bueno, Eliana"
+    /pues\s*eliana/i,      // presenter: "pues, Eliana"
+    /venga\s*eliana/i,     // presenter: "venga, Eliana"
+    /vale\s*eliana/i,      // presenter: "vale, Eliana"
+    /vamos\s*eliana/i,     // presenter: "vamos, Eliana"
 ];
 
 // Single-word fallback: standalone "eliana" (or variants) only if it's the whole transcript
@@ -2577,8 +2592,8 @@ function onWakeWordDetected() {
     if (!elements.loginScreen.classList.contains('hidden')) {
         playWakeBeep();
         handleOrbGreeting();
-        // Parar wake word — en login no se necesita más
-        stopWakeWordListening();
+        // Reactivar WakeWord después del saludo para que siga escuchando
+        resumeWakeWordAfterRecording();
         return;
     }
 
@@ -2586,6 +2601,16 @@ function onWakeWordDetected() {
     // Voice interaction → auto-enable TTS responses
     enableTTS();
     state.voiceTriggered = true;
+
+    // Si estamos en la pantalla de Blinda, NO navegar al chat.
+    // Feedback visual en el orb de Blinda y empezar grabación in-situ.
+    if (elements.blindaScreen && !elements.blindaScreen.classList.contains('hidden')) {
+        console.log('[WakeWord] En Blinda — interacción en contexto');
+        const blindaOrb = document.getElementById('blinda-orb-container');
+        if (blindaOrb && window.orbSetListening) window.orbSetListening(true);
+        startRecording();
+        return;
+    }
 
     if (elements.chatScreen.classList.contains('hidden')) {
         // Navigate to chat, then start recording after transition
@@ -3183,7 +3208,7 @@ const ACTIVITY_LABELS = {
 const ACTIVITY_OPENERS = {
     yo_nunca_nunca: 'Vamos a jugar a Yo Nunca Nunca. Funciona así: yo digo una frase "yo nunca nunca he..." sobre cosas de profes, y tú me cuentas si te ha pasado. Pero antes, ¿cómo te llamas?',
     dime_algo: 'Bienvenido a mi consulta de perfilado psicológico docente. Funciona así: tú me dices tres palabras favoritas en español, una por una, y yo te digo qué tipo de profe eres. Pero primero, ¿cómo te llamas?',
-    pregunta_ia: 'Vamos a conocernos de verdad. Funciona así: yo te hago una pregunta, tú me respondes, y luego tú me preguntas lo que quieras a mí. Pero antes, ¿cómo te llamas?'
+    pregunta_ia: 'Vamos a conocernos de verdad. Funciona así: yo te hago preguntas sobre ti como profe y charlamos un rato. Pero antes, ¿cómo te llamas?'
 };
 
 function showConoceScreen() {
@@ -3193,6 +3218,7 @@ function showConoceScreen() {
     elements.chatScreen?.classList.add('hidden');
     elements.planScreen?.classList.add('hidden');
     elements.profileScreen?.classList.add('hidden');
+    elements.blindaScreen?.classList.add('hidden');
     elements.conoceScreen?.classList.remove('hidden');
     elements.conoceScreen?.classList.remove('fade-out');
 
@@ -3351,6 +3377,276 @@ function requestProfileGeneration() {
 }
 
 // ============================================
+// BLINDA TU PROMPT — Quiz de tarjetas
+// ============================================
+
+const BLINDA_LETTERS = ['U', 'N', 'R', 'L', 'T', 'D'];
+const BLINDA_COLORS = {
+    U: '#D4826A', N: '#994E95', R: '#31BEEF',
+    L: '#A1B8F2', T: '#E8A08A', D: '#6B8F71'
+};
+const BLINDA_CARDS_PER_ROUND = 5;
+
+function showBlindaScreen() {
+    stopTTS();
+    // Hide all screens (can come from profile or conoce)
+    elements.profileScreen?.classList.add('hidden');
+    elements.conoceScreen?.classList.add('hidden');
+    elements.chatScreen?.classList.add('hidden');
+    elements.loginScreen?.classList.add('hidden');
+    elements.welcomeScreen?.classList.add('hidden');
+    elements.planScreen?.classList.add('hidden');
+
+    elements.blindaScreen?.classList.remove('hidden');
+    elements.blindaScreen?.classList.remove('fade-out');
+
+    // Reset to intro phase
+    document.getElementById('blinda-intro')?.classList.remove('hidden');
+    document.getElementById('blinda-game')?.classList.add('hidden');
+    document.getElementById('blinda-summary')?.classList.add('hidden');
+
+    // Orb — compact size for blinda (120px desktop, smaller on mobile)
+    const orbContainer = document.getElementById('blinda-orb-container');
+    if (orbContainer && window.orbCreateInElement) {
+        const orbSize = window.innerWidth <= 480 ? 64 : window.innerWidth <= 968 ? 80 : 120;
+        window.orbCreateInElement(orbContainer, orbSize);
+    }
+}
+
+function hideBlindaScreen() {
+    elements.blindaScreen?.classList.add('fade-out');
+    setTimeout(() => {
+        elements.blindaScreen?.classList.add('hidden');
+        elements.blindaScreen?.classList.remove('fade-out');
+        showConoceScreen();
+    }, 300);
+}
+
+async function fetchBlindaCards() {
+    if (state.blindaCards.length > 0) return state.blindaCards;
+    try {
+        // Try DB endpoint first, fall back to JSON file
+        let res = await fetch('/api/prompt-cards');
+        let data = res.ok ? await res.json() : [];
+        if (data.length === 0) {
+            res = await fetch('/cards_data.json');
+            data = res.ok ? await res.json() : [];
+        }
+        state.blindaCards = data;
+        console.log(`[Blinda] Fetched ${data.length} cards`);
+        return data;
+    } catch (err) {
+        console.error('[Blinda] Error fetching cards:', err);
+        return [];
+    }
+}
+
+function pickRandomCards(cards, count) {
+    const shuffled = [...cards].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, count);
+}
+
+async function startBlindaGame() {
+    const cards = await fetchBlindaCards();
+    if (cards.length === 0) {
+        console.error('[Blinda] No cards available');
+        return;
+    }
+
+    state.blindaRound = pickRandomCards(cards, BLINDA_CARDS_PER_ROUND);
+    state.blindaIndex = 0;
+    state.blindaScore = 0;
+    state.blindaAnswers = [];
+
+    // Switch to game phase
+    document.getElementById('blinda-intro')?.classList.add('hidden');
+    document.getElementById('blinda-summary')?.classList.add('hidden');
+    document.getElementById('blinda-game')?.classList.remove('hidden');
+
+    showCarouselAnimation();
+}
+
+function showCarouselAnimation() {
+    const carousel = document.getElementById('blinda-carousel');
+    const cardContainer = document.getElementById('blinda-card-container');
+    const feedback = document.getElementById('blinda-feedback');
+    if (!carousel) return;
+
+    // Hide card and feedback
+    cardContainer?.classList.add('hidden');
+    feedback?.classList.add('hidden');
+
+    // Update progress
+    const idx = state.blindaIndex;
+    document.getElementById('blinda-progress-text').textContent = `${idx + 1} / ${BLINDA_CARDS_PER_ROUND}`;
+    document.getElementById('blinda-progress-fill').style.width = `${((idx + 1) / BLINDA_CARDS_PER_ROUND) * 100}%`;
+
+    // Build carousel track with ~12 mini cards (visual variety)
+    const currentCard = state.blindaRound[idx];
+    const miniCount = 12;
+    const selectedIdx = 8; // where the carousel stops
+
+    carousel.innerHTML = '';
+    const track = document.createElement('div');
+    track.className = 'blinda-carousel__track';
+
+    for (let i = 0; i < miniCount; i++) {
+        const letter = i === selectedIdx ? currentCard.letter : BLINDA_LETTERS[Math.floor(Math.random() * BLINDA_LETTERS.length)];
+        const mini = document.createElement('div');
+        mini.className = 'blinda-carousel__mini';
+        mini.dataset.letter = letter;
+        mini.innerHTML = `<span>${letter}</span><i class="ph-fill ph-shield-check"></i>`;
+        if (i === selectedIdx) mini.id = 'blinda-selected-mini';
+        track.appendChild(mini);
+    }
+    carousel.appendChild(track);
+
+    // Animate: slide track left, decelerate, stop at selected card centered
+    const miniWidth = 92; // 80px + 12px gap
+    const carouselCenter = carousel.offsetWidth / 2 - 40; // half carousel - half card
+    const targetX = -(selectedIdx * miniWidth) + carouselCenter;
+
+    // Start from right
+    gsap.set(track, { x: carousel.offsetWidth });
+    gsap.to(track, {
+        x: targetX,
+        duration: 1.8,
+        ease: 'power4.out',
+        onComplete: () => {
+            // Highlight selected card
+            const selected = document.getElementById('blinda-selected-mini');
+            if (selected) {
+                selected.classList.add('blinda-carousel__mini--selected');
+            }
+            // After a short pause, show the flip card
+            setTimeout(() => openBlindaCard(currentCard), 500);
+        }
+    });
+}
+
+function openBlindaCard(card) {
+    const container = document.getElementById('blinda-card-container');
+    const cardEl = document.getElementById('blinda-card');
+    const letterEl = document.getElementById('blinda-card-letter');
+    const situationEl = document.getElementById('blinda-card-situation');
+    const optionsEl = document.getElementById('blinda-card-options');
+    if (!container || !cardEl) return;
+
+    // Set front color based on letter
+    const front = cardEl.querySelector('.blinda-card__front');
+    if (front) {
+        const color = BLINDA_COLORS[card.letter] || '#6B8F71';
+        front.style.background = `linear-gradient(145deg, ${color}, ${color}dd)`;
+    }
+
+    letterEl.textContent = card.letter;
+    situationEl.textContent = card.situation;
+
+    // Build A/B/C options
+    optionsEl.innerHTML = '';
+    const options = [
+        { label: 'A', text: card.option_a },
+        { label: 'B', text: card.option_b },
+        { label: 'C', text: card.option_c }
+    ];
+    options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'blinda-option-btn';
+        btn.innerHTML = `<span class="blinda-option-btn__label">${opt.label}</span><span>${opt.text}</span>`;
+        btn.addEventListener('click', () => selectBlindaOption(opt.label, card));
+        optionsEl.appendChild(btn);
+    });
+
+    // Reset flip state and show
+    cardEl.classList.remove('flipped');
+    container.classList.remove('hidden');
+
+    // Animate card entrance
+    gsap.fromTo(container, { scale: 0.8, opacity: 0 }, {
+        scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(1.4)'
+    });
+
+    // Auto-flip after a brief pause so user sees the front first
+    setTimeout(() => {
+        cardEl.classList.add('flipped');
+    }, 800);
+}
+
+function selectBlindaOption(chosen, card) {
+    const correct = chosen === card.correct_answer;
+    if (correct) state.blindaScore++;
+    state.blindaAnswers.push({ card, chosen, correct });
+
+    // Highlight buttons
+    const optionsEl = document.getElementById('blinda-card-options');
+    const buttons = optionsEl.querySelectorAll('.blinda-option-btn');
+    buttons.forEach(btn => {
+        const label = btn.querySelector('.blinda-option-btn__label').textContent;
+        if (label === card.correct_answer) {
+            btn.classList.add('blinda-option-btn--correct');
+        } else if (label === chosen && !correct) {
+            btn.classList.add('blinda-option-btn--wrong');
+        }
+        btn.classList.add('blinda-option-btn--disabled');
+    });
+
+    // Show feedback after a short delay
+    setTimeout(() => showBlindaFeedback(correct, card.explanation), 600);
+}
+
+function showBlindaFeedback(correct, explanation) {
+    const feedback = document.getElementById('blinda-feedback');
+    const icon = document.getElementById('blinda-feedback-icon');
+    const text = document.getElementById('blinda-feedback-text');
+    if (!feedback) return;
+
+    feedback.className = `blinda-feedback blinda-feedback--${correct ? 'correct' : 'wrong'}`;
+    icon.innerHTML = correct
+        ? '<i class="ph-fill ph-check-circle"></i>'
+        : '<i class="ph-fill ph-x-circle"></i>';
+    text.textContent = correct ? 'Correcto' : explanation;
+
+    feedback.classList.remove('hidden');
+}
+
+function nextBlindaCard() {
+    state.blindaIndex++;
+    if (state.blindaIndex >= BLINDA_CARDS_PER_ROUND) {
+        showBlindaSummary();
+    } else {
+        showCarouselAnimation();
+    }
+}
+
+function showBlindaSummary() {
+    document.getElementById('blinda-game')?.classList.add('hidden');
+    const summary = document.getElementById('blinda-summary');
+    summary?.classList.remove('hidden');
+
+    // Score
+    const scoreEl = document.getElementById('blinda-summary-score');
+    scoreEl.textContent = `${state.blindaScore} / ${BLINDA_CARDS_PER_ROUND}`;
+
+    // Learnings - show wrong answers with explanations
+    const learningsEl = document.getElementById('blinda-summary-learnings');
+    learningsEl.innerHTML = '';
+    state.blindaAnswers.forEach(a => {
+        const div = document.createElement('div');
+        div.className = `blinda-learning-item blinda-learning-item--${a.correct ? 'correct' : 'wrong'}`;
+        if (a.correct) {
+            div.textContent = `${a.card.letter}: Correcto`;
+        } else {
+            div.textContent = `${a.card.letter}: ${a.card.explanation}`;
+        }
+        learningsEl.appendChild(div);
+    });
+}
+
+function replayBlinda() {
+    startBlindaGame();
+}
+
+// ============================================
 // Event Listeners
 // ============================================
 function init() {
@@ -3377,17 +3673,29 @@ function init() {
         });
     });
 
-    // Conoce screen — back/logout
+    // Blinda tu Prompt
+    document.getElementById('blinda-start-btn')?.addEventListener('click', startBlindaGame);
+    document.getElementById('blinda-next-btn')?.addEventListener('click', nextBlindaCard);
+    document.getElementById('blinda-replay-btn')?.addEventListener('click', replayBlinda);
+    document.getElementById('blinda-back-btn')?.addEventListener('click', hideBlindaScreen);
+    document.getElementById('blinda-nav-back')?.addEventListener('click', hideBlindaScreen);
+    document.getElementById('blinda-nav-next')?.addEventListener('click', () => {
+        // Next presentation scene (placeholder)
+        console.log('[Blinda] Next scene');
+    });
+
+    // Conoce screen — back/next/logout
     document.getElementById('conoce-back-btn')?.addEventListener('click', showLoginScreen);
+    document.getElementById('conoce-next-btn')?.addEventListener('click', showBlindaScreen);
     document.getElementById('conoce-logout-btn')?.addEventListener('click', handleLogout);
 
-    // Profile screen actions
+    // Profile screen actions — "Siguiente" goes to Blinda tu Prompt (linear flow)
     document.getElementById('profile-back-btn')?.addEventListener('click', () => {
         elements.profileScreen?.classList.add('hidden');
         state.activityMode = null;
         state.activityMessageCount = 0;
         state.profileGenerated = false;
-        showConoceScreen();
+        showBlindaScreen();
     });
 
     document.getElementById('profile-share-btn')?.addEventListener('click', async () => {
