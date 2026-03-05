@@ -6339,30 +6339,32 @@ body[data-mood-active] .message.assistant {
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
     }
-    /* Tarjeta arriba — espacio generoso, sin solapamientos */
+    /* Tarjeta arriba — todo el espacio que necesite */
     .juego-modal__right {
         order: -1;
         margin: 1rem;
         flex-direction: column;
-        padding: 1.5rem 1.25rem;
+        padding: 2rem 1.5rem;
         flex-shrink: 0;
         min-height: auto;
-        gap: var(--space-20);
+        gap: var(--space-24);
+        overflow: visible;
     }
     .juego-modal__card-front {
         flex: 0 0 auto;
         flex-direction: row;
-        padding: var(--space-14, 14px) var(--space-16);
-        gap: var(--space-14, 14px);
-    }
-    .juego-modal__card-front-icon { font-size: 28px; }
-    .juego-modal__card-front-name { font-size: 13px; }
-    .juego-modal__card-back {
-        padding: var(--space-20);
+        padding: var(--space-16) var(--space-20);
         gap: var(--space-16);
     }
-    .juego-card__situation { font-size: 14.5px; line-height: 1.7; margin-bottom: var(--space-4); }
-    .juego-option-btn { padding: var(--space-14, 14px) var(--space-16); font-size: 14px; line-height: 1.5; }
+    .juego-modal__card-front-icon { font-size: 30px; }
+    .juego-modal__card-front-name { font-size: 14px; }
+    .juego-modal__card-back {
+        padding: var(--space-24);
+        gap: var(--space-20);
+    }
+    .juego-card__situation { font-size: 15px; line-height: 1.75; margin-bottom: var(--space-8); }
+    .juego-option-btn { padding: var(--space-16) var(--space-20); font-size: 14.5px; line-height: 1.6; }
+    .juego-card__options { gap: var(--space-12); }
     /* Chat debajo — scroll propio si hace falta */
     .juego-modal__left {
         padding: 0.75rem;
@@ -6483,311 +6485,220 @@ body[data-mood-active] .message.assistant {
     gap: var(--space-8);
 }
 
-/* -- Painting card -- */
-.diapo5-painting {
-    width: 100%;
-    max-width: 480px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-16);
-}
-.diapo5-painting__frame {
-    position: relative;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow:
-        0 6px 28px rgba(0, 0, 0, 0.18),
-        inset 0 0 0 5px rgba(180, 150, 90, 0.35);
-    border: 4px solid rgba(180, 150, 90, 0.3);
-}
-.diapo5-painting__img {
-    width: 100%;
-    max-height: 360px;
-    object-fit: cover;
-    display: block;
-}
-.diapo5-painting__info {
-    text-align: center;
-}
-.diapo5-painting__title {
-    font: 600 20px 'Dosis', sans-serif;
-    color: var(--md-sys-color-on-surface);
-    margin: 0;
-}
-.diapo5-painting__author {
-    font: 400 15px 'Dosis', sans-serif;
-    color: var(--md-sys-color-on-surface-variant);
-    margin: 0;
-}
-
-/* -- Quiz options -- */
-.diapo5-options {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-12);
-    width: 100%;
-    max-width: 520px;
-}
-.diapo5-option {
-    display: flex;
-    align-items: center;
-    gap: var(--space-16);
-    padding: var(--space-16) var(--space-20);
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1.5px solid rgba(0, 0, 0, 0.08);
-    border-radius: var(--md-sys-shape-large);
-    cursor: pointer;
-    transition: transform 150ms ease, box-shadow 150ms ease, border-color 200ms ease;
-    font: 500 16px 'Dosis', sans-serif;
-    color: var(--md-sys-color-on-surface);
-    text-align: left;
-}
-.diapo5-option:hover {
-    transform: scale(1.02);
-    box-shadow: var(--md-sys-elevation-1);
-}
-.diapo5-option__label {
-    font-weight: 700;
-    font-size: 18px;
-    min-width: 28px;
-    text-align: center;
-    flex-shrink: 0;
-}
-.diapo5-option--correct {
-    border-color: #6B8F71;
-    background: rgba(107, 143, 113, 0.12);
-}
-.diapo5-option--correct .diapo5-option__label { color: #6B8F71; }
-.diapo5-option--wrong {
-    opacity: 0.4;
-    pointer-events: none;
-}
-.diapo5-option--funny {
-    opacity: 0.4;
-    text-decoration: line-through;
-    pointer-events: none;
-}
-.diapo5-option--disabled {
-    pointer-events: none;
-}
-
-/* -- Capability reveal -- */
-.diapo5-reveal {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-20);
-    padding: var(--space-32);
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-radius: var(--md-sys-shape-extra-large);
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    max-width: 520px;
-    width: 100%;
-    animation: blindaSlideUp 400ms var(--md-sys-motion-easing-emphasized-decelerate);
-}
-.diapo5-reveal__icon {
-    font-size: 48px;
-    width: 88px;
-    height: 88px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-}
-.diapo5-reveal__capability {
-    font: 700 30px 'Dosis', sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-}
-.diapo5-reveal__explanation {
-    font: 400 16px 'Dosis', sans-serif;
-    line-height: 1.6;
-    color: var(--md-sys-color-on-surface-variant);
-    text-align: center;
-}
-.diapo5-reveal__teacher-example {
-    font: 500 15px 'Dosis', sans-serif;
-    color: var(--md-sys-color-on-surface-variant);
-    font-style: italic;
-    text-align: center;
-    padding-top: var(--space-12);
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
-    width: 100%;
-}
-
-/* -- Final reveal (step 6) -- */
-.diapo5-final {
+/* -- Step 1: Chef vs Chatbot intro -- */
+.diapo5-chef-intro {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: var(--space-24);
     width: 100%;
+    max-width: 540px;
 }
-.diapo5-final__title {
-    font: 700 26px 'Dosis', sans-serif;
-    color: var(--md-sys-color-on-surface);
-    text-align: center;
-}
-.diapo5-final__diagram {
+.diapo5-chef-intro__vs {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    align-items: stretch;
     gap: var(--space-16);
-    max-width: 560px;
+    width: 100%;
 }
-.diapo5-final__cap {
+.diapo5-chef-intro__card {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-8);
-    width: 120px;
-    padding: var(--space-16);
-    border-radius: var(--md-sys-shape-large);
-    color: #fff;
-    box-shadow: var(--md-sys-elevation-2);
+    gap: var(--space-12);
+    padding: var(--space-24) var(--space-16);
+    border-radius: var(--md-sys-shape-extra-large);
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1.5px solid rgba(0, 0, 0, 0.06);
+    text-align: center;
 }
-.diapo5-final__cap i { font-size: 28px; }
-.diapo5-final__cap-name {
+.diapo5-chef-intro__card--agent {
+    border-color: var(--md-sys-color-primary);
+    box-shadow: 0 4px 20px rgba(212, 130, 106, 0.15);
+}
+.diapo5-chef-intro__icon-wrap {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+}
+.diapo5-chef-intro__label {
+    font: 700 18px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.diapo5-chef-intro__desc {
+    font: 400 14px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    line-height: 1.5;
+    margin: 0;
+}
+.diapo5-chef-intro__divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.diapo5-chef-intro__divider span {
+    font: 800 16px 'Dosis', sans-serif;
+    color: var(--md-sys-color-outline);
+    letter-spacing: 1px;
+}
+.diapo5-chef-intro__hook {
+    font: 600 17px 'Dosis', sans-serif;
+    color: var(--md-sys-color-primary);
+    text-align: center;
+    margin: 0;
+}
+
+/* -- Steps 2-6: Capability cards -- */
+.diapo5-cap {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-20);
+    width: 100%;
+    max-width: 520px;
+}
+.diapo5-cap__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-16);
+}
+.diapo5-cap__icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    color: #fff;
+    flex-shrink: 0;
+}
+.diapo5-cap__name {
+    font: 700 28px 'Dosis', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+}
+.diapo5-cap__rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+}
+.diapo5-cap__row {
+    display: flex;
+    gap: var(--space-14);
+    padding: var(--space-16) var(--space-20);
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: var(--md-sys-shape-large);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+.diapo5-cap__row--agent {
+    border-left: 3px solid currentColor;
+}
+.diapo5-cap__row--teacher {
+    background: rgba(212, 130, 106, 0.08);
+    border: 1px solid rgba(212, 130, 106, 0.2);
+}
+.diapo5-cap__row-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    padding-top: 2px;
+    color: var(--md-sys-color-on-surface-variant);
+}
+.diapo5-cap__row-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.diapo5-cap__row-label {
+    font: 700 12px 'Dosis', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--md-sys-color-on-surface-variant);
+}
+.diapo5-cap__row-text {
+    font: 400 14.5px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    line-height: 1.5;
+    margin: 0;
+}
+.diapo5-cap__punchline {
+    font: 600 15px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    padding: var(--space-12) var(--space-16);
+    margin: 0;
+    font-style: italic;
+}
+
+/* -- Step 7: Closing -- */
+.diapo5-closing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-24);
+    width: 100%;
+    max-width: 540px;
+}
+.diapo5-closing__caps {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-10);
+}
+.diapo5-closing__cap {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    padding: var(--space-10) var(--space-16);
+    border-radius: 100px;
+    color: #fff;
     font: 600 13px 'Dosis', sans-serif;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    text-align: center;
-}
-.diapo5-agents {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-16);
-    width: 100%;
-    max-width: 500px;
-}
-.diapo5-agent-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-10);
-    padding: var(--space-20);
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(12px);
-    border-radius: var(--md-sys-shape-large);
-    border: 1px solid rgba(0, 0, 0, 0.06);
     box-shadow: var(--md-sys-elevation-1);
 }
-.diapo5-agent-card__icon {
-    font-size: 34px;
-    color: var(--md-sys-color-primary);
-}
-.diapo5-agent-card__name {
-    font: 600 15px 'Dosis', sans-serif;
-    color: var(--md-sys-color-on-surface);
-    text-align: center;
-}
-.diapo5-agent-card__desc {
-    font: 400 13px 'Dosis', sans-serif;
-    color: var(--md-sys-color-on-surface-variant);
-    text-align: center;
-    line-height: 1.4;
-}
-
-/* Diapo5 Step 1: Word cloud */
-.diapo5-wordcloud {
+.diapo5-closing__cap i { font-size: 18px; }
+.diapo5-closing__message {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: var(--space-20);
-    padding: var(--space-20) 0;
-}
-.diapo5-wordcloud__title {
-    font: 700 22px 'Dosis', sans-serif;
-    color: var(--md-sys-color-on-surface);
+    gap: var(--space-12);
     text-align: center;
 }
-.diapo5-wordcloud__cloud {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    align-content: center;
-    gap: 12px 16px;
-    max-width: 580px;
-    padding: var(--space-16);
-}
-.diapo5-wordcloud__word {
-    font: 700 12px 'Dosis', sans-serif;
-    color: var(--md-sys-color-on-primary-container);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 6px 14px;
-    border-radius: 16px;
-    background: rgba(255,255,255,0.75);
-    backdrop-filter: blur(8px);
-    border: 1.5px solid var(--md-sys-color-on-primary-container);
-    cursor: default;
-    white-space: nowrap;
-}
-
-/* Diapo5 Step 2: Paintings preview */
-.diapo5-preview-intro {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-20);
-    padding: var(--space-16) 0;
-}
-.diapo5-preview-intro__title {
-    font: 700 24px 'Dosis', sans-serif;
-    color: var(--md-sys-color-on-surface);
-    text-align: center;
-}
-.diapo5-preview-intro__subtitle {
+.diapo5-closing__text {
     font: 400 15px 'Dosis', sans-serif;
     color: var(--md-sys-color-on-surface-variant);
-    text-align: center;
-    margin-top: -8px;
+    line-height: 1.6;
+    margin: 0;
 }
-.diapo5-preview-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--space-16);
-    max-width: 600px;
-}
-.diapo5-preview-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-8);
-    width: 160px;
-    perspective: 600px;
-}
-.diapo5-preview-card__frame {
-    width: 140px;
-    height: 120px;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 3px solid #c9a84c;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12), inset 0 0 8px rgba(201,168,76,0.2);
-}
-.diapo5-preview-card__img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.diapo5-preview-card__title {
-    font: 500 12px 'Dosis', sans-serif;
+.diapo5-closing__highlight {
+    font: 600 16px 'Dosis', sans-serif;
     color: var(--md-sys-color-on-surface);
-    text-align: center;
-    line-height: 1.3;
+    line-height: 1.6;
+    margin: 0;
+    padding: var(--space-16);
+    background: rgba(212, 130, 106, 0.08);
+    border-radius: var(--md-sys-shape-large);
+    border: 1px solid rgba(212, 130, 106, 0.2);
 }
-.diapo5-preview-card__question {
-    font: 800 28px 'Dosis', sans-serif;
-    opacity: 0.7;
+.diapo5-closing__tagline {
+    display: flex;
+    align-items: center;
+    gap: var(--space-12);
+    font: 700 20px 'Dosis', sans-serif;
+    color: var(--md-sys-color-primary);
 }
+.diapo5-closing__tagline i { font-size: 24px; }
 
 /* Diapo5 responsive */
 @media (max-width: 1200px) {
@@ -6814,13 +6725,10 @@ body[data-mood-active] .message.assistant {
 }
 @media (max-width: 480px) {
     .diapo5-page { padding: 3rem 0.75rem 1rem; }
-    .diapo5-painting__img { max-height: 220px; }
-    .diapo5-option { font-size: 12.5px; padding: var(--space-10) var(--space-12); }
-    .diapo5-reveal__capability { font-size: 20px; }
-    .diapo5-agents { grid-template-columns: 1fr; }
-    .diapo5-wordcloud__word { font-size: 14px; padding: var(--space-6) var(--space-14); }
-    .diapo5-preview-card { width: 130px; }
-    .diapo5-preview-card__frame { width: 110px; height: 90px; }
-    .diapo5-wordcloud__title,
-    .diapo5-preview-intro__title { font-size: 18px; }
+    .diapo5-chef-intro__vs { flex-direction: column; }
+    .diapo5-chef-intro__divider { padding: var(--space-4) 0; }
+    .diapo5-cap__name { font-size: 22px; }
+    .diapo5-cap__row { padding: var(--space-12) var(--space-14); }
+    .diapo5-cap__row-text { font-size: 13px; }
+    .diapo5-closing__tagline { font-size: 17px; }
 }
