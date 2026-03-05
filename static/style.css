@@ -6381,15 +6381,8 @@ body[data-mood-active] .message.assistant {
         align-items: center;
     }
     .juego-option-btn__label {
-        min-width: 24px;
-        width: 24px;
-        height: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        background: rgba(0, 0, 0, 0.05);
-        font-size: 13px;
+        min-width: 18px;
+        font: 700 14px 'Source Sans 3', sans-serif;
         flex-shrink: 0;
     }
     .juego-card__options { gap: var(--space-10); }
