@@ -5214,6 +5214,14 @@ function replayJuego() {
 // Event Listeners
 // ============================================
 function init() {
+    // Versión automática desde cache bust del CSS
+    const cssLink = document.querySelector('link[href*="style.css?v="]');
+    if (cssLink) {
+        const v = cssLink.href.match(/\?v=([^&]+)/)?.[1];
+        const el = document.getElementById('app-version');
+        if (v && el) el.textContent = 'v' + v;
+    }
+
     // Check authentication on load
     checkAuthOnLoad();
 
