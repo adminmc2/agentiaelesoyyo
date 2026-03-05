@@ -788,6 +788,52 @@ async def health_check():
     }
 
 
+
+# Filtro robusto de alucinaciones de Whisper
+import re as _re
+
+_WHISPER_HALLUCINATIONS_EXACT = {
+    "subtítulos", "subtitulos", "subtítulos por la comunidad de amara.org",
+    "síguenos", "siguenos", "suscríbete", "suscribete",
+    "gracias", "gracias por ver", "gracias por ver el vídeo",
+    "gracias por ver el video", "gracias por ver este vídeo",
+    "nos vemos en el próximo vídeo", "hasta luego", "adiós", "adios",
+    "thank you", "thanks for watching", "thanks for watching please subscribe",
+    "thank you for watching", "bye", "you", "the end", "the", "so",
+    "subtitles by the amara org community", "amara.org", "morandistudio",
+}
+
+_WHISPER_HALLUCINATION_PATTERNS = [
+    _re.compile(r'^(gracias|thanks?)[\s,.!]*$', _re.I),
+    _re.compile(r'suscr[ií]b', _re.I),
+    _re.compile(r'(sub(scribe|t[ií]tulos)|amara\.org)', _re.I),
+    _re.compile(r'^(bye|adi[oó]s|hasta luego|chao)[\s,.!]*$', _re.I),
+    _re.compile(r'(thanks|gracias)\s*(for|por)\s*(watch|ver)', _re.I),
+    _re.compile(r'^[\s\.\,\!\?]+$'),
+    _re.compile(r'^\.{2,}$'),
+]
+
+def _is_whisper_hallucination(text: str) -> bool:
+    if not text or not text.strip():
+        return True
+    clean = text.strip()
+    normalized = clean.lower().rstrip('.!,;:?')
+    if normalized in _WHISPER_HALLUCINATIONS_EXACT:
+        return True
+    if len(normalized) <= 2:
+        return True
+    for pattern in _WHISPER_HALLUCINATION_PATTERNS:
+        if pattern.search(clean):
+            return True
+    words = normalized.split()
+    if len(words) >= 3:
+        from collections import Counter
+        counts = Counter(words)
+        if counts.most_common(1)[0][1] / len(words) > 0.6:
+            return True
+    return False
+
+
 @app.post("/api/voice")
 async def transcribe_voice(audio: UploadFile = File(...)):
     """
@@ -818,7 +864,9 @@ async def transcribe_voice(audio: UploadFile = File(...)):
                 model="whisper-large-v3",
                 file=audio_file,
                 language="es",
-                prompt="Profesores de español hablando sobre enseñanza, prompting, IA, actividades de clase."
+                temperature=0.0,
+                prompt="Transcripción de conferencia de profesores de español ELE. "
+                       "Temas: enseñanza, prompting, inteligencia artificial, actividades de clase, MCER."
             )
 
         os.remove(temp_filename)
@@ -826,14 +874,7 @@ async def transcribe_voice(audio: UploadFile = File(...)):
         text = transcription.text.strip()
         print(f"[VOICE] Transcription result: '{text}'")
 
-        # Filtrar alucinaciones conocidas de Whisper (frases fantasma con audio vacío)
-        WHISPER_HALLUCINATIONS = {
-            "subtítulos", "subtitulos", "síguenos", "siguenos", "suscríbete",
-            "gracias por ver", "gracias.", "gracias", "hasta luego", "adiós",
-            "thank you", "thanks for watching", "bye", "you", "the end",
-            "...", "¡Suscríbete!", "Amara.org", "www.", "MorandiStudio"
-        }
-        if text.lower().rstrip('.!,') in {h.lower() for h in WHISPER_HALLUCINATIONS}:
+        if _is_whisper_hallucination(text):
             print(f"[VOICE] Filtered Whisper hallucination: '{text}'")
             return {"text": "", "success": False, "error": "Whisper hallucination filtered"}
 

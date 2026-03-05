@@ -1695,9 +1695,9 @@ function stopRecording() {
 
 // ============================================
 // Detección automática de silencio (pausa prudencial)
+// Usa getFloatFrequencyData en banda de voz humana (85-3000 Hz)
 // ============================================
 function startSilenceDetection(stream) {
-    // Close any previous AudioContext to avoid iOS conflicts with multiple contexts
     if (state.audioContext) {
         state.audioContext.close().catch(() => {});
         state.audioContext = null;
@@ -1707,25 +1707,36 @@ function startSilenceDetection(stream) {
     const analyser = audioContext.createAnalyser();
     const source = audioContext.createMediaStreamSource(stream);
 
-    analyser.fftSize = 512;
-    analyser.smoothingTimeConstant = 0.3;
+    analyser.fftSize = 2048;
+    analyser.smoothingTimeConstant = 0.4;
+    analyser.minDecibels = -90;
+    analyser.maxDecibels = -10;
     source.connect(analyser);
 
     state.audioContext = audioContext;
     state.analyser = analyser;
 
-    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    const dataArray = new Float32Array(analyser.frequencyBinCount);
 
-    const SILENCE_THRESHOLD = 15;
-    // Voice mode answer is a single word — use faster silence detection
+    // Rango de frecuencias de voz humana
+    const binHz = audioContext.sampleRate / analyser.fftSize;
+    const lowBin = Math.floor(85 / binHz);
+    const highBin = Math.ceil(3000 / binHz);
+
+    // Umbrales en dB
+    const SPEECH_THRESHOLD_DB = -50;
+    const SILENCE_THRESHOLD_DB = -65;
+
     const isVoiceMode = state.voiceModeRecording;
-    const SILENCE_DURATION = isVoiceMode ? 1000 : 2000;   // 1s for mode, 3s normal
-    const MIN_RECORDING = isVoiceMode ? 1000 : 1500;     // 1s for mode, 1.5s normal
-    const MAX_RECORDING = 120000;   // Máximo absoluto: 2 minutos
-    const NO_SPEECH_TIMEOUT = 8000; // Si nadie habla en 15s, parar
+    const SILENCE_DURATION = isVoiceMode ? 1000 : 2000;
+    const MIN_RECORDING = isVoiceMode ? 1000 : 1500;
+    const MAX_RECORDING = 120000;
+    const NO_SPEECH_TIMEOUT = 8000;
 
     let silenceStart = null;
     let speechDetected = false;
+    let speechFrames = 0;
+    let totalFrames = 0;
     const recordStart = Date.now();
 
     function checkSilence() {
@@ -1734,46 +1745,58 @@ function startSilenceDetection(stream) {
         const elapsed = Date.now() - recordStart;
 
         if (elapsed > MAX_RECORDING) {
-            console.log('[Silence] Max recording time reached, stopping');
+            console.log('[Silence] Max recording time reached');
             stopRecording();
             return;
         }
 
-        analyser.getByteFrequencyData(dataArray);
-
-        let sum = 0;
-        for (let i = 0; i < dataArray.length; i++) {
-            sum += dataArray[i];
+        // Analizar solo banda de voz humana (85-3000 Hz)
+        analyser.getFloatFrequencyData(dataArray);
+        let sumSq = 0;
+        let count = 0;
+        for (let i = lowBin; i <= highBin && i < dataArray.length; i++) {
+            const linear = Math.pow(10, dataArray[i] / 20);
+            sumSq += linear * linear;
+            count++;
         }
-        const avg = sum / dataArray.length;
+        const rmsDb = 20 * Math.log10(Math.sqrt(sumSq / count) + 1e-10);
 
-        // Detect real speech
-        if (avg > SILENCE_THRESHOLD * 1.5) {
+        totalFrames++;
+
+        if (rmsDb > SPEECH_THRESHOLD_DB) {
             speechDetected = true;
+            speechFrames++;
+            silenceStart = null;
         }
 
-        // Si nadie habla en 15s, parar sin enviar
+        // Sin habla en 8s → descartar
         if (!speechDetected && elapsed > NO_SPEECH_TIMEOUT) {
-            console.log('[Silence] No speech detected in 15s, cancelling');
+            console.log('[Silence] No speech in 8s, discarding');
             state._discardRecording = true;
             stopRecording();
             return;
         }
 
-        // Only evaluate silence after MIN_RECORDING and after speech was detected
-        if (avg < SILENCE_THRESHOLD && elapsed > MIN_RECORDING && speechDetected) {
+        // Silencio después de habla → auto-parar
+        if (rmsDb < SILENCE_THRESHOLD_DB && elapsed > MIN_RECORDING && speechDetected) {
             if (!silenceStart) {
                 silenceStart = Date.now();
             } else if (Date.now() - silenceStart > SILENCE_DURATION) {
-                console.log('[Silence] 5s silence after speech, auto-stopping');
+                // Verificar que hubo habla real (>5% de los frames)
+                const speechRatio = speechFrames / totalFrames;
+                if (speechRatio < 0.05) {
+                    console.log('[Silence] Speech ratio too low (' + (speechRatio * 100).toFixed(1) + '%), discarding');
+                    state._discardRecording = true;
+                }
+                console.log('[Silence] Auto-stop after ' + SILENCE_DURATION + 'ms silence (speechRatio=' + (speechRatio * 100).toFixed(1) + '%)');
                 stopRecording();
                 return;
             }
-        } else if (avg >= SILENCE_THRESHOLD) {
+        } else if (rmsDb >= SILENCE_THRESHOLD_DB) {
             silenceStart = null;
         }
 
-        state.silenceTimer = requestAnimationFrame(checkSilence);
+        state.silenceTimer = setTimeout(checkSilence, 100);
     }
 
     checkSilence();
@@ -1781,7 +1804,7 @@ function startSilenceDetection(stream) {
 
 function stopSilenceDetection() {
     if (state.silenceTimer) {
-        cancelAnimationFrame(state.silenceTimer);
+        clearTimeout(state.silenceTimer);
         state.silenceTimer = null;
     }
     if (state.audioContext) {
@@ -2582,25 +2605,60 @@ function _getWakeWordRecognition() {
     r.onsoundend = () => {};
     r.onaudioend = () => {};
 
+    let _wkPendingTranscript = null;
+    let _wkPendingTimeout = null;
+
+    function _fireWakeWord(transcript) {
+        if (_wkPendingTimeout) { clearTimeout(_wkPendingTimeout); _wkPendingTimeout = null; }
+        _wkPendingTranscript = null;
+        console.log('[WakeWord] Firing with:', transcript);
+        state.wakeWordEnabled = false;
+        r.abort();
+        state.wakeWordActive = false;
+        setTimeout(() => {
+            state.wakeWordEnabled = true;
+            onWakeWordDetected(transcript);
+        }, 400);
+    }
+
     r.onresult = (event) => {
         if (state.ttsPlaying || orbGreetingPlaying) return;
+
+        // Acumular todo el transcript disponible
+        let fullText = '';
+        for (let i = 0; i < event.results.length; i++) {
+            fullText += event.results[i][0].transcript;
+        }
+
+        // Buscar wake word en cualquier alternativa nueva
+        let wakeFound = false;
         for (let i = event.resultIndex; i < event.results.length; i++) {
             for (let a = 0; a < event.results[i].length; a++) {
-                const transcript = event.results[i][a].transcript;
-                if (containsWakeWord(transcript)) {
-                    console.log('[WakeWord] Detected!', transcript);
-                    state.wakeWordEnabled = false;
-                    r.abort();
-                    state.wakeWordActive = false;
-                    const fullTranscript = transcript;
-                    setTimeout(() => {
-                        state.wakeWordEnabled = true;
-                        onWakeWordDetected(fullTranscript);
-                    }, 400);
-                    return;
+                if (containsWakeWord(event.results[i][a].transcript)) {
+                    wakeFound = true;
+                    break;
                 }
             }
+            if (wakeFound) break;
         }
+
+        if (!wakeFound) return;
+
+        // Si el resultado es final, actuar de inmediato con el transcript completo
+        const latestResult = event.results[event.results.length - 1];
+        if (latestResult.isFinal) {
+            _fireWakeWord(fullText.trim());
+            return;
+        }
+
+        // Resultado interim: guardar y esperar 800ms por si viene más texto
+        _wkPendingTranscript = fullText.trim();
+        if (_wkPendingTimeout) clearTimeout(_wkPendingTimeout);
+        _wkPendingTimeout = setTimeout(() => {
+            if (_wkPendingTranscript) {
+                _fireWakeWord(_wkPendingTranscript);
+            }
+        }, 800);
     };
 
     r.onerror = (event) => {
@@ -4523,22 +4581,11 @@ function advanceDiapo5To(step) {
 
 // Static word cloud — mix of agent, chatbot, LLM and misleading terms
 const DIAPO5_CLOUD_WORDS = [
-    { text: 'Responde preguntas', size: 'md', color: '#9E9E9E' },
-    { text: 'Usa herramientas', size: 'lg', color: '#B39DDB' },
-    { text: 'Genera texto', size: 'md', color: '#9E9E9E' },
-    { text: 'Planifica pasos', size: 'lg', color: '#81C784' },
-    { text: 'Necesita instrucciones exactas', size: 'sm', color: '#BCAAA4' },
-    { text: 'Recuerda lo anterior', size: 'lg', color: '#FFB74D' },
-    { text: 'Actúa por su cuenta', size: 'lg', color: '#F48FB1' },
-    { text: 'Busca información', size: 'md', color: '#B39DDB' },
-    { text: 'Copia y pega', size: 'sm', color: '#BCAAA4' },
-    { text: 'Adapta su estrategia', size: 'lg', color: '#81C784' },
-    { text: 'Siempre dice lo mismo', size: 'sm', color: '#BCAAA4' },
-    { text: 'Observa el contexto', size: 'lg', color: '#7EC8E3' },
-    { text: 'Ejecuta tareas', size: 'md', color: '#F48FB1' },
-    { text: 'Solo habla', size: 'sm', color: '#BCAAA4' },
-    { text: 'Aprende del alumno', size: 'md', color: '#FFB74D' },
-    { text: 'Traduce palabra por palabra', size: 'sm', color: '#BCAAA4' },
+    'Responde preguntas', 'Usa herramientas', 'Genera texto',
+    'Planifica pasos', 'Necesita instrucciones exactas', 'Recuerda lo anterior',
+    'Actúa por su cuenta', 'Busca información', 'Copia y pega',
+    'Adapta su estrategia', 'Siempre dice lo mismo', 'Observa el contexto',
+    'Ejecuta tareas', 'Solo habla', 'Aprende del alumno', 'Traduce palabra por palabra',
 ];
 
 function renderDiapo5WordCloud() {
@@ -4551,7 +4598,7 @@ function renderDiapo5WordCloud() {
             <h3 class="diapo5-wordcloud__title">¿Cuáles describen a un agente de IA?</h3>
             <div class="diapo5-wordcloud__cloud" id="diapo5-cloud">
                 ${DIAPO5_CLOUD_WORDS.map(w => `
-                    <span class="diapo5-wordcloud__word diapo5-wordcloud__word--${w.size}" style="color: ${w.color}; border-color: ${w.color}">${w.text}</span>
+                    <span class="diapo5-wordcloud__word">${w}</span>
                 `).join('')}
             </div>
         </div>

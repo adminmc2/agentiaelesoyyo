@@ -6278,29 +6278,14 @@ body[data-mood-active] .message.assistant {
     padding: var(--space-24);
 }
 .diapo5-wordcloud__word {
-    font-family: 'Dosis', sans-serif;
+    font: 600 17px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
     padding: var(--space-8) var(--space-20);
     border-radius: 20px;
-    background: rgba(255,255,255,0.65);
+    background: rgba(255,255,255,0.75);
     backdrop-filter: blur(8px);
-    border: 2px solid;
-    transition: all 0.3s ease;
+    border: 1.5px solid var(--md-sys-color-outline-variant);
     cursor: default;
-}
-.diapo5-wordcloud__word--sm {
-    font-size: 14px;
-    font-weight: 500;
-    opacity: 0.7;
-}
-.diapo5-wordcloud__word--md {
-    font-size: 18px;
-    font-weight: 600;
-}
-.diapo5-wordcloud__word--lg {
-    font-size: 22px;
-    font-weight: 700;
-    background: rgba(255,255,255,0.85);
-    box-shadow: 0 3px 12px rgba(0,0,0,0.06);
 }
 
 /* Diapo5 Step 2: Paintings preview */
@@ -6390,9 +6375,7 @@ body[data-mood-active] .message.assistant {
     .diapo5-option { font-size: 12.5px; padding: var(--space-10) var(--space-12); }
     .diapo5-reveal__capability { font-size: 20px; }
     .diapo5-agents { grid-template-columns: 1fr; }
-    .diapo5-wordcloud__word--sm { font-size: 12px; }
-    .diapo5-wordcloud__word--md { font-size: 14px; }
-    .diapo5-wordcloud__word--lg { font-size: 17px; }
+    .diapo5-wordcloud__word { font-size: 14px; padding: var(--space-6) var(--space-14); }
     .diapo5-preview-card { width: 130px; }
     .diapo5-preview-card__frame { width: 110px; height: 90px; }
     .diapo5-wordcloud__title,
