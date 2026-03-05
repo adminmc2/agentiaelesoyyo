@@ -3665,8 +3665,9 @@ function sendBlindaMessage(message) {
     addBlindaChatBubble(message, 'user');
 
     // Detectar fase: si el usuario dice "continuamos" o pregunta por tarjeta, avanzar fase
-    const lowerMsg = message.toLowerCase();
-    if (/continu|adelante|siguiente|vamos/.test(lowerMsg) || /tarjeta|carta|mecánica|cómo funciona|cómo se juega/.test(lowerMsg)) {
+    // Normalize: strip accents so "continúa" matches "continu"
+    const lowerMsg = message.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (/continu|adelante|siguiente|vamos/.test(lowerMsg) || /tarjeta|carta|mecanica|como funciona|como se juega/.test(lowerMsg)) {
         state.blindaPhase = (state.blindaPhase || 0) + 1;
         console.log('[Blinda] Phase advanced to:', state.blindaPhase);
     }
@@ -3698,7 +3699,7 @@ function sendBlindaMessage(message) {
         if (!state._blindaContextSent) {
             payload.prior_context = {
                 question: 'Eliana, ya hemos terminado las actividades. ¿Qué viene ahora?',
-                answer: 'Genial, ya hemos roto el hielo. Ahora vamos a poner a prueba vuestro ojo crítico como profes. He preparado unas tarjetas que os van a sorprender. Román, cuando quieras.'
+                answer: 'Genial, ya hemos roto el hielo. Ahora vamos a poner a prueba vuestro ojo crítico como profes. He preparado unas tarjetas que os van a sorprender. Román, cuando quieras. [NOTA INTERNA: esto fue solo la introducción, NO es ninguna fase. La FASE 1 empieza con el próximo "continuamos".]'
             };
             state._blindaContextSent = true;
         }
@@ -3707,6 +3708,7 @@ function sendBlindaMessage(message) {
 
     const handleBlindaMessage = (event) => {
         const data = JSON.parse(event.data);
+        console.log('[BlindaWS] msg type:', data.type, 'demoStep:', state.demoStep, 'phase:', state.blindaPhase);
 
         if (data.type === 'token') {
             if (!assistantBubble) {
@@ -3730,7 +3732,11 @@ function sendBlindaMessage(message) {
             // Live demo: auto-advance + territory highlight. Step 4 manual only.
             if (typeof checkTerritoryHighlight === 'function') {
                 const lower = state.currentMessage.toLowerCase();
+                if (state.demoStep === 0 && state.blindaPhase === 1) {
+                    console.log('[Demo] Step0 check:', lower.includes('tarjeta'), lower.includes('territorio'), 'msg:', lower.substring(0,60));
+                }
                 if (state.demoStep === 0 && state.blindaPhase === 1 && (lower.includes('tarjeta') || lower.includes('carta') || lower.includes('categor') || lower.includes('territorio'))) {
+                    console.log('[Demo] Advancing to step 1!');
                     advanceDemoTo(1);
                 }
                 if (state.demoStep === 1 && state.blindaPhase >= 2 && (lower.includes('darle la vuelta') || lower.includes('situaci') || lower.includes('tres opcion') || lower.includes('a, b') || lower.includes('opci'))) {
@@ -4597,10 +4603,10 @@ function advanceDiapo5To(step) {
 // Static word cloud — mix of agent, chatbot, LLM and misleading terms
 const DIAPO5_CLOUD_WORDS = [
     'Responde preguntas', 'Usa herramientas', 'Genera texto',
-    'Planifica pasos', 'Necesita instrucciones exactas', 'Recuerda lo anterior',
-    'Actúa por su cuenta', 'Busca información', 'Copia y pega',
-    'Adapta su estrategia', 'Siempre dice lo mismo', 'Observa el contexto',
-    'Ejecuta tareas', 'Solo habla', 'Aprende del alumno', 'Traduce palabra por palabra',
+    'Planifica pasos', 'Necesita órdenes', 'Recuerda lo anterior',
+    'Actúa solo', 'Busca información', 'Copia y pega',
+    'Adapta su estrategia', 'Siempre igual', 'Observa el contexto',
+    'Ejecuta tareas', 'Solo habla', 'Aprende del alumno', 'Traduce literal',
 ];
 
 function renderDiapo5WordCloud() {

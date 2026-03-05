@@ -1173,14 +1173,14 @@ async def websocket_chat(websocket: WebSocket):
             if activity_mode:
                 current_activity_mode = activity_mode
 
-            # Contexto previo
+            # Contexto previo — guardar como texto para inyectar en system prompt
+            # NO meterlo en conversation_history para no sumar turnos fantasma
             prior = message_data.get("prior_context")
-            if prior and not conversation_history:
+            if prior and not locals().get('_prior_text'):
                 q = prior.get("question", "")
                 a = prior.get("answer", "")
                 if q and a:
-                    conversation_history.append({"role": "user", "content": q})
-                    conversation_history.append({"role": "assistant", "content": a})
+                    _prior_text = f"\n\nCONTEXTO PREVIO (ya dijiste esto en voz alta, NO cuenta como fase):\nRomán: {q}\nTú: {a}"
 
             if not user_message.strip():
                 continue
@@ -1224,7 +1224,8 @@ async def websocket_chat(websocket: WebSocket):
                 if current_activity_mode == "blinda":
                     glossary_text = await get_glossary_text()
 
-                messages = [{"role": "system", "content": system_prompt + glossary_text + training_text}]
+                prior_text = locals().get('_prior_text', '')
+                messages = [{"role": "system", "content": system_prompt + glossary_text + training_text + prior_text}]
 
                 for hist_msg in conversation_history:
                     messages.append(hist_msg)
@@ -1232,7 +1233,10 @@ async def websocket_chat(websocket: WebSocket):
                 messages.append({"role": "user", "content": user_message})
 
                 # En modo actividad: respuestas más cortas y creativas
-                if current_activity_mode:
+                if current_activity_mode == "blinda":
+                    max_tokens = 500
+                    temperature = 0.7
+                elif current_activity_mode:
                     max_tokens = 200
                     temperature = 0.78
                 else:

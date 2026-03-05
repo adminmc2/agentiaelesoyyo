@@ -6273,21 +6273,22 @@ body[data-mood-active] .message.assistant {
     justify-content: center;
     align-items: center;
     align-content: center;
-    gap: var(--space-10) var(--space-12);
-    max-width: 560px;
-    padding: var(--space-12);
+    gap: 12px 16px;
+    max-width: 580px;
+    padding: var(--space-16);
 }
 .diapo5-wordcloud__word {
-    font: 700 13px 'Dosis', sans-serif;
+    font: 700 12px 'Dosis', sans-serif;
     color: var(--md-sys-color-on-primary-container);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    padding: var(--space-6) var(--space-14);
-    border-radius: 20px;
+    padding: 6px 14px;
+    border-radius: 16px;
     background: rgba(255,255,255,0.75);
     backdrop-filter: blur(8px);
     border: 1.5px solid var(--md-sys-color-on-primary-container);
     cursor: default;
+    white-space: nowrap;
 }
 
 /* Diapo5 Step 2: Paintings preview */
