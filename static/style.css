@@ -4907,7 +4907,7 @@ body[data-mood-active] .message.assistant {
 }
 
 .blinda-title {
-    font: 700 32px 'Dosis', sans-serif;
+    font: 700 32px 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface);
     letter-spacing: -0.5px;
 }
@@ -4929,7 +4929,7 @@ body[data-mood-active] .message.assistant {
     color: #fff;
     border: none;
     border-radius: var(--md-sys-shape-full);
-    font: 600 17px 'Dosis', sans-serif;
+    font: 600 17px 'Source Sans 3', sans-serif;
     letter-spacing: 0.3px;
     cursor: pointer;
     transition: transform 200ms ease, box-shadow 200ms ease;
@@ -4962,7 +4962,7 @@ body[data-mood-active] .message.assistant {
     gap: var(--space-8);
 }
 .blinda-progress__text {
-    font: 600 14px 'Dosis', sans-serif;
+    font: 600 14px 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface-variant);
     text-align: center;
 }
@@ -5006,7 +5006,7 @@ body[data-mood-active] .message.assistant {
     justify-content: center;
     gap: var(--space-4);
     flex-shrink: 0;
-    font: 700 22px 'Dosis', sans-serif;
+    font: 700 22px 'Source Sans 3', sans-serif;
     color: #fff;
     box-shadow: var(--md-sys-elevation-1);
     transition: transform 300ms ease, box-shadow 300ms ease;
@@ -5065,13 +5065,13 @@ body[data-mood-active] .message.assistant {
     box-shadow: 0 12px 40px rgba(0,0,0,0.2);
 }
 .blinda-card__front-territory {
-    font: 700 15px 'Dosis', sans-serif;
+    font: 700 15px 'Source Sans 3', sans-serif;
     text-transform: uppercase;
     letter-spacing: 1.5px;
     opacity: 0.9;
 }
 .blinda-card__letter {
-    font: 700 64px 'Dosis', sans-serif;
+    font: 700 64px 'Source Sans 3', sans-serif;
     opacity: 0.9;
 }
 .blinda-card__front-icon {
@@ -5108,14 +5108,14 @@ body[data-mood-active] .message.assistant {
     box-shadow: 0 6px 24px rgba(0,0,0,0.15);
 }
 .blinda-demo__card-front-name {
-    font: 700 14px 'Dosis', sans-serif;
+    font: 700 14px 'Source Sans 3', sans-serif;
     text-transform: uppercase;
     letter-spacing: 1px;
     text-align: center;
     line-height: 1.3;
 }
 .blinda-demo__card-front-cat {
-    font: 500 12px 'Dosis', sans-serif;
+    font: 600 12px 'Source Sans 3', sans-serif;
     opacity: 0.85;
     text-align: center;
 }
@@ -5145,7 +5145,7 @@ body[data-mood-active] .message.assistant {
     display: flex;
     align-items: center;
     gap: var(--space-8);
-    font: 700 13px 'Dosis', sans-serif;
+    font: 700 13px 'Source Sans 3', sans-serif;
     text-transform: uppercase;
     letter-spacing: 0.8px;
 }
@@ -5172,7 +5172,7 @@ body[data-mood-active] .message.assistant {
     /* Color set inline from JS */
 }
 .blinda-card__situation {
-    font: 500 15px/1.7 'Inconsolata', monospace;
+    font: 500 15px/1.7 'Source Sans 3', sans-serif;
     color: #1a1a1a;
     text-align: left;
     width: 100%;
@@ -5191,7 +5191,7 @@ body[data-mood-active] .message.assistant {
     background: var(--md-sys-color-surface-container-lowest, #fafafa);
     border: 1.5px solid rgba(0, 0, 0, 0.1);
     border-radius: 12px;
-    font: 400 14.5px/1.5 'Dosis', sans-serif;
+    font: 400 14.5px/1.5 'Source Sans 3', sans-serif;
     color: #2a2a2a;
     text-align: left;
     cursor: pointer;
@@ -5206,7 +5206,7 @@ body[data-mood-active] .message.assistant {
     transform: scale(0.98);
 }
 .blinda-option-btn__label {
-    font: 800 16px 'Dosis', sans-serif;
+    font: 800 16px 'Source Sans 3', sans-serif;
     flex-shrink: 0;
     min-width: 22px;
 }
@@ -5250,7 +5250,7 @@ body[data-mood-active] .message.assistant {
 .blinda-feedback--correct .blinda-feedback__icon { color: #6B8F71; }
 .blinda-feedback--wrong .blinda-feedback__icon { color: var(--md-sys-color-primary); }
 .blinda-feedback__text {
-    font: 400 15.5px/1.65 'Dosis', sans-serif;
+    font: 400 15.5px/1.65 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface);
     text-align: center;
 }
@@ -5263,7 +5263,7 @@ body[data-mood-active] .message.assistant {
     color: var(--md-sys-color-surface);
     border: none;
     border-radius: var(--md-sys-shape-full);
-    font: 600 14px 'Dosis', sans-serif;
+    font: 600 14px 'Source Sans 3', sans-serif;
     cursor: pointer;
     transition: transform 150ms ease;
 }
@@ -5300,11 +5300,11 @@ body[data-mood-active] .message.assistant {
     text-align: center;
 }
 .blinda-summary__title {
-    font: 700 24px 'Dosis', sans-serif;
+    font: 700 24px 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface);
 }
 .blinda-summary__score {
-    font: 700 48px 'Dosis', sans-serif;
+    font: 700 48px 'Source Sans 3', sans-serif;
     color: #6B8F71;
 }
 .blinda-summary__learnings {
@@ -5326,7 +5326,7 @@ body[data-mood-active] .message.assistant {
 .blinda-learning-item--correct { border-left-color: #6B8F71; }
 .blinda-learning-item--wrong { border-left-color: var(--md-sys-color-primary); }
 .blinda-summary__pair {
-    font: 500 15px 'Dosis', sans-serif;
+    font: 500 15px 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface-variant);
     font-style: italic;
 }
@@ -5343,7 +5343,7 @@ body[data-mood-active] .message.assistant {
     backdrop-filter: blur(8px);
     border: 1.5px solid rgba(0, 0, 0, 0.08);
     border-radius: var(--md-sys-shape-full);
-    font: 600 14px 'Dosis', sans-serif;
+    font: 600 14px 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface);
     cursor: pointer;
     transition: transform 150ms ease, box-shadow 150ms ease;
@@ -5461,10 +5461,9 @@ body[data-mood-active] .message.assistant {
     opacity: 0.9;
 }
 .blinda-demo__territory-name {
-    font: 600 12px 'Dosis', sans-serif;
+    font: 700 13px 'Source Sans 3', sans-serif;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
-    opacity: 0.95;
+    letter-spacing: 0.4px;
     text-align: center;
     line-height: 1.25;
     padding: 0 var(--space-4);
@@ -5475,7 +5474,7 @@ body[data-mood-active] .message.assistant {
     color: var(--md-sys-color-primary);
 }
 .blinda-demo__handoff-title {
-    font: 700 28px 'Dosis', sans-serif;
+    font: 700 28px 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface);
 }
 .blinda-demo__handoff-text {
@@ -5581,7 +5580,7 @@ body[data-mood-active] .message.assistant {
     flex-shrink: 0;
 }
 .juego-header__title {
-    font: 700 28px 'Dosis', sans-serif;
+    font: 700 28px 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface);
     letter-spacing: -0.5px;
 }
@@ -5610,7 +5609,7 @@ body[data-mood-active] .message.assistant {
     color: #fff;
     border: none;
     border-radius: var(--md-sys-shape-full);
-    font: 600 17px 'Dosis', sans-serif;
+    font: 600 17px 'Source Sans 3', sans-serif;
     letter-spacing: 0.3px;
     cursor: pointer;
     transition: transform 200ms ease, box-shadow 200ms ease;
@@ -5638,7 +5637,7 @@ body[data-mood-active] .message.assistant {
     gap: var(--space-8);
 }
 .juego-progress__text {
-    font: 600 14px 'Dosis', sans-serif;
+    font: 600 14px 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface-variant);
     text-align: center;
 }
@@ -5682,7 +5681,7 @@ body[data-mood-active] .message.assistant {
     justify-content: center;
     gap: var(--space-4);
     flex-shrink: 0;
-    font: 700 22px 'Dosis', sans-serif;
+    font: 700 22px 'Source Sans 3', sans-serif;
     color: #fff;
     box-shadow: var(--md-sys-elevation-1);
     transition: transform 300ms ease, box-shadow 300ms ease;
@@ -5730,7 +5729,7 @@ body[data-mood-active] .message.assistant {
     box-shadow: var(--md-sys-elevation-2);
 }
 .juego-card__letter {
-    font: 700 64px 'Dosis', sans-serif;
+    font: 700 64px 'Source Sans 3', sans-serif;
     opacity: 0.9;
 }
 .juego-card__front-icon {
@@ -5749,7 +5748,7 @@ body[data-mood-active] .message.assistant {
     padding: var(--space-20) var(--space-24);
 }
 .juego-card__situation {
-    font: 400 14.5px/1.6 'Dosis', sans-serif;
+    font: 400 14.5px/1.6 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface);
     text-align: left;
     width: 100%;
@@ -5768,7 +5767,7 @@ body[data-mood-active] .message.assistant {
     background: rgba(255, 255, 255, 0.75);
     border: 1.5px solid rgba(0, 0, 0, 0.08);
     border-radius: var(--md-sys-shape-large);
-    font: 400 13.5px/1.5 'Dosis', sans-serif;
+    font: 400 13.5px/1.5 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface);
     text-align: left;
     cursor: pointer;
@@ -5781,7 +5780,7 @@ body[data-mood-active] .message.assistant {
 }
 .juego-option-btn:active { transform: scale(0.98); }
 .juego-option-btn__label {
-    font: 700 15px 'Dosis', sans-serif;
+    font: 700 15px 'Source Sans 3', sans-serif;
     flex-shrink: 0;
     min-width: 20px;
     /* Color set inline from JS */
@@ -5823,7 +5822,7 @@ body[data-mood-active] .message.assistant {
 .juego-feedback--correct .juego-feedback__icon { color: #6B8F71; }
 .juego-feedback--wrong .juego-feedback__icon { color: var(--md-sys-color-primary); }
 .juego-feedback__text {
-    font: 400 14px/1.6 'Dosis', sans-serif;
+    font: 400 14px/1.6 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface);
     text-align: center;
 }
@@ -5836,7 +5835,7 @@ body[data-mood-active] .message.assistant {
     color: var(--md-sys-color-surface);
     border: none;
     border-radius: var(--md-sys-shape-full);
-    font: 600 14px 'Dosis', sans-serif;
+    font: 600 14px 'Source Sans 3', sans-serif;
     cursor: pointer;
     transition: transform 150ms ease;
 }
@@ -5869,18 +5868,18 @@ body[data-mood-active] .message.assistant {
     text-align: center;
 }
 .juego-summary__title {
-    font: 700 24px 'Dosis', sans-serif;
+    font: 700 24px 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface);
 }
 .juego-summary__score {
-    font: 700 48px 'Dosis', sans-serif;
+    font: 700 48px 'Source Sans 3', sans-serif;
     color: #6B8F71;
 }
 
 /* Areas de mejora */
 .juego-summary__areas { width: 100%; }
 .juego-summary__areas-title {
-    font: 600 16px 'Dosis', sans-serif;
+    font: 600 16px 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface);
     margin-bottom: var(--space-10);
     text-align: left;
@@ -5933,7 +5932,7 @@ body[data-mood-active] .message.assistant {
 /* Discussion */
 .juego-summary__discussion { width: 100%; text-align: left; }
 .juego-summary__discuss-title {
-    font: 600 16px 'Dosis', sans-serif;
+    font: 600 16px 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface);
     margin-bottom: var(--space-10);
 }
@@ -5960,7 +5959,7 @@ body[data-mood-active] .message.assistant {
     backdrop-filter: blur(8px);
     border: 1.5px solid rgba(0, 0, 0, 0.08);
     border-radius: var(--md-sys-shape-full);
-    font: 600 14px 'Dosis', sans-serif;
+    font: 600 14px 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface);
     cursor: pointer;
     transition: transform 150ms ease, box-shadow 150ms ease;

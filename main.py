@@ -811,6 +811,8 @@ _WHISPER_HALLUCINATION_PATTERNS = [
     _re.compile(r'(thanks|gracias)\s*(for|por)\s*(watch|ver)', _re.I),
     _re.compile(r'^[\s\.\,\!\?]+$'),
     _re.compile(r'^\.{2,}$'),
+    _re.compile(r'bienvenidos?\s+a\s+(otro|un)\s+(ensayo|v[ií]deo|cap[ií]tulo)', _re.I),
+    _re.compile(r'programa.*(colaboraci[oó]n|universidad).*universidad', _re.I),
 ]
 
 def _is_whisper_hallucination(text: str) -> bool:

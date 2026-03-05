@@ -87,7 +87,7 @@ const state = {
     blindaScore: 0,            // correct answers
     blindaAnswers: [],         // [{card, chosen, correct}]
     _blindaContextSent: false, // prior_context sent flag
-    demoStep: 0,               // demo visual step (0-4)
+    demoStep: 0,               // demo visual step (0-3)
     // Juego (diapo 4)
     juegoRound: [],
     juegoIndex: 0,
@@ -3576,8 +3576,8 @@ function requestProfileGeneration() {
 
 const BLINDA_LETTERS = ['T1', 'T2', 'T3', 'T4', 'T5'];
 const BLINDA_COLORS = {
-    T1: '#7EC8E3', T2: '#81C784', T3: '#F48FB1',
-    T4: '#FFB74D', T5: '#B39DDB'
+    T1: '#2E86AB', T2: '#3A7D44', T3: '#C2185B',
+    T4: '#E65100', T5: '#6A1B9A'
 };
 const BLINDA_TERRITORIES = {
     T1: 'Didáctica y metodología',
