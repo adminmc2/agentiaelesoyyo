@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=18.1.1">
+    <link rel="stylesheet" href="/static/style.css?v=18.4.0">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -224,10 +224,7 @@
                     <div class="blinda-demo" id="blinda-demo">
                         <!-- Paso 0: Titulo inicial -->
                         <div class="blinda-demo__step blinda-demo__step--active" data-demo-step="0">
-                            <div class="blinda-intro__icon">
-                                <i class="ph-fill ph-shield-check"></i>
-                            </div>
-                            <h2 class="blinda-title">Blinda tu Prompt</h2>
+                            <img src="/static/imagenes/logo_juego.png" alt="Blindapalabras" class="blinda-intro__logo">
                             <p class="blinda-subtitle">Demo interactiva</p>
                         </div>
                         <!-- Paso 1: Tarjetas boca abajo -->
@@ -260,20 +257,65 @@
                 <i class="ph ph-arrow-right"></i>
             </button>
 
-            <!-- Header -->
-            <div class="juego-header">
-                <div class="juego-header__icon">
-                    <i class="ph-fill ph-shield-check"></i>
-                </div>
-                <h1 class="juego-header__title">Blinda tu Prompt</h1>
-            </div>
-
             <!-- Intro -->
             <div class="juego-intro" id="juego-intro">
-                <p class="juego-intro__text">Pon a prueba tu criterio docente con la IA</p>
-                <button class="juego-start-btn" id="juego-start-btn">
-                    <i class="ph-fill ph-play"></i> Empezar
-                </button>
+                <!-- Columna izquierda: logo + instrucciones -->
+                <div class="juego-intro__left">
+                    <img src="/static/imagenes/logo_juego.png" alt="Blindapalabras" class="juego-intro__logo">
+                    <h2 class="juego-intro__title">Pon a prueba tu criterio docente</h2>
+                    <p class="juego-intro__subtitle">Un juego de tarjetas sobre el uso responsable de la IA en el aula de ELE</p>
+
+                    <div class="juego-intro__how">
+                        <h3 class="juego-intro__how-title"><i class="ph-fill ph-question"></i> ¿Cómo se juega?</h3>
+                        <div class="juego-intro__steps">
+                            <div class="juego-intro__step">
+                                <span class="juego-intro__step-num">1</span>
+                                <div class="juego-intro__step-text">
+                                    Recibirás un <strong>carrusel con 5 tarjetas</strong> de colores. Cada color representa un territorio: didáctica, precisión, ética, evaluación o limitaciones técnicas.
+                                </div>
+                            </div>
+                            <div class="juego-intro__step">
+                                <span class="juego-intro__step-num">2</span>
+                                <div class="juego-intro__step-text">
+                                    <strong>Toca la tarjeta</strong> para darle la vuelta. En el reverso encontrarás una situación real del aula con IA y tres opciones de respuesta (A, B o C).
+                                </div>
+                            </div>
+                            <div class="juego-intro__step">
+                                <span class="juego-intro__step-num">3</span>
+                                <div class="juego-intro__step-text">
+                                    <strong>Elige la mejor respuesta</strong> — solo una demuestra verdadero criterio docente. Tras cada elección verás si has acertado y una explicación breve.
+                                </div>
+                            </div>
+                            <div class="juego-intro__step">
+                                <span class="juego-intro__step-num">4</span>
+                                <div class="juego-intro__step-text">
+                                    Al terminar las 5 tarjetas verás <strong>tu puntuación</strong>, los territorios que dominas y los que puedes reforzar.
+                                </div>
+                            </div>
+                            <div class="juego-intro__step">
+                                <span class="juego-intro__step-num">5</span>
+                                <div class="juego-intro__step-text">
+                                    <strong>Comparte tus resultados</strong> con tu pareja o grupo. Comparad puntuaciones, descubrid en qué territorios coincidís y conoced la experiencia de cada uno con la IA.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="juego-start-btn" id="juego-start-btn">
+                        <i class="ph-fill ph-play"></i> Empezar a jugar
+                    </button>
+                </div>
+
+                <!-- Columna derecha: QR -->
+                <div class="juego-intro__right">
+                    <div class="juego-intro__qr-card">
+                        <div class="juego-intro__qr-placeholder" id="juego-qr">
+                            <i class="ph ph-qr-code"></i>
+                        </div>
+                        <p class="juego-intro__qr-title">Juega desde tu móvil</p>
+                        <p class="juego-intro__qr-desc">Escanea el código QR para acceder al juego en tu dispositivo</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Game phase -->
@@ -900,6 +942,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=18.1.1"></script>
+    <script src="/static/app.js?v=18.4.0"></script>
 </body>
 </html>

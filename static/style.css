@@ -4893,23 +4893,10 @@ body[data-mood-active] .message.assistant {
     max-width: 420px;
 }
 
-.blinda-intro__icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: linear-gradient(145deg, #6B8F71, #587660);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 28px;
-    flex-shrink: 0;
-}
-
-.blinda-title {
-    font: 700 32px 'Source Sans 3', sans-serif;
-    color: var(--md-sys-color-on-surface);
-    letter-spacing: -0.5px;
+.blinda-intro__logo {
+    width: 260px;
+    height: auto;
+    margin-bottom: var(--space-8);
 }
 
 .blinda-subtitle {
@@ -5517,7 +5504,8 @@ body[data-mood-active] .message.assistant {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 1.5rem !important;
+    justify-content: center;
+    padding: 2rem 3rem !important;
     min-height: 100vh;
     min-height: 100dvh;
     gap: var(--space-24);
@@ -5585,36 +5573,157 @@ body[data-mood-active] .message.assistant {
     letter-spacing: -0.5px;
 }
 
-/* Intro */
+/* Intro — two-column layout */
 .juego-intro {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 4rem;
+    align-items: center;
+    width: 100%;
+    max-width: 1100px;
+    padding: 0;
+}
+.juego-intro__left {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+}
+.juego-intro__logo {
+    width: 280px;
+    height: auto;
+}
+.juego-intro__title {
+    font: 700 34px 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    margin: 0;
+    line-height: 1.15;
+}
+.juego-intro__subtitle {
+    font: 400 18px/1.55 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    margin: -4px 0 0;
+}
+/* How to play */
+.juego-intro__how {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-20);
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: var(--md-sys-shape-extra-large);
+    padding: var(--space-24) var(--space-32);
+}
+.juego-intro__how-title {
+    font: 700 20px 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    display: flex;
+    align-items: center;
+    gap: var(--space-10);
+    margin: 0;
+}
+.juego-intro__how-title i {
+    color: #6B8F71;
+    font-size: 22px;
+}
+.juego-intro__steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+}
+.juego-intro__step {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-16);
+}
+.juego-intro__step-num {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #6B8F71, #587660);
+    color: #fff;
+    font: 700 14px/30px 'Source Sans 3', sans-serif;
+    text-align: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.juego-intro__step-text {
+    font: 400 16px/1.6 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface);
+}
+.juego-intro__step-text strong {
+    font-weight: 700;
+    color: #3A7D44;
+}
+/* Right column: QR */
+.juego-intro__right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+.juego-intro__qr-card {
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
     gap: var(--space-20);
-    max-width: 420px;
+    padding: var(--space-40, 2.5rem) var(--space-32);
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: var(--md-sys-shape-extra-large);
+    text-align: center;
+    width: 100%;
 }
-.juego-intro__text {
-    font: 400 15px 'Inconsolata', monospace;
+.juego-intro__qr-placeholder {
+    width: 200px;
+    height: 200px;
+    border-radius: var(--md-sys-shape-extra-large);
+    border: 2.5px dashed rgba(0, 0, 0, 0.12);
+    background: rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 56px;
+    color: rgba(0, 0, 0, 0.15);
+}
+.juego-intro__qr-placeholder img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: var(--md-sys-shape-extra-large);
+}
+.juego-intro__qr-title {
+    font: 700 18px 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    margin: 0;
+}
+.juego-intro__qr-desc {
+    font: 400 14px/1.5 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface-variant);
-    line-height: 1.55;
+    margin: 0;
+    max-width: 220px;
 }
 .juego-start-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-10);
-    padding: var(--space-16) var(--space-40, 2.5rem);
+    align-self: flex-start;
+    gap: var(--space-12);
+    padding: var(--space-16) 3rem;
     background: linear-gradient(145deg, #6B8F71, #587660);
     color: #fff;
     border: none;
     border-radius: var(--md-sys-shape-full);
-    font: 600 17px 'Source Sans 3', sans-serif;
+    font: 700 18px 'Source Sans 3', sans-serif;
     letter-spacing: 0.3px;
     cursor: pointer;
     transition: transform 200ms ease, box-shadow 200ms ease;
-    box-shadow: var(--md-sys-elevation-1);
-    min-width: 180px;
+    box-shadow: var(--md-sys-elevation-2);
+    min-width: 220px;
 }
 .juego-start-btn:hover { transform: scale(1.04); box-shadow: var(--md-sys-elevation-3); }
 .juego-start-btn:active { transform: scale(0.97); }
@@ -5968,9 +6077,33 @@ body[data-mood-active] .message.assistant {
 .juego-action-btn:active { transform: scale(0.97); }
 
 /* Juego responsive */
+@media (max-width: 768px) {
+    .juego-screen { padding: 1.5rem 1.25rem !important; }
+    .juego-intro {
+        grid-template-columns: 1fr;
+        gap: var(--space-24);
+        padding: 0;
+    }
+    .juego-intro__right { display: none; }
+    .juego-intro__left { align-items: center; text-align: center; }
+    .juego-intro__logo { width: 180px; }
+    .juego-intro__title { font-size: 26px; }
+    .juego-intro__subtitle { font-size: 15px; }
+    .juego-intro__how { padding: var(--space-20); }
+    .juego-intro__how-title { font-size: 17px; justify-content: center; }
+    .juego-intro__step { text-align: left; }
+    .juego-intro__step-text { font-size: 14px; }
+    .juego-start-btn { align-self: center; }
+}
 @media (max-width: 480px) {
     .juego-screen { padding: 1rem 0.75rem !important; }
-    .juego-header { margin-top: 2.5rem; }
+    .juego-intro__logo { width: 150px; }
+    .juego-intro__title { font-size: 22px; }
+    .juego-intro__subtitle { font-size: 14px; }
+    .juego-intro__how { padding: var(--space-16); }
+    .juego-intro__step-num { width: 26px; height: 26px; min-width: 26px; font-size: 13px; line-height: 26px; }
+    .juego-intro__step-text { font-size: 13px; }
+    .juego-start-btn { font-size: 15px; padding: var(--space-14) var(--space-32); min-width: auto; width: 100%; }
     .juego-card__situation { font-size: 13px; }
     .juego-option-btn { font-size: 12.5px; padding: var(--space-10) var(--space-12); }
     .juego-carousel__mini { width: 64px; height: 82px; font-size: 20px; }

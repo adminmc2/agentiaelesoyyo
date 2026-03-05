@@ -813,6 +813,13 @@ _WHISPER_HALLUCINATION_PATTERNS = [
     _re.compile(r'^\.{2,}$'),
     _re.compile(r'bienvenidos?\s+a\s+(otro|un)\s+(ensayo|v[ií]deo|cap[ií]tulo)', _re.I),
     _re.compile(r'programa.*(colaboraci[oó]n|universidad).*universidad', _re.I),
+    # Whisper repite fragmentos del prompt cuando hay silencio/ruido
+    _re.compile(r'intell?igencia\s+air?porte', _re.I),
+    _re.compile(r'temas.*intell?igencia', _re.I),
+    _re.compile(r'transcripci[oó]n\s+de\s+conferencia', _re.I),
+    _re.compile(r'profesores\s+de\s+espa[nñ]ol\s+ele', _re.I),
+    _re.compile(r'ense[nñ]anza.*prompting.*inteligencia', _re.I),
+    _re.compile(r'actividades\s+de\s+clase.*mcer', _re.I),
 ]
 
 def _is_whisper_hallucination(text: str) -> bool:
@@ -832,6 +839,11 @@ def _is_whisper_hallucination(text: str) -> bool:
         from collections import Counter
         counts = Counter(words)
         if counts.most_common(1)[0][1] / len(words) > 0.6:
+            return True
+    # Detect repeated phrases/blocks (e.g. "ABC ABC ABC")
+    for chunk_len in range(3, max(4, len(words) // 2 + 1)):
+        chunk = ' '.join(words[:chunk_len])
+        if normalized.count(chunk) >= 2:
             return True
     return False
 
