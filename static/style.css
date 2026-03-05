@@ -6362,7 +6362,23 @@ body[data-mood-active] .message.assistant {
     .juego-carousel__mini { width: 140px; height: 220px; }
     .juego-carousel__mini-logo { width: 80px; }
     .juego-carousel__mini-name { font-size: 11px; }
-    .juego-summary-card { padding: var(--space-20); }
+    .juego-summary-card { padding: var(--space-20); gap: var(--space-16); }
+    .juego-summary__trophy { font-size: 32px; }
+    .juego-summary__title { font-size: 16px; }
+    .juego-summary__score { font-size: 42px; }
+    .juego-summary__header { gap: var(--space-4); }
+    .juego-summary__divider { width: 80%; }
+    .juego-summary__areas-title { font-size: 13px; }
+    .juego-area-tag { font-size: 11px; padding: 4px 10px; }
+    .juego-learning-item { font-size: 12px; padding: var(--space-6, 6px) var(--space-10); }
+    .juego-learning-item--wrong { padding: var(--space-10) var(--space-12); }
+    .juego-learning__icon { font-size: 14px; }
+    .juego-learning__explanation { font-size: 11px; }
+    .juego-summary__discussion { padding: var(--space-14, 14px); }
+    .juego-summary__discuss-title { font-size: 13px; margin-bottom: var(--space-8); }
+    .juego-discuss-list { font-size: 12.5px; }
+    .juego-discuss-list li { margin-bottom: var(--space-6, 6px); padding-left: var(--space-20); }
+    .juego-discuss-list li::before { left: var(--space-4); top: 7px; width: 5px; height: 5px; }
 }
 
 /* ============================================
