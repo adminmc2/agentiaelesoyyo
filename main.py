@@ -817,13 +817,27 @@ async def transcribe_voice(audio: UploadFile = File(...)):
             transcription = groq_client.audio.transcriptions.create(
                 model="whisper-large-v3",
                 file=audio_file,
-                language="es"
+                language="es",
+                prompt="Profesores de español hablando sobre enseñanza, prompting, IA, actividades de clase."
             )
 
         os.remove(temp_filename)
 
-        print(f"[VOICE] Transcription result: '{transcription.text}'")
-        return {"text": transcription.text, "success": True}
+        text = transcription.text.strip()
+        print(f"[VOICE] Transcription result: '{text}'")
+
+        # Filtrar alucinaciones conocidas de Whisper (frases fantasma con audio vacío)
+        WHISPER_HALLUCINATIONS = {
+            "subtítulos", "subtitulos", "síguenos", "siguenos", "suscríbete",
+            "gracias por ver", "gracias.", "gracias", "hasta luego", "adiós",
+            "thank you", "thanks for watching", "bye", "you", "the end",
+            "...", "¡Suscríbete!", "Amara.org", "www.", "MorandiStudio"
+        }
+        if text.lower().rstrip('.!,') in {h.lower() for h in WHISPER_HALLUCINATIONS}:
+            print(f"[VOICE] Filtered Whisper hallucination: '{text}'")
+            return {"text": "", "success": False, "error": "Whisper hallucination filtered"}
+
+        return {"text": text, "success": True}
 
     except Exception as e:
         print(f"[VOICE] ERROR: {e}")

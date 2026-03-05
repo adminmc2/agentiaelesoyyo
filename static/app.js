@@ -1719,10 +1719,10 @@ function startSilenceDetection(stream) {
     const SILENCE_THRESHOLD = 15;
     // Voice mode answer is a single word — use faster silence detection
     const isVoiceMode = state.voiceModeRecording;
-    const SILENCE_DURATION = isVoiceMode ? 1000 : 3000;   // 1s for mode, 3s normal
+    const SILENCE_DURATION = isVoiceMode ? 1000 : 2000;   // 1s for mode, 3s normal
     const MIN_RECORDING = isVoiceMode ? 1000 : 1500;     // 1s for mode, 1.5s normal
     const MAX_RECORDING = 120000;   // Máximo absoluto: 2 minutos
-    const NO_SPEECH_TIMEOUT = 15000; // Si nadie habla en 15s, parar
+    const NO_SPEECH_TIMEOUT = 8000; // Si nadie habla en 15s, parar
 
     let silenceStart = null;
     let speechDetected = false;

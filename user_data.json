@@ -111,6 +111,12 @@
   "Presentador": {
     "searches": [
       {
+        "query": "¿Qué pasa?",
+        "icon": "voice",
+        "desc": "Conversación con el asistente",
+        "timestamp": 1772738988265
+      },
+      {
         "query": "Continúa",
         "icon": "voice",
         "desc": "Conversación con el asistente",
@@ -147,12 +153,6 @@
         "timestamp": 1772736193995
       },
       {
-        "query": "¿Qué pasa?",
-        "icon": "voice",
-        "desc": "Conversación con el asistente",
-        "timestamp": 1772736114332
-      },
-      {
         "query": "me puedes enseñar cómo se ve la tarjeta",
         "icon": "voice",
         "desc": "Conversación con el asistente",
@@ -171,6 +171,6 @@
         "timestamp": 1772735297341
       }
     ],
-    "last_sync": 1772738846.4517288
+    "last_sync": 1772738988.26848
   }
 }
