@@ -111,66 +111,66 @@
   "Presentador": {
     "searches": [
       {
+        "query": "¡Hola!",
+        "icon": "voice",
+        "desc": "Conversación con el asistente",
+        "timestamp": 1772736301626
+      },
+      {
+        "query": "creemos que la respuesta correcta es la C",
+        "icon": "voice",
+        "desc": "Conversación con el asistente",
+        "timestamp": 1772736283496
+      },
+      {
+        "query": "Especific feedback.",
+        "icon": "voice",
+        "desc": "Conversación con el asistente",
+        "timestamp": 1772736236903
+      },
+      {
+        "query": "¿La carta cómo es? ¿La carta? ¿La carta?",
+        "icon": "voice",
+        "desc": "Conversación con el asistente",
+        "timestamp": 1772736193995
+      },
+      {
+        "query": "¿Qué pasa?",
+        "icon": "voice",
+        "desc": "Conversación con el asistente",
+        "timestamp": 1772736114332
+      },
+      {
+        "query": "me puedes enseñar cómo se ve la tarjeta",
+        "icon": "voice",
+        "desc": "Conversación con el asistente",
+        "timestamp": 1772735633025
+      },
+      {
+        "query": "Creemos que la respuesta correcta es B",
+        "icon": "voice",
+        "desc": "Conversación con el asistente",
+        "timestamp": 1772735393589
+      },
+      {
+        "query": "me puedes explicar cómo se ve una tarjeta",
+        "icon": "voice",
+        "desc": "Conversación con el asistente",
+        "timestamp": 1772735297341
+      },
+      {
+        "query": "me puedes decir cómo se ve una tarjeta",
+        "icon": "voice",
+        "desc": "Conversación con el asistente",
+        "timestamp": 1772735217513
+      },
+      {
         "query": "Bueno, pasemos entonces a la respuesta correcta.",
         "icon": "voice",
         "desc": "Conversación con el asistente",
         "timestamp": 1772730336057
-      },
-      {
-        "query": "Consideramos que la respuesta correcta es la C",
-        "icon": "voice",
-        "desc": "Conversación con el asistente",
-        "timestamp": 1772730307065
-      },
-      {
-        "query": "¿Me puedes explicar qué es Specific Feedback?",
-        "icon": "voice",
-        "desc": "Conversación con el asistente",
-        "timestamp": 1772730261713
-      },
-      {
-        "query": "¿Me puedes explicar cómo es la tarjeta?",
-        "icon": "voice",
-        "desc": "Conversación con el asistente",
-        "timestamp": 1772730217171
-      },
-      {
-        "query": "Pues hemos decidido que la respuesta correcta es B",
-        "icon": "voice",
-        "desc": "Conversación con el asistente",
-        "timestamp": 1772729836651
-      },
-      {
-        "query": "¿Qué pasa? ¿Qué pasa? Gracias.",
-        "icon": "voice",
-        "desc": "Conversación con el asistente",
-        "timestamp": 1772729544091
-      },
-      {
-        "query": "Bueno, ya hemos decidido la respuesta y creemos que es la B",
-        "icon": "voice",
-        "desc": "Conversación con el asistente",
-        "timestamp": 1772729440525
-      },
-      {
-        "query": "¿Me puedes explicar qué es el Specific Feedback?",
-        "icon": "voice",
-        "desc": "Conversación con el asistente",
-        "timestamp": 1772729399292
-      },
-      {
-        "query": "muy bien y me puedes explicar cómo es una tarjeta",
-        "icon": "voice",
-        "desc": "Conversación con el asistente",
-        "timestamp": 1772728327002
-      },
-      {
-        "query": "Autónomo",
-        "icon": "voice",
-        "desc": "Conversación con el asistente",
-        "timestamp": 1772727761160
       }
     ],
-    "last_sync": 1772730336.059871
+    "last_sync": 1772736301.62814
   }
 }

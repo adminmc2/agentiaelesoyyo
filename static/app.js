@@ -1663,6 +1663,7 @@ async function startRecording() {
 
         state.mediaRecorder.start();
         state.isRecording = true;
+        state._recordingStartTime = Date.now();
 
         // Start silence detection (auto-stop after 5s silence)
         startSilenceDetection(stream);
@@ -1680,9 +1681,14 @@ async function startRecording() {
 function stopRecording() {
     if (state.mediaRecorder && state.isRecording) {
         stopSilenceDetection();
+        // Si la grabación duró menos de 800ms, descartar (pulsación accidental / apagar mic)
+        const elapsed = Date.now() - (state._recordingStartTime || 0);
+        if (elapsed < 800) {
+            state._discardRecording = true;
+        }
         state.mediaRecorder.stop();
         state.isRecording = false;
-        updateRecordingUI(false, true); // processing = true
+        updateRecordingUI(false, !state._discardRecording); // processing solo si no descartamos
     }
 }
 
@@ -1851,6 +1857,7 @@ async function transcribeAudio(audioBlob, extension = 'webm') {
         if (data.success && data.text) {
             // Strip wake word from transcription so "Hola Bellia, ..." becomes just "..."
             const cleanText = stripWakeWord(data.text);
+
 
             // If the transcription was ONLY a wake word (nothing else), skip sending
             if (!cleanText) {
@@ -2821,12 +2828,14 @@ function resumeWakeWordAfterRecording() {
 state.ttsAudio = null;       // Audio element actual
 state.ttsPlaying = false;    // Reproducción en curso
 state.ttsEnabled = false;    // Auto-play desactivado por defecto — el usuario lo activa con el botón de voz
+state.ttsManuallyDisabled = false; // true cuando el usuario desactiva TTS con el botón de voz
 
 /**
  * Toggles TTS auto-play on/off via the voice button in chat bottom bar.
  */
 function toggleTTS() {
     state.ttsEnabled = !state.ttsEnabled;
+    state.ttsManuallyDisabled = !state.ttsEnabled;
     updateVoiceButton(state.ttsEnabled);
 
     if (state.ttsEnabled) {
@@ -2837,11 +2846,20 @@ function toggleTTS() {
     }
 }
 
+function disableTTS() {
+    state.ttsEnabled = false;
+    state.ttsManuallyDisabled = true;
+    stopTTS();
+    updateVoiceButton(false);
+    localStorage.setItem('eliana_tts', 'off');
+}
+
 /**
  * Enables TTS silently (no toggle, just turn on).
  * Called when voice interaction starts (wake word, orb card, mic button).
  */
 function enableTTS() {
+    if (state.ttsManuallyDisabled) return;
     if (!state.ttsEnabled) {
         state.ttsEnabled = true;
         updateVoiceButton(true);
