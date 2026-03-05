@@ -250,7 +250,7 @@ Respuesta correcta: A.
 Por qué A es correcta: "Algunas cositas" no es feedback, es ruido. El specific-feedback exige citas del texto real. La C añade palabras, no sustancia.
 
 Aquí SÍ juegas en el chat. Si alguien dice una respuesta (A, B o C):
-- Si aciertan (A): felicítales y explica por qué es la correcta usando la explicación de arriba.
+- Si aciertan (A): di SOLO algo breve como "Enhorabuena, habéis acertado". UNA frase, nada más. NO expliques por qué es correcta — la pantalla lo mostrará.
 - Si fallan (B o C): NO reveles la respuesta. Da una pista basada en la explicación para que lo piensen otra vez. Si siguen sin acertar, entonces sí revela que es la A y explica por qué.
 Solo cuando la carta esté resuelta y Román diga "continuamos", pasa a Fase 3.
 
@@ -430,7 +430,7 @@ _DEFAULT_GLOSSARY = [
     {
         "term": "Specific-feedback",
         "definition": "Specific feedback es una técnica educativa que consiste en dar retroalimentación concreta y focalizada en lugar de comentarios genéricos.",
-        "example": "Aplicado al prompting, significa pedirle a la IA que dé correcciones precisas — que señale el error exacto, explique la regla y dé la versión corregida — en vez de un 'buen trabajo' o 'cuidado con el género' que no le sirve al alumno."
+        "example": "Aplicado al prompting, significa pedirle a la IA que dé correcciones precisas — que señale el error exacto, explique la regla y dé la versión corregida."
     },
     {
         "term": "Few-shot",

@@ -2501,10 +2501,8 @@ const WAKE_WORD_SOLO = /^\s*(eliana|iliana|eliane)\s*$/i;
 function containsWakeWord(transcript) {
     const t = transcript.toLowerCase().trim();
     if (!t) return false;
-    // Multi-word patterns first (more specific)
-    if (WAKE_WORD_PATTERNS.some(p => p.test(t))) return true;
-    // Solo "eliana" only if the entire transcript is just the word
-    if (WAKE_WORD_SOLO.test(t)) return true;
+    // Detectar "eliana" (o variantes) en cualquier posición del transcript
+    if (/\b(eliana|iliana|eliane)\b/i.test(t)) return true;
     return false;
 }
 
@@ -3620,6 +3618,7 @@ function showBlindaScreen() {
 
     // Reset demo to step 0
     state.demoStep = 0;
+    state.blindaPhase = 0;
     if (typeof advanceDemoTo === 'function') advanceDemoTo(0);
     if (typeof resetTerritoryHighlight === 'function') resetTerritoryHighlight();
 
@@ -3664,6 +3663,22 @@ function addBlindaChatBubble(text, role) {
 function sendBlindaMessage(message) {
     // Add user bubble
     addBlindaChatBubble(message, 'user');
+
+    // Detectar fase: si el usuario dice "continuamos" o pregunta por tarjeta, avanzar fase
+    const lowerMsg = message.toLowerCase();
+    if (/continu|adelante|siguiente|vamos/.test(lowerMsg) || /tarjeta|carta|mecánica|cómo funciona|cómo se juega/.test(lowerMsg)) {
+        state.blindaPhase = (state.blindaPhase || 0) + 1;
+        console.log('[Blinda] Phase advanced to:', state.blindaPhase);
+    }
+
+    // Auto-advance: si el USUARIO dice la respuesta correcta (A), avanzar al paso 3
+    if (state.demoStep === 2 && typeof advanceDemoTo === 'function') {
+        const lower = message.toLowerCase();
+        // Solo avanzar si menciona la A como respuesta (no B ni C)
+        if ((lower.includes('es la a') || lower.includes('la a.') || lower.includes('la a,') || lower.includes('respuesta es a') || /la a/.test(lower)) && !lower.includes('la b') && !lower.includes('la c')) {
+            setTimeout(() => advanceDemoTo(3), 3000);
+        }
+    }
 
     // Typing indicator
     const messages = document.getElementById('blinda-chat-messages');
@@ -3715,13 +3730,13 @@ function sendBlindaMessage(message) {
             // Live demo: auto-advance + territory highlight. Step 4 manual only.
             if (typeof checkTerritoryHighlight === 'function') {
                 const lower = state.currentMessage.toLowerCase();
-                if (state.demoStep === 0 && (lower.includes('tarjeta') || lower.includes('carta') || lower.includes('categor') || lower.includes('territorio'))) {
+                if (state.demoStep === 0 && state.blindaPhase === 1 && (lower.includes('tarjeta') || lower.includes('carta') || lower.includes('categor') || lower.includes('territorio'))) {
                     advanceDemoTo(1);
                 }
-                if (state.demoStep === 1 && (lower.includes('darle la vuelta') || lower.includes('situaci') || lower.includes('tres opcion') || lower.includes('a, b') || lower.includes('opci'))) {
+                if (state.demoStep === 1 && state.blindaPhase >= 2 && (lower.includes('darle la vuelta') || lower.includes('situaci') || lower.includes('tres opcion') || lower.includes('a, b') || lower.includes('opci'))) {
                     advanceDemoTo(2);
                 }
-                if (state.demoStep === 2 && (lower.includes('la correcta es') || lower.includes('respuesta correcta') || lower.includes('la respuesta es la a') || lower.includes('bingo') || lower.includes('acertado') || lower.includes('habéis acertado'))) {
+                if (state.demoStep === 2 && (lower.includes('enhorabuena') || lower.includes('bingo') || lower.includes('habéis acertado') || lower.includes('muy bien'))) {
                     advanceDemoTo(3);
                 }
                 checkTerritoryHighlight(state.currentMessage);

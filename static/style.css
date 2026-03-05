@@ -6273,18 +6273,20 @@ body[data-mood-active] .message.assistant {
     justify-content: center;
     align-items: center;
     align-content: center;
-    gap: var(--space-16) var(--space-20);
-    max-width: 600px;
-    padding: var(--space-24);
+    gap: var(--space-10) var(--space-12);
+    max-width: 560px;
+    padding: var(--space-12);
 }
 .diapo5-wordcloud__word {
-    font: 600 17px 'Dosis', sans-serif;
-    color: var(--md-sys-color-on-surface);
-    padding: var(--space-8) var(--space-20);
+    font: 700 13px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-primary-container);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: var(--space-6) var(--space-14);
     border-radius: 20px;
     background: rgba(255,255,255,0.75);
     backdrop-filter: blur(8px);
-    border: 1.5px solid var(--md-sys-color-outline-variant);
+    border: 1.5px solid var(--md-sys-color-on-primary-container);
     cursor: default;
 }
 
