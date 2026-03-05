@@ -6339,32 +6339,60 @@ body[data-mood-active] .message.assistant {
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
     }
-    /* Tarjeta arriba — todo el espacio que necesite */
+    /* Tarjeta arriba — sin padding propio, los hijos manejan su espacio */
     .juego-modal__right {
         order: -1;
-        margin: 1rem;
+        margin: 0.75rem;
         flex-direction: column;
-        padding: 2rem 1.5rem;
+        padding: 0;
         flex-shrink: 0;
         min-height: auto;
-        gap: var(--space-24);
+        gap: 0;
         overflow: visible;
+        background: transparent;
+        box-shadow: none;
+        border-radius: var(--md-sys-shape-extra-large);
     }
+    /* Card-front: barra compacta solo con nombre territorio */
     .juego-modal__card-front {
         flex: 0 0 auto;
         flex-direction: row;
-        padding: var(--space-16) var(--space-20);
-        gap: var(--space-16);
+        align-items: center;
+        padding: var(--space-12) var(--space-20);
+        gap: var(--space-10);
+        border-radius: var(--md-sys-shape-extra-large) var(--md-sys-shape-extra-large) 0 0;
     }
-    .juego-modal__card-front-icon { font-size: 30px; }
-    .juego-modal__card-front-name { font-size: 14px; }
+    .juego-modal__card-front-icon { font-size: 20px; }
+    .juego-modal__card-front-name { font-size: 14px; font-weight: 700; }
+    .juego-modal__card-front-cat { display: none; }
+    .juego-modal__card-front .juego-card__level { display: none; }
+    /* Card-back: tarjeta blanca con todo el contenido */
     .juego-modal__card-back {
-        padding: var(--space-24);
+        padding: var(--space-24) var(--space-20);
         gap: var(--space-20);
+        border-radius: 0 0 var(--md-sys-shape-extra-large) var(--md-sys-shape-extra-large);
+        border-top: none;
     }
     .juego-card__situation { font-size: 15px; line-height: 1.75; margin-bottom: var(--space-8); }
-    .juego-option-btn { padding: var(--space-16) var(--space-20); font-size: 14.5px; line-height: 1.6; }
-    .juego-card__options { gap: var(--space-12); }
+    .juego-option-btn {
+        padding: var(--space-14, 14px) var(--space-16);
+        font-size: 14px;
+        line-height: 1.6;
+        align-items: center;
+    }
+    .juego-option-btn__label {
+        min-width: 24px;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.05);
+        font-size: 13px;
+        flex-shrink: 0;
+    }
+    .juego-card__options { gap: var(--space-10); }
     /* Chat debajo — scroll propio si hace falta */
     .juego-modal__left {
         padding: 0.75rem;
