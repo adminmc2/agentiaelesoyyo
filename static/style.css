@@ -6339,19 +6339,27 @@ body[data-mood-active] .message.assistant {
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
     }
+    /* Tarjeta arriba, chat debajo */
+    .juego-modal__right { order: -1; margin: 0.5rem; flex-direction: column; padding: 1.2rem; flex-shrink: 0; }
     .juego-modal__left {
-        padding: 1rem;
-        flex-shrink: 0;
-        max-height: 40vh;
+        padding: 0.75rem;
+        flex: 1;
+        min-height: 0;
+        max-height: none;
     }
-    .juego-modal__orb-wrapper { width: 60px; height: 60px; }
-    .juego-modal__right { margin: 0 0.5rem 0.5rem; flex-direction: column; padding: 1.5rem; }
+    .juego-modal__orb-wrapper { width: 50px; height: 50px; }
+    .juego-modal__chat { border-radius: 12px; }
+    .juego-modal__chat-messages { padding: var(--space-12); gap: var(--space-12); }
     .juego-modal__card-front {
         flex: 0 0 auto;
         flex-direction: row;
-        padding: var(--space-12) var(--space-16);
-        gap: var(--space-12);
+        padding: var(--space-10) var(--space-14, 14px);
+        gap: var(--space-10);
     }
+    .juego-modal__card-front-icon { font-size: 24px; }
+    .juego-modal__card-front-name { font-size: 12px; }
+    .juego-modal__card-back { padding: var(--space-14, 14px); gap: var(--space-10); }
+    .juego-modal__close { top: 8px; left: 8px; width: 36px; height: 36px; font-size: 18px; }
 }
 @media (max-width: 480px) {
     .juego-screen { padding: 1rem 0.75rem !important; }
