@@ -21,3 +21,21 @@ Esto incluye:
 - La normalización de acentos en `sendBlindaMessage()`
 
 **Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
+
+### Diapositiva 4 (Blinda tu Prompt — Juego en equipos)
+**PROHIBIDO ABSOLUTAMENTE** modificar cualquier código relacionado con la diapositiva 4. No importa el contexto: refactor, limpieza, mejora, bug fix general, cambio de diseño — NADA justifica tocar la diapo 4 salvo que el usuario diga EXPLÍCITAMENTE "modifica la diapo 4" o "cambia esto de la diapo 4".
+
+Esto incluye:
+- `showJuegoScreen()`, `showJuegoCarousel()`, `startJuegoGame()`, `nextJuegoCard()` — flujo del juego
+- `openJuegoCard()` — apertura del modal con card-pair (front + back)
+- `selectJuegoOption()` — selección de respuesta y feedback en chat
+- `sendJuegoHint()` — chat con Eliana para pistas via WebSocket
+- `showJuegoSummary()` — tarjeta de resultados con learnings y discusión
+- `isOnJuegoModal()` — detección de modal activo para STT
+- Todo el HTML de `#juego-screen`, `#juego-card-modal` y sus hijos en `index.html`
+- Todo el CSS de `.juego-*` (carrusel, modal, tarjetas, opciones, summary, responsive)
+- Las tarjetas en `cards_categorized.json` y el endpoint `/api/prompt-cards`
+- El endpoint `/api/prompt-cards/sync` en `main.py`
+- Los event listeners de `juego-mic-btn`, `juego-voice-btn`, `juego-chat-send`
+
+**Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
