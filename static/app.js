@@ -101,7 +101,12 @@ const state = {
     // Diapo 6 — MIAU
     _diapo6Ws: null,
     _diapo6ContextSent: false,
-    _diapo6SmdParser: null
+    _diapo6SmdParser: null,
+    // Diapo 7 — Plataforma
+    _diapo7Ws: null,
+    _diapo7ContextSent: false,
+    _diapo7SmdParser: null,
+    _diapo7CurrentMsg: ''
 };
 
 // Elementos
@@ -153,6 +158,7 @@ const elements = {
     diapo6Screen: document.getElementById('diapo6-screen'),
 
     // Diapo 7 screen
+    diapo7Screen: document.getElementById('diapo7-screen'),
 
     // Plan screen
     planScreen: document.getElementById('plan-screen'),
@@ -1887,15 +1893,15 @@ function updateRecordingUI(recording, processing = false) {
         diapo6MicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
     }
 
-    // Diapo8 screen
-    const diapo8MicBtn = document.getElementById('diapo8-mic-btn');
-    if (diapo8MicBtn) {
-        diapo8MicBtn.classList.toggle('recording', recording);
-        const icon = diapo8MicBtn.querySelector('.ph');
+    // Diapo7 screen
+    const diapo7MicBtn = document.getElementById('diapo7-mic-btn');
+    if (diapo7MicBtn) {
+        diapo7MicBtn.classList.toggle('recording', recording);
+        const icon = diapo7MicBtn.querySelector('.ph');
         if (icon) {
             icon.className = recording ? 'ph ph-stop-circle' : 'ph ph-microphone';
         }
-        diapo8MicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
+        diapo7MicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
     }
 
     // Orb 3D
@@ -2017,8 +2023,8 @@ async function transcribeAudio(audioBlob, extension = 'webm') {
             }
 
             // Si estamos en Diapo 8, enviar al chat de Diapo 8
-            if (isOnDiapo8Screen()) {
-                sendDiapo8Message(cleanText);
+            if (isOnDiapo7Screen()) {
+                sendDiapo7Message(cleanText);
                 updateRecordingUI(false);
                 resumeWakeWordAfterRecording();
                 return;
@@ -2866,6 +2872,24 @@ function onWakeWordDetected(transcript = '') {
         return;
     }
 
+    // Si estamos en Diapo 7, misma logica que Diapo 5/6
+    if (elements.diapo7Screen && !elements.diapo7Screen.classList.contains('hidden')) {
+        console.log('[WakeWord] En Diapo7 — interaccion en contexto');
+        const diapo7Orb = document.getElementById('diapo7-orb-container');
+        if (diapo7Orb && window.orbSetListening) window.orbSetListening(true);
+
+        const diapo7Text = stripWakeWordForBlinda(transcript);
+        if (diapo7Text) {
+            console.log('[WakeWord] Diapo7 text:', diapo7Text);
+            sendDiapo7Message(diapo7Text);
+            if (window.orbSetListening) window.orbSetListening(false);
+            resumeWakeWordAfterRecording();
+        } else {
+            startRecording();
+        }
+        return;
+    }
+
     if (elements.chatScreen.classList.contains('hidden')) {
         // Navigate to chat, then start recording after transition
         showChatScreen('', false);
@@ -3022,7 +3046,7 @@ function forceEnableTTS() {
  */
 function updateVoiceButton(enabled) {
     // Update both chat and blinda voice buttons
-    ['chat-voice-btn', 'blinda-voice-btn', 'diapo5-voice-btn', 'juego-voice-btn', 'diapo6-voice-btn', 'diapo8-voice-btn'].forEach(id => {
+    ['chat-voice-btn', 'blinda-voice-btn', 'diapo5-voice-btn', 'juego-voice-btn', 'diapo6-voice-btn', 'diapo7-voice-btn'].forEach(id => {
         const btn = document.getElementById(id);
         if (!btn) return;
         if (enabled) {
@@ -5683,48 +5707,37 @@ function checkDiapo6Advance(fullText) {
 // ============================================
 // DIAPO 8 — Construye tu Agente (Plataforma)
 // ============================================
-const DIAPO8_INGREDIENTS = [
-    { icon: 'ph-fill ph-identification-badge', label: 'Nombre y descripcion', desc: 'Identidad del agente: que hace y para que sirve' },
-    { icon: 'ph-fill ph-brain', label: 'System Prompt', desc: 'El cerebro: instrucciones que definen su personalidad y comportamiento' },
-    { icon: 'ph-fill ph-cpu', label: 'Modelo de IA', desc: 'El motor: que modelo de lenguaje usa (DeepSeek, GPT, Claude...)' },
-    { icon: 'ph-fill ph-thermometer-simple', label: 'Temperatura', desc: 'Creatividad vs precision: de 0 (exacto) a 2 (creativo)' },
-    { icon: 'ph-fill ph-graduation-cap', label: 'Nivel MCER', desc: 'A1, A2, B1... el agente adapta su lenguaje al nivel del alumno' },
-    { icon: 'ph-fill ph-sliders-horizontal', label: 'Adherencia al nivel', desc: 'Cuanto debe cenirse al nivel: flexible o estricto' }
+const DIAPO7_INGREDIENTS = [
+    { icon: 'ph-fill ph-identification-badge', label: 'Nombre y descripción', desc: 'Identidad del agente: qué hace y para qué sirve', color: '#7EC8E3' },
+    { icon: 'ph-fill ph-brain', label: 'System Prompt', desc: 'El cerebro: instrucciones que definen su personalidad y comportamiento', color: '#994E95' },
+    { icon: 'ph-fill ph-cpu', label: 'Modelo de IA', desc: 'El motor: qué modelo de lenguaje usa (DeepSeek, GPT, Claude...)', color: '#6B82C4' },
+    { icon: 'ph-fill ph-thermometer-simple', label: 'Temperatura', desc: 'Creatividad vs precisión: de 0 (exacto) a 2 (creativo)', color: '#F48FB1' },
+    { icon: 'ph-fill ph-graduation-cap', label: 'Nivel MCER', desc: 'A1, A2, B1... el agente adapta su lenguaje al nivel del alumno', color: '#81C784' },
+    { icon: 'ph-fill ph-sliders-horizontal', label: 'Adherencia al nivel', desc: 'Cuánto debe ceñirse al nivel: flexible o estricto', color: '#FFB74D' }
 ];
 
-const DIAPO8_ACTIVITY_TYPES = [
-    { icon: 'ph-fill ph-chat-circle-text', label: 'Expresion oral' },
-    { icon: 'ph-fill ph-book-open-text', label: 'Comprension lectora' },
-    { icon: 'ph-fill ph-text-aa', label: 'Vocabulario' },
-    { icon: 'ph-fill ph-headphones', label: 'Comprension auditiva' },
-    { icon: 'ph-fill ph-pencil-line', label: 'Gramatica' },
-    { icon: 'ph-fill ph-pen-nib', label: 'Escritura' },
-    { icon: 'ph-fill ph-speaker-high', label: 'Pronunciacion' },
-    { icon: 'ph-fill ph-check-square', label: 'Autoevaluacion' },
-    { icon: 'ph-fill ph-users-three', label: 'Interaccion oral' },
-    { icon: 'ph-fill ph-textbox', label: 'Ortografia' }
+const DIAPO7_ACTIVITY_TYPES = [
+    { icon: 'ph-fill ph-chat-circle-text', label: 'Expresión oral', color: '#7EC8E3' },
+    { icon: 'ph-fill ph-book-open-text', label: 'Comprensión lectora', color: '#6B82C4' },
+    { icon: 'ph-fill ph-text-aa', label: 'Vocabulario', color: '#81C784' },
+    { icon: 'ph-fill ph-headphones', label: 'Comprensión auditiva', color: '#B39DDB' },
+    { icon: 'ph-fill ph-pencil-line', label: 'Gramática', color: '#F48FB1' },
+    { icon: 'ph-fill ph-pen-nib', label: 'Escritura', color: '#FFB74D' },
+    { icon: 'ph-fill ph-speaker-high', label: 'Pronunciación', color: '#2A9FCC' },
+    { icon: 'ph-fill ph-check-square', label: 'Autoevaluación', color: '#994E95' },
+    { icon: 'ph-fill ph-users-three', label: 'Interacción oral', color: '#6B8F71' },
+    { icon: 'ph-fill ph-textbox', label: 'Ortografía', color: '#D4826A' }
 ];
 
-const DIAPO8_STRUCTURES = [
-    'Opcion multiple', 'Completar huecos', 'Verdadero/Falso', 'Relacionar',
-    'Ordenar', 'Respuesta corta', 'Dialogo', 'Redaccion', 'Respuesta abierta'
+const DIAPO7_STRUCTURES = [
+    'Opción múltiple', 'Completar huecos', 'Verdadero/Falso', 'Relacionar',
+    'Ordenar', 'Respuesta corta', 'Diálogo', 'Redacción', 'Respuesta abierta'
 ];
 
-const DIAPO8_ALL_AGENTS = [
-    { id: 'traductor', img: 'traduccion.png', name: 'Traductor', desc: 'Traduce segun contexto y nivel' },
-    { id: 'expansor', img: 'expansor.png', name: 'Expansor', desc: 'Amplia vocabulario por campo semantico' },
-    { id: 'enfocado', img: 'enfocado.png', name: 'Enfocado', desc: 'Personaliza segun las palabras del alumno' },
-    { id: 'improvisador', img: 'improvisador.png', name: 'Improvisador', desc: 'Actividad sorpresa segun perfil' },
-    { id: 'lexico', img: 'masticador.png', name: 'Lexico', desc: 'Extrae vocabulario clave del texto' },
-    { id: 'gramapop', img: 'aprobador.png', name: 'Gramapop', desc: 'Pildoras de gramatica contextual' },
-    { id: 'comprension', img: 'miron.png', name: 'Comprension', desc: 'Actividades visuales de comprension' },
-    { id: 'mapamental', img: 'explorador.png', name: 'Mapa Mental', desc: 'Organiza ideas visualmente' }
-];
+const DIAPO7_TOTAL_STEPS = 5;
+let diapo7Step = 0;
 
-const DIAPO8_TOTAL_STEPS = 6;
-let diapo8Step = 0;
-
-function showDiapo8Screen() {
+function showDiapo7Screen() {
     stopTTS();
     elements.loginScreen?.classList.add('hidden');
     elements.conoceScreen?.classList.add('hidden');
@@ -5737,38 +5750,32 @@ function showDiapo8Screen() {
     elements.diapo5Screen?.classList.add('hidden');
     elements.diapo6Screen?.classList.add('hidden');
 
-    const screen = document.getElementById('diapo8-screen');
-    if (screen) {
-        screen.classList.remove('hidden');
-        screen.classList.remove('fade-out');
-    }
+    elements.diapo7Screen?.classList.remove('hidden');
+    elements.diapo7Screen?.classList.remove('fade-out');
 
-    const orbContainer = document.getElementById('diapo8-orb-container');
+    const orbContainer = document.getElementById('diapo7-orb-container');
     if (orbContainer && window.orbCreateInElement) {
         const orbSize = window.innerWidth <= 480 ? 64 : window.innerWidth <= 968 ? 80 : 120;
         window.orbCreateInElement(orbContainer, orbSize);
     }
 
-    initDiapo8();
+    initDiapo7();
 }
 
-function hideDiapo8Screen() {
-    const screen = document.getElementById('diapo8-screen');
-    if (!screen) return;
-    screen.classList.add('fade-out');
+function hideDiapo7Screen() {
+    elements.diapo7Screen?.classList.add('fade-out');
     setTimeout(() => {
-        screen.classList.add('hidden');
-        screen.classList.remove('fade-out');
+        elements.diapo7Screen?.classList.add('hidden');
+        elements.diapo7Screen?.classList.remove('fade-out');
     }, 300);
 }
 
-function isOnDiapo8Screen() {
-    const screen = document.getElementById('diapo8-screen');
-    return screen && !screen.classList.contains('hidden');
+function isOnDiapo7Screen() {
+    return elements.diapo7Screen && !elements.diapo7Screen.classList.contains('hidden');
 }
 
-function addDiapo8ChatBubble(text, role) {
-    const container = document.getElementById('diapo8-chat-messages');
+function addDiapo7ChatBubble(text, role) {
+    const container = document.getElementById('diapo7-chat-messages');
     if (!container) return;
     const bubble = document.createElement('div');
     bubble.className = `blinda-chat__bubble blinda-chat__bubble--${role}`;
@@ -5778,99 +5785,180 @@ function addDiapo8ChatBubble(text, role) {
     return bubble;
 }
 
-let _diapo8ContextSent = false;
+function sendDiapo7Message(message) {
+    addDiapo7ChatBubble(message, 'user');
 
-function sendDiapo8Message(text) {
-    if (!text.trim()) return;
-    addDiapo8ChatBubble(text, 'user');
-    const assistantBubble = addDiapo8ChatBubble('...', 'assistant');
-    let fullResponse = '';
-    const ws = state.ws;
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    // Check if user message (Román) triggers advance
+    checkDiapo7AdvanceFromUser(message);
 
-    if (!_diapo8ContextSent) {
-        _diapo8ContextSent = true;
-        const ctx = 'Estas en la seccion "Construye tu Agente" donde muestras la plataforma AgentiaELE y como se configura un agente. Al final invitas a un taller online en mayo 2026.';
-        ws.send(JSON.stringify({ type: 'chat', message: text, activity_mode: 'plataforma', prior_context: ctx }));
-    } else {
-        ws.send(JSON.stringify({ type: 'chat', message: text, activity_mode: 'plataforma' }));
-    }
+    const messages = document.getElementById('diapo7-chat-messages');
+    const typing = document.createElement('div');
+    typing.className = 'blinda-chat__bubble blinda-chat__bubble--assistant blinda-chat__typing';
+    typing.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+    messages.appendChild(typing);
+    messages.scrollTop = messages.scrollHeight;
 
-    const handleMsg = (event) => {
+    state._diapo7CurrentMsg = '';
+    _diapo7AdvancedThisMsg = false;
+    let assistantBubble = null;
+
+    const doSend = () => {
+        const payload = { message, response_mode: 'full', activity_mode: 'plataforma' };
+        if (!state._diapo7ContextSent) {
+            payload.prior_context = {
+                question: 'Eliana, vamos a enseñar cómo se construye un agente en AgentiaELE.',
+                answer: 'Ahora viene lo mejor: os voy a enseñar cómo se construye un agente.'
+            };
+            state._diapo7ContextSent = true;
+        }
+        state._diapo7Ws.send(JSON.stringify(payload));
+    };
+
+    const handleDiapo7Message = (event) => {
         const data = JSON.parse(event.data);
+
         if (data.type === 'token') {
-            fullResponse += data.content;
-            assistantBubble.textContent = fullResponse;
-            const container = document.getElementById('diapo8-chat-messages');
-            if (container) container.scrollTop = container.scrollHeight;
-            checkDiapo8Advance(fullResponse);
-        } else if (data.type === 'end') {
-            ws.removeEventListener('message', handleMsg);
-            if (fullResponse && (state.ttsEnabled || state.voiceTriggered)) {
-                playTTS(fullResponse, true);
+            if (!assistantBubble) {
+                typing.remove();
+                assistantBubble = addDiapo7ChatBubble('', 'assistant');
+                if (window.smd && assistantBubble) {
+                    const renderer = window.smd.default_renderer(assistantBubble);
+                    state._diapo7SmdParser = window.smd.parser(renderer);
+                } else {
+                    state._diapo7SmdParser = null;
+                }
             }
+            state._diapo7CurrentMsg += data.content;
+            if (state._diapo7SmdParser) {
+                window.smd.parser_write(state._diapo7SmdParser, data.content);
+            } else if (assistantBubble) {
+                assistantBubble.innerHTML = typeof renderMarkdown === 'function'
+                    ? renderMarkdown(state._diapo7CurrentMsg, false) : state._diapo7CurrentMsg;
+            }
+            messages.scrollTop = messages.scrollHeight;
+            checkDiapo7Advance(state._diapo7CurrentMsg);
+        }
+        else if (data.type === 'end') {
+            if (state._diapo7SmdParser) {
+                window.smd.parser_end(state._diapo7SmdParser);
+                state._diapo7SmdParser = null;
+            }
+            if (state._diapo7CurrentMsg && (state.ttsEnabled || state.voiceTriggered)) {
+                playTTS(state._diapo7CurrentMsg, true);
+            }
+            if (state._diapo7CurrentMsg) {
+                checkDiapo7Advance(state._diapo7CurrentMsg);
+            }
+            assistantBubble = null;
+            resumeWakeWordAfterRecording();
+        }
+        else if (data.type === 'error') {
+            typing.remove();
+            addDiapo7ChatBubble('Error: ' + data.message, 'assistant');
+            assistantBubble = null;
         }
     };
-    ws.addEventListener('message', handleMsg);
+
+    if (state._diapo7Ws && state._diapo7Ws.readyState === WebSocket.OPEN) {
+        state._diapo7Ws.onmessage = handleDiapo7Message;
+        doSend();
+        return;
+    }
+
+    if (state._diapo7Ws) {
+        state._diapo7Ws.close();
+        state._diapo7Ws = null;
+        state._diapo7ContextSent = false;
+    }
+
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    state._diapo7Ws = new WebSocket(`${wsProtocol}//${window.location.host}/ws/chat`);
+    state._diapo7Ws.onopen = doSend;
+    state._diapo7Ws.onmessage = handleDiapo7Message;
+    state._diapo7Ws.onerror = () => {
+        typing.remove();
+        addDiapo7ChatBubble('Error de conexión', 'assistant');
+    };
 }
 
-const DIAPO8_KEYWORD_MAP = [
-    { step: 1, patterns: ['ingredientes', 'que lleva dentro', 'piezas', 'componentes', 'configurar'] },
-    { step: 2, patterns: ['traductor', 'ejemplo real', 'ficha', 'veamos uno'] },
-    { step: 3, patterns: ['actividad', 'actividades', 'tipos de actividad', 'cualquier tipo'] },
-    { step: 4, patterns: ['ocho agentes', '8 agentes', 'familia completa', 'todos los agentes'] },
-    { step: 5, patterns: ['taller', 'mayo', 'invitamos', 'formacion', 'formaci\u00f3n', 'inscrib'] }
+const DIAPO7_KEYWORD_MAP = [
+    { step: 1, patterns: ['dale al siguiente', 'más fácil de lo que pensáis', 'mas facil de lo que pensais', 'dos minutos'] },
+    { step: 2, patterns: ['traductor', 'ejemplo', 'ficha', 'así de sencillo', 'asi de sencillo'] },
+    { step: 3, patterns: ['actividades', 'no van solos', 'viven dentro'] },
+    { step: 4, patterns: ['taller', 'mayo', 'inscripción', 'inscripcion'] }
 ];
 
-function checkDiapo8Advance(fullText) {
-    const lower = fullText.toLowerCase();
-    const nextStep = diapo8Step + 1;
-    const mapping = DIAPO8_KEYWORD_MAP.find(m => m.step === nextStep);
+let _diapo7AdvancedThisMsg = false;
+
+const DIAPO7_USER_KEYWORDS = [
+    { step: 2, patterns: ['siguiente', 'ejemplo', 'traductor', 'enséñanos', 'muéstranos', 'cómo se ve'] },
+    { step: 3, patterns: ['siguiente', 'actividades', 'qué más', 'continúa', 'adelante'] },
+    { step: 4, patterns: ['siguiente', 'taller', 'último', 'continúa', 'adelante'] }
+];
+
+function checkDiapo7AdvanceFromUser(userMsg) {
+    const lower = userMsg.toLowerCase();
+    const nextStep = diapo7Step + 1;
+    const mapping = DIAPO7_USER_KEYWORDS.find(m => m.step === nextStep);
     if (!mapping) return;
     for (const pat of mapping.patterns) {
         if (lower.includes(pat)) {
-            updateDiapo8Step(nextStep);
+            updateDiapo7Step(nextStep);
             return;
         }
     }
 }
 
-function initDiapo8() {
-    diapo8Step = 0;
-    _diapo8ContextSent = false;
-    renderDiapo8Ingredients();
-    renderDiapo8Example();
-    renderDiapo8Activities();
-    renderDiapo8AllAgents();
-    renderDiapo8Workshop();
-    updateDiapo8Step(0);
+function checkDiapo7Advance(fullText) {
+    if (_diapo7AdvancedThisMsg) return; // max 1 step per message
+    const lower = fullText.toLowerCase();
+    const nextStep = diapo7Step + 1;
+    const mapping = DIAPO7_KEYWORD_MAP.find(m => m.step === nextStep);
+    if (!mapping) return;
+    for (const pat of mapping.patterns) {
+        if (lower.includes(pat)) {
+            _diapo7AdvancedThisMsg = true;
+            updateDiapo7Step(nextStep);
+            return;
+        }
+    }
 }
 
-function updateDiapo8Step(step) {
-    diapo8Step = step;
-    document.querySelectorAll('[data-diapo8-step]').forEach(el => {
-        el.classList.toggle('diapo8-demo__step--active', parseInt(el.dataset.diapo8Step) === step);
+function initDiapo7() {
+    diapo7Step = 0;
+    _diapo7ContextSent = false;
+    renderDiapo7Ingredients();
+    renderDiapo7Example();
+    renderDiapo7Activities();
+    renderDiapo7Workshop();
+    updateDiapo7Step(0);
+}
+
+function updateDiapo7Step(step) {
+    diapo7Step = step;
+    document.querySelectorAll('[data-diapo7-step]').forEach(el => {
+        el.classList.toggle('diapo7-demo__step--active', parseInt(el.dataset.diapo7Step) === step);
     });
-    document.querySelectorAll('[data-diapo8-dot]').forEach(dot => {
-        dot.classList.toggle('demo-stepper__dot--active', parseInt(dot.dataset.diapo8Dot) === step);
+    document.querySelectorAll('[data-diapo7-dot]').forEach(dot => {
+        dot.classList.toggle('demo-stepper__dot--active', parseInt(dot.dataset.diapo7Dot) === step);
     });
 }
 
-function renderDiapo8Ingredients() {
-    const container = document.getElementById('diapo8-ingredients');
+function renderDiapo7Ingredients() {
+    const container = document.getElementById('diapo7-ingredients');
     if (!container) return;
     container.innerHTML = `
-        <h3 class="diapo8-section-title">
-            <i class="ph-fill ph-puzzle-piece"></i>
+        <h3 class="diapo7-section-title">
+            <i class="ph-fill ph-puzzle-piece" style="background: rgba(153,78,149,0.15); color: #994E95"></i>
             Los ingredientes de un agente
         </h3>
-        <div class="diapo8-ingredients__grid">
-            ${DIAPO8_INGREDIENTS.map(ing => `
-                <div class="diapo8-ingredient-card">
-                    <div class="diapo8-ingredient-card__icon">
+        <div class="diapo7-ingredients__grid">
+            ${DIAPO7_INGREDIENTS.map(ing => `
+                <div class="diapo7-ingredient-card" style="background: linear-gradient(160deg, ${ing.color}22 0%, rgba(239,237,247,0.5) 100%); border-color: ${ing.color}33">
+                    <div class="diapo7-ingredient-card__icon" style="background: ${ing.color}22; color: ${ing.color}">
                         <i class="${ing.icon}"></i>
                     </div>
-                    <div class="diapo8-ingredient-card__text">
+                    <div class="diapo7-ingredient-card__text">
                         <strong>${ing.label}</strong>
                         <span>${ing.desc}</span>
                     </div>
@@ -5880,139 +5968,216 @@ function renderDiapo8Ingredients() {
     `;
 }
 
-function renderDiapo8Example() {
-    const container = document.getElementById('diapo8-example');
+function renderDiapo7Example() {
+    const container = document.getElementById('diapo7-example');
     if (!container) return;
     container.innerHTML = `
-        <h3 class="diapo8-section-title">
-            <i class="ph-fill ph-magnifying-glass"></i>
+        <h3 class="diapo7-section-title">
+            <i class="ph-fill ph-magnifying-glass" style="background: rgba(126,200,227,0.15); color: #7EC8E3"></i>
             Ejemplo: Agente Traductor
         </h3>
-        <div class="diapo8-agent-ficha">
-            <div class="diapo8-agent-ficha__header">
-                <img class="diapo8-agent-ficha__img" src="/static/imagenes/traduccion.png" alt="Traductor">
+        <div class="diapo7-agent-ficha">
+            <div class="diapo7-agent-ficha__header">
+                <img class="diapo7-agent-ficha__img" src="/static/imagenes/traduccion.png" alt="Traductor">
                 <div>
-                    <h4 class="diapo8-agent-ficha__name">Ag. Traduccion</h4>
-                    <p class="diapo8-agent-ficha__desc">Traduce del espanol a otra lengua segun el contexto y nivel</p>
+                    <h4 class="diapo7-agent-ficha__name">Ag. Traducción</h4>
+                    <p class="diapo7-agent-ficha__desc">Traduce del español a otra lengua según el contexto y nivel</p>
                 </div>
             </div>
-            <div class="diapo8-agent-ficha__fields">
-                <div class="diapo8-ficha-field">
-                    <span class="diapo8-ficha-field__label"><i class="ph-fill ph-brain"></i> System Prompt</span>
-                    <span class="diapo8-ficha-field__value diapo8-ficha-field__value--prompt">Eres un traductor pedagogico. Traduces vocabulario adaptado al contexto de aprendizaje y al nivel MCER del estudiante. Usas ejemplos de la vida cotidiana.</span>
+            <div class="diapo7-agent-ficha__fields">
+                <div class="diapo7-ficha-field">
+                    <span class="diapo7-ficha-field__label"><i class="ph-fill ph-brain"></i> System Prompt</span>
+                    <span class="diapo7-ficha-field__value diapo7-ficha-field__value--prompt">Eres un traductor pedagógico. Traduces vocabulario adaptado al contexto de aprendizaje y al nivel MCER del estudiante. Usas ejemplos de la vida cotidiana.</span>
                 </div>
-                <div class="diapo8-ficha-field diapo8-ficha-field--row">
-                    <div class="diapo8-ficha-field__item">
-                        <span class="diapo8-ficha-field__label"><i class="ph-fill ph-cpu"></i> Modelo</span>
-                        <span class="diapo8-ficha-field__value">DeepSeek</span>
+                <div class="diapo7-ficha-field diapo7-ficha-field--row">
+                    <div class="diapo7-ficha-field__item">
+                        <span class="diapo7-ficha-field__label"><i class="ph-fill ph-cpu"></i> Modelo</span>
+                        <span class="diapo7-ficha-field__value">DeepSeek</span>
                     </div>
-                    <div class="diapo8-ficha-field__item">
-                        <span class="diapo8-ficha-field__label"><i class="ph-fill ph-thermometer-simple"></i> Temp.</span>
-                        <span class="diapo8-ficha-field__value">0.3</span>
+                    <div class="diapo7-ficha-field__item">
+                        <span class="diapo7-ficha-field__label"><i class="ph-fill ph-thermometer-simple"></i> Temp.</span>
+                        <span class="diapo7-ficha-field__value">0.3</span>
                     </div>
-                    <div class="diapo8-ficha-field__item">
-                        <span class="diapo8-ficha-field__label"><i class="ph-fill ph-graduation-cap"></i> Nivel</span>
-                        <span class="diapo8-ficha-field__value">A1</span>
+                    <div class="diapo7-ficha-field__item">
+                        <span class="diapo7-ficha-field__label"><i class="ph-fill ph-graduation-cap"></i> Nivel</span>
+                        <span class="diapo7-ficha-field__value">A1</span>
                     </div>
-                    <div class="diapo8-ficha-field__item">
-                        <span class="diapo8-ficha-field__label"><i class="ph-fill ph-sliders-horizontal"></i> Adherencia</span>
-                        <span class="diapo8-ficha-field__value">Alta</span>
+                    <div class="diapo7-ficha-field__item">
+                        <span class="diapo7-ficha-field__label"><i class="ph-fill ph-sliders-horizontal"></i> Adherencia</span>
+                        <span class="diapo7-ficha-field__value">Alta</span>
                     </div>
                 </div>
             </div>
         </div>
-        <p class="diapo8-example-note"><i class="ph-fill ph-lightbulb"></i> Asi de sencillo: defines que hace, como habla y a que nivel.</p>
+        <p class="diapo7-example-note"><i class="ph-fill ph-lightbulb"></i> Así de sencillo: defines qué hace, cómo habla y a qué nivel.</p>
+        <a href="https://agentiaele.netlify.app/demo/agents" target="_blank" rel="noopener" class="diapo7-demo-link">
+            <i class="ph-fill ph-arrow-square-out"></i> Ver demo en AgentiaELE
+        </a>
     `;
 }
 
-function renderDiapo8Activities() {
-    const container = document.getElementById('diapo8-activities');
+function renderDiapo7Activities() {
+    const container = document.getElementById('diapo7-activities');
     if (!container) return;
     container.innerHTML = `
-        <h3 class="diapo8-section-title">
-            <i class="ph-fill ph-stack"></i>
+        <h3 class="diapo7-section-title">
+            <i class="ph-fill ph-stack" style="background: rgba(129,199,132,0.15); color: #81C784"></i>
             Los agentes viven en actividades
         </h3>
-        <p class="diapo8-activities__subtitle">Cada actividad elige que agentes estan disponibles para el alumno</p>
-        <div class="diapo8-activities__types">
-            <h4 class="diapo8-activities__label">10 tipos de actividad</h4>
-            <div class="diapo8-types-grid">
-                ${DIAPO8_ACTIVITY_TYPES.map(t => `
-                    <div class="diapo8-type-chip">
-                        <i class="${t.icon}"></i>
-                        <span>${t.label}</span>
-                    </div>
-                `).join('')}
+        <p class="diapo7-activities__subtitle">El profe diseña actividades y elige qué agentes ofrece al alumno en cada una</p>
+        <div class="diapo7-ingredients__grid">
+            <div class="diapo7-ingredient-card" style="background: linear-gradient(160deg, #994E9522 0%, rgba(239,237,247,0.5) 100%); border-color: #994E9533">
+                <div class="diapo7-ingredient-card__icon" style="background: #994E9522; color: #994E95">
+                    <i class="ph-fill ph-list-bullets"></i>
+                </div>
+                <div class="diapo7-ingredient-card__text">
+                    <strong>10 tipos de actividad</strong>
+                    <span>Expresión oral, comprensión lectora, vocabulario, gramática, escritura, pronunciación, autoevaluación, interacción oral, ortografía, comprensión auditiva</span>
+                </div>
+            </div>
+            <div class="diapo7-ingredient-card" style="background: linear-gradient(160deg, #6B82C422 0%, rgba(239,237,247,0.5) 100%); border-color: #6B82C433">
+                <div class="diapo7-ingredient-card__icon" style="background: #6B82C422; color: #6B82C4">
+                    <i class="ph-fill ph-grid-four"></i>
+                </div>
+                <div class="diapo7-ingredient-card__text">
+                    <strong>9 estructuras</strong>
+                    <span>Opción múltiple, completar huecos, verdadero/falso, relacionar, ordenar, respuesta corta, diálogo, redacción, respuesta abierta</span>
+                </div>
+            </div>
+            <div class="diapo7-ingredient-card" style="background: linear-gradient(160deg, #2A9FCC22 0%, rgba(239,237,247,0.5) 100%); border-color: #2A9FCC33">
+                <div class="diapo7-ingredient-card__icon" style="background: #2A9FCC22; color: #2A9FCC">
+                    <i class="ph-fill ph-users-three"></i>
+                </div>
+                <div class="diapo7-ingredient-card__text">
+                    <strong>Agentes a la carta</strong>
+                    <span>El profe elige qué agentes están disponibles para el alumno en cada actividad: traductor, expansor, enfocado, improvisador y más</span>
+                </div>
             </div>
         </div>
-        <div class="diapo8-activities__structures">
-            <h4 class="diapo8-activities__label">9 estructuras</h4>
-            <div class="diapo8-structures-row">
-                ${DIAPO8_STRUCTURES.map(s => `<span class="diapo8-structure-tag">${s}</span>`).join('')}
-            </div>
-        </div>
-        <div class="diapo8-activities__agents-select">
-            <h4 class="diapo8-activities__label">Agentes disponibles en cada actividad</h4>
-            <div class="diapo8-agent-checkboxes">
-                <label class="diapo8-agent-check diapo8-agent-check--on"><i class="ph-fill ph-check-square"></i> Traductor</label>
-                <label class="diapo8-agent-check diapo8-agent-check--on"><i class="ph-fill ph-check-square"></i> Expansor</label>
-                <label class="diapo8-agent-check"><i class="ph ph-square"></i> Enfocado</label>
-                <label class="diapo8-agent-check"><i class="ph ph-square"></i> Improvisador</label>
-            </div>
-        </div>
+        <a href="https://agentiaele.netlify.app/demo/activities/f58292a6-163b-43e8-aeff-54a4cea13e93" target="_blank" rel="noopener" class="diapo7-demo-link">
+            <i class="ph-fill ph-arrow-square-out"></i> Ver demo de actividad
+        </a>
     `;
 }
 
-function renderDiapo8AllAgents() {
-    const container = document.getElementById('diapo8-all-agents');
+function renderDiapo7Workshop() {
+    const container = document.getElementById('diapo7-workshop');
     if (!container) return;
     container.innerHTML = `
-        <h3 class="diapo8-section-title">
-            <i class="ph-fill ph-cat"></i>
-            Los 8 agentes de Espanol en Marcha
+        <h3 class="diapo7-section-title">
+            <i class="ph-fill ph-chalkboard-teacher" style="background: rgba(212,130,106,0.15); color: #D4826A"></i>
+            Taller online — Mayo 2026
         </h3>
-        <div class="diapo8-agents-grid">
-            ${DIAPO8_ALL_AGENTS.map(a => `
-                <div class="diapo8-agent-mini">
-                    <img class="diapo8-agent-mini__img" src="/static/imagenes/${a.img}" alt="${a.name}">
-                    <strong class="diapo8-agent-mini__name">${a.name}</strong>
-                    <span class="diapo8-agent-mini__desc">${a.desc}</span>
+        <p class="diapo7-activities__subtitle">Crea tus propios agentes para tu manual y tus alumnos</p>
+        <div class="diapo7-ingredients__grid">
+            <div class="diapo7-ingredient-card" style="background: linear-gradient(160deg, #7EC8E322 0%, rgba(239,237,247,0.5) 100%); border-color: #7EC8E333">
+                <div class="diapo7-ingredient-card__icon" style="background: #7EC8E322; color: #7EC8E3">
+                    <i class="ph-fill ph-wrench"></i>
                 </div>
-            `).join('')}
+                <div class="diapo7-ingredient-card__text">
+                    <strong>Construye agentes para TU manual</strong>
+                    <span>Diseña agentes adaptados a tu libro de texto, tu programa y tus objetivos de clase</span>
+                </div>
+            </div>
+            <div class="diapo7-ingredient-card" style="background: linear-gradient(160deg, #81C78422 0%, rgba(239,237,247,0.5) 100%); border-color: #81C78433">
+                <div class="diapo7-ingredient-card__icon" style="background: #81C78422; color: #81C784">
+                    <i class="ph-fill ph-user-focus"></i>
+                </div>
+                <div class="diapo7-ingredient-card__text">
+                    <strong>Adapta a TU nivel y TUS alumnos</strong>
+                    <span>Personaliza el nivel MCER, la temperatura y el comportamiento para cada grupo</span>
+                </div>
+            </div>
+            <div class="diapo7-ingredient-card" style="background: linear-gradient(160deg, #B39DDB22 0%, rgba(239,237,247,0.5) 100%); border-color: #B39DDB33">
+                <div class="diapo7-ingredient-card__icon" style="background: #B39DDB22; color: #B39DDB">
+                    <i class="ph-fill ph-play-circle"></i>
+                </div>
+                <div class="diapo7-ingredient-card__text">
+                    <strong>Pruébalos en clase al día siguiente</strong>
+                    <span>Agentes listos para usar con tus alumnos desde el primer momento</span>
+                </div>
+            </div>
+        </div>
+        <div class="diapo7-workshop__cta">
+            <i class="ph-fill ph-envelope-simple"></i>
+            <span>Indícalo en el formulario de inscripción de la mesa</span>
         </div>
     `;
 }
 
-function renderDiapo8Workshop() {
-    const container = document.getElementById('diapo8-workshop');
-    if (!container) return;
-    container.innerHTML = `
-        <div class="diapo8-workshop__content">
-            <div class="blinda-intro__icon">
-                <i class="ph-fill ph-chalkboard-teacher"></i>
-            </div>
-            <h2 class="blinda-title">Taller online — Mayo 2026</h2>
-            <p class="blinda-subtitle">Aprende a crear tu propio agente paso a paso</p>
-            <div class="diapo8-workshop__features">
-                <div class="diapo8-workshop__feature">
-                    <i class="ph-fill ph-wrench"></i>
-                    <span>Construye agentes para TU manual</span>
-                </div>
-                <div class="diapo8-workshop__feature">
-                    <i class="ph-fill ph-user-focus"></i>
-                    <span>Adapta a TU nivel y TUS alumnos</span>
-                </div>
-                <div class="diapo8-workshop__feature">
-                    <i class="ph-fill ph-play-circle"></i>
-                    <span>Pruebalos en clase al dia siguiente</span>
-                </div>
-            </div>
-            <div class="diapo8-workshop__cta">
-                <i class="ph-fill ph-envelope-simple"></i>
-                <span>Indicalo en el formulario de inscripcion de la mesa</span>
-            </div>
-        </div>
-    `;
+// ============================================
+// DIAPOSITIVA FINAL — Gracias / Ačiū
+// ============================================
+function showFinalScreen() {
+    stopTTS();
+    document.querySelectorAll('.main-content').forEach(s => s.classList.add('hidden'));
+    const el = document.getElementById('final-screen');
+    if (el) {
+        el.classList.remove('hidden');
+        el.classList.remove('fade-out');
+    }
+    initFinalSongPlayer();
+}
+
+function hideFinalScreen() {
+    const el = document.getElementById('final-screen');
+    if (!el) return;
+    el.classList.add('fade-out');
+    setTimeout(() => {
+        el.classList.add('hidden');
+        el.classList.remove('fade-out');
+    }, 300);
+}
+
+let _finalSongInited = false;
+function initFinalSongPlayer() {
+    if (_finalSongInited) return;
+    _finalSongInited = true;
+
+    const songBtn = document.getElementById('final-song-btn');
+    const progressBar = document.getElementById('final-song-progress');
+    const timeDisplay = document.getElementById('final-song-time');
+    if (!songBtn) return;
+
+    let songAudio = null;
+    let progressInterval = null;
+
+    const formatTime = (s) => {
+        const m = Math.floor(s / 60);
+        const sec = Math.floor(s % 60);
+        return m + ':' + (sec < 10 ? '0' : '') + sec;
+    };
+
+    songBtn.addEventListener('click', () => {
+        if (!songAudio) {
+            songAudio = new Audio('/static/cancion-agente.mp3');
+            songAudio.addEventListener('ended', () => {
+                songBtn.innerHTML = '<i class="ph-fill ph-play"></i>';
+                songBtn.classList.remove('final-song__play-btn--playing');
+                if (progressInterval) clearInterval(progressInterval);
+                if (progressBar) progressBar.style.width = '0%';
+                if (timeDisplay) timeDisplay.textContent = '0:00';
+            });
+        }
+
+        if (songAudio.paused) {
+            songAudio.play();
+            songBtn.innerHTML = '<i class="ph-fill ph-pause"></i>';
+            songBtn.classList.add('final-song__play-btn--playing');
+            progressInterval = setInterval(() => {
+                if (songAudio.duration) {
+                    const pct = (songAudio.currentTime / songAudio.duration) * 100;
+                    if (progressBar) progressBar.style.width = pct + '%';
+                    if (timeDisplay) timeDisplay.textContent = formatTime(songAudio.currentTime);
+                }
+            }, 300);
+        } else {
+            songAudio.pause();
+            songBtn.innerHTML = '<i class="ph-fill ph-play"></i>';
+            songBtn.classList.remove('final-song__play-btn--playing');
+            if (progressInterval) clearInterval(progressInterval);
+        }
+    });
 }
 
 // ============================================
@@ -6178,12 +6343,8 @@ function init() {
         setTimeout(() => showDiapo5Screen(), 300);
     });
     document.getElementById('diapo6-nav-next')?.addEventListener('click', () => {
-        if (diapo6Step < DIAPO6_TOTAL_STEPS - 1) {
-            advanceDiapo6();
-        } else {
-            hideDiapo6Screen();
-            setTimeout(() => showDiapo8Screen(), 300);
-        }
+        hideDiapo6Screen();
+        setTimeout(() => showDiapo7Screen(), 300);
     });
     document.getElementById('diapo6-chat-send')?.addEventListener('click', () => {
         const input = document.getElementById('diapo6-chat-input');
@@ -6204,31 +6365,32 @@ function init() {
     });
 
     // Diapo 8 — Construye tu Agente
-    document.getElementById('diapo8-nav-back')?.addEventListener('click', () => {
-        hideDiapo8Screen();
+    document.getElementById('diapo7-nav-back')?.addEventListener('click', () => {
+        hideDiapo7Screen();
         setTimeout(() => showDiapo6Screen(), 300);
     });
-    document.getElementById('diapo8-nav-next')?.addEventListener('click', () => {
-        if (diapo8Step < DIAPO8_TOTAL_STEPS - 1) updateDiapo8Step(diapo8Step + 1);
+    document.getElementById('diapo7-nav-next')?.addEventListener('click', () => {
+        hideDiapo7Screen();
+        setTimeout(() => showFinalScreen(), 300);
     });
-    document.querySelectorAll('[data-diapo8-dot]').forEach(dot => {
-        dot.addEventListener('click', () => updateDiapo8Step(parseInt(dot.dataset.diapo8Dot)));
+    document.querySelectorAll('[data-diapo7-dot]').forEach(dot => {
+        dot.addEventListener('click', () => updateDiapo7Step(parseInt(dot.dataset.diapo7Dot)));
     });
-    document.getElementById('diapo8-chat-send')?.addEventListener('click', () => {
-        const input = document.getElementById('diapo8-chat-input');
+    document.getElementById('diapo7-chat-send')?.addEventListener('click', () => {
+        const input = document.getElementById('diapo7-chat-input');
         const text = input?.value.trim();
         if (!text) return;
         input.value = '';
-        sendDiapo8Message(text);
+        sendDiapo7Message(text);
     });
-    document.getElementById('diapo8-chat-input')?.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('diapo8-chat-send')?.click(); }
+    document.getElementById('diapo7-chat-input')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('diapo7-chat-send')?.click(); }
     });
-    document.getElementById('diapo8-mic-btn')?.addEventListener('click', () => {
+    document.getElementById('diapo7-mic-btn')?.addEventListener('click', () => {
         enableTTS(); state.voiceTriggered = true;
         if (state.isRecording) { state._discardRecording = true; stopRecording(); } else { startRecording(); }
     });
-    document.getElementById('diapo8-voice-btn')?.addEventListener('click', () => {
+    document.getElementById('diapo7-voice-btn')?.addEventListener('click', () => {
         if (state.ttsEnabled) disableTTS(); else enableTTS();
     });
 
