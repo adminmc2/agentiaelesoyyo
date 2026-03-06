@@ -6843,17 +6843,29 @@ body[data-mood-active] .message.assistant {
     .diapo6-bar { grid-template-columns: 80px 1fr 30px; }
 }
 @media (max-width: 480px) {
-    .diapo6-page { padding: 3rem 0.75rem 1rem; }
-    .diapo6-cats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .diapo6-cat-mini__img { width: 64px; height: 64px; }
-    .diapo6-agents-row { grid-template-columns: 1fr; gap: 8px; }
+    .diapo6-page { padding: 1rem 0.75rem; }
+    /* Ocultar todo lo que no es las actividades */
+    .diapo6-left { display: none !important; }
+    .diapo6-demo__stepper { display: none !important; }
+    #diapo6-nav-next, #diapo6-nav-back { display: none !important; }
+    [data-diapo6-step="0"], /* intro gatos */
+    [data-diapo6-step="3"], /* QR presentador */
+    [data-diapo6-step="4"]  /* dashboard */
+    { display: none !important; }
+    /* Mostrar ambas actividades a la vez */
+    [data-diapo6-step="1"],
+    [data-diapo6-step="2"] {
+        display: block !important;
+        opacity: 1 !important;
+    }
+    .diapo6-right { padding: 0; width: 100%; max-width: 100%; }
+    .diapo6-agents-row { grid-template-columns: 1fr 1fr; gap: 8px; }
     .diapo6-agent-card { padding: 10px 6px; }
     .diapo6-agent-card__img { width: 56px; height: 56px; }
     .diapo6-agent-card__desc { font-size: 0.7rem; }
     .diapo6-agent-card__select { font-size: 0.75rem; padding: 5px 6px; }
     .diapo6-activity__text { font-size: 0.85rem; padding: 10px; }
     .diapo6-intro__title { font-size: 1.5rem; }
-    .diapo6-right { padding: 1rem 0.75rem; }
 }
 
 /* ============================================
