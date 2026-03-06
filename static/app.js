@@ -4334,108 +4334,71 @@ function hideJuegoScreen() {
 }
 
 // ============================================
-// DIAPO 5 — El Agente segun los Grandes Maestros
+// DIAPO 5 — El Chef y el Agente
 // ============================================
 
-const DIAPO5_PAINTINGS = [
+const DIAPO5_CAPABILITIES = [
     {
         id: 'percibir',
-        title: 'La joven de la perla',
-        author: 'Johannes Vermeer, 1665',
-        image: '/static/imagenes/pinturas/vermeer.jpg',
-        capability: 'PERCIBIR',
-        capabilityIcon: 'ph-fill ph-eye',
-        capabilityColor: '#7EC8E3',
-        options: [
-            { label: 'A', text: 'Percibir — Observa y analiza antes de actuar', correct: true },
-            { label: 'B', text: 'Memoria — Recuerda todo lo que ve', correct: false },
-            { label: 'C', text: 'Herramientas — Usa un pendiente como herramienta secreta', correct: false, funny: true }
-        ],
-        explanation: 'Un agente primero OBSERVA: ¿qué nivel tiene el alumno? ¿Qué ha estudiado? ¿Qué necesita? Sin percibir el contexto, es como dar clase con los ojos cerrados.',
-        teacherExample: 'Como cuando miráis las caras de vuestros alumnos y sabéis que no han entendido nada.'
+        name: 'PERCIBIR',
+        icon: 'ph-fill ph-eye',
+        color: '#7EC8E3',
+        chef: 'El chef mira qué ingredientes hay, quién está en la mesa, si es una cena romántica o un cumpleaños de niños.',
+        agent: 'Observa quién es el alumno, qué nivel tiene, qué ha estudiado, dónde falla. Lee el contexto antes de actuar.',
+        teacher: 'Entráis a clase y en 30 segundos sabéis quién no ha dormido, quién no ha estudiado y quién va a dar guerra.',
+        punchline: 'Sin esto, es como cocinar sin saber para quién.'
     },
     {
         id: 'razonar',
-        title: 'El pensador',
-        author: 'Auguste Rodin, 1904',
-        image: '/static/imagenes/pinturas/rodin.jpg',
-        capability: 'RAZONAR',
-        capabilityIcon: 'ph-fill ph-brain',
-        capabilityColor: '#81C784',
-        options: [
-            { label: 'A', text: 'Actuar — Está a punto de levantarse a hacer algo', correct: false },
-            { label: 'B', text: 'Razonar — Piensa, planifica, elige estrategia', correct: true },
-            { label: 'C', text: 'Percibir — Está escuchando un podcast muy interesante', correct: false, funny: true }
-        ],
-        explanation: 'Un agente no ejecuta a lo loco. RAZONA: ¿qué estrategia uso? ¿Lista de vocabulario o juego con menú real? Elige el mejor camino.',
-        teacherExample: 'Como vosotros cuando planificáis una clase: no improvisáis (bueno, a veces sí).'
+        name: 'RAZONAR',
+        icon: 'ph-fill ph-brain',
+        color: '#81C784',
+        chef: 'Decide: para esta mesa, risotto; para aquella, algo rápido porque tienen prisa.',
+        agent: 'Decide qué estrategia usar: ¿práctica oral o escrita? ¿Juego de rol o texto? ¿Repaso o avanzo? Elige el mejor camino.',
+        teacher: 'Decidís en tiempo real: «Cambio de plan, hoy toca juego porque es viernes y están muertos.»',
+        punchline: 'No improvisa a lo loco. Tiene un plan.'
     },
     {
         id: 'actuar',
-        title: 'La libertad guiando al pueblo',
-        author: 'Eugène Delacroix, 1830',
-        image: '/static/imagenes/pinturas/delacroix.jpg',
-        capability: 'ACTUAR',
-        capabilityIcon: 'ph-fill ph-lightning',
-        capabilityColor: '#F48FB1',
-        options: [
-            { label: 'A', text: 'Evaluar — Está juzgando al pueblo', correct: false },
-            { label: 'B', text: 'Actuar — Pasa a la acción, ejecuta el plan', correct: true },
-            { label: 'C', text: 'Memoria — Recuerda la revolución anterior', correct: false, funny: true }
-        ],
-        explanation: 'Después de percibir y razonar, el agente ACTÚA: genera el ejercicio, adapta el texto, crea el audio. No se queda pensando eternamente.',
-        teacherExample: 'El momento en que dejáis el café y entráis al aula. ¡Acción pura!'
-    },
-    {
-        id: 'memoria',
-        title: 'La persistencia de la memoria',
-        author: 'Salvador Dalí, 1931',
-        image: '/static/imagenes/pinturas/dali.jpg',
-        capability: 'MEMORIA',
-        capabilityIcon: 'ph-fill ph-clock-counter-clockwise',
-        capabilityColor: '#FFB74D',
-        options: [
-            { label: 'A', text: 'Memoria — Recuerda y acumula experiencia', correct: true },
-            { label: 'B', text: 'Percibir — Los relojes perciben que se derriten', correct: false },
-            { label: 'C', text: 'Razonar — Es una metáfora sobre pensar demasiado', correct: false, funny: true }
-        ],
-        explanation: 'Un agente RECUERDA: ayer este alumno tuvo problemas con el subjuntivo, la semana pasada dominó el vocabulario de comida.',
-        teacherExample: 'No como vosotros la primera semana con 120 nombres nuevos que se os olvidan al día siguiente.'
+        name: 'ACTUAR',
+        icon: 'ph-fill ph-lightning',
+        color: '#F48FB1',
+        chef: 'Cocina. No se queda mirando la receta eternamente. Lo ejecuta.',
+        agent: 'Genera el ejercicio, adapta el texto, crea el audio, prepara la actividad. Pasa de la estrategia a la acción.',
+        teacher: 'El momento en que dejáis el café y entráis al aula. Creáis la actividad, adaptáis el material, improvisáis.',
+        punchline: 'Basta de pensar. Es hora de hacer.'
     },
     {
         id: 'herramientas',
-        title: 'La creación de Adán',
-        author: 'Miguel Ángel, 1512',
-        image: '/static/imagenes/pinturas/miguelangel.jpg',
-        capability: 'HERRAMIENTAS',
-        capabilityIcon: 'ph-fill ph-wrench',
-        capabilityColor: '#B39DDB',
-        options: [
-            { label: 'A', text: 'Actuar — Está creando algo con las manos', correct: false },
-            { label: 'B', text: 'Herramientas — Usa herramientas para crear y transformar', correct: true },
-            { label: 'C', text: 'Percibir — Están intentando tocarse para percibirse', correct: false, funny: true }
-        ],
-        explanation: 'Un agente usa HERRAMIENTAS: busca en el MCER, genera audio, crea ejercicios, adapta textos. No solo responde preguntas, ¡tiene superpoderes!',
-        teacherExample: 'Como vosotros con el proyector, la pizarra, los rotuladores y esa app que nunca funciona cuando la necesitáis.'
+        name: 'HERRAMIENTAS',
+        icon: 'ph-fill ph-wrench',
+        color: '#B39DDB',
+        chef: 'Tiene cuchillos, horno, especias, batidora. Sin herramientas no hay cocina.',
+        agent: 'Tiene el MCER, generadores de audio, bancos de ejercicios, adaptadores de textos por nivel, correctores.',
+        teacher: 'El libro, el MCER, ese vídeo que encontrasteis a las 11 de la noche, las fichas de la compañera.',
+        punchline: 'No solo piensa. Tiene con qué trabajar.'
+    },
+    {
+        id: 'memoria',
+        name: 'MEMORIA',
+        icon: 'ph-fill ph-clock-counter-clockwise',
+        color: '#FFB74D',
+        chef: 'Recuerda que la mesa 3 es celíaca, que la mesa 7 pidió el vino de ayer, que el del fondo es alérgico al marisco.',
+        agent: 'Recuerda que María lleva dos semanas con el subjuntivo, que Lucas no habla pero entiende todo, que Ahmed necesita vocabulario práctico.',
+        teacher: '«Ahmed ya domina comida, María sigue con el subjuntivo, Lucas no habla pero entiende todo.»',
+        punchline: 'No empieza de cero cada sesión.'
     }
 ];
 
-const DIAPO5_AGENTS = [
-    { name: 'Traductor', icon: 'ph-fill ph-translate', desc: 'Traduce y adapta textos al nivel del alumno' },
-    { name: 'Vocabulario', icon: 'ph-fill ph-book-open-text', desc: 'Crea actividades de vocabulario contextualizadas' },
-    { name: 'Personalizador', icon: 'ph-fill ph-user-focus', desc: 'Adapta contenido al perfil del estudiante' },
-    { name: 'Creativo', icon: 'ph-fill ph-magic-wand', desc: 'Genera recursos didácticos originales' }
-];
-
 const DIAPO5_KEYWORD_MAP = [
-    { step: 1, patterns: ['mirad la pantalla', 'cuáles creéis', 'cuales creeis'] },
-    { step: 2, patterns: ['cuadros famosos', 'tres opciones'] },
-    { step: 3, patterns: ['primer cuadro', 'vermeer', 'joven de la perla'] },
-    { step: 4, patterns: ['segundo', 'pensador', 'rodin'] },
-    { step: 5, patterns: ['tercer', 'libertad', 'delacroix'] },
-    { step: 6, patterns: ['cuarto', 'dali', 'dalí', 'persistencia'] },
-    { step: 7, patterns: ['quinto', 'último', 'ultimo', 'miguel ángel', 'miguel angel', 'creación', 'creacion'] },
-    { step: 8, patterns: ['acabáis de describir', 'acabais de describir'] }
+    { step: 1, patterns: ['qué os viene a la cabeza', 'lluvia de ideas', 'nube de palabras', 'qué pensáis'] },
+    { step: 2, patterns: ['imaginad un restaurante', 'chatbot es un camarero', 'agente es el chef'] },
+    { step: 3, patterns: ['percibir', 'primera capacidad', 'primer poder'] },
+    { step: 4, patterns: ['razonar', 'segunda capacidad', 'segundo poder'] },
+    { step: 5, patterns: ['actuar', 'tercera capacidad', 'tercer poder', 'acción'] },
+    { step: 6, patterns: ['herramientas', 'cuarta capacidad', 'cuarto poder'] },
+    { step: 7, patterns: ['memoria', 'quinta capacidad', 'quinto poder', 'recuerda'] },
+    { step: 8, patterns: ['multiplicar', 'vosotros por mil', 'no viene a sustituir', 'viene a multiplicar'] }
 ];
 
 function showDiapo5Screen() {
@@ -4608,30 +4571,24 @@ function advanceDiapo5To(step) {
     const target = document.querySelector(`[data-diapo5-step="${step}"]`);
     if (target) {
         target.classList.add('diapo5-demo__step--active');
-        // Render step content lazily
-        if (step === 1) {
-            renderDiapo5WordCloud();
-        } else if (step === 2) {
-            renderDiapo5PaintingsPreview();
-        } else if (step >= 3 && step <= 7) {
-            renderDiapo5Painting(step - 3);
-        } else if (step === 8) {
-            renderDiapo5Final();
-        }
+        if (step === 1) renderDiapo5WordCloud();
+        else if (step === 2) renderDiapo5Intro();
+        else if (step >= 3 && step <= 7) renderDiapo5Capability(step - 3);
+        else if (step === 8) renderDiapo5Closing();
     }
-    // Update stepper dots
     document.querySelectorAll('[data-diapo5-dot]').forEach(dot => {
         dot.classList.toggle('demo-stepper__dot--active', parseInt(dot.dataset.diapo5Dot) === step);
     });
 }
 
-// Static word cloud — mix of agent, chatbot, LLM and misleading terms
+// Step 1: Word cloud (nube de palabras)
 const DIAPO5_CLOUD_WORDS = [
-    'Responde preguntas', 'Usa herramientas', 'Genera texto',
-    'Planifica pasos', 'Necesita órdenes', 'Recuerda lo anterior',
-    'Actúa solo', 'Busca información', 'Copia y pega',
-    'Adapta su estrategia', 'Siempre igual', 'Observa el contexto',
-    'Ejecuta tareas', 'Solo habla', 'Aprende del alumno', 'Traduce literal',
+    'CHATGPT', 'ROBOT', 'INTELIGENCIA', 'ARTIFICIAL', 'AUTOMATIZAR',
+    'DATOS', 'ALGORITMO', 'APRENDER', 'MÁQUINA', 'FUTURO',
+    'ASISTENTE', 'PROMPT', 'CHATBOT', 'TECNOLOGÍA', 'HERRAMIENTA',
+    'CREATIVIDAD', 'PERSONALIZAR', 'ADAPTAR', 'EVALUAR', 'PLANIFICAR',
+    'MEMORIA', 'CONTEXTO', 'RESPUESTA', 'IDIOMA', 'CLASE',
+    'ALUMNO', 'PROFESOR', 'NIVEL', 'EJERCICIO', 'VOCABULARIO'
 ];
 
 function renderDiapo5WordCloud() {
@@ -4639,202 +4596,173 @@ function renderDiapo5WordCloud() {
     if (!container || container.dataset.rendered) return;
     container.dataset.rendered = 'true';
 
+    const sizes = ['xs', 'sm', 'md', 'lg', 'xl'];
+    const shuffled = [...DIAPO5_CLOUD_WORDS].sort(() => Math.random() - 0.5);
+
     container.innerHTML = `
         <div class="diapo5-wordcloud">
-            <h3 class="diapo5-wordcloud__title">¿Cuáles describen a un agente de IA?</h3>
-            <div class="diapo5-wordcloud__cloud" id="diapo5-cloud">
-                ${DIAPO5_CLOUD_WORDS.map(w => `
-                    <span class="diapo5-wordcloud__word">${w}</span>
-                `).join('')}
+            <h3 class="diapo5-wordcloud__title">Cuando escucháis «agente de IA», ¿qué os viene a la cabeza?</h3>
+            <div class="diapo5-wordcloud__cloud">
+                ${shuffled.map(w => {
+                    const size = sizes[Math.floor(Math.random() * sizes.length)];
+                    return `<span class="diapo5-wordcloud__word diapo5-wordcloud__word--${size}">${w}</span>`;
+                }).join('')}
             </div>
         </div>
     `;
 
-    // Staggered GSAP entrance
     const words = container.querySelectorAll('.diapo5-wordcloud__word');
     words.forEach((word, i) => {
         gsap.fromTo(word,
-            { scale: 0, opacity: 0 },
-            { scale: 1, opacity: 1, duration: 0.35, delay: i * 0.06, ease: 'back.out(1.5)' }
+            { opacity: 0, scale: 0.5, y: 20 },
+            { opacity: 1, scale: 1, y: 0, duration: 0.3, delay: i * 0.04, ease: 'back.out(1.4)' }
         );
     });
 }
 
-function renderDiapo5PaintingsPreview() {
+// Step 2: Chef vs Chatbot intro
+function renderDiapo5Intro() {
     const container = document.getElementById('diapo5-step-2');
     if (!container || container.dataset.rendered) return;
     container.dataset.rendered = 'true';
 
     container.innerHTML = `
-        <div class="diapo5-preview-intro">
-            <h3 class="diapo5-preview-intro__title">5 cuadros, 5 capacidades</h3>
-            <p class="diapo5-preview-intro__subtitle">Cada obra maestra esconde una capacidad del agente. ¿Sabréis adivinarlas?</p>
-            <div class="diapo5-preview-grid">
-                ${DIAPO5_PAINTINGS.map((p, i) => `
-                    <div class="diapo5-preview-card">
-                        <div class="diapo5-preview-card__frame">
-                            <img class="diapo5-preview-card__img" src="${p.image}" alt="${p.title}">
-                        </div>
-                        <span class="diapo5-preview-card__title">${p.title}</span>
-                        <span class="diapo5-preview-card__question" style="color: ${p.capabilityColor}">?</span>
+        <div class="diapo5-chef-intro">
+            <div class="diapo5-chef-intro__vs">
+                <div class="diapo5-chef-intro__card diapo5-chef-intro__card--chatbot">
+                    <div class="diapo5-chef-intro__icon-wrap" style="background: var(--md-sys-color-surface-container-high)">
+                        <i class="ph-fill ph-chat-dots" style="color: var(--md-sys-color-outline)"></i>
                     </div>
-                `).join('')}
+                    <h4 class="diapo5-chef-intro__label">Chatbot</h4>
+                    <p class="diapo5-chef-intro__desc">Un camarero que lee la carta. Le preguntas qué hay y te dice «sopa, ensalada y carne». A todos igual. Siempre lo mismo.</p>
+                </div>
+                <div class="diapo5-chef-intro__divider">
+                    <span>VS</span>
+                </div>
+                <div class="diapo5-chef-intro__card diapo5-chef-intro__card--agent">
+                    <div class="diapo5-chef-intro__icon-wrap" style="background: linear-gradient(135deg, var(--md-sys-color-primary), var(--md-sys-color-secondary))">
+                        <i class="ph-fill ph-chef-hat" style="color: #fff"></i>
+                    </div>
+                    <h4 class="diapo5-chef-intro__label">Agente</h4>
+                    <p class="diapo5-chef-intro__desc">Un chef. Observa, piensa, cocina, usa herramientas y recuerda los gustos de cada mesa.</p>
+                </div>
             </div>
+            <p class="diapo5-chef-intro__hook">Un agente trabaja como un chef. Y como vosotros.</p>
         </div>
     `;
 
-    // GSAP entrance
-    const cards = container.querySelectorAll('.diapo5-preview-card');
+    const cards = container.querySelectorAll('.diapo5-chef-intro__card');
     cards.forEach((card, i) => {
         gsap.fromTo(card,
-            { rotateY: 90, opacity: 0 },
-            { rotateY: 0, opacity: 1, duration: 0.5, delay: i * 0.15, ease: 'power2.out' }
+            { y: 30, opacity: 0, scale: 0.9 },
+            { y: 0, opacity: 1, scale: 1, duration: 0.5, delay: i * 0.25, ease: 'back.out(1.4)' }
         );
     });
+    const hook = container.querySelector('.diapo5-chef-intro__hook');
+    if (hook) gsap.fromTo(hook, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5, delay: 0.7, ease: 'power2.out' });
 }
 
-function renderDiapo5Painting(paintingIndex) {
-    const painting = DIAPO5_PAINTINGS[paintingIndex];
-    if (!painting) return;
-    const container = document.getElementById(`diapo5-step-${paintingIndex + 3}`);
+// Steps 3-7: Individual capabilities
+function renderDiapo5Capability(capIndex) {
+    const cap = DIAPO5_CAPABILITIES[capIndex];
+    if (!cap) return;
+    const container = document.getElementById(`diapo5-step-${capIndex + 3}`);
     if (!container || container.dataset.rendered) return;
     container.dataset.rendered = 'true';
 
-    // Phase: painting + options
     container.innerHTML = `
-        <div class="diapo5-painting">
-            <div class="diapo5-painting__frame">
-                <img class="diapo5-painting__img" src="${painting.image}" alt="${painting.title}">
-            </div>
-            <div class="diapo5-painting__info">
-                <p class="diapo5-painting__title">${painting.title}</p>
-                <p class="diapo5-painting__author">${painting.author}</p>
-            </div>
-        </div>
-        <div class="diapo5-options" id="diapo5-options-${paintingIndex}">
-            ${painting.options.map((opt, i) => `
-                <div class="diapo5-option" data-painting="${paintingIndex}" data-option="${i}">
-                    <span class="diapo5-option__label" style="color: ${painting.capabilityColor}">${opt.label}</span>
-                    <span>${opt.text}</span>
+        <div class="diapo5-cap">
+            <div class="diapo5-cap__header">
+                <div class="diapo5-cap__icon" style="background: linear-gradient(135deg, ${cap.color}, ${cap.color}cc)">
+                    <i class="${cap.icon}"></i>
                 </div>
-            `).join('')}
+                <h3 class="diapo5-cap__name" style="color: ${cap.color}">${cap.name}</h3>
+            </div>
+            <div class="diapo5-cap__rows">
+                <div class="diapo5-cap__row">
+                    <div class="diapo5-cap__row-icon"><i class="ph-fill ph-chef-hat"></i></div>
+                    <div class="diapo5-cap__row-content">
+                        <span class="diapo5-cap__row-label">El chef</span>
+                        <p class="diapo5-cap__row-text">${cap.chef}</p>
+                    </div>
+                </div>
+                <div class="diapo5-cap__row diapo5-cap__row--agent">
+                    <div class="diapo5-cap__row-icon" style="color: ${cap.color}"><i class="ph-fill ph-robot"></i></div>
+                    <div class="diapo5-cap__row-content">
+                        <span class="diapo5-cap__row-label">El agente</span>
+                        <p class="diapo5-cap__row-text">${cap.agent}</p>
+                    </div>
+                </div>
+                <div class="diapo5-cap__row diapo5-cap__row--teacher">
+                    <div class="diapo5-cap__row-icon" style="color: var(--md-sys-color-primary)"><i class="ph-fill ph-chalkboard-teacher"></i></div>
+                    <div class="diapo5-cap__row-content">
+                        <span class="diapo5-cap__row-label">Vosotros</span>
+                        <p class="diapo5-cap__row-text">${cap.teacher}</p>
+                    </div>
+                </div>
+            </div>
+            <p class="diapo5-cap__punchline" style="border-left: 3px solid ${cap.color}">${cap.punchline}</p>
         </div>
-        <div class="diapo5-reveal-container" id="diapo5-reveal-${paintingIndex}"></div>
     `;
 
-    // GSAP entrance
-    const frame = container.querySelector('.diapo5-painting__frame');
-    const opts = container.querySelectorAll('.diapo5-option');
-    gsap.fromTo(frame, { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.4)' });
-    opts.forEach((opt, i) => {
-        gsap.fromTo(opt,
+    // Animate
+    const header = container.querySelector('.diapo5-cap__header');
+    const rows = container.querySelectorAll('.diapo5-cap__row');
+    const punch = container.querySelector('.diapo5-cap__punchline');
+    if (header) gsap.fromTo(header, { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' });
+    rows.forEach((row, i) => {
+        gsap.fromTo(row,
             { x: -20, opacity: 0 },
-            { x: 0, opacity: 1, duration: 0.3, delay: 0.3 + i * 0.1, ease: 'power2.out' }
+            { x: 0, opacity: 1, duration: 0.35, delay: 0.2 + i * 0.15, ease: 'power2.out' }
         );
     });
-
-    // Click handler for options
-    opts.forEach(opt => {
-        opt.addEventListener('click', () => {
-            const pi = parseInt(opt.dataset.painting);
-            const oi = parseInt(opt.dataset.option);
-            handleDiapo5OptionClick(pi, oi);
-        });
-    });
+    if (punch) gsap.fromTo(punch, { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: 0.4, delay: 0.75, ease: 'power2.out' });
 }
 
-function handleDiapo5OptionClick(paintingIndex, optionIndex) {
-    const painting = DIAPO5_PAINTINGS[paintingIndex];
-    const optionsContainer = document.getElementById(`diapo5-options-${paintingIndex}`);
-    if (!optionsContainer || optionsContainer.dataset.answered) return;
-    optionsContainer.dataset.answered = 'true';
-
-    const allOpts = optionsContainer.querySelectorAll('.diapo5-option');
-    allOpts.forEach((opt, i) => {
-        opt.classList.add('diapo5-option--disabled');
-        const optData = painting.options[i];
-        if (optData.correct) {
-            opt.classList.add('diapo5-option--correct');
-        } else if (optData.funny) {
-            opt.classList.add('diapo5-option--funny');
-        } else {
-            opt.classList.add('diapo5-option--wrong');
-        }
-    });
-
-    // Shrink painting
-    const frame = document.querySelector(`#diapo5-step-${paintingIndex + 3} .diapo5-painting__frame`);
-    if (frame) {
-        gsap.to(frame, { scale: 0.7, opacity: 0.6, duration: 0.4, ease: 'power2.inOut' });
-    }
-
-    // Show reveal
-    const revealContainer = document.getElementById(`diapo5-reveal-${paintingIndex}`);
-    if (revealContainer) {
-        revealContainer.innerHTML = `
-            <div class="diapo5-reveal">
-                <div class="diapo5-reveal__icon" style="background: ${painting.capabilityColor}">
-                    <i class="${painting.capabilityIcon}"></i>
-                </div>
-                <div class="diapo5-reveal__capability" style="color: ${painting.capabilityColor}">${painting.capability}</div>
-                <p class="diapo5-reveal__explanation">${painting.explanation}</p>
-                <p class="diapo5-reveal__teacher-example">${painting.teacherExample}</p>
-            </div>
-        `;
-        const reveal = revealContainer.querySelector('.diapo5-reveal');
-        gsap.fromTo(reveal,
-            { y: 30, opacity: 0, scale: 0.9 },
-            { y: 0, opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.4)' }
-        );
-    }
-}
-
-function renderDiapo5Final() {
+// Step 8: Closing
+function renderDiapo5Closing() {
     const container = document.getElementById('diapo5-step-8');
     if (!container || container.dataset.rendered) return;
     container.dataset.rendered = 'true';
 
     container.innerHTML = `
-        <div class="diapo5-final">
-            <h2 class="diapo5-final__title">Lo que habéis descrito es un AGENTE de IA</h2>
-            <div class="diapo5-final__diagram">
-                ${DIAPO5_PAINTINGS.map((p, i) => `
-                    <div class="diapo5-final__cap" style="background: linear-gradient(145deg, ${p.capabilityColor}, ${p.capabilityColor}dd)">
-                        <i class="${p.capabilityIcon}"></i>
-                        <span class="diapo5-final__cap-name">${p.capability}</span>
+        <div class="diapo5-closing">
+            <div class="diapo5-closing__caps">
+                ${DIAPO5_CAPABILITIES.map((cap, i) => `
+                    <div class="diapo5-closing__cap" style="background: linear-gradient(135deg, ${cap.color}, ${cap.color}cc)">
+                        <i class="${cap.icon}"></i>
+                        <span>${cap.name}</span>
                     </div>
                 `).join('')}
             </div>
-            <h3 style="font: 600 16px 'Dosis', sans-serif; color: var(--md-sys-color-on-surface); margin-top: var(--space-16);">Nuestros agentes en AgentiaELE</h3>
-            <div class="diapo5-agents">
-                ${DIAPO5_AGENTS.map((a, i) => `
-                    <div class="diapo5-agent-card">
-                        <i class="${a.icon} diapo5-agent-card__icon"></i>
-                        <span class="diapo5-agent-card__name">${a.name}</span>
-                        <span class="diapo5-agent-card__desc">${a.desc}</span>
-                    </div>
-                `).join('')}
+            <div class="diapo5-closing__message">
+                <p class="diapo5-closing__text">Vosotros ya sois chefs. Cada clase es un menú distinto para comensales distintos.</p>
+                <p class="diapo5-closing__text">La diferencia es que vosotros cocinéis para 25 mesas a la vez, solos, cansados y sin ayudante.</p>
+                <p class="diapo5-closing__highlight">Un agente es un chef que puede cocinar para cada alumno a la vez, sin cansarse, sin olvidar nada, con todos los ingredientes del mundo.</p>
+            </div>
+            <div class="diapo5-closing__tagline">
+                <i class="ph-fill ph-arrow-fat-lines-right"></i>
+                <span>No viene a sustituir al chef. Viene a multiplicarlo.</span>
             </div>
         </div>
     `;
 
-    // Animate capabilities
-    const caps = container.querySelectorAll('.diapo5-final__cap');
+    // Animate caps
+    const caps = container.querySelectorAll('.diapo5-closing__cap');
     caps.forEach((cap, i) => {
         gsap.fromTo(cap,
             { scale: 0, opacity: 0 },
-            { scale: 1, opacity: 1, duration: 0.4, delay: i * 0.15, ease: 'back.out(1.7)' }
+            { scale: 1, opacity: 1, duration: 0.35, delay: i * 0.1, ease: 'back.out(1.7)' }
         );
     });
-
-    // Animate agent cards
-    const agents = container.querySelectorAll('.diapo5-agent-card');
-    agents.forEach((card, i) => {
-        gsap.fromTo(card,
-            { y: 20, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.4, delay: 0.8 + i * 0.1, ease: 'power2.out' }
-        );
+    // Animate message
+    const texts = container.querySelectorAll('.diapo5-closing__text, .diapo5-closing__highlight');
+    texts.forEach((t, i) => {
+        gsap.fromTo(t, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4, delay: 0.6 + i * 0.2, ease: 'power2.out' });
     });
+    // Animate tagline
+    const tagline = container.querySelector('.diapo5-closing__tagline');
+    if (tagline) gsap.fromTo(tagline, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.5, delay: 1.4, ease: 'back.out(1.5)' });
 }
 
 // ---- End Diapo 5 ----
@@ -4948,7 +4876,7 @@ function openJuegoCard(card) {
     [{ label: 'A', text: card.option_a }, { label: 'B', text: card.option_b }, { label: 'C', text: card.option_c }].forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'juego-option-btn';
-        btn.innerHTML = `<span class="juego-option-btn__label" style="color:${color}">${opt.label}</span><span>${opt.text}</span>`;
+        btn.innerHTML = `<span class="juego-option-btn__label" style="background:${color}; color:#fff">${opt.label}</span><span>${opt.text}</span>`;
         btn.addEventListener('click', () => selectJuegoOption(opt.label, card));
         optionsEl.appendChild(btn);
     });
@@ -5322,7 +5250,7 @@ function init() {
     document.getElementById('diapo5-nav-next')?.addEventListener('click', () => {
         // Future: next screen after diapo5
         // For now advance demo step
-        if (state.diapo5Step < 8) advanceDiapo5To(state.diapo5Step + 1);
+        if (state.diapo5Step < 7) advanceDiapo5To(state.diapo5Step + 1);
     });
     // Stepper dots
     document.querySelectorAll('[data-diapo5-dot]').forEach(dot => {

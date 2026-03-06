@@ -6068,10 +6068,16 @@ body[data-mood-active] .message.assistant {
 }
 .juego-option-btn:active { transform: scale(0.98); }
 .juego-option-btn__label {
-    font: 700 15px 'Source Sans 3', sans-serif;
+    font: 700 13px 'Source Sans 3', sans-serif;
     flex-shrink: 0;
-    min-width: 20px;
-    /* Color set inline from JS */
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    /* background y color set inline desde JS */
 }
 .juego-option-btn--correct {
     background: rgba(107, 143, 113, 0.15) !important;
@@ -6375,17 +6381,23 @@ body[data-mood-active] .message.assistant {
     }
     .juego-card__situation { font-size: 15px; line-height: 1.75; margin-bottom: var(--space-8); }
     .juego-option-btn {
-        padding: var(--space-14, 14px) var(--space-16) var(--space-14, 14px) var(--space-24);
+        padding: var(--space-12) var(--space-16);
         font-size: 14px;
         line-height: 1.6;
         align-items: center;
         gap: var(--space-12);
     }
     .juego-option-btn__label {
-        min-width: 20px;
-        font: 700 15px 'Source Sans 3', sans-serif;
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font: 700 13px 'Source Sans 3', sans-serif;
         flex-shrink: 0;
-        margin-left: 2px;
+        /* background y color set inline desde JS */
     }
     .juego-card__options { gap: var(--space-14, 14px); }
     /* Chat debajo — scroll propio si hace falta */
