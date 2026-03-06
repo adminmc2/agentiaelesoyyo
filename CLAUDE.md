@@ -39,3 +39,24 @@ Esto incluye:
 - Los event listeners de `juego-mic-btn`, `juego-voice-btn`, `juego-chat-send`
 
 **Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
+
+### Diapositiva 5 (El Agente según los Grandes Maestros — Metáfora del Chef)
+**PROHIBIDO ABSOLUTAMENTE** modificar cualquier código relacionado con la diapositiva 5. No importa el contexto: refactor, limpieza, mejora, bug fix general, cambio de diseño — NADA justifica tocar la diapo 5 salvo que el usuario diga EXPLÍCITAMENTE "modifica la diapo 5" o "cambia esto de la diapo 5".
+
+Esto incluye:
+- `showDiapo5Screen()`, `hideDiapo5Screen()` — mostrar/ocultar pantalla
+- `sendDiapo5Message()` — envío por WebSocket con `activity_mode: 'agentes'`
+- `addDiapo5ChatBubble()` — burbujas de chat
+- `checkDiapo5Advance()` — auto-avance por keywords de Eliana
+- `advanceDiapo5To()` — transiciones visuales entre pasos (0-9)
+- `DIAPO5_KEYWORD_MAP` — mapeo de palabras clave a pasos
+- `DIAPO5_CLOUD_WORDS` — palabras de la nube (step 1)
+- `DIAPO5_CAPABILITIES` — las 5 capacidades del agente
+- `renderDiapo5WordCloud()`, `renderDiapo5Intro()`, `renderDiapo5Capability()`, `renderDiapo5Closing()`, `renderDiapo5Song()` — renderizado de cada paso
+- Prompt "agentes" en `main.py` (ACTIVITY_PROMPTS["agentes"]) — fases 0-7, metáfora del chef
+- Todo el HTML de `#diapo5-screen` y sus hijos en `index.html`
+- Todo el CSS de `.diapo5-*` (layout, word cloud, capacidades, canción, stepper)
+- La lógica de `prior_context` para agentes en el WebSocket handler de `main.py`
+- El archivo `static/cancion-agente.mp3`
+
+**Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
