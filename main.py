@@ -906,6 +906,7 @@ _encuesta_dashboard_ws: set[WebSocket] = set()
 @app.websocket("/ws/encuesta")
 async def ws_encuesta_vote(websocket: WebSocket):
     """Recibe un voto desde el móvil y lo reenvía al dashboard del presentador"""
+    global _encuesta_dashboard_ws
     await websocket.accept()
     try:
         data = await websocket.receive_json()
@@ -913,17 +914,22 @@ async def ws_encuesta_vote(websocket: WebSocket):
         opinion = data.get("opinion", "")
         if agent and opinion:
             _encuesta_votes.append({"agent": agent, "opinion": opinion})
+            print(f"[Encuesta] Voto: {agent} / {opinion} — total: {len(_encuesta_votes)}, dashboards: {len(_encuesta_dashboard_ws)}")
             # Notificar a todos los dashboards conectados
             summary = _build_vote_summary()
             dead = set()
             for ws in _encuesta_dashboard_ws:
                 try:
                     await ws.send_json(summary)
-                except Exception:
+                    print(f"[Encuesta] Dashboard notificado OK")
+                except Exception as e:
+                    print(f"[Encuesta] Error notificando dashboard: {e}")
                     dead.add(ws)
             _encuesta_dashboard_ws -= dead
-    except Exception:
-        pass
+        else:
+            print(f"[Encuesta] Datos incompletos: agent={agent}, opinion={opinion}")
+    except Exception as e:
+        print(f"[Encuesta] Error recibiendo voto: {e}")
     finally:
         try:
             await websocket.close()

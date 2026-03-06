@@ -288,12 +288,15 @@
             const ws = new WebSocket(`${protocol}//${location.host}/ws/encuesta`);
             ws.onopen = () => {
                 ws.send(JSON.stringify({ agent: selectedAgent, opinion: selectedOpinion }));
-                ws.close();
+                // No cerrar — el servidor cierra tras procesar
             };
-            // Show conversation questions
-            document.getElementById('survey').style.display = 'none';
-            document.getElementById('conversation').classList.add('visible');
+            ws.onclose = () => {
+                // Show conversation questions after server confirms
+                document.getElementById('survey').style.display = 'none';
+                document.getElementById('conversation').classList.add('visible');
+            };
         });
     </script>
+    <p style="text-align:center;font-size:0.7rem;color:#ccc;margin-top:32px;">v22.9.0</p>
 </body>
 </html>
