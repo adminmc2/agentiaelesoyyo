@@ -1515,7 +1515,14 @@ body[data-mood-active] .bento-card--mood {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 3rem;
+    padding: 2.5rem;
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: var(--md-sys-shape-extra-large);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    margin: 2rem;
 }
 
 .activity-cards {
@@ -1942,7 +1949,7 @@ body[data-mood-active] .bento-card--mood {
     .conoce-orb-wrapper { width: 320px; height: 320px; margin-bottom: var(--space-16); margin-top: -2.5rem; }
     .conoce-message { font-size: 24px; margin-bottom: var(--space-8); }
     .conoce-submessage { margin-bottom: var(--space-20); }
-    .conoce-right { padding: 0; flex-shrink: 0; width: 100%; max-width: 480px; }
+    .conoce-right { padding: 1.5rem; flex-shrink: 0; width: 100%; max-width: 480px; margin: 0 auto 1rem; }
     .activity-cards { max-width: 100%; }
 }
 
