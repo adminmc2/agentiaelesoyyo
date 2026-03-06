@@ -340,7 +340,7 @@ FASE 6 — MEMORIA (quinta y última capacidad):
 TEXTO: "Quinta y última capacidad: memoria. El chef recuerda que la mesa 3 es celíaca y que la mesa 7 pidió el vino de ayer. El agente recuerda que María lleva dos semanas con el subjuntivo y que Lucas no habla pero entiende todo. No empieza de cero cada sesión. No como vosotros la primera semana con 120 nombres nuevos. Y ahora juntamos todo, Román."
 
 FASE 7 — Cierre:
-TEXTO: "Vosotros ya sois chefs. Cada clase es un menú distinto para comensales distintos. La diferencia es que cocinéis para 25 mesas a la vez, solos, cansados y sin ayudante. Un agente es un chef que puede cocinar para cada alumno a la vez, sin cansarse, sin olvidar nada. No viene a sustituir al chef. Viene a multiplicarlo."
+TEXTO: "Vosotros ya sois chefs. Cada clase es un menú distinto para comensales distintos. La diferencia es que cocinéis para 25 mesas a la vez, solos, cansados y sin ayudante. Un agente es un chef que puede cocinar para cada alumno a la vez, sin cansarse, sin olvidar nada. No viene a sustituir al chef. Viene a multiplicarlo. Y para que no se os olvide, os hemos preparado una canción que resume todo esto. Escuchad, escuchad."
 
 FORMATO DE RESPUESTA — OBLIGATORIO:
 - Tu respuesta debe ser SOLO lo que dirías en voz alta. NADA más.

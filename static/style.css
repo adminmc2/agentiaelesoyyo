@@ -6447,7 +6447,39 @@ body[data-mood-active] .message.assistant {
 }
 
 /* ============================================
-   DIAPO 6
+   DIAPO 6 — (vacía, por definir)
+   ============================================ */
+.diapo6-screen { padding: 0 !important; overflow: hidden; }
+.diapo6-page {
+    width: 100%; min-height: 100vh; min-height: 100dvh;
+    display: grid; grid-template-columns: 45% 55%;
+    background: var(--md-sys-color-surface); overflow: hidden;
+}
+.diapo6-left {
+    padding: 2rem 1.5rem 1.5rem; display: flex;
+    flex-direction: column; align-items: center;
+    position: relative; min-height: 0;
+}
+.diapo6-right {
+    display: flex; align-items: center; justify-content: center;
+    padding: 3rem; position: relative; overflow: hidden;
+    margin: 1cm; border-radius: 12px;
+    background: var(--md-sys-color-surface-container-high);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(0,0,0,0.04);
+}
+.diapo6-content {
+    width: 100%; max-width: 500px; display: flex;
+    flex-direction: column; align-items: center;
+    text-align: center; gap: var(--space-24);
+}
+@media (max-width: 968px) {
+    .diapo6-page { display: flex; flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .diapo6-left { padding: 1rem; order: 1; }
+    .diapo6-right { margin: 0.75rem; padding: 2rem 1.5rem; }
+}
+
+/* ============================================
+   DIAPO 7 — Elige tu agente
    ============================================ */
 .diapo7-screen {
     padding: 0 !important;
@@ -6890,6 +6922,141 @@ body[data-mood-active] .message.assistant {
     border-radius: 100px;
 }
 .diapo5-closing__tagline i { font-size: 28px; }
+
+/* -- Step 9: Song -- */
+.diapo5-song {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-20);
+    width: 100%;
+    max-width: 520px;
+}
+.diapo5-song__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-12);
+    color: var(--md-sys-color-primary);
+}
+.diapo5-song__header i {
+    font-size: 32px;
+}
+.diapo5-song__title {
+    font: 700 28px 'Dosis', sans-serif;
+    margin: 0;
+    color: var(--md-sys-color-on-surface);
+}
+.diapo5-song__player {
+    display: flex;
+    align-items: center;
+    gap: var(--space-16);
+    width: 100%;
+    padding: var(--space-16) var(--space-24);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 100px;
+    border: 1.5px solid rgba(0, 0, 0, 0.06);
+    box-shadow: var(--md-sys-elevation-1);
+}
+.diapo5-song__play-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, var(--md-sys-color-primary), var(--md-sys-color-secondary));
+    color: #fff;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: var(--md-sys-elevation-2);
+}
+.diapo5-song__play-btn:hover {
+    transform: scale(1.08);
+    box-shadow: var(--md-sys-elevation-3);
+}
+.diapo5-song__play-btn:active {
+    transform: scale(0.95);
+}
+.diapo5-song__play-btn--playing {
+    animation: diapo5SongPulse 1.5s ease-in-out infinite;
+}
+@keyframes diapo5SongPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(212, 130, 106, 0.4), var(--md-sys-elevation-2); }
+    50% { box-shadow: 0 0 0 12px rgba(212, 130, 106, 0), var(--md-sys-elevation-2); }
+}
+.diapo5-song__progress {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--md-sys-color-surface-container-high);
+    overflow: hidden;
+}
+.diapo5-song__progress-bar {
+    height: 100%;
+    width: 0%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--md-sys-color-primary), var(--md-sys-color-secondary));
+    transition: width 0.25s linear;
+}
+.diapo5-song__time {
+    font: 600 14px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    min-width: 36px;
+    text-align: right;
+}
+.diapo5-song__lyrics {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: var(--md-sys-shape-extra-large);
+    border: 1.5px solid rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+.diapo5-song__section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    padding: var(--space-20) var(--space-24);
+    margin: 0;
+    text-align: left;
+}
+.diapo5-song__section--intro {
+    background: var(--md-sys-color-surface-container);
+    padding: var(--space-16) var(--space-24);
+}
+.diapo5-song__section--verse {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.diapo5-song__section--chorus {
+    background: rgba(212, 130, 106, 0.06);
+}
+.diapo5-song__line {
+    font: 600 15px 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    line-height: 1.8;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    text-align: left;
+}
+.diapo5-song__section--intro .diapo5-song__line {
+    font-weight: 400;
+    font-style: italic;
+    color: var(--md-sys-color-on-surface-variant);
+}
+.diapo5-song__section--chorus .diapo5-song__line {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
 
 /* Diapo5 responsive */
 @media (max-width: 1200px) {

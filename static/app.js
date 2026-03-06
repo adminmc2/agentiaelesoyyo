@@ -146,6 +146,9 @@ const elements = {
     diapo5Screen: document.getElementById('diapo5-screen'),
 
     // Diapo 6 screen
+    diapo6Screen: document.getElementById('diapo6-screen'),
+
+    // Diapo 7 screen
     diapo7Screen: document.getElementById('diapo7-screen'),
 
     // Plan screen
@@ -1870,7 +1873,18 @@ function updateRecordingUI(recording, processing = false) {
         diapo5MicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
     }
 
-    // Diapo6 screen — same toggle for diapo7 mic button
+    // Diapo6 screen
+    const diapo6MicBtn = document.getElementById('diapo6-mic-btn');
+    if (diapo6MicBtn) {
+        diapo6MicBtn.classList.toggle('recording', recording);
+        const icon = diapo6MicBtn.querySelector('.ph');
+        if (icon) {
+            icon.className = recording ? 'ph ph-stop-circle' : 'ph ph-microphone';
+        }
+        diapo6MicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
+    }
+
+    // Diapo7 screen
     const diapo7MicBtn = document.getElementById('diapo7-mic-btn');
     if (diapo7MicBtn) {
         diapo7MicBtn.classList.toggle('recording', recording);
@@ -1994,6 +2008,14 @@ async function transcribeAudio(audioBlob, extension = 'webm') {
             // Si estamos en Diapo 6, enviar al chat de Diapo 6
             if (isOnDiapo6Screen()) {
                 sendDiapo6Message(cleanText);
+                updateRecordingUI(false);
+                resumeWakeWordAfterRecording();
+                return;
+            }
+
+            // Si estamos en Diapo 7, enviar al chat de Diapo 7
+            if (isOnDiapo7Screen()) {
+                sendDiapo7Message(cleanText);
                 updateRecordingUI(false);
                 resumeWakeWordAfterRecording();
                 return;
@@ -2979,7 +3001,7 @@ function forceEnableTTS() {
  */
 function updateVoiceButton(enabled) {
     // Update both chat and blinda voice buttons
-    ['chat-voice-btn', 'blinda-voice-btn', 'diapo5-voice-btn', 'juego-voice-btn', 'diapo7-voice-btn'].forEach(id => {
+    ['chat-voice-btn', 'blinda-voice-btn', 'diapo5-voice-btn', 'juego-voice-btn', 'diapo6-voice-btn', 'diapo7-voice-btn'].forEach(id => {
         const btn = document.getElementById(id);
         if (!btn) return;
         if (enabled) {
@@ -4420,7 +4442,8 @@ const DIAPO5_KEYWORD_MAP = [
     { step: 5, patterns: ['actuar', 'tercera capacidad', 'tercer poder', 'acción'] },
     { step: 6, patterns: ['herramientas', 'cuarta capacidad', 'cuarto poder'] },
     { step: 7, patterns: ['memoria', 'quinta capacidad', 'quinto poder', 'recuerda'] },
-    { step: 8, patterns: ['multiplicar', 'vosotros por mil', 'no viene a sustituir', 'viene a multiplicar'] }
+    { step: 8, patterns: ['multiplicar', 'vosotros por mil', 'no viene a sustituir', 'viene a multiplicar'] },
+    { step: 9, patterns: ['canción', 'cancion', 'escuchad', 'música', 'musica'] }
 ];
 
 function showDiapo5Screen() {
@@ -4598,6 +4621,7 @@ function advanceDiapo5To(step) {
         else if (step === 2) renderDiapo5Intro();
         else if (step >= 3 && step <= 7) renderDiapo5Capability(step - 3);
         else if (step === 8) renderDiapo5Closing();
+        else if (step === 9) renderDiapo5Song();
     }
     document.querySelectorAll('[data-diapo5-dot]').forEach(dot => {
         dot.classList.toggle('demo-stepper__dot--active', parseInt(dot.dataset.diapo5Dot) === step);
@@ -4792,6 +4816,103 @@ function renderDiapo5Closing() {
     // Animate tagline
     const tagline = container.querySelector('.diapo5-closing__tagline');
     if (tagline) gsap.fromTo(tagline, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.5, delay: 1.4, ease: 'back.out(1.5)' });
+}
+
+// Step 9: Song
+function renderDiapo5Song() {
+    const container = document.getElementById('diapo5-step-9');
+    if (!container || container.dataset.rendered) return;
+    container.dataset.rendered = 'true';
+
+    container.innerHTML = `
+        <div class="diapo5-song">
+            <div class="diapo5-song__header">
+                <i class="ph-fill ph-music-notes"></i>
+                <h3 class="diapo5-song__title">LA CANCIÓN DEL AGENTE</h3>
+            </div>
+            <div class="diapo5-song__player">
+                <button class="diapo5-song__play-btn" id="diapo5-song-btn">
+                    <i class="ph-fill ph-play"></i>
+                </button>
+                <div class="diapo5-song__progress">
+                    <div class="diapo5-song__progress-bar" id="diapo5-song-progress"></div>
+                </div>
+                <span class="diapo5-song__time" id="diapo5-song-time">0:00</span>
+            </div>
+            <div class="diapo5-song__lyrics">
+                <div class="diapo5-song__section diapo5-song__section--intro">
+                    <span class="diapo5-song__line">¡ATENCIÓN PROFES! ESTO NO ES UN CHATBOT CUALQUIERA.</span>
+                </div>
+                <div class="diapo5-song__section diapo5-song__section--verse">
+                    <span class="diapo5-song__line">PRIMERO TE MIRO, TE LEO, TE ESCUCHO</span>
+                    <span class="diapo5-song__line"><strong style="color: #7EC8E3">PERCIBO</strong> TU MUNDO, ENTIENDO TU ASUNTO</span>
+                    <span class="diapo5-song__line">DESPUÉS ME LO PIENSO, <strong style="color: #81C784">RAZONO</strong> UN RATITO</span>
+                    <span class="diapo5-song__line">ELIJO EL CAMINO, CON CALMA Y CON RUMBO</span>
+                    <span class="diapo5-song__line">¡Y AHORA SÍ, <strong style="color: #F48FB1">ACTÚO</strong> CON GANAS!</span>
+                </div>
+                <div class="diapo5-song__section diapo5-song__section--chorus">
+                    <span class="diapo5-song__line"><strong style="color: #7EC8E3">PERCIBO</strong>, <strong style="color: #81C784">RAZONO</strong>, Y LUEGO <strong style="color: #F48FB1">ACTÚO</strong></span>
+                    <span class="diapo5-song__line">CON MIS <strong style="color: #B39DDB">HERRAMIENTAS</strong> SOY UN AGENTAZO</span>
+                    <span class="diapo5-song__line">Y SI VUELVES MAÑANA YO ME ACUERDO DE TODO</span>
+                    <span class="diapo5-song__line">¡<strong style="color: #FFB74D">MEMORIA</strong> DE PROFE, PERO SIN EL CANSANCIO!</span>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Song player
+    const songBtn = container.querySelector('#diapo5-song-btn');
+    const progressBar = container.querySelector('#diapo5-song-progress');
+    const timeDisplay = container.querySelector('#diapo5-song-time');
+    let songAudio = null;
+    let progressInterval = null;
+
+    const formatTime = (s) => {
+        const m = Math.floor(s / 60);
+        const sec = Math.floor(s % 60);
+        return m + ':' + (sec < 10 ? '0' : '') + sec;
+    };
+
+    songBtn?.addEventListener('click', () => {
+        if (!songAudio) {
+            songAudio = new Audio('/static/cancion-agente.mp3');
+            songAudio.addEventListener('ended', () => {
+                songBtn.innerHTML = '<i class="ph-fill ph-play"></i>';
+                songBtn.classList.remove('diapo5-song__play-btn--playing');
+                if (progressBar) progressBar.style.width = '0%';
+                if (timeDisplay) timeDisplay.textContent = '0:00';
+                clearInterval(progressInterval);
+            });
+        }
+        if (songAudio.paused) {
+            stopTTS();
+            songAudio.play();
+            songBtn.innerHTML = '<i class="ph-fill ph-pause"></i>';
+            songBtn.classList.add('diapo5-song__play-btn--playing');
+            progressInterval = setInterval(() => {
+                if (songAudio.duration) {
+                    const pct = (songAudio.currentTime / songAudio.duration) * 100;
+                    if (progressBar) progressBar.style.width = pct + '%';
+                    if (timeDisplay) timeDisplay.textContent = formatTime(songAudio.currentTime);
+                }
+            }, 250);
+        } else {
+            songAudio.pause();
+            songBtn.innerHTML = '<i class="ph-fill ph-play"></i>';
+            songBtn.classList.remove('diapo5-song__play-btn--playing');
+            clearInterval(progressInterval);
+        }
+    });
+
+    // Animate
+    const header = container.querySelector('.diapo5-song__header');
+    const player = container.querySelector('.diapo5-song__player');
+    const verses = container.querySelectorAll('.diapo5-song__verse');
+    if (header) gsap.fromTo(header, { opacity: 0, y: -15 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' });
+    if (player) gsap.fromTo(player, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.4, delay: 0.2, ease: 'back.out(1.4)' });
+    verses.forEach((v, i) => {
+        gsap.fromTo(v, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.35, delay: 0.4 + i * 0.15, ease: 'power2.out' });
+    });
 }
 
 // ---- End Diapo 5 ----
@@ -5168,7 +5289,7 @@ function replayJuego() {
 }
 
 // ============================================
-// DIAPO 6
+// DIAPO 6 — (vacía, por definir)
 // ============================================
 function showDiapo6Screen() {
     stopTTS();
@@ -5181,12 +5302,12 @@ function showDiapo6Screen() {
     elements.blindaScreen?.classList.add('hidden');
     elements.juegoScreen?.classList.add('hidden');
     elements.diapo5Screen?.classList.add('hidden');
+    elements.diapo7Screen?.classList.add('hidden');
 
-    elements.diapo7Screen?.classList.remove('hidden');
-    elements.diapo7Screen?.classList.remove('fade-out');
+    elements.diapo6Screen?.classList.remove('hidden');
+    elements.diapo6Screen?.classList.remove('fade-out');
 
-    // Orb
-    const orbContainer = document.getElementById('diapo7-orb-container');
+    const orbContainer = document.getElementById('diapo6-orb-container');
     if (orbContainer && window.orbCreateInElement) {
         const orbSize = window.innerWidth <= 480 ? 64 : window.innerWidth <= 968 ? 80 : 120;
         window.orbCreateInElement(orbContainer, orbSize);
@@ -5194,6 +5315,79 @@ function showDiapo6Screen() {
 }
 
 function hideDiapo6Screen() {
+    elements.diapo6Screen?.classList.add('fade-out');
+    setTimeout(() => {
+        elements.diapo6Screen?.classList.add('hidden');
+        elements.diapo6Screen?.classList.remove('fade-out');
+    }, 300);
+}
+
+function isOnDiapo6Screen() {
+    return elements.diapo6Screen && !elements.diapo6Screen.classList.contains('hidden');
+}
+
+function sendDiapo6Message(text) {
+    if (!text.trim()) return;
+    const container = document.getElementById('diapo6-chat-messages');
+    if (!container) return;
+    const userBubble = document.createElement('div');
+    userBubble.className = 'blinda-chat__bubble blinda-chat__bubble--user';
+    userBubble.textContent = text;
+    container.appendChild(userBubble);
+    container.scrollTop = container.scrollHeight;
+
+    const assistantBubble = document.createElement('div');
+    assistantBubble.className = 'blinda-chat__bubble blinda-chat__bubble--assistant';
+    assistantBubble.textContent = '...';
+    container.appendChild(assistantBubble);
+    let fullResponse = '';
+
+    const ws = state.ws;
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    const handleMsg = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'token') {
+            fullResponse += data.content;
+            assistantBubble.textContent = fullResponse;
+            container.scrollTop = container.scrollHeight;
+        } else if (data.type === 'end') {
+            ws.removeEventListener('message', handleMsg);
+            if (fullResponse && (state.ttsEnabled || state.voiceTriggered)) {
+                playTTS(fullResponse, true);
+            }
+        }
+    };
+    ws.addEventListener('message', handleMsg);
+    ws.send(JSON.stringify({ type: 'chat', message: text, activity_mode: 'diapo6' }));
+}
+
+// ============================================
+// DIAPO 7 — Elige tu agente
+// ============================================
+function showDiapo7Screen() {
+    stopTTS();
+    elements.loginScreen?.classList.add('hidden');
+    elements.conoceScreen?.classList.add('hidden');
+    elements.chatScreen?.classList.add('hidden');
+    elements.welcomeScreen?.classList.add('hidden');
+    elements.planScreen?.classList.add('hidden');
+    elements.profileScreen?.classList.add('hidden');
+    elements.blindaScreen?.classList.add('hidden');
+    elements.juegoScreen?.classList.add('hidden');
+    elements.diapo5Screen?.classList.add('hidden');
+    elements.diapo6Screen?.classList.add('hidden');
+
+    elements.diapo7Screen?.classList.remove('hidden');
+    elements.diapo7Screen?.classList.remove('fade-out');
+
+    const orbContainer = document.getElementById('diapo7-orb-container');
+    if (orbContainer && window.orbCreateInElement) {
+        const orbSize = window.innerWidth <= 480 ? 64 : window.innerWidth <= 968 ? 80 : 120;
+        window.orbCreateInElement(orbContainer, orbSize);
+    }
+}
+
+function hideDiapo7Screen() {
     elements.diapo7Screen?.classList.add('fade-out');
     setTimeout(() => {
         elements.diapo7Screen?.classList.add('hidden');
@@ -5201,11 +5395,11 @@ function hideDiapo6Screen() {
     }, 300);
 }
 
-function isOnDiapo6Screen() {
+function isOnDiapo7Screen() {
     return elements.diapo7Screen && !elements.diapo7Screen.classList.contains('hidden');
 }
 
-function addDiapo6ChatBubble(text, role) {
+function addDiapo7ChatBubble(text, role) {
     const container = document.getElementById('diapo7-chat-messages');
     if (!container) return;
     const bubble = document.createElement('div');
@@ -5216,16 +5410,13 @@ function addDiapo6ChatBubble(text, role) {
     return bubble;
 }
 
-function sendDiapo6Message(text) {
+function sendDiapo7Message(text) {
     if (!text.trim()) return;
-    addDiapo6ChatBubble(text, 'user');
-
-    const assistantBubble = addDiapo6ChatBubble('...', 'assistant');
+    addDiapo7ChatBubble(text, 'user');
+    const assistantBubble = addDiapo7ChatBubble('...', 'assistant');
     let fullResponse = '';
-
     const ws = state.ws;
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
-
     const handleMsg = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === 'token') {
@@ -5354,7 +5545,7 @@ function init() {
     // Diapo 5 — El Agente segun los Grandes Maestros
     document.getElementById('diapo5-nav-back')?.addEventListener('click', hideDiapo5Screen);
     document.getElementById('diapo5-nav-next')?.addEventListener('click', () => {
-        if (state.diapo5Step < 8) advanceDiapo5To(state.diapo5Step + 1);
+        if (state.diapo5Step < 9) advanceDiapo5To(state.diapo5Step + 1);
         else showDiapo6Screen();
     });
     // Stepper dots
@@ -5397,41 +5588,54 @@ function init() {
         }
     });
 
-    // Diapo 6
-    document.getElementById('diapo7-nav-back')?.addEventListener('click', () => {
+    // Diapo 6 — vacía
+    document.getElementById('diapo6-nav-back')?.addEventListener('click', () => {
         hideDiapo6Screen();
         setTimeout(() => showDiapo5Screen(), 300);
     });
-    document.getElementById('diapo7-nav-next')?.addEventListener('click', () => {
-        // Future: next screen after diapo7
-    });
-    // Diapo6 chat — send text
-    document.getElementById('diapo7-chat-send')?.addEventListener('click', () => {
-        const input = document.getElementById('diapo7-chat-input');
+    document.getElementById('diapo6-nav-next')?.addEventListener('click', () => showDiapo7Screen());
+    document.getElementById('diapo6-chat-send')?.addEventListener('click', () => {
+        const input = document.getElementById('diapo6-chat-input');
         const text = input?.value.trim();
         if (!text) return;
         input.value = '';
         sendDiapo6Message(text);
     });
+    document.getElementById('diapo6-chat-input')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('diapo6-chat-send')?.click(); }
+    });
+    document.getElementById('diapo6-mic-btn')?.addEventListener('click', () => {
+        enableTTS(); state.voiceTriggered = true;
+        if (state.isRecording) { state._discardRecording = true; stopRecording(); } else { startRecording(); }
+    });
+    document.getElementById('diapo6-voice-btn')?.addEventListener('click', () => {
+        if (state.ttsEnabled) disableTTS(); else enableTTS();
+    });
+
+    // Diapo 7 — Elige tu agente
+    document.getElementById('diapo7-nav-back')?.addEventListener('click', () => {
+        hideDiapo7Screen();
+        setTimeout(() => showDiapo6Screen(), 300);
+    });
+    document.getElementById('diapo7-nav-next')?.addEventListener('click', () => {
+        // Future: next screen after diapo7
+    });
+    document.getElementById('diapo7-chat-send')?.addEventListener('click', () => {
+        const input = document.getElementById('diapo7-chat-input');
+        const text = input?.value.trim();
+        if (!text) return;
+        input.value = '';
+        sendDiapo7Message(text);
+    });
     document.getElementById('diapo7-chat-input')?.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            document.getElementById('diapo7-chat-send')?.click();
-        }
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('diapo7-chat-send')?.click(); }
     });
     document.getElementById('diapo7-mic-btn')?.addEventListener('click', () => {
-        enableTTS();
-        state.voiceTriggered = true;
-        if (state.isRecording) {
-            state._discardRecording = true;
-            stopRecording();
-        } else {
-            startRecording();
-        }
+        enableTTS(); state.voiceTriggered = true;
+        if (state.isRecording) { state._discardRecording = true; stopRecording(); } else { startRecording(); }
     });
     document.getElementById('diapo7-voice-btn')?.addEventListener('click', () => {
-        if (state.ttsEnabled) disableTTS();
-        else enableTTS();
+        if (state.ttsEnabled) disableTTS(); else enableTTS();
     });
 
     // Conoce screen — back/next/logout
