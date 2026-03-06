@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=19.7.4">
+    <link rel="stylesheet" href="/static/style.css?v=19.8.0">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -521,6 +521,66 @@
         </main>
 
         <!-- ============================================
+             DIAPO 6 — (por definir)
+             ============================================ -->
+        <main class="main-content diapo6-screen hidden" id="diapo6-screen">
+            <div class="diapo6-page">
+                <!-- Columna izquierda: Eliana (orb + chat) -->
+                <div class="diapo6-left">
+                    <button class="blinda-nav-btn blinda-nav-btn--back" id="diapo6-nav-back" title="Volver">
+                        <i class="ph ph-arrow-left"></i>
+                    </button>
+
+                    <div class="blinda-orb-wrapper">
+                        <div class="orb-container" id="diapo6-orb-container"></div>
+                    </div>
+
+                    <div class="blinda-chat" id="diapo6-chat">
+                        <div class="blinda-chat__messages" id="diapo6-chat-messages">
+                            <div class="blinda-chat__bubble blinda-chat__bubble--assistant">
+                                Estoy aquí para lo que necesitéis.
+                            </div>
+                        </div>
+                        <div class="blinda-chat__input-container">
+                            <div class="blinda-chat__input-row">
+                                <textarea
+                                    id="diapo6-chat-input"
+                                    class="blinda-chat__textarea"
+                                    placeholder="Escribe a Eliana..."
+                                    rows="1"
+                                    autocomplete="off"
+                                ></textarea>
+                                <button class="blinda-chat__send" id="diapo6-chat-send" title="Enviar">
+                                    <i class="ph ph-paper-plane-tilt"></i>
+                                </button>
+                            </div>
+                            <div class="blinda-chat__actions-row">
+                                <button class="chat-action-btn" id="diapo6-mic-btn" title="Grabar voz">
+                                    <i class="ph ph-microphone"></i>
+                                    <span class="chat-action-label">Hablar</span>
+                                </button>
+                                <button class="chat-action-btn chat-action-btn--voice" id="diapo6-voice-btn" title="Voz de Eliana">
+                                    <i class="ph-bold ph-waveform"></i>
+                                    <span class="chat-action-label">Voz IA</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna derecha: contenido (por definir) -->
+                <div class="diapo6-right">
+                    <button class="blinda-nav-btn blinda-nav-btn--next" id="diapo6-nav-next" title="Siguiente">
+                        <i class="ph ph-arrow-right"></i>
+                    </button>
+                    <div class="diapo6-content" id="diapo6-content">
+                        <p style="color: var(--md-sys-color-on-surface-variant); font: 500 18px 'Source Sans 3', sans-serif;">Contenido de la diapositiva 6</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ============================================
              PANTALLA TARJETA PERFIL
              ============================================ -->
         <main class="main-content profile-screen hidden" id="profile-screen">
@@ -988,6 +1048,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=19.7.4"></script>
+    <script src="/static/app.js?v=19.8.0"></script>
 </body>
 </html>

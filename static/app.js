@@ -145,6 +145,9 @@ const elements = {
     // Diapo 5 screen
     diapo5Screen: document.getElementById('diapo5-screen'),
 
+    // Diapo 6 screen
+    diapo6Screen: document.getElementById('diapo6-screen'),
+
     // Plan screen
     planScreen: document.getElementById('plan-screen'),
     planBackBtn: document.getElementById('plan-back-btn'),
@@ -1867,6 +1870,17 @@ function updateRecordingUI(recording, processing = false) {
         diapo5MicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
     }
 
+    // Diapo6 screen — same toggle for diapo6 mic button
+    const diapo6MicBtn = document.getElementById('diapo6-mic-btn');
+    if (diapo6MicBtn) {
+        diapo6MicBtn.classList.toggle('recording', recording);
+        const icon = diapo6MicBtn.querySelector('.ph');
+        if (icon) {
+            icon.className = recording ? 'ph ph-stop-circle' : 'ph ph-microphone';
+        }
+        diapo6MicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
+    }
+
     // Orb 3D
     if (window.orbSetListening) window.orbSetListening(recording);
 
@@ -1972,6 +1986,14 @@ async function transcribeAudio(audioBlob, extension = 'webm') {
             // Si estamos en Diapo 5, enviar al chat de Diapo 5
             if (isOnDiapo5Screen()) {
                 sendDiapo5Message(cleanText);
+                updateRecordingUI(false);
+                resumeWakeWordAfterRecording();
+                return;
+            }
+
+            // Si estamos en Diapo 6, enviar al chat de Diapo 6
+            if (isOnDiapo6Screen()) {
+                sendDiapo6Message(cleanText);
                 updateRecordingUI(false);
                 resumeWakeWordAfterRecording();
                 return;
@@ -2957,7 +2979,7 @@ function forceEnableTTS() {
  */
 function updateVoiceButton(enabled) {
     // Update both chat and blinda voice buttons
-    ['chat-voice-btn', 'blinda-voice-btn', 'diapo5-voice-btn', 'juego-voice-btn'].forEach(id => {
+    ['chat-voice-btn', 'blinda-voice-btn', 'diapo5-voice-btn', 'juego-voice-btn', 'diapo6-voice-btn'].forEach(id => {
         const btn = document.getElementById(id);
         if (!btn) return;
         if (enabled) {
@@ -4411,6 +4433,7 @@ function showDiapo5Screen() {
     elements.profileScreen?.classList.add('hidden');
     elements.blindaScreen?.classList.add('hidden');
     elements.juegoScreen?.classList.add('hidden');
+    elements.diapo6Screen?.classList.add('hidden');
 
     elements.diapo5Screen?.classList.remove('hidden');
     elements.diapo5Screen?.classList.remove('fade-out');
@@ -5139,6 +5162,83 @@ function replayJuego() {
 }
 
 // ============================================
+// DIAPO 6
+// ============================================
+function showDiapo6Screen() {
+    stopTTS();
+    elements.loginScreen?.classList.add('hidden');
+    elements.conoceScreen?.classList.add('hidden');
+    elements.chatScreen?.classList.add('hidden');
+    elements.welcomeScreen?.classList.add('hidden');
+    elements.planScreen?.classList.add('hidden');
+    elements.profileScreen?.classList.add('hidden');
+    elements.blindaScreen?.classList.add('hidden');
+    elements.juegoScreen?.classList.add('hidden');
+    elements.diapo5Screen?.classList.add('hidden');
+
+    elements.diapo6Screen?.classList.remove('hidden');
+    elements.diapo6Screen?.classList.remove('fade-out');
+
+    // Orb
+    const orbContainer = document.getElementById('diapo6-orb-container');
+    if (orbContainer && window.orbCreateInElement) {
+        const orbSize = window.innerWidth <= 480 ? 64 : window.innerWidth <= 968 ? 80 : 120;
+        window.orbCreateInElement(orbContainer, orbSize);
+    }
+}
+
+function hideDiapo6Screen() {
+    elements.diapo6Screen?.classList.add('fade-out');
+    setTimeout(() => {
+        elements.diapo6Screen?.classList.add('hidden');
+        elements.diapo6Screen?.classList.remove('fade-out');
+    }, 300);
+}
+
+function isOnDiapo6Screen() {
+    return elements.diapo6Screen && !elements.diapo6Screen.classList.contains('hidden');
+}
+
+function addDiapo6ChatBubble(text, role) {
+    const container = document.getElementById('diapo6-chat-messages');
+    if (!container) return;
+    const bubble = document.createElement('div');
+    bubble.className = `blinda-chat__bubble blinda-chat__bubble--${role}`;
+    bubble.textContent = text;
+    container.appendChild(bubble);
+    container.scrollTop = container.scrollHeight;
+    return bubble;
+}
+
+function sendDiapo6Message(text) {
+    if (!text.trim()) return;
+    addDiapo6ChatBubble(text, 'user');
+
+    const assistantBubble = addDiapo6ChatBubble('...', 'assistant');
+    let fullResponse = '';
+
+    const ws = state.ws;
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+    const handleMsg = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'token') {
+            fullResponse += data.content;
+            assistantBubble.textContent = fullResponse;
+            const container = document.getElementById('diapo6-chat-messages');
+            if (container) container.scrollTop = container.scrollHeight;
+        } else if (data.type === 'end') {
+            ws.removeEventListener('message', handleMsg);
+            if (fullResponse && (state.ttsEnabled || state.voiceTriggered)) {
+                playTTS(fullResponse, true);
+            }
+        }
+    };
+    ws.addEventListener('message', handleMsg);
+    ws.send(JSON.stringify({ type: 'chat', message: text, activity_mode: 'diapo6' }));
+}
+
+// ============================================
 // Event Listeners
 // ============================================
 function init() {
@@ -5248,9 +5348,8 @@ function init() {
     // Diapo 5 — El Agente segun los Grandes Maestros
     document.getElementById('diapo5-nav-back')?.addEventListener('click', hideDiapo5Screen);
     document.getElementById('diapo5-nav-next')?.addEventListener('click', () => {
-        // Future: next screen after diapo5
-        // For now advance demo step
-        if (state.diapo5Step < 7) advanceDiapo5To(state.diapo5Step + 1);
+        if (state.diapo5Step < 8) advanceDiapo5To(state.diapo5Step + 1);
+        else showDiapo6Screen();
     });
     // Stepper dots
     document.querySelectorAll('[data-diapo5-dot]').forEach(dot => {
@@ -5290,6 +5389,43 @@ function init() {
         } else {
             enableTTS();
         }
+    });
+
+    // Diapo 6
+    document.getElementById('diapo6-nav-back')?.addEventListener('click', () => {
+        hideDiapo6Screen();
+        setTimeout(() => showDiapo5Screen(), 300);
+    });
+    document.getElementById('diapo6-nav-next')?.addEventListener('click', () => {
+        // Future: next screen after diapo6
+    });
+    // Diapo6 chat — send text
+    document.getElementById('diapo6-chat-send')?.addEventListener('click', () => {
+        const input = document.getElementById('diapo6-chat-input');
+        const text = input?.value.trim();
+        if (!text) return;
+        input.value = '';
+        sendDiapo6Message(text);
+    });
+    document.getElementById('diapo6-chat-input')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            document.getElementById('diapo6-chat-send')?.click();
+        }
+    });
+    document.getElementById('diapo6-mic-btn')?.addEventListener('click', () => {
+        enableTTS();
+        state.voiceTriggered = true;
+        if (state.isRecording) {
+            state._discardRecording = true;
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    });
+    document.getElementById('diapo6-voice-btn')?.addEventListener('click', () => {
+        if (state.ttsEnabled) disableTTS();
+        else enableTTS();
     });
 
     // Conoce screen — back/next/logout
