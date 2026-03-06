@@ -6375,7 +6375,7 @@ body[data-mood-active] .message.assistant {
     }
     .juego-card__situation { font-size: 15px; line-height: 1.75; margin-bottom: var(--space-8); }
     .juego-option-btn {
-        padding: var(--space-14, 14px) var(--space-16);
+        padding: var(--space-14, 14px) var(--space-16) var(--space-14, 14px) var(--space-20);
         font-size: 14px;
         line-height: 1.6;
         align-items: center;
