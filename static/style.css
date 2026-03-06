@@ -1409,11 +1409,11 @@ body[data-mood-active] .bento-card--mood {
 }
 
 .conoce-back-btn {
-    position: absolute;
-    top: 1.5rem;
-    left: 1.5rem;
-    width: 40px;
-    height: 40px;
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: none;
     background: rgba(0, 0, 0, 0.05);
@@ -1422,9 +1422,10 @@ body[data-mood-active] .bento-card--mood {
     align-items: center;
     justify-content: center;
     color: var(--md-sys-color-on-surface-variant);
-    font-size: 20px;
+    font-size: 16px;
     transition: background 0.15s;
     touch-action: manipulation;
+    z-index: 10;
 }
 
 .conoce-back-btn:active {
@@ -1432,11 +1433,11 @@ body[data-mood-active] .bento-card--mood {
 }
 
 .conoce-next-btn {
-    position: absolute;
-    top: 1.5rem;
-    right: 1.5rem;
-    width: 40px;
-    height: 40px;
+    position: fixed;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: none;
     background: rgba(0, 0, 0, 0.05);
@@ -1445,7 +1446,7 @@ body[data-mood-active] .bento-card--mood {
     align-items: center;
     justify-content: center;
     color: var(--md-sys-color-on-surface-variant);
-    font-size: 20px;
+    font-size: 16px;
     transition: background 0.15s;
     touch-action: manipulation;
     z-index: 10;
@@ -1935,10 +1936,8 @@ body[data-mood-active] .bento-card--mood {
         box-sizing: border-box;
     }
     .conoce-back-btn {
-        position: fixed;
-        top: 1rem;
-        left: 1rem;
-        z-index: 10;
+        top: 0.75rem;
+        left: 0.75rem;
     }
     .conoce-left {
         padding: 0;
@@ -4874,10 +4873,10 @@ body[data-mood-active] .message.assistant {
 
 /* -- Nav arrows (same style as conoce-back-btn/conoce-next-btn) -- */
 .blinda-nav-btn {
-    position: absolute;
-    top: 1.5rem;
-    width: 40px;
-    height: 40px;
+    position: fixed;
+    top: 0.75rem;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: none;
     background: rgba(0, 0, 0, 0.05);
@@ -4886,15 +4885,15 @@ body[data-mood-active] .message.assistant {
     align-items: center;
     justify-content: center;
     color: var(--md-sys-color-on-surface-variant);
-    font-size: 20px;
+    font-size: 16px;
     transition: background 0.15s;
     touch-action: manipulation;
     z-index: 10;
 }
 .blinda-nav-btn:hover { background: rgba(0, 0, 0, 0.08); }
 .blinda-nav-btn:active { background: rgba(0, 0, 0, 0.12); }
-.blinda-nav-btn--back { left: 1.5rem; }
-.blinda-nav-btn--next { right: 1.5rem; }
+.blinda-nav-btn--back { left: 0.75rem; }
+.blinda-nav-btn--next { right: 0.75rem; }
 
 /* -- Right column: game "TV frame" (same shape as login-right) -- */
 .blinda-right {
@@ -5554,11 +5553,11 @@ body[data-mood-active] .message.assistant {
 /* Nav button */
 .juego-nav-btn {
     position: fixed;
-    top: 1rem;
-    left: 1rem;
+    top: 0.75rem;
+    left: 0.75rem;
     z-index: 10;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: none;
     background: rgba(0, 0, 0, 0.05);
@@ -5567,13 +5566,13 @@ body[data-mood-active] .message.assistant {
     align-items: center;
     justify-content: center;
     color: var(--md-sys-color-on-surface-variant);
-    font-size: 20px;
+    font-size: 16px;
     transition: background 0.15s;
     touch-action: manipulation;
 }
 .juego-nav-btn:hover { background: rgba(0, 0, 0, 0.08); }
 .juego-nav-btn:active { background: rgba(0, 0, 0, 0.12); }
-.juego-nav-btn--right { left: auto; right: 1rem; }
+.juego-nav-btn--right { left: auto; right: 0.75rem; }
 
 /* Header */
 .juego-header {
