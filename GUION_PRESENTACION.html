@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Guión Detallado — Destino ELE Kaunas 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; color: #1a1a1a; line-height: 1.7; max-width: 900px; margin: 0 auto; padding: 40px 32px; background: #fff; }
+  h1 { font-size: 28px; font-weight: 800; text-align: center; margin-bottom: 8px; color: #994E95; }
+  h1 small { display: block; font-size: 14px; font-weight: 500; color: #666; margin-top: 4px; }
+  h2 { font-size: 22px; font-weight: 700; margin: 44px 0 16px; padding: 10px 16px; background: linear-gradient(135deg, #994E95 0%, #6B82C4 100%); color: #fff; border-radius: 8px; page-break-before: always; }
+  h2:first-of-type { page-break-before: avoid; }
+  h3 { font-size: 16px; font-weight: 700; margin: 24px 0 8px; color: #994E95; border-bottom: 2px solid #EDE7F6; padding-bottom: 4px; }
+  h4 { font-size: 14px; font-weight: 700; margin: 16px 0 6px; color: #333; }
+  p, li { margin: 6px 0; font-size: 14px; }
+  ul, ol { margin: 6px 0 6px 24px; }
+  .box { padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; }
+  .context { background: #FFF3E0; border-left: 4px solid #FFB74D; }
+  .eliana { background: #EDE7F6; border-left: 4px solid #994E95; font-style: italic; }
+  .eliana::before { content: "ELIANA: "; font-style: normal; font-weight: 700; color: #994E95; }
+  .roman { background: #E3F2FD; border-left: 4px solid #6B82C4; }
+  .roman::before { content: "ROMAN: "; font-weight: 700; color: #6B82C4; }
+  .screen { background: #F3E5F5; border-left: 4px solid #B39DDB; }
+  .screen::before { content: "PANTALLA: "; font-weight: 700; color: #7B1FA2; }
+  .warn { background: #FCE4EC; border-left: 4px solid #F48FB1; }
+  .warn::before { content: "CUIDADO: "; font-weight: 700; color: #c62828; }
+  .tip { background: #E8F5E9; border-left: 4px solid #81C784; }
+  .tip::before { content: "CONSEJO: "; font-weight: 700; color: #2E7D32; }
+  .explain { background: #FAFAFA; border-left: 4px solid #BDBDBD; }
+  .explain::before { content: "EXPLICACIÓN: "; font-weight: 700; color: #616161; }
+  .kw { display: inline-block; background: #EDE7F6; color: #994E95; font-family: monospace; font-size: 12px; padding: 2px 8px; border-radius: 4px; margin: 2px; }
+  .phase { display: inline-block; background: #994E95; color: #fff; font-weight: 800; font-size: 12px; width: 28px; height: 28px; line-height: 28px; text-align: center; border-radius: 50%; margin-right: 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  th { background: #F5F5F5; font-weight: 700; text-align: left; padding: 10px 12px; border: 1px solid #E0E0E0; }
+  td { padding: 10px 12px; border: 1px solid #E0E0E0; vertical-align: top; }
+  tr:nth-child(even) { background: #FAFAFA; }
+  hr { border: none; border-top: 1px solid #E0E0E0; margin: 32px 0; }
+  .nav-box { background: #F3E5F5; padding: 16px 20px; border-radius: 8px; margin: 16px 0; font-size: 14px; }
+  .nav-box strong { color: #994E95; }
+  @media print {
+    body { padding: 20px; font-size: 12px; }
+    h2 { font-size: 18px; }
+    .box { break-inside: avoid; }
+    table { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>
+  Guión Detallado de Presentación
+  <small>Destino ELE Kaunas 2026 — AgentiaELE</small>
+  <small>Román Navarro (Hablandis) &amp; Armando Cruz (Prisma Consul)</small>
+  <small>Co-presentadora IA: Eliana (voz sintética + LLM)</small>
+</h1>
+
+<div class="nav-box">
+  <strong>Cómo funciona la app:</strong><br>
+  • La presentación es una web app. Cada "diapositiva" es una pantalla completa.<br>
+  • <strong>Flechas arriba izq/der:</strong> cambian de diapositiva (no de paso interno).<br>
+  • <strong>Stepper dots (bolitas abajo):</strong> cambian de paso DENTRO de una diapositiva. Útil si algo falla.<br>
+  • <strong>"Hey Eliana" (wake word):</strong> activa el micro. Eliana escucha, responde por voz y texto.<br>
+  • <strong>Chat escrito:</strong> cada diapo tiene un chat a la izquierda donde puedes escribir.<br>
+  • <strong>Regla fundamental:</strong> cada mensaje que envías = Eliana avanza UNA fase. No envíes dos sin esperar respuesta.
+</div>
+
+<!-- ============================================ -->
+<h2>DIAPO 1 — Login + Conoce a Eliana</h2>
+<!-- ============================================ -->
+
+<h3>Qué es esta diapositiva</h3>
+<div class="box explain">Esta es la pantalla de entrada. Los profesores llegan, escanean un QR o entran a la URL, y ven la pantalla de login con el nombre "ELIANA" y el tagline "Tu criterio, su ritmo: agentes que personalizan la enseñanza sin perder el control pedagógico". Pulsan "Entrar" y pasan a elegir una actividad para romper el hielo.</div>
+
+<h3>Qué ven los profesores</h3>
+<div class="box screen">Pantalla dividida: izquierda con el orb 3D de Eliana y botón "Entrar", derecha con frase motivacional y QR. Después del login: pantalla "Conoce a Eliana" con 3 tarjetas de actividad para elegir.</div>
+
+<h3>Las 3 actividades de rompehielos</h3>
+
+<h4>1. Yo Nunca Nunca de Profe</h4>
+<div class="box explain">Eliana propone situaciones tipo "Yo nunca nunca he puesto una actividad en parejas solo para ganar tiempo de pensar". El profe dice si le ha pasado o no. Son 4 turnos de chat. Eliana es graciosa, cercana, conecta con la realidad docente. Al 4o turno cierra sola.</div>
+
+<h4>2. Dime Algo y Te Digo Quién Eres</h4>
+<div class="box explain">El profe dice una palabra favorita en español. Eliana hace un "perfil psicológico absurdamente certero" basado en esa palabra. Es humor puro. Ejemplo: si dice "madrugada" → "Tú preparas clases a las 2 de la mañana con un café que ya no hace efecto". 4 turnos.</div>
+
+<h4>3. Lo Que Nunca Le Preguntas a una IA</h4>
+<div class="box explain">Preguntas íntimas entre el profe y Eliana. Ella también comparte "secretos" de IA. Tono confesional pero ligero. 4 turnos.</div>
+
+<h3>Tu rol aquí (Román/Armando)</h3>
+<div class="box tip">No necesitas hablar con Eliana. Los profes juegan solos en sus móviles. Tú puedes pasear por la sala, comentar lo que hacen, crear ambiente. Cuando la mayoría haya terminado, avanza con la flecha a la siguiente diapo.</div>
+
+<h3>Después de la actividad</h3>
+<div class="box explain">Cada profe recibe una "Tarjeta de Perfil" generada por Eliana: título creativo, rasgos, frase memorable, superpoder y predicción. Pueden descargarla o compartirla. Es un souvenir divertido.</div>
+
+<!-- ============================================ -->
+<h2>DIAPO 3 — Blinda tu Prompt (Demo en plenaria)</h2>
+<!-- ============================================ -->
+
+<h3>Qué es esta diapositiva</h3>
+<div class="box explain">Es un juego de tarjetas sobre IA aplicada a ELE. Hay 5 "territorios" (categorías temáticas). Cada tarjeta presenta una situación real donde alguien usó mal un prompt y la IA dio un resultado mediocre. La sala debe elegir cuál de 3 opciones (A/B/C) mejoraría el prompt.<br><br>
+El flujo es: (1) Eliana presenta los territorios, (2) explica la mecánica, (3) hacéis una demo juntos con una tarjeta de ejemplo ante toda la sala, (4) los profes juegan solos en sus móviles.</div>
+
+<h3>Layout de pantalla</h3>
+<div class="box screen">Izquierda (45%): orb de Eliana + chat con ella. Derecha (55%): panel visual que cambia según la fase — primero las 5 tarjetas de territorios, luego la tarjeta demo con opciones A/B/C, luego instrucciones para jugar.</div>
+
+<h3>Los 5 territorios</h3>
+<table>
+  <tr><th>Color</th><th>Territorio</th><th>Trata sobre...</th></tr>
+  <tr><td style="color:#6B82C4">Azul</td><td>Didáctica</td><td>Diseñar actividades con IA</td></tr>
+  <tr><td style="color:#81C784">Verde</td><td>Precisión</td><td>Que la IA ajuste bien el nivel</td></tr>
+  <tr><td style="color:#F48FB1">Rosa</td><td>Ética</td><td>Sesgos, estereotipos, privacidad</td></tr>
+  <tr><td style="color:#FFB74D">Naranja</td><td>Evaluación</td><td>Rúbricas y feedback</td></tr>
+  <tr><td style="color:#B39DDB">Violeta</td><td>Limitaciones técnicas</td><td>Cuando la IA se corta o pierde el hilo</td></tr>
+</table>
+
+<h3>Flujo paso a paso</h3>
+
+<h4><span class="phase">0</span> Inicio (Eliana arranca sola al entrar en la diapo)</h4>
+<div class="box eliana">Genial, ya hemos roto el hielo. Ahora vamos a poner a prueba vuestro ojo crítico como profes. He preparado unas tarjetas que os van a sorprender. Román, cuando quieras.</div>
+<div class="box tip">Ella dice esto automáticamente. Tú no necesitas hacer nada. Espera a que termine.</div>
+
+<h4><span class="phase">1</span> Presenta los 5 territorios</h4>
+<div class="box roman">"Continuamos" o "Venga, Eliana" o "Adelante"</div>
+<div class="box eliana">El azul es Didáctica, cómo diseñas actividades con IA. El verde, Precisión, que la IA ajuste bien el nivel. El rosa va de Ética: sesgos, estereotipos, privacidad. El naranja es Evaluación, rúbricas y feedback. Y el violeta, Limitaciones técnicas, cuando la IA se corta o pierde el hilo.</div>
+<div class="box screen">Aparecen las 5 tarjetas de colores en el panel derecho. Mientras Eliana habla, cada tarjeta se resalta cuando menciona su color/nombre.</div>
+
+<h4><span class="phase">2</span> Explica la mecánica + tarjeta demo</h4>
+<div class="box roman">"Continuamos" o "¿Cómo funciona?" o "Explícales"</div>
+<div class="box eliana">Funciona así: cogemos una carta, la giramos, y aparece una situación real. Alguien le ha pedido algo a la IA y el resultado no es el adecuado. Vuestro trabajo es decidir cuál de las tres opciones — A, B o C — mejoraría ese prompt. Si acertáis, perfecto. Si no, os explico qué falla y cómo mejorarlo. Y tenéis un comodín: podéis hacerme una pregunta por carta antes de decidiros. ¿Algún término que no os suene?</div>
+<div class="box screen">Aparece la tarjeta demo en el panel. Territorio Verde (Precisión). Se ve la situación y las 3 opciones A, B, C.</div>
+
+<h4>La tarjeta demo (DETALLE)</h4>
+<div class="box context">
+  <strong>Situación:</strong> Prompt: "Da feedback sobre esta redacción B1". La IA responde: "Buen trabajo. Sigue así. Tienes buen nivel. Hay algunas cositas que mejorar".<br><br>
+  <strong>Opción A:</strong> Specific-feedback: "Cita 2 frases buenas del texto explicando por qué. Cita 2 errores con la corrección y la regla".<br>
+  <strong>Opción B:</strong> El feedback positivo general motiva al alumno a seguir escribiendo.<br>
+  <strong>Opción C:</strong> Pide que sea más largo y detallado: "Feedback de mínimo 200 palabras".<br><br>
+  <strong>Respuesta correcta: A.</strong> "Algunas cositas" no es feedback, es ruido. El specific-feedback exige citas del texto real. La C añade palabras, no sustancia.
+</div>
+
+<h4>Interacción con la sala</h4>
+<div class="box roman">"Han dicho la A" / "Dicen que la B" / "Alguien dice la C"</div>
+<table>
+  <tr><th>Si la sala dice...</th><th>Eliana responde...</th><th>Qué hacer tú</th></tr>
+  <tr><td><strong>A (correcta)</strong></td><td>"Enhorabuena, habéis acertado" (1 frase, sin explicar)</td><td>Celebra con la sala, di "continuamos"</td></tr>
+  <tr><td><strong>B o C (incorrecta)</strong></td><td>Da una pista sin revelar. Ej: "Pensad en qué tipo de feedback sería realmente útil..."</td><td>Anima a repensar. Si no aciertan a la 2a, di "Eliana, dinos la respuesta"</td></tr>
+</table>
+
+<h4><span class="phase">3</span> Manda a jugar en el móvil</h4>
+<div class="box roman">"Continuamos" o "Ahora os toca a vosotros"</div>
+<div class="box eliana">Sacad el móvil y elegid carta.</div>
+<div class="box screen">Instrucciones para el juego en móvil.</div>
+<div class="box tip">A partir de aquí los profes juegan solos. Si alguien pregunta por un término técnico, Eliana lo busca en su glosario interno y copia la definición exacta.</div>
+
+<h3>Keywords que activan los pasos visuales</h3>
+<table>
+  <tr><th>Paso visual</th><th>Se activa cuando Eliana dice...</th></tr>
+  <tr><td>Mostrar tarjetas</td><td><span class="kw">tarjeta</span> <span class="kw">carta</span> <span class="kw">baraja</span></td></tr>
+  <tr><td>Girar tarjeta demo</td><td><span class="kw">darle la vuelta</span> <span class="kw">ejemplo</span> <span class="kw">tres opciones</span></td></tr>
+  <tr><td>Resolver tarjeta</td><td><span class="kw">acertado</span> <span class="kw">correcto</span> <span class="kw">os explico</span></td></tr>
+  <tr><td>Jugar en móvil</td><td><span class="kw">os toca</span> <span class="kw">sacad el</span> <span class="kw">vuestro turno</span></td></tr>
+</table>
+
+<div class="box warn">Si la pantalla no avanza y Eliana ya dijo las keywords, usa los stepper dots (bolitas de abajo) para mover manualmente al paso correcto.</div>
+
+<!-- ============================================ -->
+<h2>DIAPO 4 — Juego Blinda (Individual en móvil)</h2>
+<!-- ============================================ -->
+
+<h3>Qué es esta diapositiva</h3>
+<div class="box explain">Pantalla de transición. Los profes ya están jugando en sus móviles con las tarjetas de Blinda tu Prompt. En la pantalla grande se muestra el logo del juego y las instrucciones. No hay interacción con Eliana aquí.</div>
+
+<h3>Tu rol</h3>
+<div class="box tip">Pasea por la sala, comenta con los profes, ayuda si alguien tiene dudas. Cuando la mayoría haya terminado (5-10 min), usa la flecha derecha para pasar a la siguiente diapo.</div>
+
+<!-- ============================================ -->
+<h2>DIAPO 5 — ¿Qué es un Agente de IA?</h2>
+<!-- ============================================ -->
+
+<h3>Qué es esta diapositiva</h3>
+<div class="box explain">La sección más conceptual. Se explica qué es un agente de IA usando una metáfora que los profes entienden: el restaurante. Un chatbot es un camarero que lee la carta (siempre igual). Un agente es el chef (observa, piensa, cocina, tiene herramientas, recuerda). Se presentan las 5 capacidades una a una con humor y ejemplos docentes.<br><br>
+Al final hay una canción original que resume las 5 capacidades.</div>
+
+<h3>Layout de pantalla</h3>
+<div class="box screen">Izquierda (45%): orb de Eliana + chat. Derecha (55%): panel visual que cambia con cada capacidad — muestra icono, nombre, analogía del chef, ejemplo docente. 10 pasos internos (0-9) con stepper dots.</div>
+
+<h3>Las 5 capacidades del agente</h3>
+<table>
+  <tr><th>Capacidad</th><th>El chef...</th><th>El agente...</th><th>Los profes...</th></tr>
+  <tr><td style="color:#7EC8E3"><strong>PERCIBIR</strong></td><td>Mira qué ingredientes hay, quién está en la mesa</td><td>Observa quién es el alumno, qué nivel, qué necesita</td><td>En 30 seg sabéis quién no ha dormido</td></tr>
+  <tr><td style="color:#81C784"><strong>RAZONAR</strong></td><td>Decide qué plato para cada mesa</td><td>Decide qué estrategia usar</td><td>Cambio de plan, hoy toca juego</td></tr>
+  <tr><td style="color:#F48FB1"><strong>ACTUAR</strong></td><td>Cocina, no se queda mirando la receta</td><td>Genera ejercicios, adapta textos, crea audio</td><td>Dejáis el café y entráis al aula</td></tr>
+  <tr><td style="color:#B39DDB"><strong>HERRAMIENTAS</strong></td><td>Cuchillos, horno, especias</td><td>MCER, generadores de audio, adaptadores</td><td>El libro, el vídeo de las 11pm, fichas</td></tr>
+  <tr><td style="color:#FFB74D"><strong>MEMORIA</strong></td><td>Recuerda que mesa 3 es celíaca</td><td>Recuerda que María lleva 2 semanas con subjuntivo</td><td>Primera semana con 120 nombres nuevos</td></tr>
+</table>
+
+<h3>Flujo paso a paso (DETALLE)</h3>
+
+<h4><span class="phase">0</span> Nube de palabras</h4>
+<div class="box roman">"Eliana, empezamos" o "Vamos con los agentes"</div>
+<div class="box eliana">Cuando escucháis agente de IA, qué os viene a la cabeza? Venga, lluvia de ideas.</div>
+<div class="box screen">Aparece un espacio de nube de palabras. Paso 1 del stepper.</div>
+<div class="box explain">Aquí puedes recoger palabras de la sala y pasárselas: "Dicen robot", "Alguien dice ChatGPT". Eliana reacciona con humor breve y cierra: "Vamos a ver qué es realmente un agente. Román, dale."</div>
+
+<h4><span class="phase">1</span> Chatbot vs Agente</h4>
+<div class="box roman">"Dale" / "Siguiente" / "Venga"</div>
+<div class="box eliana">Imaginad un restaurante. Un chatbot es un camarero que lee la carta: le preguntas qué hay y te dice sopa, ensalada y carne. A todos igual, siempre lo mismo. Un agente es el chef. Observa, piensa, cocina, tiene herramientas y recuerda los gustos de cada mesa. Vamos a ver sus cinco capacidades una a una. Román, cuando quieras.</div>
+<div class="box screen">Visual con la metáfora chatbot/camarero vs agente/chef.</div>
+
+<h4><span class="phase">2</span> PERCIBIR</h4>
+<div class="box roman">"Siguiente" / "Primera capacidad"</div>
+<div class="box eliana">Primera capacidad: percibir. El chef mira qué ingredientes hay, quién está en la mesa, si hay algún alérgico. El agente hace lo mismo: observa quién es el alumno, qué nivel tiene, qué necesita. Vosotros entráis a clase y en 30 segundos sabéis quién no ha dormido y quién va a dar guerra. Esa es la primera. Román, vamos con la segunda.</div>
+<div class="box screen">Tarjeta PERCIBIR con icono ojo, color cyan, analogía chef + ejemplo docente.</div>
+
+<h4><span class="phase">3</span> RAZONAR</h4>
+<div class="box roman">"Siguiente"</div>
+<div class="box eliana">Segunda capacidad: razonar. El chef decide qué plato va mejor para cada mesa. El agente decide qué estrategia usar. Vosotros decidís en tiempo real: cambio de plan, hoy toca juego porque están muertos. No improvisa a lo loco, tiene un plan. Román, siguiente.</div>
+
+<h4><span class="phase">4</span> ACTUAR</h4>
+<div class="box roman">"Siguiente"</div>
+<div class="box eliana">Tercera capacidad: actuar. El chef cocina, no se queda mirando la receta. El agente genera el ejercicio, adapta el texto, crea el audio. Vosotros dejáis el café y entráis al aula. Basta de pensar, es hora de hacer. Vamos con la cuarta, Román.</div>
+
+<h4><span class="phase">5</span> HERRAMIENTAS</h4>
+<div class="box roman">"Siguiente"</div>
+<div class="box eliana">Cuarta capacidad: herramientas. El chef tiene cuchillos, horno, especias. Sin herramientas no hay cocina. El agente tiene el MCER, generadores de audio, bancos de ejercicios, adaptadores de textos. Vosotros tenéis el libro, ese vídeo que encontrasteis a las 11 de la noche, las fichas de la compañera. Nos queda la última, Román.</div>
+
+<h4><span class="phase">6</span> MEMORIA</h4>
+<div class="box roman">"Siguiente" / "La última"</div>
+<div class="box eliana">Quinta y última capacidad: memoria. El chef recuerda que la mesa 3 es celíaca y que la mesa 7 pidió el vino de ayer. El agente recuerda que María lleva dos semanas con el subjuntivo y que Lucas no habla pero entiende todo. No empieza de cero cada sesión. No como vosotros la primera semana con 120 nombres nuevos. Y ahora juntamos todo, Román.</div>
+
+<h4><span class="phase">7</span> Cierre</h4>
+<div class="box roman">"Siguiente" / "Juntamos todo"</div>
+<div class="box eliana">Vosotros ya sois chefs. Cada clase es un menú distinto para comensales distintos. La diferencia es que cocinéis para 25 mesas a la vez, solos, cansados y sin ayudante. Un agente es un chef que puede cocinar para cada alumno a la vez, sin cansarse, sin olvidar nada. No viene a sustituir al chef. Viene a multiplicarlo. Y para que no se os olvide, os hemos preparado una canción que resume todo esto. Escuchad, escuchad.</div>
+<div class="box screen">Diagrama con las 5 capacidades juntas + frase "No viene a sustituir al chef. Viene a multiplicarlo."</div>
+
+<h4><span class="phase">8</span> Canción del Agente</h4>
+<div class="box screen">Reproductor de audio con botón play + letra de la canción con las 5 capacidades resaltadas en colores. Dale al play y deja que suene.</div>
+
+<h3>Keywords de auto-avance (referencia completa)</h3>
+<table>
+  <tr><th>Paso</th><th>Keywords de Eliana</th></tr>
+  <tr><td>1 - Nube</td><td><span class="kw">viene a la cabeza</span> <span class="kw">lluvia de ideas</span> <span class="kw">nube de palabras</span></td></tr>
+  <tr><td>2 - Chef</td><td><span class="kw">imaginad un restaurante</span> <span class="kw">chatbot es un camarero</span> <span class="kw">agente es el chef</span></td></tr>
+  <tr><td>3 - Percibir</td><td><span class="kw">percibir</span> <span class="kw">primera capacidad</span></td></tr>
+  <tr><td>4 - Razonar</td><td><span class="kw">razonar</span> <span class="kw">segunda capacidad</span></td></tr>
+  <tr><td>5 - Actuar</td><td><span class="kw">actuar</span> <span class="kw">tercera capacidad</span></td></tr>
+  <tr><td>6 - Herramientas</td><td><span class="kw">herramientas</span> <span class="kw">cuarta capacidad</span></td></tr>
+  <tr><td>7 - Memoria</td><td><span class="kw">memoria</span> <span class="kw">recuerda</span></td></tr>
+  <tr><td>8 - Cierre</td><td><span class="kw">viene a multiplicar</span> <span class="kw">no viene a sustituir</span></td></tr>
+</table>
+
+<!-- ============================================ -->
+<h2>DIAPO 6 — Agentes MIAU (los 8 gatos)</h2>
+<!-- ============================================ -->
+
+<h3>Qué es esta diapositiva</h3>
+<div class="box explain">Aquí se presentan 8 agentes IA concretos, cada uno con forma de gato y una función pedagógica específica. Los profes los "descubren" jugando: ven qué hace cada gato y eligen su nombre. Hay 2 actividades de ejemplo (vocabulario + texto/gramática). Después prueban los agentes de verdad en el móvil y hacen una encuesta.</div>
+
+<h3>Los 8 gatos (en 2 actividades)</h3>
+
+<h4>Actividad 1 — Vocabulario</h4>
+<table>
+  <tr><th>Gato</th><th>Qué hace</th></tr>
+  <tr><td><strong>Traductor</strong></td><td>Traducción pedagógica adaptada al nivel</td></tr>
+  <tr><td><strong>Expansor</strong></td><td>Genera vocabulario adicional por contexto y edad</td></tr>
+  <tr><td><strong>Enfocado</strong></td><td>Trabaja solo las palabras que el alumno elige</td></tr>
+  <tr><td><strong>Improvisador</strong></td><td>Actividad sorpresa basada en el perfil del alumno</td></tr>
+</table>
+
+<h4>Actividad 2 — Texto y Gramática</h4>
+<table>
+  <tr><th>Gato</th><th>Qué hace</th></tr>
+  <tr><td><strong>Masticador (Léxico)</strong></td><td>Extrae vocabulario clave del texto</td></tr>
+  <tr><td><strong>Aprobador (Gramapop)</strong></td><td>Píldoras de gramática contextual</td></tr>
+  <tr><td><strong>Mirón (Comprensión)</strong></td><td>Actividades visuales de comprensión lectora</td></tr>
+  <tr><td><strong>Explorador (Mapa Mental)</strong></td><td>Organiza ideas visualmente</td></tr>
+</table>
+
+<h3>Flujo paso a paso</h3>
+
+<h4><span class="phase">0</span> ¿Por qué gatos?</h4>
+<div class="box roman">"Eliana, cuéntanos estos agentes" / "¿Por qué gatos?"</div>
+<div class="box eliana">Estos son los agentes MIAU. ¿Por qué gatos? Porque son independientes, curiosos y siempre caen de pie. Como un buen agente IA.</div>
+<div class="box explain">Si preguntas más ("¿Qué tienen los gatos de agente?"), Eliana amplía con analogías: curiosos (investigan todo), van a su aire (se adaptan), caen de pie (si algo falla reformulan), independientes pero sociables (trabajan solos pero en equipo).</div>
+
+<h4><span class="phase">1</span> Actividad 1: Vocabulario</h4>
+<div class="box roman">"¿Cómo funcionan?" / "Vamos a descubrirlos" / "Sacad los móviles"</div>
+<div class="box eliana">Eso lo vais a descubrir vosotros. Hemos preparado dos actividades de ejemplo. Sacad los móviles.</div>
+<div class="box screen">Panel con la actividad de vocabulario: 4 gatos con su descripción. Los profes leen y eligen nombres.</div>
+
+<h4><span class="phase">2</span> Actividad 2: Texto y Gramática</h4>
+<div class="box roman">"Siguiente actividad" / "Pasamos a la segunda" / "Venga, la segunda"</div>
+<div class="box eliana">Venga, siguiente actividad. Ahora un diálogo cotidiano entre dos amigas. Otros cuatro gatos que trabajan el texto y la gramática.</div>
+<div class="box screen">Panel con la actividad de texto/gramática: otros 4 gatos.</div>
+
+<h4><span class="phase">3</span> Probar los agentes en el móvil</h4>
+<div class="box roman">"Vamos a probarlos" / "Que los prueben" / "Escaneáis el QR"</div>
+<div class="box eliana">Ahora viene lo bueno. Escaneáis el QR y podéis usar los gatos con la actividad real.</div>
+<div class="box screen">QR grande para entrar a MaterIAELE y probar los agentes.</div>
+<div class="box tip">Dale tiempo a los profes. 5-10 minutos para probar. Pasea por la sala.</div>
+
+<h4><span class="phase">4</span> Encuesta y conversación</h4>
+<div class="box roman">"Resultados" / "Vamos con la encuesta" / "Votad"</div>
+<div class="box eliana">Ahora tenéis una encuesta rápida en el móvil. Votad qué agente habéis probado y qué os ha parecido.</div>
+<div class="box screen">Dashboard con resultados de la encuesta en tiempo real.</div>
+
+<h3>Keywords de auto-avance</h3>
+<table>
+  <tr><th>Paso</th><th>Keywords</th></tr>
+  <tr><td>1 - Act. Vocab</td><td><span class="kw">descubrir</span> <span class="kw">sacad los móviles</span> <span class="kw">actividad 1</span></td></tr>
+  <tr><td>2 - Act. Texto</td><td><span class="kw">siguiente actividad</span> <span class="kw">segunda</span> <span class="kw">diálogo</span></td></tr>
+  <tr><td>3 - Probar</td><td><span class="kw">probar</span> <span class="kw">qr</span> <span class="kw">escaneáis</span></td></tr>
+  <tr><td>4 - Encuesta</td><td><span class="kw">encuesta</span> <span class="kw">votad</span> <span class="kw">resultados</span></td></tr>
+</table>
+
+<div class="box warn">Eliana NO debe mencionar nombres de libros de texto, editoriales ni unidades concretas. Todo en genérico: "una actividad de vocabulario", "un diálogo cotidiano".</div>
+
+<!-- ============================================ -->
+<h2>DIAPO 7 — Construye tu Agente (plataforma AgentiaELE)</h2>
+<!-- ============================================ -->
+
+<h3>Qué es esta diapositiva</h3>
+<div class="box explain">Aquí enseñas a los profes cómo se construye un agente en la plataforma AgentiaELE. Es totalmente práctico: se muestran los "ingredientes" (campos a rellenar), un ejemplo real (el Traductor), cómo los agentes viven dentro de actividades, y al final invitas al taller online de mayo 2026.<br><br>
+Hay botones "Ver demo" que abren la plataforma real de AgentiaELE en nueva pestaña.</div>
+
+<h3>Layout de pantalla</h3>
+<div class="box screen">Izquierda (45%): orb de Eliana + chat. Derecha (55%): panel visual con 5 pasos internos (0-4). Cada paso muestra tarjetas tipo frosted-glass con la información.</div>
+
+<h3>Los 6 ingredientes de un agente</h3>
+<table>
+  <tr><th>Ingrediente</th><th>Qué es</th><th>Analogía docente</th></tr>
+  <tr><td><strong>Nombre y descripción</strong></td><td>Identidad del agente: qué hace y para qué</td><td>Como el título de tu asignatura</td></tr>
+  <tr><td><strong>System Prompt</strong></td><td>Instrucciones de personalidad y comportamiento</td><td><strong>"El plan de clase del agente"</strong></td></tr>
+  <tr><td><strong>Modelo de IA</strong></td><td>Qué "cerebro" usa (DeepSeek, etc.)</td><td>Como elegir el libro de texto</td></tr>
+  <tr><td><strong>Temperatura</strong></td><td>Cuánto improvisa (0=exacto, 2=creativo)</td><td>El termostato de creatividad</td></tr>
+  <tr><td><strong>Nivel MCER</strong></td><td>A1, A2, B1... adapta el lenguaje</td><td>El nivel de tus alumnos</td></tr>
+  <tr><td><strong>Adherencia al nivel</strong></td><td>Cuánto se ciñe al nivel MCER</td><td>Flexible (se adapta) o estricto (no se sale)</td></tr>
+</table>
+
+<h3>Flujo paso a paso (DETALLE)</h3>
+
+<h4><span class="phase">0</span> Presentación de la sección</h4>
+<div class="box roman">"Eliana, empezamos" / "Vamos a construir un agente"</div>
+<div class="box eliana">Ahora que sabéis qué es un agente, os voy a enseñar cómo se construye uno. Es más fácil de lo que pensáis. Solo necesitáis rellenar unos campos muy sencillos. En dos minutos tendréis vuestro primer agente listo. Román, dale al siguiente.</div>
+<div class="box screen">Pantalla intro con título "Construye tu Agente" e icono de puzzle.</div>
+
+<h4><span class="phase">1</span> Los ingredientes</h4>
+<div class="box roman">"Siguiente" / "Dale"</div>
+<div class="box eliana">Para construir un agente necesitáis varios ingredientes. Primero, un nombre y una descripción. Luego, el system prompt, que es como el plan de clase del agente: le dices qué hace y cómo se comporta. También elegís el modelo de IA y la temperatura, que es cuánto improvisa. Y por último, el nivel MCER de vuestros alumnos y la adherencia al nivel, que es cuánto se ciñe el agente a ese nivel: puede ser flexible o estricto. Román, siguiente.</div>
+<div class="box screen">6 tarjetas de ingredientes con iconos y colores distintos.</div>
+<div class="box warn">Eliana NO debe decir ningún número de ingredientes (ni "cinco" ni "seis"). Si lo dice, ignóralo y avanza. "Adherencia" es al NIVEL MCER, no al manual.</div>
+
+<h4><span class="phase">2</span> Ejemplo del Traductor</h4>
+<div class="box roman">"Siguiente" / "Ponme un ejemplo" / "Enséñanos el traductor"</div>
+<div class="box eliana">Mirad qué fácil es con un ejemplo real. Este es el Traductor. Le hemos puesto un nombre, le hemos escrito un system prompt diciéndole que traduzca adaptando al nivel del alumno, y hemos elegido el modelo y la temperatura. Así de sencillo, una ficha y ya tenéis un agente funcionando. Román, siguiente.</div>
+<div class="box screen">Ficha del agente Traductor (nombre, system prompt, modelo DeepSeek, temp 0.3, nivel A1, adherencia Alta) + botón "Ver demo en AgentiaELE" que abre la plataforma real.</div>
+<div class="box tip">Si quieres, haz clic en "Ver demo" para enseñar la plataforma real en directo. Se abre en nueva pestaña.</div>
+
+<h4><span class="phase">3</span> Los agentes viven en actividades</h4>
+<div class="box roman">"Siguiente" / "¿Y las actividades?" / "Adelante"</div>
+<div class="box eliana">Los agentes no van solos. Viven dentro de actividades. Hay varios tipos de actividad: traducción, gramática, comprensión lectora y más. El profe diseña la actividad y elige qué agentes ofrece al alumno. Román, siguiente.</div>
+<div class="box screen">3 tarjetas: "10 tipos de actividad" (lista completa), "9 estructuras" (opción múltiple, completar huecos...), "Agentes a la carta" (el profe elige cuáles). + Botón "Ver demo de actividad".</div>
+
+<h4><span class="phase">4</span> Invitación al taller</h4>
+<div class="box roman">"Siguiente" / "Último paso" / "Y el taller"</div>
+<div class="box eliana">Si queréis crear vuestros propios agentes para vuestro manual y vuestros alumnos, os invitamos a un taller online en mayo. Ahí os enseñamos paso a paso. Indicadlo en el formulario de inscripción de la mesa.</div>
+<div class="box screen">3 tarjetas: "Construye agentes para TU manual", "Adapta a TU nivel y TUS alumnos", "Pruébalos en clase al día siguiente". + CTA grande "Indícalo en el formulario de inscripción".</div>
+
+<h3>Keywords de auto-avance (2 sistemas)</h3>
+<p><strong>Sistema 1 — Keywords de Eliana</strong> (detectadas en su respuesta):</p>
+<table>
+  <tr><th>Paso</th><th>Keywords</th></tr>
+  <tr><td>1 - Ingredientes</td><td><span class="kw">dale al siguiente</span> <span class="kw">más fácil de lo que pensáis</span></td></tr>
+  <tr><td>2 - Traductor</td><td><span class="kw">traductor</span> <span class="kw">ejemplo</span> <span class="kw">así de sencillo</span></td></tr>
+  <tr><td>3 - Actividades</td><td><span class="kw">actividades</span> <span class="kw">no van solos</span> <span class="kw">viven dentro</span></td></tr>
+  <tr><td>4 - Taller</td><td><span class="kw">taller</span> <span class="kw">mayo</span> <span class="kw">inscripción</span></td></tr>
+</table>
+
+<p><strong>Sistema 2 — Keywords de Román</strong> (detectadas en TU mensaje, avanzan directamente):</p>
+<table>
+  <tr><th>Paso</th><th>Lo que tú dices</th></tr>
+  <tr><td>2 - Traductor</td><td><span class="kw">siguiente</span> <span class="kw">ejemplo</span> <span class="kw">traductor</span> <span class="kw">enséñanos</span></td></tr>
+  <tr><td>3 - Actividades</td><td><span class="kw">siguiente</span> <span class="kw">actividades</span> <span class="kw">adelante</span></td></tr>
+  <tr><td>4 - Taller</td><td><span class="kw">siguiente</span> <span class="kw">taller</span> <span class="kw">último</span></td></tr>
+</table>
+
+<div class="box tip">En esta diapo, tanto las palabras de Eliana como las tuyas pueden avanzar el panel. Si dices "siguiente" el panel avanza inmediatamente sin esperar a Eliana.</div>
+
+<div class="box warn">Eliana NO debe mencionar: "8 agentes", "ocho agentes", "Español en Marcha", "familia completa". Esa sección se eliminó. Si lo dice, ignóralo y avanza.</div>
+
+<!-- ============================================ -->
+<h2>DIAPO FINAL — Gracias / Labai ačiū</h2>
+<!-- ============================================ -->
+
+<h3>Qué es esta diapositiva</h3>
+<div class="box explain">Pantalla de cierre. Se llega con la flecha derecha desde diapo 7. No hay interacción con Eliana. Es visual: agradecimiento en español y lituano, reproductor de la canción, y datos de contacto.</div>
+
+<h3>Contenido</h3>
+<ul>
+  <li><strong>"Muchas gracias"</strong> — texto grande con gradiente salmón→morado→azul</li>
+  <li><strong>"Labai ačiū"</strong> — gracias en lituano, más pequeño, en azul</li>
+  <li><strong>"Destino ELE Kaunas 2026"</strong> — subtítulo</li>
+  <li><strong>Reproductor de la canción del agente</strong> — botón play/pause con barra de progreso</li>
+  <li><strong>Tarjeta Hablandis:</strong> Román Navarro — info@hablandis.com</li>
+  <li><strong>Tarjeta Prisma Consul:</strong> Armando Cruz — info@prismaconsul.com</li>
+</ul>
+
+<div class="box tip">Dale al play de la canción mientras la sala aplaude o se prepara para las preguntas finales. Es un buen cierre musical.</div>
+
+<hr>
+
+<!-- ============================================ -->
+<h2>RESOLUCIÓN DE PROBLEMAS</h2>
+<!-- ============================================ -->
+
+<h3>La pantalla no avanza cuando Eliana habla</h3>
+<div class="box tip">Usa los stepper dots (bolitas de abajo del panel derecho) para mover manualmente al paso correcto. También puedes hacer clic en las flechas del panel.</div>
+
+<h3>Eliana dice algo incorrecto</h3>
+<div class="box tip">No la corrijas en público. Di "siguiente" o "continuamos" para avanzar y dejar atrás el error. La audiencia no notará la diferencia.</div>
+
+<h3>Eliana se corta a mitad de frase</h3>
+<div class="box explain">Esto puede pasar si el LLM agota los tokens. Di "continúa" y ella retomará. Si no funciona, di "siguiente" para avanzar a la fase siguiente.</div>
+
+<h3>Eliana junta dos fases en un solo mensaje</h3>
+<div class="box explain">Hay una protección que solo permite avanzar 1 paso por mensaje. Si salta, usa los stepper dots para corregir. La pantalla se queda en el paso correcto.</div>
+
+<h3>El wake word "Hey Eliana" no funciona</h3>
+<div class="box tip">Usa el botón del micrófono en el chat de la diapo. O escribe directamente en el chat.</div>
+
+<h3>Eliana dice "cinco/seis ingredientes"</h3>
+<div class="box tip">Ignóralo. El panel visual muestra los 6 correctos. La audiencia verá la pantalla, no contará lo que dice Eliana.</div>
+
+<h3>Eliana menciona "Español en Marcha" o "8 agentes"</h3>
+<div class="box tip">Esa sección se eliminó. Di "siguiente" para avanzar. No le des importancia.</div>
+
+<hr>
+
+<h2>RESUMEN DE NAVEGACIÓN</h2>
+
+<table>
+  <tr><th>Desde</th><th>Hacia</th><th>Cómo</th></tr>
+  <tr><td>Login</td><td>Conoce a Eliana</td><td>Botón "Entrar"</td></tr>
+  <tr><td>Conoce a Eliana</td><td>Actividad chat</td><td>Click en tarjeta de actividad</td></tr>
+  <tr><td>Actividad chat</td><td>Tarjeta perfil</td><td>Automático tras 4 turnos</td></tr>
+  <tr><td>Diapo 3 (Blinda)</td><td>Diapo 4 (Juego)</td><td>Flecha derecha</td></tr>
+  <tr><td>Diapo 4 (Juego)</td><td>Diapo 5 (Agentes)</td><td>Flecha derecha</td></tr>
+  <tr><td>Diapo 5 (Agentes)</td><td>Diapo 6 (MIAU)</td><td>Flecha derecha</td></tr>
+  <tr><td>Diapo 6 (MIAU)</td><td>Diapo 7 (Plataforma)</td><td>Flecha derecha</td></tr>
+  <tr><td>Diapo 7 (Plataforma)</td><td>Diapo Final (Gracias)</td><td>Flecha derecha</td></tr>
+</table>
+
+</body>
+</html>
