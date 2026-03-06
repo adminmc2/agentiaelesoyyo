@@ -146,7 +146,7 @@ const elements = {
     diapo5Screen: document.getElementById('diapo5-screen'),
 
     // Diapo 6 screen
-    diapo6Screen: document.getElementById('diapo6-screen'),
+    diapo7Screen: document.getElementById('diapo7-screen'),
 
     // Plan screen
     planScreen: document.getElementById('plan-screen'),
@@ -1870,15 +1870,15 @@ function updateRecordingUI(recording, processing = false) {
         diapo5MicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
     }
 
-    // Diapo6 screen — same toggle for diapo6 mic button
-    const diapo6MicBtn = document.getElementById('diapo6-mic-btn');
-    if (diapo6MicBtn) {
-        diapo6MicBtn.classList.toggle('recording', recording);
-        const icon = diapo6MicBtn.querySelector('.ph');
+    // Diapo6 screen — same toggle for diapo7 mic button
+    const diapo7MicBtn = document.getElementById('diapo7-mic-btn');
+    if (diapo7MicBtn) {
+        diapo7MicBtn.classList.toggle('recording', recording);
+        const icon = diapo7MicBtn.querySelector('.ph');
         if (icon) {
             icon.className = recording ? 'ph ph-stop-circle' : 'ph ph-microphone';
         }
-        diapo6MicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
+        diapo7MicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
     }
 
     // Orb 3D
@@ -2979,7 +2979,7 @@ function forceEnableTTS() {
  */
 function updateVoiceButton(enabled) {
     // Update both chat and blinda voice buttons
-    ['chat-voice-btn', 'blinda-voice-btn', 'diapo5-voice-btn', 'juego-voice-btn', 'diapo6-voice-btn'].forEach(id => {
+    ['chat-voice-btn', 'blinda-voice-btn', 'diapo5-voice-btn', 'juego-voice-btn', 'diapo7-voice-btn'].forEach(id => {
         const btn = document.getElementById(id);
         if (!btn) return;
         if (enabled) {
@@ -4413,7 +4413,7 @@ const DIAPO5_CAPABILITIES = [
 ];
 
 const DIAPO5_KEYWORD_MAP = [
-    { step: 1, patterns: ['qué os viene a la cabeza', 'lluvia de ideas', 'nube de palabras', 'qué pensáis'] },
+    { step: 1, patterns: ['viene a la cabeza', 'lluvia de ideas', 'nube de palabras', 'qué pensáis', 'qué os viene', 'escucháis', 'escuchais', 'agente de ia'] },
     { step: 2, patterns: ['imaginad un restaurante', 'chatbot es un camarero', 'agente es el chef'] },
     { step: 3, patterns: ['percibir', 'primera capacidad', 'primer poder'] },
     { step: 4, patterns: ['razonar', 'segunda capacidad', 'segundo poder'] },
@@ -4433,7 +4433,7 @@ function showDiapo5Screen() {
     elements.profileScreen?.classList.add('hidden');
     elements.blindaScreen?.classList.add('hidden');
     elements.juegoScreen?.classList.add('hidden');
-    elements.diapo6Screen?.classList.add('hidden');
+    elements.diapo7Screen?.classList.add('hidden');
 
     elements.diapo5Screen?.classList.remove('hidden');
     elements.diapo5Screen?.classList.remove('fade-out');
@@ -4495,8 +4495,8 @@ function sendDiapo5Message(message) {
         const payload = { message, response_mode: 'full', activity_mode: 'agentes' };
         if (!state._diapo5ContextSent) {
             payload.prior_context = {
-                question: 'Eliana, vamos a explicar que es un agente de IA.',
-                answer: 'Vamos a ver ahora que es un agente de IA. Roman, cuando quieras.'
+                question: 'Eliana, vamos a explicar qué es un agente de IA con la metáfora del chef.',
+                answer: 'Vamos a ver ahora qué es un agente de IA. Román, cuando quieras.'
             };
             state._diapo5ContextSent = true;
         }
@@ -4606,12 +4606,22 @@ function advanceDiapo5To(step) {
 
 // Step 1: Word cloud (nube de palabras)
 const DIAPO5_CLOUD_WORDS = [
-    'CHATGPT', 'ROBOT', 'INTELIGENCIA', 'ARTIFICIAL', 'AUTOMATIZAR',
-    'DATOS', 'ALGORITMO', 'APRENDER', 'MÁQUINA', 'FUTURO',
-    'ASISTENTE', 'PROMPT', 'CHATBOT', 'TECNOLOGÍA', 'HERRAMIENTA',
-    'CREATIVIDAD', 'PERSONALIZAR', 'ADAPTAR', 'EVALUAR', 'PLANIFICAR',
-    'MEMORIA', 'CONTEXTO', 'RESPUESTA', 'IDIOMA', 'CLASE',
-    'ALUMNO', 'PROFESOR', 'NIVEL', 'EJERCICIO', 'VOCABULARIO'
+    { text: 'Responde preguntas', size: 'md', color: '#9E9E9E' },
+    { text: 'Usa herramientas', size: 'lg', color: '#B39DDB' },
+    { text: 'Genera texto', size: 'md', color: '#9E9E9E' },
+    { text: 'Planifica pasos', size: 'lg', color: '#81C784' },
+    { text: 'Necesita instrucciones exactas', size: 'sm', color: '#BCAAA4' },
+    { text: 'Recuerda lo anterior', size: 'lg', color: '#FFB74D' },
+    { text: 'Actúa por su cuenta', size: 'lg', color: '#F48FB1' },
+    { text: 'Busca información', size: 'md', color: '#B39DDB' },
+    { text: 'Copia y pega', size: 'sm', color: '#BCAAA4' },
+    { text: 'Adapta su estrategia', size: 'lg', color: '#81C784' },
+    { text: 'Siempre dice lo mismo', size: 'sm', color: '#BCAAA4' },
+    { text: 'Observa el contexto', size: 'lg', color: '#7EC8E3' },
+    { text: 'Ejecuta tareas', size: 'md', color: '#F48FB1' },
+    { text: 'Solo habla', size: 'sm', color: '#BCAAA4' },
+    { text: 'Aprende del alumno', size: 'md', color: '#FFB74D' },
+    { text: 'Traduce palabra por palabra', size: 'sm', color: '#BCAAA4' },
 ];
 
 function renderDiapo5WordCloud() {
@@ -4619,17 +4629,13 @@ function renderDiapo5WordCloud() {
     if (!container || container.dataset.rendered) return;
     container.dataset.rendered = 'true';
 
-    const sizes = ['xs', 'sm', 'md', 'lg', 'xl'];
-    const shuffled = [...DIAPO5_CLOUD_WORDS].sort(() => Math.random() - 0.5);
-
     container.innerHTML = `
         <div class="diapo5-wordcloud">
-            <h3 class="diapo5-wordcloud__title">Cuando escucháis «agente de IA», ¿qué os viene a la cabeza?</h3>
-            <div class="diapo5-wordcloud__cloud">
-                ${shuffled.map(w => {
-                    const size = sizes[Math.floor(Math.random() * sizes.length)];
-                    return `<span class="diapo5-wordcloud__word diapo5-wordcloud__word--${size}">${w}</span>`;
-                }).join('')}
+            <h3 class="diapo5-wordcloud__title">¿Cuáles describen a un agente de IA?</h3>
+            <div class="diapo5-wordcloud__cloud" id="diapo5-cloud">
+                ${DIAPO5_CLOUD_WORDS.map(w => `
+                    <span class="diapo5-wordcloud__word diapo5-wordcloud__word--${w.size}" style="color: ${w.color}; border-color: ${w.color}">${w.text}</span>
+                `).join('')}
             </div>
         </div>
     `;
@@ -4637,8 +4643,8 @@ function renderDiapo5WordCloud() {
     const words = container.querySelectorAll('.diapo5-wordcloud__word');
     words.forEach((word, i) => {
         gsap.fromTo(word,
-            { opacity: 0, scale: 0.5, y: 20 },
-            { opacity: 1, scale: 1, y: 0, duration: 0.3, delay: i * 0.04, ease: 'back.out(1.4)' }
+            { scale: 0, opacity: 0 },
+            { scale: 1, opacity: 1, duration: 0.35, delay: i * 0.06, ease: 'back.out(1.5)' }
         );
     });
 }
@@ -4695,11 +4701,11 @@ function renderDiapo5Capability(capIndex) {
 
     container.innerHTML = `
         <div class="diapo5-cap">
-            <div class="diapo5-cap__header">
-                <div class="diapo5-cap__icon" style="background: linear-gradient(135deg, ${cap.color}, ${cap.color}cc)">
+            <div class="diapo5-cap__header" style="background: linear-gradient(135deg, ${cap.color}, ${cap.color}cc)">
+                <div class="diapo5-cap__icon">
                     <i class="${cap.icon}"></i>
                 </div>
-                <h3 class="diapo5-cap__name" style="color: ${cap.color}">${cap.name}</h3>
+                <h3 class="diapo5-cap__name">${cap.name}</h3>
             </div>
             <div class="diapo5-cap__rows">
                 <div class="diapo5-cap__row">
@@ -4710,21 +4716,21 @@ function renderDiapo5Capability(capIndex) {
                     </div>
                 </div>
                 <div class="diapo5-cap__row diapo5-cap__row--agent">
-                    <div class="diapo5-cap__row-icon" style="color: ${cap.color}"><i class="ph-fill ph-robot"></i></div>
+                    <div class="diapo5-cap__row-icon" style="background: ${cap.color}"><i class="ph-fill ph-robot"></i></div>
                     <div class="diapo5-cap__row-content">
                         <span class="diapo5-cap__row-label">El agente</span>
                         <p class="diapo5-cap__row-text">${cap.agent}</p>
                     </div>
                 </div>
                 <div class="diapo5-cap__row diapo5-cap__row--teacher">
-                    <div class="diapo5-cap__row-icon" style="color: var(--md-sys-color-primary)"><i class="ph-fill ph-chalkboard-teacher"></i></div>
+                    <div class="diapo5-cap__row-icon"><i class="ph-fill ph-chalkboard-teacher"></i></div>
                     <div class="diapo5-cap__row-content">
                         <span class="diapo5-cap__row-label">Vosotros</span>
                         <p class="diapo5-cap__row-text">${cap.teacher}</p>
                     </div>
                 </div>
             </div>
-            <p class="diapo5-cap__punchline" style="border-left: 3px solid ${cap.color}">${cap.punchline}</p>
+            <p class="diapo5-cap__punchline" style="background: linear-gradient(135deg, ${cap.color}22, ${cap.color}11); color: ${cap.color}">${cap.punchline}</p>
         </div>
     `;
 
@@ -5176,11 +5182,11 @@ function showDiapo6Screen() {
     elements.juegoScreen?.classList.add('hidden');
     elements.diapo5Screen?.classList.add('hidden');
 
-    elements.diapo6Screen?.classList.remove('hidden');
-    elements.diapo6Screen?.classList.remove('fade-out');
+    elements.diapo7Screen?.classList.remove('hidden');
+    elements.diapo7Screen?.classList.remove('fade-out');
 
     // Orb
-    const orbContainer = document.getElementById('diapo6-orb-container');
+    const orbContainer = document.getElementById('diapo7-orb-container');
     if (orbContainer && window.orbCreateInElement) {
         const orbSize = window.innerWidth <= 480 ? 64 : window.innerWidth <= 968 ? 80 : 120;
         window.orbCreateInElement(orbContainer, orbSize);
@@ -5188,19 +5194,19 @@ function showDiapo6Screen() {
 }
 
 function hideDiapo6Screen() {
-    elements.diapo6Screen?.classList.add('fade-out');
+    elements.diapo7Screen?.classList.add('fade-out');
     setTimeout(() => {
-        elements.diapo6Screen?.classList.add('hidden');
-        elements.diapo6Screen?.classList.remove('fade-out');
+        elements.diapo7Screen?.classList.add('hidden');
+        elements.diapo7Screen?.classList.remove('fade-out');
     }, 300);
 }
 
 function isOnDiapo6Screen() {
-    return elements.diapo6Screen && !elements.diapo6Screen.classList.contains('hidden');
+    return elements.diapo7Screen && !elements.diapo7Screen.classList.contains('hidden');
 }
 
 function addDiapo6ChatBubble(text, role) {
-    const container = document.getElementById('diapo6-chat-messages');
+    const container = document.getElementById('diapo7-chat-messages');
     if (!container) return;
     const bubble = document.createElement('div');
     bubble.className = `blinda-chat__bubble blinda-chat__bubble--${role}`;
@@ -5225,7 +5231,7 @@ function sendDiapo6Message(text) {
         if (data.type === 'token') {
             fullResponse += data.content;
             assistantBubble.textContent = fullResponse;
-            const container = document.getElementById('diapo6-chat-messages');
+            const container = document.getElementById('diapo7-chat-messages');
             if (container) container.scrollTop = container.scrollHeight;
         } else if (data.type === 'end') {
             ws.removeEventListener('message', handleMsg);
@@ -5235,7 +5241,7 @@ function sendDiapo6Message(text) {
         }
     };
     ws.addEventListener('message', handleMsg);
-    ws.send(JSON.stringify({ type: 'chat', message: text, activity_mode: 'diapo6' }));
+    ws.send(JSON.stringify({ type: 'chat', message: text, activity_mode: 'diapo7' }));
 }
 
 // ============================================
@@ -5392,28 +5398,28 @@ function init() {
     });
 
     // Diapo 6
-    document.getElementById('diapo6-nav-back')?.addEventListener('click', () => {
+    document.getElementById('diapo7-nav-back')?.addEventListener('click', () => {
         hideDiapo6Screen();
         setTimeout(() => showDiapo5Screen(), 300);
     });
-    document.getElementById('diapo6-nav-next')?.addEventListener('click', () => {
-        // Future: next screen after diapo6
+    document.getElementById('diapo7-nav-next')?.addEventListener('click', () => {
+        // Future: next screen after diapo7
     });
     // Diapo6 chat — send text
-    document.getElementById('diapo6-chat-send')?.addEventListener('click', () => {
-        const input = document.getElementById('diapo6-chat-input');
+    document.getElementById('diapo7-chat-send')?.addEventListener('click', () => {
+        const input = document.getElementById('diapo7-chat-input');
         const text = input?.value.trim();
         if (!text) return;
         input.value = '';
         sendDiapo6Message(text);
     });
-    document.getElementById('diapo6-chat-input')?.addEventListener('keydown', (e) => {
+    document.getElementById('diapo7-chat-input')?.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            document.getElementById('diapo6-chat-send')?.click();
+            document.getElementById('diapo7-chat-send')?.click();
         }
     });
-    document.getElementById('diapo6-mic-btn')?.addEventListener('click', () => {
+    document.getElementById('diapo7-mic-btn')?.addEventListener('click', () => {
         enableTTS();
         state.voiceTriggered = true;
         if (state.isRecording) {
@@ -5423,7 +5429,7 @@ function init() {
             startRecording();
         }
     });
-    document.getElementById('diapo6-voice-btn')?.addEventListener('click', () => {
+    document.getElementById('diapo7-voice-btn')?.addEventListener('click', () => {
         if (state.ttsEnabled) disableTTS();
         else enableTTS();
     });
