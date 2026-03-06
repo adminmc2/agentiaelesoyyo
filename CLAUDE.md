@@ -86,3 +86,30 @@ Esto incluye:
 - El archivo `static/cancion-agente.mp3`
 
 **Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
+
+### Diapositiva 6 (Agentes MIAU — Elige tu agente)
+**PROHIBIDO ABSOLUTAMENTE** modificar cualquier código relacionado con la diapositiva 6. No importa el contexto: refactor, limpieza, mejora, bug fix general, cambio de diseño — NADA justifica tocar la diapo 6 salvo que el usuario diga EXPLÍCITAMENTE "modifica la diapo 6" o "cambia esto de la diapo 6".
+
+Esto incluye:
+- `showDiapo6Screen()`, `hideDiapo6Screen()`, `initDiapo6()` — mostrar/ocultar/inicializar pantalla
+- `sendDiapo6Message()` — envío por WebSocket con `activity_mode: 'miau'`
+- `addDiapo6ChatBubble()` — burbujas de chat
+- `updateDiapo6Step()`, `advanceDiapo6()` — transiciones visuales entre pasos (0-4)
+- `DIAPO6_KEYWORD_MAP` — mapeo de palabras clave a pasos
+- `DIAPO6_AGENTS` — definición de los 8 agentes (act1 y act2) con nombres, imágenes y descripciones
+- `DIAPO6_TOTAL_STEPS`, `DIAPO6_OPINION_LABELS` — constantes
+- `renderDiapo6CatsGrid()` — grid de 8 gatos mini
+- `renderDiapo6AgentCards()` — cards con select dropdown para adivinar nombres
+- `checkDiapo6AgentAnswer()` — verificación de respuesta (verde/rojo)
+- `renderDiapo6Bars()` — barras de votación (agentes + opiniones)
+- `connectDiapo6Dashboard()`, `updateDiapo6Dashboard()` — WebSocket del dashboard en tiempo real
+- Prompt "miau" en `main.py` (ACTIVITY_PROMPTS["miau"]) — momentos 1-6, agentes MIAU
+- WebSocket `/ws/encuesta` y `/ws/encuesta-dashboard` en `main.py` — votación en tiempo real
+- Ruta `/encuesta` y `static/encuesta.html` — página móvil de votación + preguntas de conversación
+- `_encuesta_votes`, `_encuesta_dashboard_ws`, `_build_vote_summary()` en `main.py`
+- Todo el HTML de `#diapo6-screen` y sus hijos en `index.html`
+- Todo el CSS de `.diapo6-*` (layout, agent cards, cats grid, dashboard, barras, try, responsive)
+- Los QR: `qr-materiaele.svg`, `qr-encuesta.svg` en `static/imagenes/`
+- Los event listeners de `diapo6-chat-send`, `diapo6-mic-btn`, `diapo6-voice-btn`, `diapo6-nav-next`, `diapo6-nav-back`
+
+**Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
