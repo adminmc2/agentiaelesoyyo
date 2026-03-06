@@ -4442,8 +4442,7 @@ const DIAPO5_KEYWORD_MAP = [
     { step: 5, patterns: ['actuar', 'tercera capacidad', 'tercer poder', 'acción'] },
     { step: 6, patterns: ['herramientas', 'cuarta capacidad', 'cuarto poder'] },
     { step: 7, patterns: ['memoria', 'quinta capacidad', 'quinto poder', 'recuerda'] },
-    { step: 8, patterns: ['multiplicar', 'vosotros por mil', 'no viene a sustituir', 'viene a multiplicar'] },
-    { step: 9, patterns: ['canción', 'cancion', 'escuchad', 'música', 'musica'] }
+    { step: 8, patterns: ['multiplicar', 'vosotros por mil', 'no viene a sustituir', 'viene a multiplicar'] }
 ];
 
 function showDiapo5Screen() {
