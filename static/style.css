@@ -1953,6 +1953,7 @@ body[data-mood-active] .bento-card--mood {
     .activity-card { padding: var(--space-16); gap: var(--space-12); }
     .activity-card__icon { width: 44px; height: 44px; font-size: 20px; }
     .activity-card__title { font-size: 16px; }
+    .conoce-qr { display: none; }
 }
 
 .welcome-screen {
@@ -7441,18 +7442,18 @@ body[data-mood-active] .message.assistant {
 /* ============================================
    DIAPO 8 — Construye tu Agente (Plataforma)
    ============================================ */
-.diapo8-screen {
+.diapo7-screen {
     padding: 0 !important;
     overflow: hidden;
     transition:
         opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate),
         transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate);
 }
-.diapo8-screen.fade-out {
+.diapo7-screen.fade-out {
     opacity: 0;
     transform: scale(0.98);
 }
-.diapo8-page {
+.diapo7-page {
     width: 100%;
     min-height: 100vh;
     min-height: 100dvh;
@@ -7461,7 +7462,7 @@ body[data-mood-active] .message.assistant {
     background: var(--md-sys-color-surface);
     overflow: hidden;
 }
-.diapo8-left {
+.diapo7-left {
     padding: 2rem 1.5rem 1.5rem;
     display: flex;
     flex-direction: column;
@@ -7469,353 +7470,380 @@ body[data-mood-active] .message.assistant {
     position: relative;
     min-height: 0;
 }
-.diapo8-right {
-    padding: 2rem 2.5rem 1.5rem;
+.diapo7-right {
     display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    position: relative;
+    overflow: hidden;
+    margin: 1cm;
+    border-radius: 12px;
+    background: var(--md-sys-color-surface-container-high);
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.06),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+.diapo7-demo {
+    width: 100%;
+    max-width: 600px;
+    position: relative;
+}
+.diapo7-demo__step {
+    display: none;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-}
-.diapo8-demo {
-    width: 100%;
-    max-width: 560px;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.diapo8-demo__step {
-    display: none;
-    width: 100%;
     animation: blindaSlideUp 0.4s var(--md-sys-motion-easing-emphasized-decelerate) both;
 }
-.diapo8-demo__step--active {
+.diapo7-demo__step--active {
     display: flex;
-    flex-direction: column;
 }
-.diapo8-demo__stepper {
+.diapo7-demo__stepper {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     gap: 8px;
-    justify-content: center;
-    padding: var(--space-12) 0;
 }
-.diapo8-intro {
-    text-align: center;
+.diapo7-intro {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-12);
+    text-align: center;
+    gap: var(--space-24);
+    max-width: 420px;
 }
 
-/* Section titles */
-.diapo8-section-title {
-    font: 700 20px 'Dosis', sans-serif;
+/* ── Section titles (same pattern as diapo5 cap__name) ── */
+.diapo7-section-title {
+    font: 600 24px 'Dosis', sans-serif;
     color: var(--md-sys-color-on-surface);
     display: flex;
     align-items: center;
-    gap: var(--space-8);
-    margin-bottom: var(--space-16);
+    gap: var(--space-12);
+    margin: 0 0 var(--space-20);
 }
-.diapo8-section-title i {
-    font-size: 24px;
-    color: var(--md-sys-color-primary);
-}
-
-/* Step 1: Ingredients */
-.diapo8-ingredients__grid {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-10);
-}
-.diapo8-ingredient-card {
-    display: flex;
-    align-items: center;
-    gap: var(--space-14);
-    padding: var(--space-12) var(--space-16);
-    background: var(--md-sys-color-surface-container-low);
-    border-radius: var(--md-sys-shape-corner-medium);
-    border: 1px solid var(--md-sys-color-outline-variant);
-}
-.diapo8-ingredient-card__icon {
-    width: 40px;
-    height: 40px;
+.diapo7-section-title i {
+    width: 42px; height: 42px;
     border-radius: 50%;
-    background: var(--md-sys-color-primary-container);
-    color: var(--md-sys-color-on-primary-container);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
     flex-shrink: 0;
 }
-.diapo8-ingredient-card__text {
+
+/* ── Step 1: Ingredients (like activity-cards from diapo 2) ── */
+.diapo7-ingredients__grid {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: var(--space-12);
 }
-.diapo8-ingredient-card__text strong {
-    font: 600 14px 'Source Sans 3', sans-serif;
+.diapo7-ingredient-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-20);
+    padding: var(--space-20) var(--space-24);
+    background: rgba(239, 237, 247, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: var(--md-sys-shape-extra-large);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: var(--md-sys-elevation-1);
+}
+.diapo7-ingredient-card__icon {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+.diapo7-ingredient-card__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+.diapo7-ingredient-card__text strong {
+    font: 600 18px 'Dosis', sans-serif;
     color: var(--md-sys-color-on-surface);
 }
-.diapo8-ingredient-card__text span {
-    font: 400 13px 'Source Sans 3', sans-serif;
+.diapo7-ingredient-card__text span {
+    font: 400 14px 'Inconsolata', monospace;
     color: var(--md-sys-color-on-surface-variant);
+    line-height: 1.4;
 }
 
-/* Step 2: Agent Ficha (example) */
-.diapo8-agent-ficha {
-    background: var(--md-sys-color-surface-container-low);
-    border-radius: var(--md-sys-shape-corner-large);
-    border: 1px solid var(--md-sys-color-outline-variant);
+/* ── Step 2: Agent Ficha (like diapo5 cap cards) ── */
+.diapo7-agent-ficha {
+    background: rgba(239, 237, 247, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: var(--md-sys-shape-extra-large);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: var(--md-sys-elevation-1);
     overflow: hidden;
 }
-.diapo8-agent-ficha__header {
+.diapo7-agent-ficha__header {
     display: flex;
     align-items: center;
-    gap: var(--space-14);
-    padding: var(--space-16) var(--space-20);
-    background: linear-gradient(135deg, var(--md-sys-color-primary), var(--md-sys-color-primary-container));
+    gap: var(--space-16);
+    padding: var(--space-20) var(--space-24);
+    background: var(--md-sys-color-primary);
+    border-radius: var(--md-sys-shape-extra-large);
+    margin: var(--space-12);
 }
-.diapo8-agent-ficha__img {
-    width: 56px;
-    height: 56px;
+.diapo7-agent-ficha__img {
+    width: 56px; height: 56px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid rgba(255,255,255,0.5);
+    border: 2px solid rgba(255, 255, 255, 0.4);
 }
-.diapo8-agent-ficha__name {
-    font: 700 18px 'Dosis', sans-serif;
-    color: white;
+.diapo7-agent-ficha__name {
+    font: 800 22px 'Dosis', sans-serif;
+    color: #fff;
     margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
-.diapo8-agent-ficha__desc {
-    font: 400 13px 'Source Sans 3', sans-serif;
-    color: rgba(255,255,255,0.85);
-    margin: 2px 0 0;
+.diapo7-agent-ficha__desc {
+    font: 400 14px 'Dosis', sans-serif;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 4px 0 0;
 }
-.diapo8-agent-ficha__fields {
-    padding: var(--space-16) var(--space-20);
+.diapo7-agent-ficha__fields {
+    padding: var(--space-16) var(--space-24) var(--space-24);
     display: flex;
     flex-direction: column;
     gap: var(--space-12);
 }
-.diapo8-ficha-field {
+.diapo7-ficha-field {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--space-4);
 }
-.diapo8-ficha-field--row {
+.diapo7-ficha-field--row {
     flex-direction: row;
     flex-wrap: wrap;
-    gap: var(--space-12);
+    gap: var(--space-10);
 }
-.diapo8-ficha-field__item {
+.diapo7-ficha-field__item {
+    flex: 1; min-width: 80px;
+    padding: var(--space-12) var(--space-16);
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: var(--md-sys-shape-large);
+    border: 1.5px solid rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    flex: 1;
-    min-width: 80px;
+    gap: var(--space-4);
 }
-.diapo8-ficha-field__label {
-    font: 600 12px 'Source Sans 3', sans-serif;
-    color: var(--md-sys-color-on-surface-variant);
+.diapo7-ficha-field__label {
+    font: 700 11px 'Dosis', sans-serif;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
+    letter-spacing: 1.2px;
+    color: var(--md-sys-color-outline);
+    display: flex; align-items: center; gap: 4px;
 }
-.diapo8-ficha-field__label i {
+.diapo7-ficha-field__label i {
     font-size: 14px;
     color: var(--md-sys-color-primary);
 }
-.diapo8-ficha-field__value {
-    font: 400 14px 'Source Sans 3', sans-serif;
+.diapo7-ficha-field__value {
+    font: 400 15px 'Dosis', sans-serif;
     color: var(--md-sys-color-on-surface);
 }
-.diapo8-ficha-field__value--prompt {
-    font-style: italic;
-    font-size: 13px;
+.diapo7-ficha-field__value--prompt {
+    font: 400 14px 'Inconsolata', monospace;
     line-height: 1.5;
     color: var(--md-sys-color-on-surface-variant);
-    background: var(--md-sys-color-surface-container);
-    padding: var(--space-8) var(--space-12);
-    border-radius: var(--md-sys-shape-corner-small);
+    padding: var(--space-12) var(--space-16);
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: var(--md-sys-shape-large);
+    border: 1.5px solid rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
-.diapo8-example-note {
-    font: 500 14px 'Source Sans 3', sans-serif;
+.diapo7-example-note {
+    font: 600 15px 'Dosis', sans-serif;
     color: var(--md-sys-color-primary);
-    margin-top: var(--space-12);
-    display: flex;
-    align-items: center;
-    gap: var(--space-6);
+    margin-top: var(--space-16);
+    display: flex; align-items: center;
+    gap: var(--space-8);
+    padding: var(--space-12) var(--space-20);
+    background: rgba(212, 130, 106, 0.08);
+    border-radius: var(--md-sys-shape-extra-large);
 }
-.diapo8-example-note i {
-    font-size: 18px;
-}
+.diapo7-example-note i { font-size: 20px; }
 
-/* Step 3: Activities */
-.diapo8-activities__subtitle {
-    font: 400 14px 'Source Sans 3', sans-serif;
+/* ── Step 3: Activities ── */
+.diapo7-activities__subtitle {
+    font: 400 15px 'Dosis', sans-serif;
     color: var(--md-sys-color-on-surface-variant);
     margin: -8px 0 var(--space-16);
+    line-height: 1.4;
 }
-.diapo8-activities__label {
-    font: 600 13px 'Source Sans 3', sans-serif;
-    color: var(--md-sys-color-on-surface);
+.diapo7-activities__label {
+    font: 700 12px 'Dosis', sans-serif;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: var(--space-8);
+    letter-spacing: 1.5px;
+    color: var(--md-sys-color-outline);
+    margin-bottom: var(--space-10);
 }
-.diapo8-types-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-6);
-    margin-bottom: var(--space-16);
-}
-.diapo8-type-chip {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 12px;
-    background: var(--md-sys-color-surface-container-low);
-    border: 1px solid var(--md-sys-color-outline-variant);
-    border-radius: 20px;
-    font: 500 12px 'Source Sans 3', sans-serif;
-    color: var(--md-sys-color-on-surface);
-}
-.diapo8-type-chip i {
-    font-size: 14px;
-    color: var(--md-sys-color-primary);
-}
-.diapo8-structures-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-6);
-    margin-bottom: var(--space-16);
-}
-.diapo8-structure-tag {
-    padding: 4px 10px;
-    background: var(--md-sys-color-tertiary-container);
-    color: var(--md-sys-color-on-tertiary-container);
-    border-radius: 12px;
-    font: 500 11px 'Source Sans 3', sans-serif;
-}
-.diapo8-agent-checkboxes {
+.diapo7-types-grid {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-8);
+    margin-bottom: var(--space-20);
 }
-.diapo8-agent-check {
+.diapo7-type-chip {
     display: flex;
     align-items: center;
-    gap: 4px;
-    font: 500 13px 'Source Sans 3', sans-serif;
-    color: var(--md-sys-color-on-surface-variant);
-    padding: 6px 12px;
-    background: var(--md-sys-color-surface-container-low);
-    border-radius: var(--md-sys-shape-corner-small);
-    border: 1px solid var(--md-sys-color-outline-variant);
+    gap: 6px;
+    padding: var(--space-10) var(--space-16);
+    background: rgba(239, 237, 247, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: var(--md-sys-shape-extra-large);
+    font: 500 14px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    box-shadow: var(--md-sys-elevation-1);
 }
-.diapo8-agent-check i { font-size: 16px; }
-.diapo8-agent-check--on {
+.diapo7-type-chip i {
+    font-size: 18px;
     color: var(--md-sys-color-primary);
-    background: var(--md-sys-color-primary-container);
-    border-color: var(--md-sys-color-primary);
+}
+.diapo7-structures-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+    margin-bottom: var(--space-20);
+}
+.diapo7-structure-tag {
+    padding: var(--space-8) var(--space-14);
+    background: rgba(212, 130, 106, 0.1);
+    color: var(--md-sys-color-primary);
+    border-radius: var(--md-sys-shape-extra-large);
+    font: 600 13px 'Dosis', sans-serif;
+}
+.diapo7-agent-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-10);
+}
+.diapo7-agent-check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font: 500 14px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    padding: var(--space-10) var(--space-16);
+    background: rgba(239, 237, 247, 0.5);
+    border-radius: var(--md-sys-shape-extra-large);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+.diapo7-agent-check i { font-size: 18px; }
+.diapo7-agent-check--on {
+    color: var(--md-sys-color-primary);
+    background: rgba(212, 130, 106, 0.12);
+    border-color: rgba(212, 130, 106, 0.3);
 }
 
-/* Step 4: All 8 agents */
-.diapo8-agents-grid {
+/* ── Step 4: All 8 agents (like activity-cards grid) ── */
+.diapo7-agents-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-10);
-    margin-top: var(--space-8);
+    gap: var(--space-12);
+    margin-top: var(--space-12);
 }
-.diapo8-agent-mini {
+.diapo7-agent-mini {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-4);
-    padding: var(--space-10);
-    background: var(--md-sys-color-surface-container-low);
-    border-radius: var(--md-sys-shape-corner-medium);
-    border: 1px solid var(--md-sys-color-outline-variant);
+    gap: var(--space-8);
+    padding: var(--space-16) var(--space-12);
+    background: rgba(239, 237, 247, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: var(--md-sys-shape-extra-large);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: var(--md-sys-elevation-1);
     text-align: center;
 }
-.diapo8-agent-mini__img {
-    width: 52px;
-    height: 52px;
+.diapo7-agent-mini__img {
+    width: 56px; height: 56px;
     border-radius: 50%;
     object-fit: cover;
 }
-.diapo8-agent-mini__name {
-    font: 700 12px 'Dosis', sans-serif;
+.diapo7-agent-mini__name {
+    font: 600 14px 'Dosis', sans-serif;
     color: var(--md-sys-color-on-surface);
 }
-.diapo8-agent-mini__desc {
-    font: 400 10px 'Source Sans 3', sans-serif;
+.diapo7-agent-mini__desc {
+    font: 400 12px 'Inconsolata', monospace;
     color: var(--md-sys-color-on-surface-variant);
     line-height: 1.3;
 }
 
-/* Step 5: Workshop */
-.diapo8-workshop__content {
+/* ── Step 5: Workshop (centered, like diapo5 closing) ── */
+.diapo7-workshop__content {
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-12);
+    gap: var(--space-20);
 }
-.diapo8-workshop__features {
+.diapo7-workshop__features {
     display: flex;
     flex-direction: column;
-    gap: var(--space-10);
+    gap: var(--space-12);
     margin-top: var(--space-8);
     width: 100%;
-    max-width: 380px;
+    max-width: 420px;
 }
-.diapo8-workshop__feature {
+.diapo7-workshop__feature {
     display: flex;
     align-items: center;
-    gap: var(--space-12);
-    padding: var(--space-12) var(--space-16);
-    background: var(--md-sys-color-surface-container-low);
-    border-radius: var(--md-sys-shape-corner-medium);
-    border: 1px solid var(--md-sys-color-outline-variant);
-    font: 500 14px 'Source Sans 3', sans-serif;
+    gap: var(--space-16);
+    padding: var(--space-20) var(--space-24);
+    background: rgba(239, 237, 247, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: var(--md-sys-shape-extra-large);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: var(--md-sys-elevation-1);
+    font: 500 16px 'Dosis', sans-serif;
     color: var(--md-sys-color-on-surface);
+    text-align: left;
 }
-.diapo8-workshop__feature i {
+.diapo7-workshop__feature i {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
     font-size: 22px;
-    color: var(--md-sys-color-primary);
     flex-shrink: 0;
 }
-.diapo8-workshop__cta {
-    display: flex;
+.diapo7-workshop__cta {
+    display: inline-flex;
     align-items: center;
-    gap: var(--space-8);
-    margin-top: var(--space-16);
-    padding: var(--space-14) var(--space-20);
-    background: var(--md-sys-color-primary-container);
-    color: var(--md-sys-color-on-primary-container);
-    border-radius: var(--md-sys-shape-corner-large);
-    font: 600 14px 'Source Sans 3', sans-serif;
+    gap: var(--space-10);
+    margin-top: var(--space-12);
+    padding: var(--space-16) var(--space-32);
+    background: var(--md-sys-color-primary);
+    color: #fff;
+    border-radius: var(--md-sys-shape-extra-large);
+    font: 700 17px 'Dosis', sans-serif;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 16px rgba(212, 130, 106, 0.3);
 }
-.diapo8-workshop__cta i {
-    font-size: 20px;
-}
+.diapo7-workshop__cta i { font-size: 22px; }
 
-/* Responsive diapo8 */
+/* Responsive diapo7 */
 @media (max-width: 1200px) {
-    .diapo8-page { grid-template-columns: 40% 60%; }
-    .diapo8-left { padding: 1.5rem 1rem 1rem; }
+    .diapo7-page { grid-template-columns: 40% 60%; }
+    .diapo7-left { padding: 1.5rem 1rem 1rem; }
 }
 @media (max-width: 968px) {
-    .diapo8-screen { overflow-y: auto; -webkit-overflow-scrolling: touch; }
-    .diapo8-page {
+    .diapo7-screen { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .diapo7-page {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -7828,13 +7856,13 @@ body[data-mood-active] .message.assistant {
         gap: var(--space-16);
         position: relative;
     }
-    .diapo8-left { padding: 0; flex-shrink: 0; width: 100%; max-width: 480px; }
-    .diapo8-right { padding: 1.5rem; flex-shrink: 0; width: 100%; max-width: 480px; margin: 0 0 1rem; border-radius: 12px; }
-    .diapo8-agents-grid { grid-template-columns: repeat(2, 1fr); }
+    .diapo7-left { padding: 0; flex-shrink: 0; width: 100%; max-width: 480px; }
+    .diapo7-right { padding: 1.5rem; flex-shrink: 0; width: 100%; max-width: 480px; margin: 0 0 1rem; border-radius: 12px; }
+    .diapo7-agents-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 480px) {
-    .diapo8-page { padding: 3rem 0.75rem 1rem; }
-    .diapo8-agents-grid { grid-template-columns: repeat(2, 1fr); }
-    .diapo8-agent-ficha__header { padding: var(--space-12) var(--space-14); }
-    .diapo8-ficha-field--row { flex-direction: column; }
+    .diapo7-page { padding: 3rem 0.75rem 1rem; }
+    .diapo7-agents-grid { grid-template-columns: repeat(2, 1fr); }
+    .diapo7-agent-ficha__header { padding: var(--space-12) var(--space-14); }
+    .diapo7-ficha-field--row { flex-direction: column; }
 }

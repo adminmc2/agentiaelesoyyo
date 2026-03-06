@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=22.9.2">
+    <link rel="stylesheet" href="/static/style.css?v=22.9.9">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -680,43 +680,43 @@
         <!-- ============================================
              DIAPO 8 — Construye tu Agente (Plataforma + Taller)
              ============================================ -->
-        <main class="main-content diapo8-screen hidden" id="diapo8-screen">
-            <div class="diapo8-page">
+        <main class="main-content diapo7-screen hidden" id="diapo7-screen">
+            <div class="diapo7-page">
                 <!-- Columna izquierda: Eliana (orb + chat) -->
-                <div class="diapo8-left">
-                    <button class="blinda-nav-btn blinda-nav-btn--back" id="diapo8-nav-back" title="Volver">
+                <div class="diapo7-left">
+                    <button class="blinda-nav-btn blinda-nav-btn--back" id="diapo7-nav-back" title="Volver">
                         <i class="ph ph-arrow-left"></i>
                     </button>
 
                     <div class="blinda-orb-wrapper">
-                        <div class="orb-container" id="diapo8-orb-container"></div>
+                        <div class="orb-container" id="diapo7-orb-container"></div>
                     </div>
 
-                    <div class="blinda-chat" id="diapo8-chat">
-                        <div class="blinda-chat__messages" id="diapo8-chat-messages">
+                    <div class="blinda-chat" id="diapo7-chat">
+                        <div class="blinda-chat__messages" id="diapo7-chat-messages">
                             <div class="blinda-chat__bubble blinda-chat__bubble--assistant">
-                                Ahora viene lo mejor: os voy a ensenar como se construye un agente.
+                                Ahora viene lo mejor: os voy a enseñar cómo se construye un agente.
                             </div>
                         </div>
                         <div class="blinda-chat__input-container">
                             <div class="blinda-chat__input-row">
                                 <textarea
-                                    id="diapo8-chat-input"
+                                    id="diapo7-chat-input"
                                     class="blinda-chat__textarea"
                                     placeholder="Escribe a Eliana..."
                                     rows="1"
                                     autocomplete="off"
                                 ></textarea>
-                                <button class="blinda-chat__send" id="diapo8-chat-send" title="Enviar">
+                                <button class="blinda-chat__send" id="diapo7-chat-send" title="Enviar">
                                     <i class="ph ph-paper-plane-tilt"></i>
                                 </button>
                             </div>
                             <div class="blinda-chat__actions-row">
-                                <button class="chat-action-btn" id="diapo8-mic-btn" title="Grabar voz">
+                                <button class="chat-action-btn" id="diapo7-mic-btn" title="Grabar voz">
                                     <i class="ph ph-microphone"></i>
                                     <span class="chat-action-label">Hablar</span>
                                 </button>
-                                <button class="chat-action-btn chat-action-btn--voice" id="diapo8-voice-btn" title="Voz de Eliana">
+                                <button class="chat-action-btn chat-action-btn--voice" id="diapo7-voice-btn" title="Voz de Eliana">
                                     <i class="ph-bold ph-waveform"></i>
                                     <span class="chat-action-label">Voz IA</span>
                                 </button>
@@ -726,57 +726,57 @@
                 </div>
 
                 <!-- Columna derecha: Construye tu agente (6 pasos) -->
-                <div class="diapo8-right">
-                    <button class="blinda-nav-btn blinda-nav-btn--next" id="diapo8-nav-next" title="Siguiente">
+                <div class="diapo7-right">
+                    <button class="blinda-nav-btn blinda-nav-btn--next" id="diapo7-nav-next" title="Siguiente">
                         <i class="ph ph-arrow-right"></i>
                     </button>
 
-                    <div class="diapo8-demo" id="diapo8-demo">
+                    <div class="diapo7-demo" id="diapo7-demo">
                         <!-- Paso 0: Titulo -->
-                        <div class="diapo8-demo__step diapo8-demo__step--active" data-diapo8-step="0">
-                            <div class="diapo8-intro">
+                        <div class="diapo7-demo__step diapo7-demo__step--active" data-diapo7-step="0">
+                            <div class="diapo7-intro">
                                 <div class="blinda-intro__icon">
                                     <i class="ph-fill ph-magic-wand"></i>
                                 </div>
-                                <h2 class="blinda-title">De la teoria a la practica</h2>
-                                <p class="blinda-subtitle">Asi se construye un agente en AgentiaELE</p>
+                                <h2 class="blinda-title">De la teoría a la práctica</h2>
+                                <p class="blinda-subtitle">Así se construye un agente en AgentiaELE</p>
                             </div>
                         </div>
 
                         <!-- Paso 1: Ingredientes -->
-                        <div class="diapo8-demo__step" data-diapo8-step="1">
-                            <div id="diapo8-ingredients"></div>
+                        <div class="diapo7-demo__step" data-diapo7-step="1">
+                            <div id="diapo7-ingredients"></div>
                         </div>
 
                         <!-- Paso 2: Ejemplo Traductor -->
-                        <div class="diapo8-demo__step" data-diapo8-step="2">
-                            <div id="diapo8-example"></div>
+                        <div class="diapo7-demo__step" data-diapo7-step="2">
+                            <div id="diapo7-example"></div>
                         </div>
 
                         <!-- Paso 3: Actividades -->
-                        <div class="diapo8-demo__step" data-diapo8-step="3">
-                            <div id="diapo8-activities"></div>
+                        <div class="diapo7-demo__step" data-diapo7-step="3">
+                            <div id="diapo7-activities"></div>
                         </div>
 
                         <!-- Paso 4: Los 8 agentes -->
-                        <div class="diapo8-demo__step" data-diapo8-step="4">
-                            <div id="diapo8-all-agents"></div>
+                        <div class="diapo7-demo__step" data-diapo7-step="4">
+                            <div id="diapo7-all-agents"></div>
                         </div>
 
                         <!-- Paso 5: Taller -->
-                        <div class="diapo8-demo__step" data-diapo8-step="5">
-                            <div id="diapo8-workshop"></div>
+                        <div class="diapo7-demo__step" data-diapo7-step="5">
+                            <div id="diapo7-workshop"></div>
                         </div>
                     </div>
 
                     <!-- Stepper dots (6 pasos) -->
-                    <div class="diapo8-demo__stepper" id="diapo8-stepper">
-                        <button class="demo-stepper__dot demo-stepper__dot--active" data-diapo8-dot="0"></button>
-                        <button class="demo-stepper__dot" data-diapo8-dot="1"></button>
-                        <button class="demo-stepper__dot" data-diapo8-dot="2"></button>
-                        <button class="demo-stepper__dot" data-diapo8-dot="3"></button>
-                        <button class="demo-stepper__dot" data-diapo8-dot="4"></button>
-                        <button class="demo-stepper__dot" data-diapo8-dot="5"></button>
+                    <div class="diapo7-demo__stepper" id="diapo7-stepper">
+                        <button class="demo-stepper__dot demo-stepper__dot--active" data-diapo7-dot="0"></button>
+                        <button class="demo-stepper__dot" data-diapo7-dot="1"></button>
+                        <button class="demo-stepper__dot" data-diapo7-dot="2"></button>
+                        <button class="demo-stepper__dot" data-diapo7-dot="3"></button>
+                        <button class="demo-stepper__dot" data-diapo7-dot="4"></button>
+                        <button class="demo-stepper__dot" data-diapo7-dot="5"></button>
                     </div>
                 </div>
             </div>
@@ -1250,6 +1250,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=22.9.2"></script>
+    <script src="/static/app.js?v=22.9.9"></script>
 </body>
 </html>
