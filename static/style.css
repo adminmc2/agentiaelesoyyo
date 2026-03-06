@@ -6749,6 +6749,13 @@ body[data-mood-active] .message.assistant {
     color: var(--md-sys-color-on-surface);
     text-align: center;
 }
+.diapo6-dashboard__qr {
+    padding: 12px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    align-self: center;
+}
 .diapo6-dashboard__desc {
     font: 400 1rem/1.4 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface-variant);
@@ -6786,38 +6793,24 @@ body[data-mood-active] .message.assistant {
     font: 700 0.85rem/1 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface-variant);
 }
-
-/* Paso 5: Crea tu agente */
-.diapo6-create {
-    text-align: center;
+.diapo6-bar__fill--convencido { background: #4CAF50; }
+.diapo6-bar__fill--potencial { background: #FF9800; }
+.diapo6-bar__fill--no_convencido { background: #F44336; }
+.diapo6-dashboard__section {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 16px;
+    gap: 8px;
 }
-.diapo6-create__title {
-    font: 700 1.5rem/1.2 'Dosis', sans-serif;
-    color: var(--md-sys-color-on-surface);
-}
-.diapo6-create__desc {
-    font: 400 1rem/1.4 'Source Sans 3', sans-serif;
+.diapo6-dashboard__subtitle {
+    font: 600 1rem/1.2 'Dosis', sans-serif;
     color: var(--md-sys-color-on-surface-variant);
-    max-width: 400px;
 }
-.diapo6-create__cta {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    padding: 24px;
-    background: var(--md-sys-color-surface-container-lowest);
-    border-radius: 16px;
-    border: 1px solid var(--md-sys-color-outline-variant);
-}
-.diapo6-create__invite {
-    font: 500 0.95rem/1.4 'Source Sans 3', sans-serif;
-    color: var(--md-sys-color-on-surface);
-    max-width: 350px;
+.diapo6-dashboard__total {
+    font: 600 0.9rem/1 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    text-align: center;
+    padding-top: 8px;
+    border-top: 1px solid var(--md-sys-color-outline-variant);
 }
 
 /* Responsive diapo6 */

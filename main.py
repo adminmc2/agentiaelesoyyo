@@ -414,9 +414,9 @@ MOMENTO 5 — Probar los agentes en el móvil:
 Cuando Román avance, invita: "Ahora viene lo bueno. Vamos a probar estos agentes de verdad. Escaneáis el QR y podéis usar los gatos con la actividad real en MaterIAELE."
 KEYWORDS: incluye "probar" o "QR" o "MaterIAELE" o "escaneáis"
 
-MOMENTO 6 — Resultados:
-Cuando Román pregunte por resultados o cierre, comenta lo que se ve en pantalla. Brevemente. "Ahí veis los resultados. Interesante ver cuáles os han gustado más."
-KEYWORDS: incluye "resultados" o "pantalla" o "cuáles os han gustado"
+MOMENTO 6 — Encuesta y conversación:
+Cuando Román pregunte por resultados o la encuesta, invita a votar y a compartir: "Ahora tenéis una encuesta rápida en el móvil. Votad qué agente habéis probado y qué os ha parecido. Después os salen unas preguntas para comentar con el compañero de al lado."
+KEYWORDS: incluye "resultados" o "encuesta" o "cuáles os han gustado"
 
 LOS 8 AGENTES MIAU (para que los conozcas, NO menciones estos detalles técnicos al público):
 Actividad 1 — Vocabulario:
@@ -890,6 +890,80 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def root():
     """Servir el frontend principal"""
     return FileResponse("static/index.html")
+
+
+@app.get("/encuesta")
+async def encuesta_page():
+    """Servir la página de encuesta móvil"""
+    return FileResponse("static/encuesta.html")
+
+
+# ── Encuesta MIAU: votación en tiempo real ──
+_encuesta_votes: list[dict] = []
+_encuesta_dashboard_ws: set[WebSocket] = set()
+
+
+@app.websocket("/ws/encuesta")
+async def ws_encuesta_vote(websocket: WebSocket):
+    """Recibe un voto desde el móvil y lo reenvía al dashboard del presentador"""
+    await websocket.accept()
+    try:
+        data = await websocket.receive_json()
+        agent = data.get("agent", "")
+        opinion = data.get("opinion", "")
+        if agent and opinion:
+            _encuesta_votes.append({"agent": agent, "opinion": opinion})
+            # Notificar a todos los dashboards conectados
+            summary = _build_vote_summary()
+            dead = set()
+            for ws in _encuesta_dashboard_ws:
+                try:
+                    await ws.send_json(summary)
+                except Exception:
+                    dead.add(ws)
+            _encuesta_dashboard_ws -= dead
+    except Exception:
+        pass
+    finally:
+        try:
+            await websocket.close()
+        except Exception:
+            pass
+
+
+@app.websocket("/ws/encuesta-dashboard")
+async def ws_encuesta_dashboard(websocket: WebSocket):
+    """El presentador se conecta aquí para recibir actualizaciones de votos"""
+    await websocket.accept()
+    _encuesta_dashboard_ws.add(websocket)
+    try:
+        # Enviar estado actual al conectar
+        await websocket.send_json(_build_vote_summary())
+        # Mantener conexión abierta
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        pass
+    finally:
+        _encuesta_dashboard_ws.discard(websocket)
+
+
+def _build_vote_summary() -> dict:
+    """Construye resumen de votos para el dashboard"""
+    agents = ["Traducción", "Expansor", "Enfocado", "Improvisador",
+              "Masticador", "Aprobador", "Mirón", "Explorador"]
+    agent_counts = {a: 0 for a in agents}
+    opinion_counts = {"convencido": 0, "potencial": 0, "no_convencido": 0}
+    for v in _encuesta_votes:
+        if v["agent"] in agent_counts:
+            agent_counts[v["agent"]] += 1
+        if v["opinion"] in opinion_counts:
+            opinion_counts[v["opinion"]] += 1
+    return {
+        "total": len(_encuesta_votes),
+        "agents": agent_counts,
+        "opinions": opinion_counts
+    }
 
 
 @app.get("/api/health")

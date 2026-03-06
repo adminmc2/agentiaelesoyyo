@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Encuesta MIAU</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Dosis:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #C4704B;
+            --primary-light: #F5E6DC;
+            --primary-container: #FDEEE5;
+            --on-surface: #1C1B1F;
+            --on-surface-variant: #49454F;
+            --surface: #FFF8F5;
+            --outline: #CAC4D0;
+            --success: #4CAF50;
+            --success-light: #E8F5E9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Source Sans 3', sans-serif;
+            background: var(--surface);
+            color: var(--on-surface);
+            min-height: 100dvh;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-family: 'Dosis', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--on-surface-variant);
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .survey { width: 100%; max-width: 420px; }
+
+        .question {
+            margin-bottom: 24px;
+        }
+
+        .question__label {
+            font-family: 'Dosis', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .option-btn {
+            padding: 12px 8px;
+            border: 2px solid var(--outline);
+            border-radius: 12px;
+            background: white;
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--on-surface);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .option-btn:active {
+            transform: scale(0.96);
+        }
+
+        .option-btn--selected {
+            border-color: var(--primary);
+            background: var(--primary-container);
+            color: var(--primary);
+        }
+
+        .opinion-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .opinion-btn {
+            padding: 14px 16px;
+            border: 2px solid var(--outline);
+            border-radius: 12px;
+            background: white;
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 1rem;
+            color: var(--on-surface);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .opinion-btn:active {
+            transform: scale(0.98);
+        }
+
+        .opinion-btn--selected {
+            border-color: var(--primary);
+            background: var(--primary-container);
+            color: var(--primary);
+        }
+
+        .send-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            background: var(--primary);
+            color: white;
+            font-family: 'Dosis', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: opacity 0.2s;
+        }
+
+        .send-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .send-btn:not(:disabled):active {
+            opacity: 0.8;
+        }
+
+        /* Post-vote: preguntas conversación */
+        .conversation {
+            display: none;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+
+        .conversation.visible { display: block; }
+
+        .conversation__title {
+            font-family: 'Dosis', sans-serif;
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .conversation__subtitle {
+            font-size: 0.9rem;
+            color: var(--on-surface-variant);
+            margin-bottom: 20px;
+        }
+
+        .conv-card {
+            background: white;
+            border: 1px solid var(--outline);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 10px;
+            text-align: left;
+            font-size: 1rem;
+            line-height: 1.4;
+            color: var(--on-surface);
+            transition: all 0.2s;
+        }
+
+        .conv-card:active {
+            background: var(--primary-container);
+            border-color: var(--primary);
+        }
+
+        .thanks {
+            display: none;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            padding: 32px 0;
+        }
+
+        .thanks.visible { display: block; }
+
+        .thanks__icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        .thanks__text {
+            font-family: 'Dosis', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--success);
+        }
+    </style>
+</head>
+<body>
+    <h1>Encuesta MIAU</h1>
+    <p class="subtitle">Tu respuesta aparece en pantalla en tiempo real</p>
+
+    <div class="survey" id="survey">
+        <div class="question">
+            <label class="question__label">1. ¿Qué agente has probado?</label>
+            <div class="options-grid" id="agent-options">
+                <button class="option-btn" data-value="Traducción">Traducción</button>
+                <button class="option-btn" data-value="Expansor">Expansor</button>
+                <button class="option-btn" data-value="Enfocado">Enfocado</button>
+                <button class="option-btn" data-value="Improvisador">Improvisador</button>
+                <button class="option-btn" data-value="Masticador">Masticador</button>
+                <button class="option-btn" data-value="Aprobador">Aprobador</button>
+                <button class="option-btn" data-value="Mirón">Mirón</button>
+                <button class="option-btn" data-value="Explorador">Explorador</button>
+            </div>
+        </div>
+
+        <div class="question">
+            <label class="question__label">2. ¿Qué te ha parecido el resultado?</label>
+            <div class="opinion-grid" id="opinion-options">
+                <button class="opinion-btn" data-value="convencido">Me ha convencido</button>
+                <button class="opinion-btn" data-value="potencial">Tiene potencial</button>
+                <button class="opinion-btn" data-value="no_convencido">No me ha convencido</button>
+            </div>
+        </div>
+
+        <button class="send-btn" id="send-btn" disabled>Enviar</button>
+    </div>
+
+    <div class="conversation" id="conversation">
+        <h2 class="conversation__title">Comparte con tus colegas</h2>
+        <p class="conversation__subtitle">Elige las preguntas que quieras para hablar con quien tengas al lado</p>
+
+        <div class="conv-card">Explica a tu compañero qué agente has probado y qué ha generado</div>
+        <div class="conv-card">¿Habéis probado uno distinto? Comparad resultados</div>
+        <div class="conv-card">¿Qué os gustaría que hiciera un agente que no existe todavía?</div>
+        <div class="conv-card">¿En qué actividad de vuestra clase real usaríais el agente que habéis probado?</div>
+        <div class="conv-card">¿Qué cambiaríais del agente que habéis visto?</div>
+        <div class="conv-card">¿Qué agente de los otros os da más curiosidad sin haberlo probado?</div>
+        <div class="conv-card">Si pudierais diseñar un agente a medida para vuestra clase, ¿qué haría?</div>
+    </div>
+
+    <script>
+        let selectedAgent = null;
+        let selectedOpinion = null;
+
+        // Agent selection
+        document.querySelectorAll('#agent-options .option-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#agent-options .option-btn').forEach(b => b.classList.remove('option-btn--selected'));
+                btn.classList.add('option-btn--selected');
+                selectedAgent = btn.dataset.value;
+                checkReady();
+            });
+        });
+
+        // Opinion selection
+        document.querySelectorAll('#opinion-options .opinion-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#opinion-options .opinion-btn').forEach(b => b.classList.remove('opinion-btn--selected'));
+                btn.classList.add('opinion-btn--selected');
+                selectedOpinion = btn.dataset.value;
+                checkReady();
+            });
+        });
+
+        function checkReady() {
+            document.getElementById('send-btn').disabled = !(selectedAgent && selectedOpinion);
+        }
+
+        // Send vote via WebSocket
+        document.getElementById('send-btn').addEventListener('click', () => {
+            const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const ws = new WebSocket(`${protocol}//${location.host}/ws/encuesta`);
+            ws.onopen = () => {
+                ws.send(JSON.stringify({ agent: selectedAgent, opinion: selectedOpinion }));
+                ws.close();
+            };
+            // Show conversation questions
+            document.getElementById('survey').style.display = 'none';
+            document.getElementById('conversation').classList.add('visible');
+        });
+    </script>
+</body>
+</html>

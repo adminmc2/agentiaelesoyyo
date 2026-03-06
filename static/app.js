@@ -5325,7 +5325,7 @@ const DIAPO6_AGENTS = {
     ]
 };
 
-const DIAPO6_TOTAL_STEPS = 6;
+const DIAPO6_TOTAL_STEPS = 5;
 let diapo6Step = 0;
 
 function initDiapo6() {
@@ -5335,6 +5335,7 @@ function initDiapo6() {
     renderDiapo6AgentCards('diapo6-agents-act1', DIAPO6_AGENTS.act1);
     renderDiapo6AgentCards('diapo6-agents-act2', DIAPO6_AGENTS.act2);
     renderDiapo6Bars();
+    connectDiapo6Dashboard();
     updateDiapo6Step(0);
 
     // Stepper dot clicks
@@ -5414,19 +5415,87 @@ function checkDiapo6AgentAnswer(select) {
     }
 }
 
+const DIAPO6_OPINION_LABELS = {
+    convencido: 'Me ha convencido',
+    potencial: 'Tiene potencial',
+    no_convencido: 'No me ha convencido'
+};
+
 function renderDiapo6Bars() {
-    const barsContainer = document.getElementById('diapo6-bars');
-    if (!barsContainer) return;
-    const allAgents = [...DIAPO6_AGENTS.act1, ...DIAPO6_AGENTS.act2];
-    barsContainer.innerHTML = allAgents.map(a => `
-        <div class="diapo6-bar" data-agent-id="${a.id}">
-            <span class="diapo6-bar__label">${a.name}</span>
-            <div class="diapo6-bar__track">
-                <div class="diapo6-bar__fill" style="width: 0%"></div>
+    // Barras de agentes
+    const agentsContainer = document.getElementById('diapo6-bars-agents');
+    if (agentsContainer) {
+        const allAgents = [...DIAPO6_AGENTS.act1, ...DIAPO6_AGENTS.act2];
+        agentsContainer.innerHTML = allAgents.map(a => `
+            <div class="diapo6-bar" data-agent-name="${a.name}">
+                <span class="diapo6-bar__label">${a.name}</span>
+                <div class="diapo6-bar__track">
+                    <div class="diapo6-bar__fill" style="width: 0%"></div>
+                </div>
+                <span class="diapo6-bar__count">0</span>
             </div>
-            <span class="diapo6-bar__count">0</span>
-        </div>
-    `).join('');
+        `).join('');
+    }
+    // Barras de opinión
+    const opinionsContainer = document.getElementById('diapo6-bars-opinions');
+    if (opinionsContainer) {
+        opinionsContainer.innerHTML = Object.entries(DIAPO6_OPINION_LABELS).map(([key, label]) => `
+            <div class="diapo6-bar" data-opinion="${key}">
+                <span class="diapo6-bar__label">${label}</span>
+                <div class="diapo6-bar__track">
+                    <div class="diapo6-bar__fill diapo6-bar__fill--${key}" style="width: 0%"></div>
+                </div>
+                <span class="diapo6-bar__count">0</span>
+            </div>
+        `).join('');
+    }
+}
+
+function connectDiapo6Dashboard() {
+    const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${protocol}//${location.host}/ws/encuesta-dashboard`);
+    ws.onmessage = (e) => {
+        try {
+            const data = JSON.parse(e.data);
+            updateDiapo6Dashboard(data);
+        } catch (err) { /* ignore */ }
+    };
+    ws.onclose = () => {
+        // Reconectar tras 3s
+        setTimeout(connectDiapo6Dashboard, 3000);
+    };
+}
+
+function updateDiapo6Dashboard(data) {
+    const total = data.total || 0;
+    const countEl = document.getElementById('diapo6-vote-count');
+    if (countEl) countEl.textContent = total;
+
+    // Actualizar barras de agentes
+    if (data.agents) {
+        const maxAgent = Math.max(1, ...Object.values(data.agents));
+        Object.entries(data.agents).forEach(([name, count]) => {
+            const bar = document.querySelector(`.diapo6-bar[data-agent-name="${name}"]`);
+            if (!bar) return;
+            const fill = bar.querySelector('.diapo6-bar__fill');
+            const countSpan = bar.querySelector('.diapo6-bar__count');
+            if (fill) fill.style.width = `${(count / maxAgent) * 100}%`;
+            if (countSpan) countSpan.textContent = count;
+        });
+    }
+
+    // Actualizar barras de opinión
+    if (data.opinions) {
+        const maxOp = Math.max(1, ...Object.values(data.opinions));
+        Object.entries(data.opinions).forEach(([key, count]) => {
+            const bar = document.querySelector(`.diapo6-bar[data-opinion="${key}"]`);
+            if (!bar) return;
+            const fill = bar.querySelector('.diapo6-bar__fill');
+            const countSpan = bar.querySelector('.diapo6-bar__count');
+            if (fill) fill.style.width = `${(count / maxOp) * 100}%`;
+            if (countSpan) countSpan.textContent = count;
+        });
+    }
 }
 
 function updateDiapo6Step(step) {
@@ -5487,7 +5556,7 @@ const DIAPO6_KEYWORD_MAP = [
     { step: 1, patterns: ['descubrir', 'dos actividades', 'sacad los móviles', 'sacad los moviles', 'adivinar', 'actividad 1'] },
     { step: 2, patterns: ['segunda', 'actividad 2', 'siguiente actividad', 'pasemos', 'diálogo', 'dialogo', 'texto y gramática', 'texto y gramatica'] },
     { step: 3, patterns: ['probar', 'qr', 'materiaele', 'escaneáis', 'escaneais'] },
-    { step: 4, patterns: ['resultados', 'pantalla', 'cuáles os han gustado', 'cuales os han gustado'] }
+    { step: 4, patterns: ['resultados', 'encuesta', 'pantalla', 'cuáles os han gustado', 'cuales os han gustado', 'votad'] }
 ];
 
 function addDiapo6ChatBubble(text, role) {

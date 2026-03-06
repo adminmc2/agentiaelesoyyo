@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=22.8.0">
+    <link rel="stylesheet" href="/static/style.css?v=22.9.0">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -646,21 +646,20 @@
                         <div class="diapo6-demo__step" data-diapo6-step="4">
                             <div class="diapo6-dashboard">
                                 <h3 class="diapo6-dashboard__title">Encuesta rápida</h3>
-                                <p class="diapo6-dashboard__desc">Responde desde tu móvil. Los resultados aparecen aquí en tiempo real.</p>
-                                <div class="diapo6-dashboard__bars" id="diapo6-bars">
-                                    <!-- Barras de votación, generadas por JS -->
+                                <div class="diapo6-dashboard__qr">
+                                    <img src="/static/imagenes/qr-encuesta.svg" alt="QR Encuesta" style="width:100px;height:100px;">
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Paso 5: Crea tu agente -->
-                        <div class="diapo6-demo__step" data-diapo6-step="5">
-                            <div class="diapo6-create">
-                                <h3 class="diapo6-create__title">Crea tu agente</h3>
-                                <p class="diapo6-create__desc">Entra en la plataforma MaterIAELE y diseña tu propio agente IA para tus clases.</p>
-                                <div class="diapo6-create__cta">
-                                    <i class="ph ph-chalkboard-teacher" style="font-size:48px;color:var(--md-sys-color-primary)"></i>
-                                    <p class="diapo6-create__invite">Te invitamos a un taller en línea para aprender a crear agentes paso a paso.</p>
+                                <p class="diapo6-dashboard__desc">Los resultados aparecen aquí en tiempo real</p>
+                                <div class="diapo6-dashboard__section">
+                                    <h4 class="diapo6-dashboard__subtitle">¿Qué agente habéis probado?</h4>
+                                    <div class="diapo6-dashboard__bars" id="diapo6-bars-agents"></div>
+                                </div>
+                                <div class="diapo6-dashboard__section">
+                                    <h4 class="diapo6-dashboard__subtitle">¿Qué os ha parecido?</h4>
+                                    <div class="diapo6-dashboard__bars" id="diapo6-bars-opinions"></div>
+                                </div>
+                                <div class="diapo6-dashboard__total">
+                                    <span id="diapo6-vote-count">0</span> respuestas
                                 </div>
                             </div>
                         </div>
@@ -673,7 +672,6 @@
                         <span class="demo-stepper__dot" data-diapo6-dot="2"></span>
                         <span class="demo-stepper__dot" data-diapo6-dot="3"></span>
                         <span class="demo-stepper__dot" data-diapo6-dot="4"></span>
-                        <span class="demo-stepper__dot" data-diapo6-dot="5"></span>
                     </div>
                 </div>
             </div>
@@ -1252,6 +1250,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=22.8.0"></script>
+    <script src="/static/app.js?v=22.9.0"></script>
 </body>
 </html>
