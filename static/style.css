@@ -1416,12 +1416,12 @@ body[data-mood-active] .bento-card--mood {
     height: 28px;
     border-radius: 50%;
     border: none;
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(196, 112, 75, 0.12);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--md-sys-color-on-surface-variant);
+    color: var(--md-sys-color-primary);
     font-size: 14px;
     transition: background 0.15s;
     touch-action: manipulation;
@@ -1429,7 +1429,7 @@ body[data-mood-active] .bento-card--mood {
 }
 
 .conoce-back-btn:active {
-    background: rgba(0, 0, 0, 0.12);
+    background: rgba(196, 112, 75, 0.28);
 }
 
 .conoce-next-btn {
@@ -1440,19 +1440,19 @@ body[data-mood-active] .bento-card--mood {
     height: 28px;
     border-radius: 50%;
     border: none;
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(196, 112, 75, 0.12);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--md-sys-color-on-surface-variant);
+    color: var(--md-sys-color-primary);
     font-size: 14px;
     transition: background 0.15s;
     touch-action: manipulation;
     z-index: 10;
 }
-.conoce-next-btn:hover { background: rgba(0, 0, 0, 0.08); }
-.conoce-next-btn:active { background: rgba(0, 0, 0, 0.12); }
+.conoce-next-btn:hover { background: rgba(196, 112, 75, 0.2); }
+.conoce-next-btn:active { background: rgba(196, 112, 75, 0.28); }
 
 .conoce-content {
     display: flex;
@@ -1690,7 +1690,7 @@ body[data-mood-active] .bento-card--mood {
     content: '';
     flex: 1;
     height: 1px;
-    background: rgba(0, 0, 0, 0.08);
+    background: rgba(196, 112, 75, 0.2);
 }
 
 /* ============================================
@@ -4879,19 +4879,19 @@ body[data-mood-active] .message.assistant {
     height: 28px;
     border-radius: 50%;
     border: none;
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(196, 112, 75, 0.12);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--md-sys-color-on-surface-variant);
+    color: var(--md-sys-color-primary);
     font-size: 14px;
     transition: background 0.15s;
     touch-action: manipulation;
     z-index: 10;
 }
-.blinda-nav-btn:hover { background: rgba(0, 0, 0, 0.08); }
-.blinda-nav-btn:active { background: rgba(0, 0, 0, 0.12); }
+.blinda-nav-btn:hover { background: rgba(196, 112, 75, 0.2); }
+.blinda-nav-btn:active { background: rgba(196, 112, 75, 0.28); }
 .blinda-nav-btn--back { left: 0.5rem; }
 .blinda-nav-btn--next { right: 0.5rem; }
 
@@ -5560,18 +5560,18 @@ body[data-mood-active] .message.assistant {
     height: 28px;
     border-radius: 50%;
     border: none;
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(196, 112, 75, 0.12);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--md-sys-color-on-surface-variant);
+    color: var(--md-sys-color-primary);
     font-size: 14px;
     transition: background 0.15s;
     touch-action: manipulation;
 }
-.juego-nav-btn:hover { background: rgba(0, 0, 0, 0.08); }
-.juego-nav-btn:active { background: rgba(0, 0, 0, 0.12); }
+.juego-nav-btn:hover { background: rgba(196, 112, 75, 0.2); }
+.juego-nav-btn:active { background: rgba(196, 112, 75, 0.28); }
 .juego-nav-btn--right { left: auto; right: 0.5rem; }
 
 /* Header */
