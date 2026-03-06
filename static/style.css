@@ -6447,9 +6447,16 @@ body[data-mood-active] .message.assistant {
 }
 
 /* ============================================
-   DIAPO 6 — (vacía, por definir)
+   DIAPO 6 — Elige tu agente
    ============================================ */
-.diapo6-screen { padding: 0 !important; overflow: hidden; }
+.diapo6-screen {
+    padding: 0 !important;
+    overflow: hidden;
+    transition:
+        opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate),
+        transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate);
+}
+.diapo6-screen.fade-out { opacity: 0; transform: scale(0.98); }
 .diapo6-page {
     width: 100%; min-height: 100vh; min-height: 100dvh;
     display: grid; grid-template-columns: 45% 55%;
@@ -6467,77 +6474,302 @@ body[data-mood-active] .message.assistant {
     background: var(--md-sys-color-surface-container-high);
     box-shadow: 0 2px 8px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(0,0,0,0.04);
 }
-.diapo6-content {
-    width: 100%; max-width: 500px; display: flex;
-    flex-direction: column; align-items: center;
-    text-align: center; gap: var(--space-24);
+
+/* Demo container + steps */
+.diapo6-demo {
+    width: 100%;
+    max-width: 700px;
 }
+.diapo6-demo__step {
+    display: none;
+    width: 100%;
+    animation: fadeIn 0.3s ease;
+}
+.diapo6-demo__step--active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+@keyframes diapo6FadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Stepper dots */
+.diapo6-demo__stepper {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+}
+
+/* Paso 0: Intro — Elige tu agente */
+.diapo6-intro {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+.diapo6-intro__title {
+    font: 700 2rem/1.1 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    margin: 0;
+}
+.diapo6-intro__subtitle {
+    font: 400 1.05rem/1.4 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    margin: 0;
+}
+.diapo6-cats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-top: 1.5rem;
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.diapo6-cat-mini {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+.diapo6-cat-mini__img {
+    width: 140px;
+    height: 140px;
+    border-radius: 16px;
+    object-fit: contain;
+    background: var(--md-sys-color-surface-container);
+    filter: grayscale(80%) opacity(0.55);
+    transition: filter 0.5s ease, transform 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+.diapo6-cat-mini--awake .diapo6-cat-mini__img {
+    filter: grayscale(0%) opacity(1);
+    transform: scale(1.05);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+.diapo6-cat-mini__name {
+    font: 600 13px 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    max-width: 140px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Pasos 1-2: Actividad + agentes */
+.diapo6-activity {
+    width: 100%;
+}
+.diapo6-activity__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.diapo6-activity__badge {
+    font: 700 11px/1 'Dosis', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+}
+.diapo6-activity__badge--alt {
+    background: var(--md-sys-color-tertiary);
+    color: var(--md-sys-color-on-tertiary);
+}
+.diapo6-activity__title {
+    font: 600 1.2rem/1.2 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    margin: 0;
+}
+.diapo6-activity__text {
+    font: 400 0.9rem/1.5 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    background: var(--md-sys-color-surface-container-lowest);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--md-sys-color-outline-variant);
+}
+.diapo6-activity__challenge {
+    font: 600 1rem/1.2 'Dosis', sans-serif;
+    color: var(--md-sys-color-primary);
+    text-align: center;
+    margin-bottom: 12px;
+}
+.diapo6-agents-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+.diapo6-agent-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 8px;
+    border-radius: 12px;
+    background: var(--md-sys-color-surface-container-lowest);
+    border: 1px solid var(--md-sys-color-outline-variant);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-align: center;
+}
+.diapo6-agent-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.diapo6-agent-card--revealed {
+    border-color: var(--md-sys-color-primary);
+    background: var(--md-sys-color-primary-container);
+}
+.diapo6-agent-card__img {
+    width: 72px;
+    height: 72px;
+    border-radius: 12px;
+    object-fit: contain;
+    background: var(--md-sys-color-surface-container);
+}
+.diapo6-agent-card--revealed .diapo6-agent-card__img {
+    filter: none;
+}
+.diapo6-agent-card__desc {
+    font: 400 0.75rem/1.3 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+}
+.diapo6-agent-card__name {
+    font: 700 0.85rem/1 'Dosis', sans-serif;
+    color: var(--md-sys-color-primary);
+    transition: opacity 0.3s ease;
+}
+.diapo6-agent-card__name--hidden {
+    opacity: 0.3;
+    font-size: 1.2rem;
+}
+
+/* Paso 3: Pruebalo en tu movil */
+.diapo6-try {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+.diapo6-try__title {
+    font: 700 1.5rem/1.2 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+}
+.diapo6-try__desc {
+    font: 400 1rem/1.4 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    max-width: 400px;
+}
+.diapo6-try__qr {
+    padding: 24px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+/* Paso 4: Encuesta + Dashboard */
+.diapo6-dashboard {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.diapo6-dashboard__title {
+    font: 700 1.5rem/1.2 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    text-align: center;
+}
+.diapo6-dashboard__desc {
+    font: 400 1rem/1.4 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    text-align: center;
+}
+.diapo6-dashboard__bars {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.diapo6-bar {
+    display: grid;
+    grid-template-columns: 100px 1fr 40px;
+    align-items: center;
+    gap: 10px;
+}
+.diapo6-bar__label {
+    font: 600 0.85rem/1 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    text-align: right;
+}
+.diapo6-bar__track {
+    height: 20px;
+    background: var(--md-sys-color-surface-container);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.diapo6-bar__fill {
+    height: 100%;
+    background: var(--md-sys-color-primary);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+.diapo6-bar__count {
+    font: 700 0.85rem/1 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Paso 5: Crea tu agente */
+.diapo6-create {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+.diapo6-create__title {
+    font: 700 1.5rem/1.2 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+}
+.diapo6-create__desc {
+    font: 400 1rem/1.4 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    max-width: 400px;
+}
+.diapo6-create__cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 24px;
+    background: var(--md-sys-color-surface-container-lowest);
+    border-radius: 16px;
+    border: 1px solid var(--md-sys-color-outline-variant);
+}
+.diapo6-create__invite {
+    font: 500 0.95rem/1.4 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    max-width: 350px;
+}
+
+/* Responsive diapo6 */
 @media (max-width: 968px) {
     .diapo6-page { display: flex; flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     .diapo6-left { padding: 1rem; order: 1; }
-    .diapo6-right { margin: 0.75rem; padding: 2rem 1.5rem; }
-}
-
-/* ============================================
-   DIAPO 7 — Elige tu agente
-   ============================================ */
-.diapo7-screen {
-    padding: 0 !important;
-    overflow: hidden;
-}
-.diapo7-page {
-    width: 100%;
-    min-height: 100vh;
-    min-height: 100dvh;
-    display: grid;
-    grid-template-columns: 45% 55%;
-    background: var(--md-sys-color-surface);
-    overflow: hidden;
-}
-.diapo7-left {
-    padding: 2rem 1.5rem 1.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    min-height: 0;
-}
-.diapo7-right {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem;
-    position: relative;
-    overflow: hidden;
-    margin: 1cm;
-    border-radius: 12px;
-    background: var(--md-sys-color-surface-container-high);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), inset 0 0 0 1px rgba(0, 0, 0, 0.04);
-}
-.diapo7-content {
-    width: 100%;
-    max-width: 500px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: var(--space-24);
-}
-@media (max-width: 968px) {
-    .diapo7-page {
-        display: flex;
-        flex-direction: column;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    .diapo7-left {
-        padding: 1rem;
-        order: 1;
-    }
-    .diapo7-right {
-        margin: 0.75rem;
-        padding: 2rem 1.5rem;
-    }
+    .diapo6-right { margin: 0.75rem; padding: 1.5rem 1rem; }
+    .diapo6-cats-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .diapo6-cat-mini__img { width: 80px; height: 80px; }
+    .diapo6-agents-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .diapo6-dashboard__bars { gap: 6px; }
+    .diapo6-bar { grid-template-columns: 80px 1fr 30px; }
 }
 
 /* ============================================
@@ -7093,4 +7325,405 @@ body[data-mood-active] .message.assistant {
     .diapo5-cap__row-text { font-size: 13px; }
     .diapo5-closing__tagline { font-size: 18px; padding: var(--space-12) var(--space-16); }
     .diapo5-closing__cap { padding: var(--space-8) var(--space-14); font-size: 12px; }
+}
+
+/* ============================================
+   DIAPO 8 — Construye tu Agente (Plataforma)
+   ============================================ */
+.diapo8-screen {
+    padding: 0 !important;
+    overflow: hidden;
+    transition:
+        opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate),
+        transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate);
+}
+.diapo8-screen.fade-out {
+    opacity: 0;
+    transform: scale(0.98);
+}
+.diapo8-page {
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-columns: 45% 55%;
+    background: var(--md-sys-color-surface);
+    overflow: hidden;
+}
+.diapo8-left {
+    padding: 2rem 1.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    min-height: 0;
+}
+.diapo8-right {
+    padding: 2rem 2.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.diapo8-demo {
+    width: 100%;
+    max-width: 560px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.diapo8-demo__step {
+    display: none;
+    width: 100%;
+    animation: blindaSlideUp 0.4s var(--md-sys-motion-easing-emphasized-decelerate) both;
+}
+.diapo8-demo__step--active {
+    display: flex;
+    flex-direction: column;
+}
+.diapo8-demo__stepper {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    padding: var(--space-12) 0;
+}
+.diapo8-intro {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-12);
+}
+
+/* Section titles */
+.diapo8-section-title {
+    font: 700 20px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    margin-bottom: var(--space-16);
+}
+.diapo8-section-title i {
+    font-size: 24px;
+    color: var(--md-sys-color-primary);
+}
+
+/* Step 1: Ingredients */
+.diapo8-ingredients__grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+}
+.diapo8-ingredient-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-14);
+    padding: var(--space-12) var(--space-16);
+    background: var(--md-sys-color-surface-container-low);
+    border-radius: var(--md-sys-shape-corner-medium);
+    border: 1px solid var(--md-sys-color-outline-variant);
+}
+.diapo8-ingredient-card__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+.diapo8-ingredient-card__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.diapo8-ingredient-card__text strong {
+    font: 600 14px 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface);
+}
+.diapo8-ingredient-card__text span {
+    font: 400 13px 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Step 2: Agent Ficha (example) */
+.diapo8-agent-ficha {
+    background: var(--md-sys-color-surface-container-low);
+    border-radius: var(--md-sys-shape-corner-large);
+    border: 1px solid var(--md-sys-color-outline-variant);
+    overflow: hidden;
+}
+.diapo8-agent-ficha__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-14);
+    padding: var(--space-16) var(--space-20);
+    background: linear-gradient(135deg, var(--md-sys-color-primary), var(--md-sys-color-primary-container));
+}
+.diapo8-agent-ficha__img {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,0.5);
+}
+.diapo8-agent-ficha__name {
+    font: 700 18px 'Dosis', sans-serif;
+    color: white;
+    margin: 0;
+}
+.diapo8-agent-ficha__desc {
+    font: 400 13px 'Source Sans 3', sans-serif;
+    color: rgba(255,255,255,0.85);
+    margin: 2px 0 0;
+}
+.diapo8-agent-ficha__fields {
+    padding: var(--space-16) var(--space-20);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+}
+.diapo8-ficha-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.diapo8-ficha-field--row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-12);
+}
+.diapo8-ficha-field__item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 80px;
+}
+.diapo8-ficha-field__label {
+    font: 600 12px 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.diapo8-ficha-field__label i {
+    font-size: 14px;
+    color: var(--md-sys-color-primary);
+}
+.diapo8-ficha-field__value {
+    font: 400 14px 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface);
+}
+.diapo8-ficha-field__value--prompt {
+    font-style: italic;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--md-sys-color-on-surface-variant);
+    background: var(--md-sys-color-surface-container);
+    padding: var(--space-8) var(--space-12);
+    border-radius: var(--md-sys-shape-corner-small);
+}
+.diapo8-example-note {
+    font: 500 14px 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-primary);
+    margin-top: var(--space-12);
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+}
+.diapo8-example-note i {
+    font-size: 18px;
+}
+
+/* Step 3: Activities */
+.diapo8-activities__subtitle {
+    font: 400 14px 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    margin: -8px 0 var(--space-16);
+}
+.diapo8-activities__label {
+    font: 600 13px 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--space-8);
+}
+.diapo8-types-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+    margin-bottom: var(--space-16);
+}
+.diapo8-type-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: var(--md-sys-color-surface-container-low);
+    border: 1px solid var(--md-sys-color-outline-variant);
+    border-radius: 20px;
+    font: 500 12px 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface);
+}
+.diapo8-type-chip i {
+    font-size: 14px;
+    color: var(--md-sys-color-primary);
+}
+.diapo8-structures-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+    margin-bottom: var(--space-16);
+}
+.diapo8-structure-tag {
+    padding: 4px 10px;
+    background: var(--md-sys-color-tertiary-container);
+    color: var(--md-sys-color-on-tertiary-container);
+    border-radius: 12px;
+    font: 500 11px 'Source Sans 3', sans-serif;
+}
+.diapo8-agent-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+}
+.diapo8-agent-check {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font: 500 13px 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    padding: 6px 12px;
+    background: var(--md-sys-color-surface-container-low);
+    border-radius: var(--md-sys-shape-corner-small);
+    border: 1px solid var(--md-sys-color-outline-variant);
+}
+.diapo8-agent-check i { font-size: 16px; }
+.diapo8-agent-check--on {
+    color: var(--md-sys-color-primary);
+    background: var(--md-sys-color-primary-container);
+    border-color: var(--md-sys-color-primary);
+}
+
+/* Step 4: All 8 agents */
+.diapo8-agents-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-10);
+    margin-top: var(--space-8);
+}
+.diapo8-agent-mini {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-10);
+    background: var(--md-sys-color-surface-container-low);
+    border-radius: var(--md-sys-shape-corner-medium);
+    border: 1px solid var(--md-sys-color-outline-variant);
+    text-align: center;
+}
+.diapo8-agent-mini__img {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.diapo8-agent-mini__name {
+    font: 700 12px 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+}
+.diapo8-agent-mini__desc {
+    font: 400 10px 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    line-height: 1.3;
+}
+
+/* Step 5: Workshop */
+.diapo8-workshop__content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-12);
+}
+.diapo8-workshop__features {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+    margin-top: var(--space-8);
+    width: 100%;
+    max-width: 380px;
+}
+.diapo8-workshop__feature {
+    display: flex;
+    align-items: center;
+    gap: var(--space-12);
+    padding: var(--space-12) var(--space-16);
+    background: var(--md-sys-color-surface-container-low);
+    border-radius: var(--md-sys-shape-corner-medium);
+    border: 1px solid var(--md-sys-color-outline-variant);
+    font: 500 14px 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface);
+}
+.diapo8-workshop__feature i {
+    font-size: 22px;
+    color: var(--md-sys-color-primary);
+    flex-shrink: 0;
+}
+.diapo8-workshop__cta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    margin-top: var(--space-16);
+    padding: var(--space-14) var(--space-20);
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    border-radius: var(--md-sys-shape-corner-large);
+    font: 600 14px 'Source Sans 3', sans-serif;
+}
+.diapo8-workshop__cta i {
+    font-size: 20px;
+}
+
+/* Responsive diapo8 */
+@media (max-width: 1200px) {
+    .diapo8-page { grid-template-columns: 40% 60%; }
+    .diapo8-left { padding: 1.5rem 1rem 1rem; }
+}
+@media (max-width: 968px) {
+    .diapo8-screen { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .diapo8-page {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 3.5rem 1rem 1rem;
+        gap: var(--space-16);
+        position: relative;
+    }
+    .diapo8-left { padding: 0; flex-shrink: 0; width: 100%; max-width: 480px; }
+    .diapo8-right { padding: 1.5rem; flex-shrink: 0; width: 100%; max-width: 480px; margin: 0 0 1rem; border-radius: 12px; }
+    .diapo8-agents-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    .diapo8-page { padding: 3rem 0.75rem 1rem; }
+    .diapo8-agents-grid { grid-template-columns: repeat(2, 1fr); }
+    .diapo8-agent-ficha__header { padding: var(--space-12) var(--space-14); }
+    .diapo8-ficha-field--row { flex-direction: column; }
 }

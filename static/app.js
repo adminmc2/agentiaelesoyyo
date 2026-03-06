@@ -97,7 +97,11 @@ const state = {
     diapo5Step: 0,
     _diapo5Ws: null,
     _diapo5ContextSent: false,
-    _diapo5SmdParser: null
+    _diapo5SmdParser: null,
+    // Diapo 6 — MIAU
+    _diapo6Ws: null,
+    _diapo6ContextSent: false,
+    _diapo6SmdParser: null
 };
 
 // Elementos
@@ -149,7 +153,6 @@ const elements = {
     diapo6Screen: document.getElementById('diapo6-screen'),
 
     // Diapo 7 screen
-    diapo7Screen: document.getElementById('diapo7-screen'),
 
     // Plan screen
     planScreen: document.getElementById('plan-screen'),
@@ -1884,15 +1887,15 @@ function updateRecordingUI(recording, processing = false) {
         diapo6MicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
     }
 
-    // Diapo7 screen
-    const diapo7MicBtn = document.getElementById('diapo7-mic-btn');
-    if (diapo7MicBtn) {
-        diapo7MicBtn.classList.toggle('recording', recording);
-        const icon = diapo7MicBtn.querySelector('.ph');
+    // Diapo8 screen
+    const diapo8MicBtn = document.getElementById('diapo8-mic-btn');
+    if (diapo8MicBtn) {
+        diapo8MicBtn.classList.toggle('recording', recording);
+        const icon = diapo8MicBtn.querySelector('.ph');
         if (icon) {
             icon.className = recording ? 'ph ph-stop-circle' : 'ph ph-microphone';
         }
-        diapo7MicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
+        diapo8MicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
     }
 
     // Orb 3D
@@ -2013,9 +2016,9 @@ async function transcribeAudio(audioBlob, extension = 'webm') {
                 return;
             }
 
-            // Si estamos en Diapo 7, enviar al chat de Diapo 7
-            if (isOnDiapo7Screen()) {
-                sendDiapo7Message(cleanText);
+            // Si estamos en Diapo 8, enviar al chat de Diapo 8
+            if (isOnDiapo8Screen()) {
+                sendDiapo8Message(cleanText);
                 updateRecordingUI(false);
                 resumeWakeWordAfterRecording();
                 return;
@@ -2845,6 +2848,24 @@ function onWakeWordDetected(transcript = '') {
         return;
     }
 
+    // Si estamos en Diapo 6, misma logica que Diapo 5
+    if (elements.diapo6Screen && !elements.diapo6Screen.classList.contains('hidden')) {
+        console.log('[WakeWord] En Diapo6 — interaccion en contexto');
+        const diapo6Orb = document.getElementById('diapo6-orb-container');
+        if (diapo6Orb && window.orbSetListening) window.orbSetListening(true);
+
+        const diapo6Text = stripWakeWordForBlinda(transcript);
+        if (diapo6Text) {
+            console.log('[WakeWord] Diapo6 text:', diapo6Text);
+            sendDiapo6Message(diapo6Text);
+            if (window.orbSetListening) window.orbSetListening(false);
+            resumeWakeWordAfterRecording();
+        } else {
+            startRecording();
+        }
+        return;
+    }
+
     if (elements.chatScreen.classList.contains('hidden')) {
         // Navigate to chat, then start recording after transition
         showChatScreen('', false);
@@ -3001,7 +3022,7 @@ function forceEnableTTS() {
  */
 function updateVoiceButton(enabled) {
     // Update both chat and blinda voice buttons
-    ['chat-voice-btn', 'blinda-voice-btn', 'diapo5-voice-btn', 'juego-voice-btn', 'diapo6-voice-btn', 'diapo7-voice-btn'].forEach(id => {
+    ['chat-voice-btn', 'blinda-voice-btn', 'diapo5-voice-btn', 'juego-voice-btn', 'diapo6-voice-btn', 'diapo8-voice-btn'].forEach(id => {
         const btn = document.getElementById(id);
         if (!btn) return;
         if (enabled) {
@@ -4455,7 +4476,6 @@ function showDiapo5Screen() {
     elements.profileScreen?.classList.add('hidden');
     elements.blindaScreen?.classList.add('hidden');
     elements.juegoScreen?.classList.add('hidden');
-    elements.diapo7Screen?.classList.add('hidden');
 
     elements.diapo5Screen?.classList.remove('hidden');
     elements.diapo5Screen?.classList.remove('fade-out');
@@ -5288,8 +5308,149 @@ function replayJuego() {
 }
 
 // ============================================
-// DIAPO 6 — (vacía, por definir)
+// DIAPO 6 — Elige tu agente
 // ============================================
+const DIAPO6_AGENTS = {
+    act1: [
+        { id: 'traductor', img: 'traduccion.png', name: 'Traductor', displayName: 'Traducir vocabulario', desc: 'Traduccion pedagogica: adapta la traduccion al contexto de aprendizaje y al nivel del estudiante' },
+        { id: 'expansor', img: 'expansor.png', name: 'Expansor', displayName: 'Mas vocabulario', desc: 'Genera vocabulario adicional adaptado a la edad y contexto del estudiante' },
+        { id: 'enfocado', img: 'enfocado.png', name: 'Enfocado', displayName: 'Mis palabras', desc: 'Trabaja solo las palabras que el usuario elige, personaliza el aprendizaje' },
+        { id: 'improvisador', img: 'improvisador.png', name: 'Improvisador', displayName: 'Sorprendeme', desc: 'El estudiante no sabe que le espera: genera una actividad sorpresa basada en su perfil' }
+    ],
+    act2: [
+        { id: 'lexico', img: 'masticador.png', name: 'Lexico', displayName: 'Aprender del texto', desc: 'Analiza el texto y extrae vocabulario clave para trabajar en contexto' },
+        { id: 'gramapop', img: 'aprobador.png', name: 'Gramapop', displayName: 'Gramapop', desc: 'Pildoras de gramatica con MARS/EARS, gramatica de las construcciones y Van Patten' },
+        { id: 'comprension', img: 'miron.png', name: 'Comprension', displayName: 'Comprension global visual', desc: 'Genera actividades visuales de comprension lectora a partir del texto' },
+        { id: 'mapamental', img: 'explorador.png', name: 'Mapa mental', displayName: 'Mapa mental', desc: 'Crea mapas mentales y organiza ideas visualmente a partir del contenido' }
+    ]
+};
+
+const DIAPO6_TOTAL_STEPS = 6;
+let diapo6Step = 0;
+
+function initDiapo6() {
+    diapo6Step = 0;
+
+    // Texto real de Espanol en Marcha A1, Unidad 7A
+    const act1Text = document.getElementById('diapo6-act1-text');
+    if (act1Text) {
+        act1Text.innerHTML = '<strong>Unidad 7A &mdash; HABLAR (Ejercicio 1)</strong><br>'
+            + '<em>&iquest;Te gusta salir con tus amigos? &iquest;D&oacute;nde vais? Com&eacute;ntalo con tus compa&ntilde;eros.</em><br><br>'
+            + '<span style="color:var(--md-sys-color-primary);font-weight:600">al cine &bull; a casa de otros amigos &bull; a tomar algo &bull; a comer &bull; a bailar &bull; a jugar al baloncesto</span>';
+    }
+    const act2Text = document.getElementById('diapo6-act2-text');
+    if (act2Text) {
+        act2Text.innerHTML = '<strong>Unidad 7A &mdash; Lee y escucha (Ejercicios 2-3)</strong><br>'
+            + '&mdash; Hola, Luisa, &iquest;qu&eacute; tal?<br>'
+            + '&mdash; Hola, &iquest;qu&eacute; haces?<br>'
+            + '&mdash; Nada, estoy viendo una serie.<br>'
+            + '&mdash; Oye, &iquest;vamos al centro esta tarde?<br>'
+            + '&mdash; Estupendo, podemos ir al cine.<br>'
+            + '&mdash; Vale, &iquest;c&oacute;mo quedamos?<br>'
+            + '&mdash; &iquest;A las cinco en la puerta del metro?<br>'
+            + '&mdash; No, mejor a las seis. &iquest;Te parece bien?<br>'
+            + '&mdash; De acuerdo. Quedamos a las seis. &iexcl;Hasta luego!<br><br>'
+            + '<em>Contesta: &iquest;Qu&eacute; van a hacer Luisa y su amiga? &iquest;D&oacute;nde quedan? &iquest;A qu&eacute; hora?</em>';
+    }
+
+    renderDiapo6CatsGrid();
+    renderDiapo6AgentCards('diapo6-agents-act1', DIAPO6_AGENTS.act1);
+    renderDiapo6AgentCards('diapo6-agents-act2', DIAPO6_AGENTS.act2);
+    renderDiapo6Bars();
+    updateDiapo6Step(0);
+
+    // Stepper dot clicks
+    document.querySelectorAll('[data-diapo6-dot]').forEach(dot => {
+        dot.addEventListener('click', () => {
+            const step = parseInt(dot.dataset.diapo6Dot);
+            updateDiapo6Step(step);
+        });
+    });
+}
+
+function renderDiapo6CatsGrid() {
+    const grid = document.getElementById('diapo6-cats-grid');
+    if (!grid) return;
+    const allAgents = [...DIAPO6_AGENTS.act1, ...DIAPO6_AGENTS.act2];
+    grid.innerHTML = allAgents.map(a => `
+        <div class="diapo6-cat-mini" data-agent-id="${a.id}">
+            <img class="diapo6-cat-mini__img" src="/static/imagenes/${a.img}" alt="${a.name}">
+            <span class="diapo6-cat-mini__name">???</span>
+        </div>
+    `).join('');
+}
+
+function renderDiapo6AgentCards(containerId, agents) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = agents.map(a => `
+        <div class="diapo6-agent-card" data-agent-id="${a.id}">
+            <img class="diapo6-agent-card__img" src="/static/imagenes/${a.img}" alt="">
+            <div class="diapo6-agent-card__desc">${a.desc}</div>
+            <div class="diapo6-agent-card__name diapo6-agent-card__name--hidden">?</div>
+        </div>
+    `).join('');
+
+    // Click to reveal
+    container.querySelectorAll('.diapo6-agent-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const agentId = card.dataset.agentId;
+            const agent = agents.find(a => a.id === agentId);
+            if (!agent) return;
+            revealDiapo6Agent(card, agent);
+        });
+    });
+}
+
+function revealDiapo6Agent(card, agent) {
+    card.classList.add('diapo6-agent-card--revealed');
+    const nameEl = card.querySelector('.diapo6-agent-card__name');
+    if (nameEl) {
+        nameEl.textContent = agent.name;
+        nameEl.classList.remove('diapo6-agent-card__name--hidden');
+    }
+    // Wake up the cat in the intro grid too
+    const miniCat = document.querySelector(`.diapo6-cat-mini[data-agent-id="${agent.id}"]`);
+    if (miniCat) {
+        miniCat.classList.add('diapo6-cat-mini--awake');
+        const nameSpan = miniCat.querySelector('.diapo6-cat-mini__name');
+        if (nameSpan) nameSpan.textContent = agent.name;
+    }
+}
+
+function renderDiapo6Bars() {
+    const barsContainer = document.getElementById('diapo6-bars');
+    if (!barsContainer) return;
+    const allAgents = [...DIAPO6_AGENTS.act1, ...DIAPO6_AGENTS.act2];
+    barsContainer.innerHTML = allAgents.map(a => `
+        <div class="diapo6-bar" data-agent-id="${a.id}">
+            <span class="diapo6-bar__label">${a.name}</span>
+            <div class="diapo6-bar__track">
+                <div class="diapo6-bar__fill" style="width: 0%"></div>
+            </div>
+            <span class="diapo6-bar__count">0</span>
+        </div>
+    `).join('');
+}
+
+function updateDiapo6Step(step) {
+    diapo6Step = step;
+    // Toggle steps
+    document.querySelectorAll('[data-diapo6-step]').forEach(el => {
+        el.classList.toggle('diapo6-demo__step--active', parseInt(el.dataset.diapo6Step) === step);
+    });
+    // Toggle stepper dots
+    document.querySelectorAll('[data-diapo6-dot]').forEach(dot => {
+        dot.classList.toggle('demo-stepper__dot--active', parseInt(dot.dataset.diapo6Dot) === step);
+    });
+}
+
+function advanceDiapo6() {
+    if (diapo6Step < DIAPO6_TOTAL_STEPS - 1) {
+        updateDiapo6Step(diapo6Step + 1);
+    }
+}
+
 function showDiapo6Screen() {
     stopTTS();
     elements.loginScreen?.classList.add('hidden');
@@ -5301,7 +5462,6 @@ function showDiapo6Screen() {
     elements.blindaScreen?.classList.add('hidden');
     elements.juegoScreen?.classList.add('hidden');
     elements.diapo5Screen?.classList.add('hidden');
-    elements.diapo7Screen?.classList.add('hidden');
 
     elements.diapo6Screen?.classList.remove('hidden');
     elements.diapo6Screen?.classList.remove('fade-out');
@@ -5311,6 +5471,8 @@ function showDiapo6Screen() {
         const orbSize = window.innerWidth <= 480 ? 64 : window.innerWidth <= 968 ? 80 : 120;
         window.orbCreateInElement(orbContainer, orbSize);
     }
+
+    initDiapo6();
 }
 
 function hideDiapo6Screen() {
@@ -5325,45 +5487,180 @@ function isOnDiapo6Screen() {
     return elements.diapo6Screen && !elements.diapo6Screen.classList.contains('hidden');
 }
 
-function sendDiapo6Message(text) {
-    if (!text.trim()) return;
-    const container = document.getElementById('diapo6-chat-messages');
-    if (!container) return;
-    const userBubble = document.createElement('div');
-    userBubble.className = 'blinda-chat__bubble blinda-chat__bubble--user';
-    userBubble.textContent = text;
-    container.appendChild(userBubble);
-    container.scrollTop = container.scrollHeight;
+const DIAPO6_KEYWORD_MAP = [
+    { step: 1, patterns: ['descubrir', 'dos actividades', 'sacad los móviles', 'sacad los moviles', 'adivinar'] },
+    { step: 2, patterns: ['primera actividad', 'vocabulario', 'ejercicio 1'] },
+    { step: 3, patterns: ['segunda', 'diálogo', 'dialogo', 'texto y gramática', 'texto y gramatica'] },
+    { step: 4, patterns: ['probar', 'qr', 'materiaele', 'escaneáis', 'escaneais'] },
+    { step: 5, patterns: ['resultados', 'pantalla', 'cuáles os han gustado', 'cuales os han gustado'] }
+];
 
-    const assistantBubble = document.createElement('div');
-    assistantBubble.className = 'blinda-chat__bubble blinda-chat__bubble--assistant';
-    assistantBubble.textContent = '...';
-    container.appendChild(assistantBubble);
-    let fullResponse = '';
+function addDiapo6ChatBubble(text, role) {
+    const messages = document.getElementById('diapo6-chat-messages');
+    if (!messages) return null;
+    const bubble = document.createElement('div');
+    bubble.className = `blinda-chat__bubble blinda-chat__bubble--${role}`;
+    if (role === 'assistant' && text) {
+        bubble.innerHTML = typeof renderMarkdown === 'function' ? renderMarkdown(text) : text;
+    } else {
+        bubble.textContent = text;
+    }
+    messages.appendChild(bubble);
+    messages.scrollTop = messages.scrollHeight;
+    return bubble;
+}
 
-    const ws = state.ws;
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    const handleMsg = (event) => {
+function sendDiapo6Message(message) {
+    addDiapo6ChatBubble(message, 'user');
+
+    const messages = document.getElementById('diapo6-chat-messages');
+    const typing = document.createElement('div');
+    typing.className = 'blinda-chat__bubble blinda-chat__bubble--assistant blinda-chat__typing';
+    typing.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+    messages.appendChild(typing);
+    messages.scrollTop = messages.scrollHeight;
+
+    state.currentMessage = '';
+    let assistantBubble = null;
+
+    const doSend = () => {
+        const payload = { message, response_mode: 'full', activity_mode: 'miau' };
+        if (!state._diapo6ContextSent) {
+            payload.prior_context = {
+                question: 'Eliana, estos gatos son los agentes MIAU, cuéntanos.',
+                answer: 'Estos son los agentes MIAU. ¿Por qué gatos? Porque son independientes, curiosos y siempre caen de pie. Como un buen agente IA.'
+            };
+            state._diapo6ContextSent = true;
+        }
+        state._diapo6Ws.send(JSON.stringify(payload));
+    };
+
+    const handleDiapo6Message = (event) => {
         const data = JSON.parse(event.data);
+
         if (data.type === 'token') {
-            fullResponse += data.content;
-            assistantBubble.textContent = fullResponse;
-            container.scrollTop = container.scrollHeight;
-        } else if (data.type === 'end') {
-            ws.removeEventListener('message', handleMsg);
-            if (fullResponse && (state.ttsEnabled || state.voiceTriggered)) {
-                playTTS(fullResponse, true);
+            if (!assistantBubble) {
+                typing.remove();
+                assistantBubble = addDiapo6ChatBubble('', 'assistant');
+                if (window.smd && assistantBubble) {
+                    const renderer = window.smd.default_renderer(assistantBubble);
+                    state._diapo6SmdParser = window.smd.parser(renderer);
+                } else {
+                    state._diapo6SmdParser = null;
+                }
             }
+            state.currentMessage += data.content;
+            if (state._diapo6SmdParser) {
+                window.smd.parser_write(state._diapo6SmdParser, data.content);
+            } else if (assistantBubble) {
+                assistantBubble.innerHTML = typeof renderMarkdown === 'function'
+                    ? renderMarkdown(state.currentMessage, false) : state.currentMessage;
+            }
+            messages.scrollTop = messages.scrollHeight;
+            // Live auto-advance: detect keywords while Eliana speaks
+            checkDiapo6Advance(state.currentMessage);
+        }
+        else if (data.type === 'end') {
+            if (state._diapo6SmdParser) {
+                window.smd.parser_end(state._diapo6SmdParser);
+                state._diapo6SmdParser = null;
+            }
+            if (state.currentMessage && (state.ttsEnabled || state.voiceTriggered)) {
+                playTTS(state.currentMessage, true);
+            }
+            if (state.currentMessage) {
+                checkDiapo6Advance(state.currentMessage);
+            }
+            assistantBubble = null;
+            resumeWakeWordAfterRecording();
+        }
+        else if (data.type === 'error') {
+            typing.remove();
+            addDiapo6ChatBubble('Error: ' + data.message, 'assistant');
+            assistantBubble = null;
         }
     };
-    ws.addEventListener('message', handleMsg);
-    ws.send(JSON.stringify({ type: 'chat', message: text, activity_mode: 'diapo6' }));
+
+    if (state._diapo6Ws && state._diapo6Ws.readyState === WebSocket.OPEN) {
+        state._diapo6Ws.onmessage = handleDiapo6Message;
+        doSend();
+        return;
+    }
+
+    if (state._diapo6Ws) {
+        state._diapo6Ws.close();
+        state._diapo6Ws = null;
+        state._diapo6ContextSent = false;
+    }
+
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    state._diapo6Ws = new WebSocket(`${wsProtocol}//${window.location.host}/ws/chat`);
+    state._diapo6Ws.onopen = doSend;
+    state._diapo6Ws.onmessage = handleDiapo6Message;
+    state._diapo6Ws.onerror = () => {
+        typing.remove();
+        addDiapo6ChatBubble('Error de conexion', 'assistant');
+    };
+}
+
+function checkDiapo6Advance(fullText) {
+    const lower = fullText.toLowerCase();
+    const nextStep = diapo6Step + 1;
+    const mapping = DIAPO6_KEYWORD_MAP.find(m => m.step === nextStep);
+    if (!mapping) return;
+    for (const pat of mapping.patterns) {
+        if (lower.includes(pat)) {
+            updateDiapo6Step(nextStep);
+            return;
+        }
+    }
 }
 
 // ============================================
-// DIAPO 7 — Elige tu agente
+// DIAPO 8 — Construye tu Agente (Plataforma)
 // ============================================
-function showDiapo7Screen() {
+const DIAPO8_INGREDIENTS = [
+    { icon: 'ph-fill ph-identification-badge', label: 'Nombre y descripcion', desc: 'Identidad del agente: que hace y para que sirve' },
+    { icon: 'ph-fill ph-brain', label: 'System Prompt', desc: 'El cerebro: instrucciones que definen su personalidad y comportamiento' },
+    { icon: 'ph-fill ph-cpu', label: 'Modelo de IA', desc: 'El motor: que modelo de lenguaje usa (DeepSeek, GPT, Claude...)' },
+    { icon: 'ph-fill ph-thermometer-simple', label: 'Temperatura', desc: 'Creatividad vs precision: de 0 (exacto) a 2 (creativo)' },
+    { icon: 'ph-fill ph-graduation-cap', label: 'Nivel MCER', desc: 'A1, A2, B1... el agente adapta su lenguaje al nivel del alumno' },
+    { icon: 'ph-fill ph-sliders-horizontal', label: 'Adherencia al nivel', desc: 'Cuanto debe cenirse al nivel: flexible o estricto' }
+];
+
+const DIAPO8_ACTIVITY_TYPES = [
+    { icon: 'ph-fill ph-chat-circle-text', label: 'Expresion oral' },
+    { icon: 'ph-fill ph-book-open-text', label: 'Comprension lectora' },
+    { icon: 'ph-fill ph-text-aa', label: 'Vocabulario' },
+    { icon: 'ph-fill ph-headphones', label: 'Comprension auditiva' },
+    { icon: 'ph-fill ph-pencil-line', label: 'Gramatica' },
+    { icon: 'ph-fill ph-pen-nib', label: 'Escritura' },
+    { icon: 'ph-fill ph-speaker-high', label: 'Pronunciacion' },
+    { icon: 'ph-fill ph-check-square', label: 'Autoevaluacion' },
+    { icon: 'ph-fill ph-users-three', label: 'Interaccion oral' },
+    { icon: 'ph-fill ph-textbox', label: 'Ortografia' }
+];
+
+const DIAPO8_STRUCTURES = [
+    'Opcion multiple', 'Completar huecos', 'Verdadero/Falso', 'Relacionar',
+    'Ordenar', 'Respuesta corta', 'Dialogo', 'Redaccion', 'Respuesta abierta'
+];
+
+const DIAPO8_ALL_AGENTS = [
+    { id: 'traductor', img: 'traduccion.png', name: 'Traductor', desc: 'Traduce segun contexto y nivel' },
+    { id: 'expansor', img: 'expansor.png', name: 'Expansor', desc: 'Amplia vocabulario por campo semantico' },
+    { id: 'enfocado', img: 'enfocado.png', name: 'Enfocado', desc: 'Personaliza segun las palabras del alumno' },
+    { id: 'improvisador', img: 'improvisador.png', name: 'Improvisador', desc: 'Actividad sorpresa segun perfil' },
+    { id: 'lexico', img: 'masticador.png', name: 'Lexico', desc: 'Extrae vocabulario clave del texto' },
+    { id: 'gramapop', img: 'aprobador.png', name: 'Gramapop', desc: 'Pildoras de gramatica contextual' },
+    { id: 'comprension', img: 'miron.png', name: 'Comprension', desc: 'Actividades visuales de comprension' },
+    { id: 'mapamental', img: 'explorador.png', name: 'Mapa Mental', desc: 'Organiza ideas visualmente' }
+];
+
+const DIAPO8_TOTAL_STEPS = 6;
+let diapo8Step = 0;
+
+function showDiapo8Screen() {
     stopTTS();
     elements.loginScreen?.classList.add('hidden');
     elements.conoceScreen?.classList.add('hidden');
@@ -5376,30 +5673,38 @@ function showDiapo7Screen() {
     elements.diapo5Screen?.classList.add('hidden');
     elements.diapo6Screen?.classList.add('hidden');
 
-    elements.diapo7Screen?.classList.remove('hidden');
-    elements.diapo7Screen?.classList.remove('fade-out');
+    const screen = document.getElementById('diapo8-screen');
+    if (screen) {
+        screen.classList.remove('hidden');
+        screen.classList.remove('fade-out');
+    }
 
-    const orbContainer = document.getElementById('diapo7-orb-container');
+    const orbContainer = document.getElementById('diapo8-orb-container');
     if (orbContainer && window.orbCreateInElement) {
         const orbSize = window.innerWidth <= 480 ? 64 : window.innerWidth <= 968 ? 80 : 120;
         window.orbCreateInElement(orbContainer, orbSize);
     }
+
+    initDiapo8();
 }
 
-function hideDiapo7Screen() {
-    elements.diapo7Screen?.classList.add('fade-out');
+function hideDiapo8Screen() {
+    const screen = document.getElementById('diapo8-screen');
+    if (!screen) return;
+    screen.classList.add('fade-out');
     setTimeout(() => {
-        elements.diapo7Screen?.classList.add('hidden');
-        elements.diapo7Screen?.classList.remove('fade-out');
+        screen.classList.add('hidden');
+        screen.classList.remove('fade-out');
     }, 300);
 }
 
-function isOnDiapo7Screen() {
-    return elements.diapo7Screen && !elements.diapo7Screen.classList.contains('hidden');
+function isOnDiapo8Screen() {
+    const screen = document.getElementById('diapo8-screen');
+    return screen && !screen.classList.contains('hidden');
 }
 
-function addDiapo7ChatBubble(text, role) {
-    const container = document.getElementById('diapo7-chat-messages');
+function addDiapo8ChatBubble(text, role) {
+    const container = document.getElementById('diapo8-chat-messages');
     if (!container) return;
     const bubble = document.createElement('div');
     bubble.className = `blinda-chat__bubble blinda-chat__bubble--${role}`;
@@ -5409,20 +5714,32 @@ function addDiapo7ChatBubble(text, role) {
     return bubble;
 }
 
-function sendDiapo7Message(text) {
+let _diapo8ContextSent = false;
+
+function sendDiapo8Message(text) {
     if (!text.trim()) return;
-    addDiapo7ChatBubble(text, 'user');
-    const assistantBubble = addDiapo7ChatBubble('...', 'assistant');
+    addDiapo8ChatBubble(text, 'user');
+    const assistantBubble = addDiapo8ChatBubble('...', 'assistant');
     let fullResponse = '';
     const ws = state.ws;
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+    if (!_diapo8ContextSent) {
+        _diapo8ContextSent = true;
+        const ctx = 'Estas en la seccion "Construye tu Agente" donde muestras la plataforma AgentiaELE y como se configura un agente. Al final invitas a un taller online en mayo 2026.';
+        ws.send(JSON.stringify({ type: 'chat', message: text, activity_mode: 'plataforma', prior_context: ctx }));
+    } else {
+        ws.send(JSON.stringify({ type: 'chat', message: text, activity_mode: 'plataforma' }));
+    }
+
     const handleMsg = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === 'token') {
             fullResponse += data.content;
             assistantBubble.textContent = fullResponse;
-            const container = document.getElementById('diapo7-chat-messages');
+            const container = document.getElementById('diapo8-chat-messages');
             if (container) container.scrollTop = container.scrollHeight;
+            checkDiapo8Advance(fullResponse);
         } else if (data.type === 'end') {
             ws.removeEventListener('message', handleMsg);
             if (fullResponse && (state.ttsEnabled || state.voiceTriggered)) {
@@ -5431,7 +5748,207 @@ function sendDiapo7Message(text) {
         }
     };
     ws.addEventListener('message', handleMsg);
-    ws.send(JSON.stringify({ type: 'chat', message: text, activity_mode: 'diapo7' }));
+}
+
+const DIAPO8_KEYWORD_MAP = [
+    { step: 1, patterns: ['ingredientes', 'que lleva dentro', 'piezas', 'componentes', 'configurar'] },
+    { step: 2, patterns: ['traductor', 'ejemplo real', 'ficha', 'veamos uno'] },
+    { step: 3, patterns: ['actividad', 'actividades', 'tipos de actividad', 'cualquier tipo'] },
+    { step: 4, patterns: ['ocho agentes', '8 agentes', 'familia completa', 'todos los agentes'] },
+    { step: 5, patterns: ['taller', 'mayo', 'invitamos', 'formacion', 'formaci\u00f3n', 'inscrib'] }
+];
+
+function checkDiapo8Advance(fullText) {
+    const lower = fullText.toLowerCase();
+    const nextStep = diapo8Step + 1;
+    const mapping = DIAPO8_KEYWORD_MAP.find(m => m.step === nextStep);
+    if (!mapping) return;
+    for (const pat of mapping.patterns) {
+        if (lower.includes(pat)) {
+            updateDiapo8Step(nextStep);
+            return;
+        }
+    }
+}
+
+function initDiapo8() {
+    diapo8Step = 0;
+    _diapo8ContextSent = false;
+    renderDiapo8Ingredients();
+    renderDiapo8Example();
+    renderDiapo8Activities();
+    renderDiapo8AllAgents();
+    renderDiapo8Workshop();
+    updateDiapo8Step(0);
+}
+
+function updateDiapo8Step(step) {
+    diapo8Step = step;
+    document.querySelectorAll('[data-diapo8-step]').forEach(el => {
+        el.classList.toggle('diapo8-demo__step--active', parseInt(el.dataset.diapo8Step) === step);
+    });
+    document.querySelectorAll('[data-diapo8-dot]').forEach(dot => {
+        dot.classList.toggle('demo-stepper__dot--active', parseInt(dot.dataset.diapo8Dot) === step);
+    });
+}
+
+function renderDiapo8Ingredients() {
+    const container = document.getElementById('diapo8-ingredients');
+    if (!container) return;
+    container.innerHTML = `
+        <h3 class="diapo8-section-title">
+            <i class="ph-fill ph-puzzle-piece"></i>
+            Los ingredientes de un agente
+        </h3>
+        <div class="diapo8-ingredients__grid">
+            ${DIAPO8_INGREDIENTS.map(ing => `
+                <div class="diapo8-ingredient-card">
+                    <div class="diapo8-ingredient-card__icon">
+                        <i class="${ing.icon}"></i>
+                    </div>
+                    <div class="diapo8-ingredient-card__text">
+                        <strong>${ing.label}</strong>
+                        <span>${ing.desc}</span>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function renderDiapo8Example() {
+    const container = document.getElementById('diapo8-example');
+    if (!container) return;
+    container.innerHTML = `
+        <h3 class="diapo8-section-title">
+            <i class="ph-fill ph-magnifying-glass"></i>
+            Ejemplo: Agente Traductor
+        </h3>
+        <div class="diapo8-agent-ficha">
+            <div class="diapo8-agent-ficha__header">
+                <img class="diapo8-agent-ficha__img" src="/static/imagenes/traduccion.png" alt="Traductor">
+                <div>
+                    <h4 class="diapo8-agent-ficha__name">Ag. Traduccion</h4>
+                    <p class="diapo8-agent-ficha__desc">Traduce del espanol a otra lengua segun el contexto y nivel</p>
+                </div>
+            </div>
+            <div class="diapo8-agent-ficha__fields">
+                <div class="diapo8-ficha-field">
+                    <span class="diapo8-ficha-field__label"><i class="ph-fill ph-brain"></i> System Prompt</span>
+                    <span class="diapo8-ficha-field__value diapo8-ficha-field__value--prompt">Eres un traductor pedagogico. Traduces vocabulario adaptado al contexto de aprendizaje y al nivel MCER del estudiante. Usas ejemplos de la vida cotidiana.</span>
+                </div>
+                <div class="diapo8-ficha-field diapo8-ficha-field--row">
+                    <div class="diapo8-ficha-field__item">
+                        <span class="diapo8-ficha-field__label"><i class="ph-fill ph-cpu"></i> Modelo</span>
+                        <span class="diapo8-ficha-field__value">DeepSeek</span>
+                    </div>
+                    <div class="diapo8-ficha-field__item">
+                        <span class="diapo8-ficha-field__label"><i class="ph-fill ph-thermometer-simple"></i> Temp.</span>
+                        <span class="diapo8-ficha-field__value">0.3</span>
+                    </div>
+                    <div class="diapo8-ficha-field__item">
+                        <span class="diapo8-ficha-field__label"><i class="ph-fill ph-graduation-cap"></i> Nivel</span>
+                        <span class="diapo8-ficha-field__value">A1</span>
+                    </div>
+                    <div class="diapo8-ficha-field__item">
+                        <span class="diapo8-ficha-field__label"><i class="ph-fill ph-sliders-horizontal"></i> Adherencia</span>
+                        <span class="diapo8-ficha-field__value">Alta</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="diapo8-example-note"><i class="ph-fill ph-lightbulb"></i> Asi de sencillo: defines que hace, como habla y a que nivel.</p>
+    `;
+}
+
+function renderDiapo8Activities() {
+    const container = document.getElementById('diapo8-activities');
+    if (!container) return;
+    container.innerHTML = `
+        <h3 class="diapo8-section-title">
+            <i class="ph-fill ph-stack"></i>
+            Los agentes viven en actividades
+        </h3>
+        <p class="diapo8-activities__subtitle">Cada actividad elige que agentes estan disponibles para el alumno</p>
+        <div class="diapo8-activities__types">
+            <h4 class="diapo8-activities__label">10 tipos de actividad</h4>
+            <div class="diapo8-types-grid">
+                ${DIAPO8_ACTIVITY_TYPES.map(t => `
+                    <div class="diapo8-type-chip">
+                        <i class="${t.icon}"></i>
+                        <span>${t.label}</span>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        <div class="diapo8-activities__structures">
+            <h4 class="diapo8-activities__label">9 estructuras</h4>
+            <div class="diapo8-structures-row">
+                ${DIAPO8_STRUCTURES.map(s => `<span class="diapo8-structure-tag">${s}</span>`).join('')}
+            </div>
+        </div>
+        <div class="diapo8-activities__agents-select">
+            <h4 class="diapo8-activities__label">Agentes disponibles en cada actividad</h4>
+            <div class="diapo8-agent-checkboxes">
+                <label class="diapo8-agent-check diapo8-agent-check--on"><i class="ph-fill ph-check-square"></i> Traductor</label>
+                <label class="diapo8-agent-check diapo8-agent-check--on"><i class="ph-fill ph-check-square"></i> Expansor</label>
+                <label class="diapo8-agent-check"><i class="ph ph-square"></i> Enfocado</label>
+                <label class="diapo8-agent-check"><i class="ph ph-square"></i> Improvisador</label>
+            </div>
+        </div>
+    `;
+}
+
+function renderDiapo8AllAgents() {
+    const container = document.getElementById('diapo8-all-agents');
+    if (!container) return;
+    container.innerHTML = `
+        <h3 class="diapo8-section-title">
+            <i class="ph-fill ph-cat"></i>
+            Los 8 agentes de Espanol en Marcha
+        </h3>
+        <div class="diapo8-agents-grid">
+            ${DIAPO8_ALL_AGENTS.map(a => `
+                <div class="diapo8-agent-mini">
+                    <img class="diapo8-agent-mini__img" src="/static/imagenes/${a.img}" alt="${a.name}">
+                    <strong class="diapo8-agent-mini__name">${a.name}</strong>
+                    <span class="diapo8-agent-mini__desc">${a.desc}</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function renderDiapo8Workshop() {
+    const container = document.getElementById('diapo8-workshop');
+    if (!container) return;
+    container.innerHTML = `
+        <div class="diapo8-workshop__content">
+            <div class="blinda-intro__icon">
+                <i class="ph-fill ph-chalkboard-teacher"></i>
+            </div>
+            <h2 class="blinda-title">Taller online — Mayo 2026</h2>
+            <p class="blinda-subtitle">Aprende a crear tu propio agente paso a paso</p>
+            <div class="diapo8-workshop__features">
+                <div class="diapo8-workshop__feature">
+                    <i class="ph-fill ph-wrench"></i>
+                    <span>Construye agentes para TU manual</span>
+                </div>
+                <div class="diapo8-workshop__feature">
+                    <i class="ph-fill ph-user-focus"></i>
+                    <span>Adapta a TU nivel y TUS alumnos</span>
+                </div>
+                <div class="diapo8-workshop__feature">
+                    <i class="ph-fill ph-play-circle"></i>
+                    <span>Pruebalos en clase al dia siguiente</span>
+                </div>
+            </div>
+            <div class="diapo8-workshop__cta">
+                <i class="ph-fill ph-envelope-simple"></i>
+                <span>Indicalo en el formulario de inscripcion de la mesa</span>
+            </div>
+        </div>
+    `;
 }
 
 // ============================================
@@ -5544,8 +6061,12 @@ function init() {
     // Diapo 5 — El Agente segun los Grandes Maestros
     document.getElementById('diapo5-nav-back')?.addEventListener('click', hideDiapo5Screen);
     document.getElementById('diapo5-nav-next')?.addEventListener('click', () => {
-        if (state.diapo5Step < 9) advanceDiapo5To(state.diapo5Step + 1);
-        else showDiapo6Screen();
+        elements.diapo5Screen?.classList.add('fade-out');
+        setTimeout(() => {
+            elements.diapo5Screen?.classList.add('hidden');
+            elements.diapo5Screen?.classList.remove('fade-out');
+            showDiapo6Screen();
+        }, 300);
     });
     // Stepper dots
     document.querySelectorAll('[data-diapo5-dot]').forEach(dot => {
@@ -5587,12 +6108,19 @@ function init() {
         }
     });
 
-    // Diapo 6 — vacía
+    // Diapo 6 — Elige tu agente
     document.getElementById('diapo6-nav-back')?.addEventListener('click', () => {
         hideDiapo6Screen();
         setTimeout(() => showDiapo5Screen(), 300);
     });
-    document.getElementById('diapo6-nav-next')?.addEventListener('click', () => showDiapo7Screen());
+    document.getElementById('diapo6-nav-next')?.addEventListener('click', () => {
+        if (diapo6Step < DIAPO6_TOTAL_STEPS - 1) {
+            advanceDiapo6();
+        } else {
+            hideDiapo6Screen();
+            setTimeout(() => showDiapo8Screen(), 300);
+        }
+    });
     document.getElementById('diapo6-chat-send')?.addEventListener('click', () => {
         const input = document.getElementById('diapo6-chat-input');
         const text = input?.value.trim();
@@ -5611,29 +6139,32 @@ function init() {
         if (state.ttsEnabled) disableTTS(); else enableTTS();
     });
 
-    // Diapo 7 — Elige tu agente
-    document.getElementById('diapo7-nav-back')?.addEventListener('click', () => {
-        hideDiapo7Screen();
+    // Diapo 8 — Construye tu Agente
+    document.getElementById('diapo8-nav-back')?.addEventListener('click', () => {
+        hideDiapo8Screen();
         setTimeout(() => showDiapo6Screen(), 300);
     });
-    document.getElementById('diapo7-nav-next')?.addEventListener('click', () => {
-        // Future: next screen after diapo7
+    document.getElementById('diapo8-nav-next')?.addEventListener('click', () => {
+        if (diapo8Step < DIAPO8_TOTAL_STEPS - 1) updateDiapo8Step(diapo8Step + 1);
     });
-    document.getElementById('diapo7-chat-send')?.addEventListener('click', () => {
-        const input = document.getElementById('diapo7-chat-input');
+    document.querySelectorAll('[data-diapo8-dot]').forEach(dot => {
+        dot.addEventListener('click', () => updateDiapo8Step(parseInt(dot.dataset.diapo8Dot)));
+    });
+    document.getElementById('diapo8-chat-send')?.addEventListener('click', () => {
+        const input = document.getElementById('diapo8-chat-input');
         const text = input?.value.trim();
         if (!text) return;
         input.value = '';
-        sendDiapo7Message(text);
+        sendDiapo8Message(text);
     });
-    document.getElementById('diapo7-chat-input')?.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('diapo7-chat-send')?.click(); }
+    document.getElementById('diapo8-chat-input')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('diapo8-chat-send')?.click(); }
     });
-    document.getElementById('diapo7-mic-btn')?.addEventListener('click', () => {
+    document.getElementById('diapo8-mic-btn')?.addEventListener('click', () => {
         enableTTS(); state.voiceTriggered = true;
         if (state.isRecording) { state._discardRecording = true; stopRecording(); } else { startRecording(); }
     });
-    document.getElementById('diapo7-voice-btn')?.addEventListener('click', () => {
+    document.getElementById('diapo8-voice-btn')?.addEventListener('click', () => {
         if (state.ttsEnabled) disableTTS(); else enableTTS();
     });
 

@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=21.3.0">
+    <link rel="stylesheet" href="/static/style.css?v=22.5.0">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -526,8 +526,12 @@
         <!-- ============================================
              DIAPO 6 — (vacía, por definir)
              ============================================ -->
+        <!-- ============================================
+             DIAPO 6 — Elige tu agente
+             ============================================ -->
         <main class="main-content diapo6-screen hidden" id="diapo6-screen">
             <div class="diapo6-page">
+                <!-- Columna izquierda: Eliana (orb + chat) -->
                 <div class="diapo6-left">
                     <button class="blinda-nav-btn blinda-nav-btn--back" id="diapo6-nav-back" title="Volver">
                         <i class="ph ph-arrow-left"></i>
@@ -538,7 +542,7 @@
                     <div class="blinda-chat" id="diapo6-chat">
                         <div class="blinda-chat__messages" id="diapo6-chat-messages">
                             <div class="blinda-chat__bubble blinda-chat__bubble--assistant">
-                                Estoy aquí para lo que necesitéis.
+                                Estos son los agentes MIAU. &iquest;Por qu&eacute; gatos? Porque son independientes, curiosos y siempre caen de pie. Como un buen agente IA.
                             </div>
                         </div>
                         <div class="blinda-chat__input-container">
@@ -561,57 +565,147 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Columna derecha: demo con pasos -->
                 <div class="diapo6-right">
                     <button class="blinda-nav-btn blinda-nav-btn--next" id="diapo6-nav-next" title="Siguiente">
                         <i class="ph ph-arrow-right"></i>
                     </button>
-                    <div class="diapo6-content" id="diapo6-content">
-                        <p style="color: var(--md-sys-color-on-surface-variant); font: 500 18px 'Source Sans 3', sans-serif;">Diapositiva 6</p>
+
+                    <div class="diapo6-demo" id="diapo6-demo">
+                        <!-- Paso 0: Elige tu agente — 8 gatos -->
+                        <div class="diapo6-demo__step diapo6-demo__step--active" data-diapo6-step="0">
+                            <div class="diapo6-intro">
+                                <h2 class="diapo6-intro__title">Agentes MIAU</h2>
+                                <p class="diapo6-intro__subtitle">&iquest;Por qu&eacute; gatos?</p>
+                                <div class="diapo6-cats-grid" id="diapo6-cats-grid">
+                                    <!-- 8 gatos, generados por JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paso 1: Actividad 1 Vocabulario — Ponle nombre -->
+                        <div class="diapo6-demo__step" data-diapo6-step="1">
+                            <div class="diapo6-activity">
+                                <div class="diapo6-activity__header">
+                                    <span class="diapo6-activity__badge">Actividad 1</span>
+                                    <h3 class="diapo6-activity__title">Vocabulario</h3>
+                                </div>
+                                <div class="diapo6-activity__text" id="diapo6-act1-text">
+                                    <!-- Texto de la actividad del libro, insertado por JS -->
+                                </div>
+                                <h4 class="diapo6-activity__challenge">Ponle nombre al gato</h4>
+                                <div class="diapo6-agents-row" id="diapo6-agents-act1">
+                                    <!-- 4 tarjetas agente sin nombre, generadas por JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paso 2: Actividad 2 Texto/Gramatica — Ponle nombre -->
+                        <div class="diapo6-demo__step" data-diapo6-step="2">
+                            <div class="diapo6-activity">
+                                <div class="diapo6-activity__header">
+                                    <span class="diapo6-activity__badge diapo6-activity__badge--alt">Actividad 2</span>
+                                    <h3 class="diapo6-activity__title">Texto y gramatica</h3>
+                                </div>
+                                <div class="diapo6-activity__text" id="diapo6-act2-text">
+                                    <!-- Texto de la actividad del libro, insertado por JS -->
+                                </div>
+                                <h4 class="diapo6-activity__challenge">Ponle nombre al gato</h4>
+                                <div class="diapo6-agents-row" id="diapo6-agents-act2">
+                                    <!-- 4 tarjetas agente sin nombre, generadas por JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paso 3: Pruebalo en tu movil -->
+                        <div class="diapo6-demo__step" data-diapo6-step="3">
+                            <div class="diapo6-try">
+                                <h3 class="diapo6-try__title">Pruebalos en tu movil</h3>
+                                <p class="diapo6-try__desc">Escanea el QR para abrir materiAELE y probar los agentes con la actividad real.</p>
+                                <div class="diapo6-try__qr" id="diapo6-qr">
+                                    <i class="ph ph-qr-code" style="font-size:120px;color:var(--md-sys-color-on-surface-variant)"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paso 4: Encuesta + Dashboard -->
+                        <div class="diapo6-demo__step" data-diapo6-step="4">
+                            <div class="diapo6-dashboard">
+                                <h3 class="diapo6-dashboard__title">Encuesta rapida</h3>
+                                <p class="diapo6-dashboard__desc">Responde desde tu movil. Los resultados aparecen aqui en tiempo real.</p>
+                                <div class="diapo6-dashboard__bars" id="diapo6-bars">
+                                    <!-- Barras de votacion, generadas por JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paso 5: Crea tu agente -->
+                        <div class="diapo6-demo__step" data-diapo6-step="5">
+                            <div class="diapo6-create">
+                                <h3 class="diapo6-create__title">Crea tu agente</h3>
+                                <p class="diapo6-create__desc">Entra en la plataforma materiAELE y disena tu propio agente IA para tus clases.</p>
+                                <div class="diapo6-create__cta">
+                                    <i class="ph ph-chalkboard-teacher" style="font-size:48px;color:var(--md-sys-color-primary)"></i>
+                                    <p class="diapo6-create__invite">Te invitamos a un taller en linea para aprender a crear agentes paso a paso.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stepper dots -->
+                    <div class="diapo6-demo__stepper" id="diapo6-stepper">
+                        <span class="demo-stepper__dot demo-stepper__dot--active" data-diapo6-dot="0"></span>
+                        <span class="demo-stepper__dot" data-diapo6-dot="1"></span>
+                        <span class="demo-stepper__dot" data-diapo6-dot="2"></span>
+                        <span class="demo-stepper__dot" data-diapo6-dot="3"></span>
+                        <span class="demo-stepper__dot" data-diapo6-dot="4"></span>
+                        <span class="demo-stepper__dot" data-diapo6-dot="5"></span>
                     </div>
                 </div>
             </div>
         </main>
 
         <!-- ============================================
-             DIAPO 7 — Elige tu agente
+             DIAPO 8 — Construye tu Agente (Plataforma + Taller)
              ============================================ -->
-        <main class="main-content diapo7-screen hidden" id="diapo7-screen">
-            <div class="diapo7-page">
+        <main class="main-content diapo8-screen hidden" id="diapo8-screen">
+            <div class="diapo8-page">
                 <!-- Columna izquierda: Eliana (orb + chat) -->
-                <div class="diapo7-left">
-                    <button class="blinda-nav-btn blinda-nav-btn--back" id="diapo7-nav-back" title="Volver">
+                <div class="diapo8-left">
+                    <button class="blinda-nav-btn blinda-nav-btn--back" id="diapo8-nav-back" title="Volver">
                         <i class="ph ph-arrow-left"></i>
                     </button>
 
                     <div class="blinda-orb-wrapper">
-                        <div class="orb-container" id="diapo7-orb-container"></div>
+                        <div class="orb-container" id="diapo8-orb-container"></div>
                     </div>
 
-                    <div class="blinda-chat" id="diapo7-chat">
-                        <div class="blinda-chat__messages" id="diapo7-chat-messages">
+                    <div class="blinda-chat" id="diapo8-chat">
+                        <div class="blinda-chat__messages" id="diapo8-chat-messages">
                             <div class="blinda-chat__bubble blinda-chat__bubble--assistant">
-                                Estoy aquí para lo que necesitéis.
+                                Ahora viene lo mejor: os voy a ensenar como se construye un agente.
                             </div>
                         </div>
                         <div class="blinda-chat__input-container">
                             <div class="blinda-chat__input-row">
                                 <textarea
-                                    id="diapo7-chat-input"
+                                    id="diapo8-chat-input"
                                     class="blinda-chat__textarea"
                                     placeholder="Escribe a Eliana..."
                                     rows="1"
                                     autocomplete="off"
                                 ></textarea>
-                                <button class="blinda-chat__send" id="diapo7-chat-send" title="Enviar">
+                                <button class="blinda-chat__send" id="diapo8-chat-send" title="Enviar">
                                     <i class="ph ph-paper-plane-tilt"></i>
                                 </button>
                             </div>
                             <div class="blinda-chat__actions-row">
-                                <button class="chat-action-btn" id="diapo7-mic-btn" title="Grabar voz">
+                                <button class="chat-action-btn" id="diapo8-mic-btn" title="Grabar voz">
                                     <i class="ph ph-microphone"></i>
                                     <span class="chat-action-label">Hablar</span>
                                 </button>
-                                <button class="chat-action-btn chat-action-btn--voice" id="diapo7-voice-btn" title="Voz de Eliana">
+                                <button class="chat-action-btn chat-action-btn--voice" id="diapo8-voice-btn" title="Voz de Eliana">
                                     <i class="ph-bold ph-waveform"></i>
                                     <span class="chat-action-label">Voz IA</span>
                                 </button>
@@ -620,13 +714,58 @@
                     </div>
                 </div>
 
-                <!-- Columna derecha: contenido (por definir) -->
-                <div class="diapo7-right">
-                    <button class="blinda-nav-btn blinda-nav-btn--next" id="diapo7-nav-next" title="Siguiente">
+                <!-- Columna derecha: Construye tu agente (6 pasos) -->
+                <div class="diapo8-right">
+                    <button class="blinda-nav-btn blinda-nav-btn--next" id="diapo8-nav-next" title="Siguiente">
                         <i class="ph ph-arrow-right"></i>
                     </button>
-                    <div class="diapo7-content" id="diapo7-content">
-                        <p style="color: var(--md-sys-color-on-surface-variant); font: 500 18px 'Source Sans 3', sans-serif;">Contenido de la diapositiva 6</p>
+
+                    <div class="diapo8-demo" id="diapo8-demo">
+                        <!-- Paso 0: Titulo -->
+                        <div class="diapo8-demo__step diapo8-demo__step--active" data-diapo8-step="0">
+                            <div class="diapo8-intro">
+                                <div class="blinda-intro__icon">
+                                    <i class="ph-fill ph-magic-wand"></i>
+                                </div>
+                                <h2 class="blinda-title">De la teoria a la practica</h2>
+                                <p class="blinda-subtitle">Asi se construye un agente en AgentiaELE</p>
+                            </div>
+                        </div>
+
+                        <!-- Paso 1: Ingredientes -->
+                        <div class="diapo8-demo__step" data-diapo8-step="1">
+                            <div id="diapo8-ingredients"></div>
+                        </div>
+
+                        <!-- Paso 2: Ejemplo Traductor -->
+                        <div class="diapo8-demo__step" data-diapo8-step="2">
+                            <div id="diapo8-example"></div>
+                        </div>
+
+                        <!-- Paso 3: Actividades -->
+                        <div class="diapo8-demo__step" data-diapo8-step="3">
+                            <div id="diapo8-activities"></div>
+                        </div>
+
+                        <!-- Paso 4: Los 8 agentes -->
+                        <div class="diapo8-demo__step" data-diapo8-step="4">
+                            <div id="diapo8-all-agents"></div>
+                        </div>
+
+                        <!-- Paso 5: Taller -->
+                        <div class="diapo8-demo__step" data-diapo8-step="5">
+                            <div id="diapo8-workshop"></div>
+                        </div>
+                    </div>
+
+                    <!-- Stepper dots (6 pasos) -->
+                    <div class="diapo8-demo__stepper" id="diapo8-stepper">
+                        <button class="demo-stepper__dot demo-stepper__dot--active" data-diapo8-dot="0"></button>
+                        <button class="demo-stepper__dot" data-diapo8-dot="1"></button>
+                        <button class="demo-stepper__dot" data-diapo8-dot="2"></button>
+                        <button class="demo-stepper__dot" data-diapo8-dot="3"></button>
+                        <button class="demo-stepper__dot" data-diapo8-dot="4"></button>
+                        <button class="demo-stepper__dot" data-diapo8-dot="5"></button>
                     </div>
                 </div>
             </div>
@@ -1100,6 +1239,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=21.3.0"></script>
+    <script src="/static/app.js?v=22.5.0"></script>
 </body>
 </html>
