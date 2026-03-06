@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=22.5.0">
+    <link rel="stylesheet" href="/static/style.css?v=22.8.0">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -122,6 +122,10 @@
                         </div>
                         <h2 class="conoce-message">¡Hola! Soy Eliana.<br>Antes de empezar... ¿jugamos?</h2>
                         <p class="conoce-submessage">Elige una actividad y vamos a conocernos</p>
+                        <div class="conoce-qr">
+                            <img src="/static/imagenes/qr-agentiaele.svg" alt="QR AgentiaELE" class="conoce-qr__img">
+                            <span class="conoce-qr__label">Escanea para unirte</span>
+                        </div>
                     </div>
                 </div>
 
@@ -248,7 +252,7 @@
         </main>
 
         <!-- ============================================
-             PANTALLA JUEGO BLINDA (diapo 4 — individual en movil)
+             PANTALLA JUEGO BLINDA (diapo 4 — individual en móvil)
              ============================================ -->
         <main class="main-content juego-screen hidden" id="juego-screen">
             <button class="juego-nav-btn" id="juego-nav-back" title="Volver">
@@ -311,7 +315,7 @@
                 <div class="juego-intro__right">
                     <div class="juego-intro__qr-card">
                         <div class="juego-intro__qr-placeholder" id="juego-qr">
-                            <i class="ph ph-qr-code"></i>
+                            <img src="/static/imagenes/qr-agentiaele.svg" alt="QR AgentiaELE" style="width:180px;height:180px;">
                         </div>
                         <p class="juego-intro__qr-title">Juega desde tu móvil</p>
                         <p class="juego-intro__qr-desc">Escanea el código QR para acceder al juego en tu dispositivo</p>
@@ -584,7 +588,7 @@
                             </div>
                         </div>
 
-                        <!-- Paso 1: Actividad 1 Vocabulario — Ponle nombre -->
+                        <!-- Paso 1: Actividad 1 Vocabulario -->
                         <div class="diapo6-demo__step" data-diapo6-step="1">
                             <div class="diapo6-activity">
                                 <div class="diapo6-activity__header">
@@ -592,50 +596,59 @@
                                     <h3 class="diapo6-activity__title">Vocabulario</h3>
                                 </div>
                                 <div class="diapo6-activity__text" id="diapo6-act1-text">
-                                    <!-- Texto de la actividad del libro, insertado por JS -->
+                                    <strong>HABLAR</strong><br>
+                                    <em>&iquest;Te gusta salir con tus amigos? &iquest;D&oacute;nde vais? Com&eacute;ntalo con tus compa&ntilde;eros.</em><br><br>
+                                    <span style="color:var(--md-sys-color-primary);font-weight:600">al cine &bull; a casa de otros amigos &bull; a tomar algo &bull; a comer &bull; a bailar &bull; a jugar al baloncesto</span>
                                 </div>
-                                <h4 class="diapo6-activity__challenge">Ponle nombre al gato</h4>
-                                <div class="diapo6-agents-row" id="diapo6-agents-act1">
-                                    <!-- 4 tarjetas agente sin nombre, generadas por JS -->
-                                </div>
+                                <h4 class="diapo6-activity__challenge">Define el nombre de cada agente MIAU</h4>
+                                <div class="diapo6-agents-row" id="diapo6-agents-act1"></div>
                             </div>
                         </div>
 
-                        <!-- Paso 2: Actividad 2 Texto/Gramatica — Ponle nombre -->
+                        <!-- Paso 2: Actividad 2 Texto y gramatica -->
                         <div class="diapo6-demo__step" data-diapo6-step="2">
                             <div class="diapo6-activity">
                                 <div class="diapo6-activity__header">
                                     <span class="diapo6-activity__badge diapo6-activity__badge--alt">Actividad 2</span>
-                                    <h3 class="diapo6-activity__title">Texto y gramatica</h3>
+                                    <h3 class="diapo6-activity__title">Texto y gram&aacute;tica</h3>
                                 </div>
                                 <div class="diapo6-activity__text" id="diapo6-act2-text">
-                                    <!-- Texto de la actividad del libro, insertado por JS -->
+                                    <strong>Lee y escucha</strong><br>
+                                    &mdash; Hola, Luisa, &iquest;qu&eacute; tal?<br>
+                                    &mdash; Hola, &iquest;qu&eacute; haces?<br>
+                                    &mdash; Nada, estoy viendo una serie.<br>
+                                    &mdash; Oye, &iquest;vamos al centro esta tarde?<br>
+                                    &mdash; Estupendo, podemos ir al cine.<br>
+                                    &mdash; Vale, &iquest;c&oacute;mo quedamos?<br>
+                                    &mdash; &iquest;A las cinco en la puerta del metro?<br>
+                                    &mdash; No, mejor a las seis. &iquest;Te parece bien?<br>
+                                    &mdash; De acuerdo. Quedamos a las seis. &iexcl;Hasta luego!<br><br>
+                                    <em>Contesta: &iquest;Qu&eacute; van a hacer Luisa y su amiga? &iquest;D&oacute;nde quedan? &iquest;A qu&eacute; hora?</em>
                                 </div>
-                                <h4 class="diapo6-activity__challenge">Ponle nombre al gato</h4>
-                                <div class="diapo6-agents-row" id="diapo6-agents-act2">
-                                    <!-- 4 tarjetas agente sin nombre, generadas por JS -->
-                                </div>
+                                <h4 class="diapo6-activity__challenge">Define el nombre de cada agente MIAU</h4>
+                                <div class="diapo6-agents-row" id="diapo6-agents-act2"></div>
                             </div>
                         </div>
 
-                        <!-- Paso 3: Pruebalo en tu movil -->
+                        <!-- Paso 3: Pruébalos en tu móvil -->
                         <div class="diapo6-demo__step" data-diapo6-step="3">
                             <div class="diapo6-try">
-                                <h3 class="diapo6-try__title">Pruebalos en tu movil</h3>
-                                <p class="diapo6-try__desc">Escanea el QR para abrir materiAELE y probar los agentes con la actividad real.</p>
+                                <h3 class="diapo6-try__title">Pruébalos en tu móvil</h3>
+                                <p class="diapo6-try__desc">Escanea el QR para abrir MaterIAELE y probar los agentes con la actividad real.</p>
                                 <div class="diapo6-try__qr" id="diapo6-qr">
-                                    <i class="ph ph-qr-code" style="font-size:120px;color:var(--md-sys-color-on-surface-variant)"></i>
+                                    <img src="/static/imagenes/qr-materiaele.svg" alt="QR MaterIAELE" style="width:180px;height:180px;">
                                 </div>
+                                <p class="diapo6-try__hint">Busca la unidad 7 y trabaja solo con las actividades 1 y 2.</p>
                             </div>
                         </div>
 
                         <!-- Paso 4: Encuesta + Dashboard -->
                         <div class="diapo6-demo__step" data-diapo6-step="4">
                             <div class="diapo6-dashboard">
-                                <h3 class="diapo6-dashboard__title">Encuesta rapida</h3>
-                                <p class="diapo6-dashboard__desc">Responde desde tu movil. Los resultados aparecen aqui en tiempo real.</p>
+                                <h3 class="diapo6-dashboard__title">Encuesta rápida</h3>
+                                <p class="diapo6-dashboard__desc">Responde desde tu móvil. Los resultados aparecen aquí en tiempo real.</p>
                                 <div class="diapo6-dashboard__bars" id="diapo6-bars">
-                                    <!-- Barras de votacion, generadas por JS -->
+                                    <!-- Barras de votación, generadas por JS -->
                                 </div>
                             </div>
                         </div>
@@ -644,10 +657,10 @@
                         <div class="diapo6-demo__step" data-diapo6-step="5">
                             <div class="diapo6-create">
                                 <h3 class="diapo6-create__title">Crea tu agente</h3>
-                                <p class="diapo6-create__desc">Entra en la plataforma materiAELE y disena tu propio agente IA para tus clases.</p>
+                                <p class="diapo6-create__desc">Entra en la plataforma MaterIAELE y diseña tu propio agente IA para tus clases.</p>
                                 <div class="diapo6-create__cta">
                                     <i class="ph ph-chalkboard-teacher" style="font-size:48px;color:var(--md-sys-color-primary)"></i>
-                                    <p class="diapo6-create__invite">Te invitamos a un taller en linea para aprender a crear agentes paso a paso.</p>
+                                    <p class="diapo6-create__invite">Te invitamos a un taller en línea para aprender a crear agentes paso a paso.</p>
                                 </div>
                             </div>
                         </div>
@@ -1239,6 +1252,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=22.5.0"></script>
+    <script src="/static/app.js?v=22.8.0"></script>
 </body>
 </html>

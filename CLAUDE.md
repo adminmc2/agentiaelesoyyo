@@ -2,6 +2,32 @@
 
 ## Zonas protegidas — NO MODIFICAR bajo ningún concepto
 
+### Diapositiva 1 (Login)
+**PROHIBIDO ABSOLUTAMENTE** modificar cualquier código relacionado con la diapositiva 1. No importa el contexto: refactor, limpieza, mejora, bug fix general, cambio de diseño — NADA justifica tocar la diapo 1 salvo que el usuario diga EXPLÍCITAMENTE "modifica la diapo 1" o "cambia esto de la diapo 1".
+
+Esto incluye:
+- Todo el HTML de `#login-screen` y sus hijos en `index.html`
+- Todo el CSS de `.login-*` y `.creatures-*`
+- `handleLogin()`, `showLoginScreen()` y toda la lógica de autenticación en `app.js`
+- `static/creatures.js` — animaciones GSAP de criaturas en login
+- El endpoint `/api/login` en `main.py`
+
+**Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
+
+### Diapositiva 2 (Conoce a Eliana — Actividades)
+**PROHIBIDO ABSOLUTAMENTE** modificar cualquier código relacionado con la diapositiva 2. No importa el contexto: refactor, limpieza, mejora, bug fix general, cambio de diseño — NADA justifica tocar la diapo 2 salvo que el usuario diga EXPLÍCITAMENTE "modifica la diapo 2" o "cambia esto de la diapo 2".
+
+Esto incluye:
+- `showConoceScreen()`, `showActivityChat()`, `sendMessage()` — flujo de actividades
+- Todo el HTML de `#conoce-screen`, `#chat-screen`, `#profile-screen` y sus hijos en `index.html`
+- Todo el CSS de `.conoce-*`, `.activity-card*`, `.chat-*`, `.profile-*`
+- Los prompts "yo_nunca_nunca", "dime_algo", "pregunta_ia" en `main.py`
+- La lógica de perfil card (`showProfileCard`, `PROFILE_CARD_PROMPT`)
+- El QR de `qr-agentiaele.svg` en la pantalla conoce
+- Los event listeners de actividades y chat principal
+
+**Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
+
 ### Diapositiva 3 (Blinda tu Prompt — Demo en plenaria)
 **PROHIBIDO ABSOLUTAMENTE** modificar cualquier código relacionado con la diapositiva 3. No importa el contexto: refactor, limpieza, mejora, bug fix general, cambio de diseño — NADA justifica tocar la diapo 3 salvo que el usuario diga EXPLÍCITAMENTE "modifica la diapo 3" o "cambia esto de la diapo 3".
 

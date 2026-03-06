@@ -5312,16 +5312,16 @@ function replayJuego() {
 // ============================================
 const DIAPO6_AGENTS = {
     act1: [
-        { id: 'traductor', img: 'traduccion.png', name: 'Traductor', displayName: 'Traducir vocabulario', desc: 'Traduccion pedagogica: adapta la traduccion al contexto de aprendizaje y al nivel del estudiante' },
-        { id: 'expansor', img: 'expansor.png', name: 'Expansor', displayName: 'Mas vocabulario', desc: 'Genera vocabulario adicional adaptado a la edad y contexto del estudiante' },
+        { id: 'traduccion', img: 'traduccion.png', name: 'Traducción', displayName: 'Traducir vocabulario', desc: 'Traducción pedagógica: adapta la traducción al contexto de aprendizaje y al nivel del estudiante' },
+        { id: 'expansor', img: 'expansor.png', name: 'Expansor', displayName: 'Más vocabulario', desc: 'Genera vocabulario adicional adaptado a la edad y contexto del estudiante' },
         { id: 'enfocado', img: 'enfocado.png', name: 'Enfocado', displayName: 'Mis palabras', desc: 'Trabaja solo las palabras que el usuario elige, personaliza el aprendizaje' },
-        { id: 'improvisador', img: 'improvisador.png', name: 'Improvisador', displayName: 'Sorprendeme', desc: 'El estudiante no sabe que le espera: genera una actividad sorpresa basada en su perfil' }
+        { id: 'improvisador', img: 'improvisador.png', name: 'Improvisador', displayName: 'Sorpréndeme', desc: 'El estudiante no sabe qué le espera: genera una actividad sorpresa basada en su perfil' }
     ],
     act2: [
-        { id: 'lexico', img: 'masticador.png', name: 'Lexico', displayName: 'Aprender del texto', desc: 'Analiza el texto y extrae vocabulario clave para trabajar en contexto' },
-        { id: 'gramapop', img: 'aprobador.png', name: 'Gramapop', displayName: 'Gramapop', desc: 'Pildoras de gramatica con MARS/EARS, gramatica de las construcciones y Van Patten' },
-        { id: 'comprension', img: 'miron.png', name: 'Comprension', displayName: 'Comprension global visual', desc: 'Genera actividades visuales de comprension lectora a partir del texto' },
-        { id: 'mapamental', img: 'explorador.png', name: 'Mapa mental', displayName: 'Mapa mental', desc: 'Crea mapas mentales y organiza ideas visualmente a partir del contenido' }
+        { id: 'masticador', img: 'masticador.png', name: 'Masticador', displayName: 'Aprender del texto', desc: 'Analiza el texto y extrae vocabulario clave para trabajar en contexto' },
+        { id: 'aprobador', img: 'aprobador.png', name: 'Aprobador', displayName: 'Gramapop', desc: 'Píldoras de gramática con MARS/EARS, gramática de las construcciones y Van Patten' },
+        { id: 'miron', img: 'miron.png', name: 'Mirón', displayName: 'Comprensión global visual', desc: 'Genera actividades visuales de comprensión lectora a partir del texto' },
+        { id: 'explorador', img: 'explorador.png', name: 'Explorador', displayName: 'Mapa mental', desc: 'Crea mapas mentales y organiza ideas visualmente a partir del contenido' }
     ]
 };
 
@@ -5330,28 +5330,6 @@ let diapo6Step = 0;
 
 function initDiapo6() {
     diapo6Step = 0;
-
-    // Texto real de Espanol en Marcha A1, Unidad 7A
-    const act1Text = document.getElementById('diapo6-act1-text');
-    if (act1Text) {
-        act1Text.innerHTML = '<strong>Unidad 7A &mdash; HABLAR (Ejercicio 1)</strong><br>'
-            + '<em>&iquest;Te gusta salir con tus amigos? &iquest;D&oacute;nde vais? Com&eacute;ntalo con tus compa&ntilde;eros.</em><br><br>'
-            + '<span style="color:var(--md-sys-color-primary);font-weight:600">al cine &bull; a casa de otros amigos &bull; a tomar algo &bull; a comer &bull; a bailar &bull; a jugar al baloncesto</span>';
-    }
-    const act2Text = document.getElementById('diapo6-act2-text');
-    if (act2Text) {
-        act2Text.innerHTML = '<strong>Unidad 7A &mdash; Lee y escucha (Ejercicios 2-3)</strong><br>'
-            + '&mdash; Hola, Luisa, &iquest;qu&eacute; tal?<br>'
-            + '&mdash; Hola, &iquest;qu&eacute; haces?<br>'
-            + '&mdash; Nada, estoy viendo una serie.<br>'
-            + '&mdash; Oye, &iquest;vamos al centro esta tarde?<br>'
-            + '&mdash; Estupendo, podemos ir al cine.<br>'
-            + '&mdash; Vale, &iquest;c&oacute;mo quedamos?<br>'
-            + '&mdash; &iquest;A las cinco en la puerta del metro?<br>'
-            + '&mdash; No, mejor a las seis. &iquest;Te parece bien?<br>'
-            + '&mdash; De acuerdo. Quedamos a las seis. &iexcl;Hasta luego!<br><br>'
-            + '<em>Contesta: &iquest;Qu&eacute; van a hacer Luisa y su amiga? &iquest;D&oacute;nde quedan? &iquest;A qu&eacute; hora?</em>';
-    }
 
     renderDiapo6CatsGrid();
     renderDiapo6AgentCards('diapo6-agents-act1', DIAPO6_AGENTS.act1);
@@ -5383,38 +5361,56 @@ function renderDiapo6CatsGrid() {
 function renderDiapo6AgentCards(containerId, agents) {
     const container = document.getElementById(containerId);
     if (!container) return;
+    const allNames = [...DIAPO6_AGENTS.act1, ...DIAPO6_AGENTS.act2].map(a => a.name);
+    // Shuffle names for each render
+    const shuffled = [...allNames].sort(() => Math.random() - 0.5);
+
     container.innerHTML = agents.map(a => `
         <div class="diapo6-agent-card" data-agent-id="${a.id}">
             <img class="diapo6-agent-card__img" src="/static/imagenes/${a.img}" alt="">
             <div class="diapo6-agent-card__desc">${a.desc}</div>
-            <div class="diapo6-agent-card__name diapo6-agent-card__name--hidden">?</div>
+            <select class="diapo6-agent-card__select" data-correct="${a.name}">
+                <option value="" disabled selected>Elige nombre...</option>
+                ${shuffled.map(n => `<option value="${n}">${n}</option>`).join('')}
+            </select>
+            <div class="diapo6-agent-card__result"></div>
         </div>
     `).join('');
 
-    // Click to reveal
-    container.querySelectorAll('.diapo6-agent-card').forEach(card => {
-        card.addEventListener('click', () => {
-            const agentId = card.dataset.agentId;
-            const agent = agents.find(a => a.id === agentId);
-            if (!agent) return;
-            revealDiapo6Agent(card, agent);
+    container.querySelectorAll('.diapo6-agent-card__select').forEach(select => {
+        select.addEventListener('change', () => {
+            checkDiapo6AgentAnswer(select);
         });
     });
 }
 
-function revealDiapo6Agent(card, agent) {
-    card.classList.add('diapo6-agent-card--revealed');
-    const nameEl = card.querySelector('.diapo6-agent-card__name');
-    if (nameEl) {
-        nameEl.textContent = agent.name;
-        nameEl.classList.remove('diapo6-agent-card__name--hidden');
-    }
-    // Wake up the cat in the intro grid too
-    const miniCat = document.querySelector(`.diapo6-cat-mini[data-agent-id="${agent.id}"]`);
-    if (miniCat) {
-        miniCat.classList.add('diapo6-cat-mini--awake');
-        const nameSpan = miniCat.querySelector('.diapo6-cat-mini__name');
-        if (nameSpan) nameSpan.textContent = agent.name;
+function checkDiapo6AgentAnswer(select) {
+    const card = select.closest('.diapo6-agent-card');
+    const correct = select.dataset.correct;
+    const chosen = select.value;
+    const resultEl = card.querySelector('.diapo6-agent-card__result');
+    const agentId = card.dataset.agentId;
+
+    if (chosen === correct) {
+        card.classList.add('diapo6-agent-card--correct');
+        card.classList.remove('diapo6-agent-card--wrong');
+        select.disabled = true;
+        if (resultEl) resultEl.textContent = correct;
+        // Wake up the cat in the intro grid
+        const miniCat = document.querySelector(`.diapo6-cat-mini[data-agent-id="${agentId}"]`);
+        if (miniCat) {
+            miniCat.classList.add('diapo6-cat-mini--awake');
+            const nameSpan = miniCat.querySelector('.diapo6-cat-mini__name');
+            if (nameSpan) nameSpan.textContent = correct;
+        }
+    } else {
+        card.classList.add('diapo6-agent-card--wrong');
+        if (resultEl) resultEl.textContent = 'Intenta de nuevo';
+        setTimeout(() => {
+            card.classList.remove('diapo6-agent-card--wrong');
+            if (resultEl) resultEl.textContent = '';
+            select.value = '';
+        }, 1200);
     }
 }
 
@@ -5488,11 +5484,10 @@ function isOnDiapo6Screen() {
 }
 
 const DIAPO6_KEYWORD_MAP = [
-    { step: 1, patterns: ['descubrir', 'dos actividades', 'sacad los móviles', 'sacad los moviles', 'adivinar'] },
-    { step: 2, patterns: ['primera actividad', 'vocabulario', 'ejercicio 1'] },
-    { step: 3, patterns: ['segunda', 'diálogo', 'dialogo', 'texto y gramática', 'texto y gramatica'] },
-    { step: 4, patterns: ['probar', 'qr', 'materiaele', 'escaneáis', 'escaneais'] },
-    { step: 5, patterns: ['resultados', 'pantalla', 'cuáles os han gustado', 'cuales os han gustado'] }
+    { step: 1, patterns: ['descubrir', 'dos actividades', 'sacad los móviles', 'sacad los moviles', 'adivinar', 'actividad 1'] },
+    { step: 2, patterns: ['segunda', 'actividad 2', 'siguiente actividad', 'pasemos', 'diálogo', 'dialogo', 'texto y gramática', 'texto y gramatica'] },
+    { step: 3, patterns: ['probar', 'qr', 'materiaele', 'escaneáis', 'escaneais'] },
+    { step: 4, patterns: ['resultados', 'pantalla', 'cuáles os han gustado', 'cuales os han gustado'] }
 ];
 
 function addDiapo6ChatBubble(text, role) {
