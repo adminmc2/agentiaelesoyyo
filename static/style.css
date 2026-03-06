@@ -6375,17 +6375,19 @@ body[data-mood-active] .message.assistant {
     }
     .juego-card__situation { font-size: 15px; line-height: 1.75; margin-bottom: var(--space-8); }
     .juego-option-btn {
-        padding: var(--space-14, 14px) var(--space-16) var(--space-14, 14px) var(--space-20);
+        padding: var(--space-14, 14px) var(--space-16) var(--space-14, 14px) var(--space-24);
         font-size: 14px;
         line-height: 1.6;
         align-items: center;
+        gap: var(--space-12);
     }
     .juego-option-btn__label {
-        min-width: 18px;
-        font: 700 14px 'Source Sans 3', sans-serif;
+        min-width: 20px;
+        font: 700 15px 'Source Sans 3', sans-serif;
         flex-shrink: 0;
+        margin-left: 2px;
     }
-    .juego-card__options { gap: var(--space-10); }
+    .juego-card__options { gap: var(--space-14, 14px); }
     /* Chat debajo — scroll propio si hace falta */
     .juego-modal__left {
         padding: 0.75rem;
