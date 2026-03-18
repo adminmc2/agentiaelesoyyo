@@ -1606,6 +1606,11 @@ function sendToWebSocket(message, responseMode = 'full') {
 // Grabación de voz
 // ============================================
 async function startRecording() {
+    const currentScreen = !elements.loginScreen.classList.contains('hidden') ? 'login' :
+        (elements.blindaScreen && !elements.blindaScreen.classList.contains('hidden')) ? 'blinda' :
+        (elements.conoceScreen && !elements.conoceScreen.classList.contains('hidden')) ? 'conoce' : 'other';
+    console.log('[MIC-DEBUG] startRecording() called — screen:', currentScreen, 'voiceTriggered:', state.voiceTriggered, 'stack:', new Error().stack.split('\n').slice(1,4).join(' < '));
+
     // Prevent starting a new recording if one is already in progress
     if (state.isRecording) {
         console.log('[Recording] Already recording, ignoring startRecording()');
@@ -2802,10 +2807,10 @@ function onWakeWordDetected(transcript = '') {
 
     // Si estamos en la pantalla de login, SOLO reproducir saludo — sin LLM, sin grabación
     if (!elements.loginScreen.classList.contains('hidden')) {
+        console.log('[MIC-DEBUG] onWakeWordDetected on LOGIN — only greeting, no mic');
         playWakeBeep();
         handleOrbGreeting();
-        // Reactivar WakeWord después del saludo para que siga escuchando
-        resumeWakeWordAfterRecording();
+        // NO reactivar wake word en login — evita bucle de eco/ruido ambiente
         return;
     }
 
@@ -2980,7 +2985,14 @@ function updateWakeWordUI(listening) {
  * Called at the end of transcribeAudio().
  */
 function resumeWakeWordAfterRecording() {
+    const onLogin = !elements.loginScreen.classList.contains('hidden');
+    console.log('[MIC-DEBUG] resumeWakeWordAfterRecording — wakeWordEnabled:', state.wakeWordEnabled, 'wakeWordActive:', state.wakeWordActive, 'onLogin:', onLogin);
+    if (onLogin) {
+        console.log('[MIC-DEBUG] On login screen — NOT resuming wake word');
+        return;
+    }
     if (state.wakeWordEnabled && !state.wakeWordActive) {
+        console.log('[MIC-DEBUG] Will restart wake word in 1s');
         setTimeout(() => {
             startWakeWordListening();
         }, 1000);
@@ -3121,17 +3133,23 @@ async function playTTS(text, skipSummary = false, isActivity = false) {
             URL.revokeObjectURL(audioUrl);
             if (window.orbSetListening) window.orbSetListening(false);
 
+            console.log('[MIC-DEBUG] TTS onEnded — voiceTriggered:', state.voiceTriggered, 'ttsEnabled:', state.ttsEnabled, 'isRecording:', state.isRecording, 'screen:', !elements.loginScreen.classList.contains('hidden') ? 'login' : 'other');
+
             // Si la interacción fue por voz, activar micrófono automáticamente
             if (state.voiceTriggered && state.ttsEnabled) {
-                console.log('[TTS] Voice mode — auto-starting recording after TTS ended');
+                console.log('[MIC-DEBUG] Voice mode — will auto-start recording in 300ms');
                 // Pequeño delay para que el usuario sepa que puede hablar
                 setTimeout(() => {
                     if (!state.isRecording && !state.ttsPlaying) {
+                        console.log('[MIC-DEBUG] Auto-starting recording NOW');
                         startRecording();
+                    } else {
+                        console.log('[MIC-DEBUG] Skipped auto-record — isRecording:', state.isRecording, 'ttsPlaying:', state.ttsPlaying);
                     }
                 }, 300);
             } else {
                 // Solo reanudar wake word si no es modo voz
+                console.log('[MIC-DEBUG] No voice mode — calling resumeWakeWordAfterRecording()');
                 resumeWakeWordAfterRecording();
             }
         };
@@ -3466,7 +3484,7 @@ async function handleOrbGreeting() {
 
     if (window.orbSetListening) window.orbSetListening(true);
 
-    const greetingText = '¡Chiquillo, bienvenidos a Destino ELE Kaunas 2026! Soy Eliana, y hoy estoy aquí con Román para enseñaros cómo los agentes de inteligencia artificial pueden personalizar la enseñanza sin que perdáis el control pedagógico. Así que venga, ¡preguntadme lo que queráis, buscadme las cosquillas, que aquí estamos pa eso!';
+    const greetingText = '¡Chiquillo, bienvenidos al décimo sexto encuentro de profesores ELE en Polonia! Soy Eliana, y hoy estoy aquí con Mando para enseñaros cómo los agentes de inteligencia artificial pueden personalizar la enseñanza sin que perdáis el control pedagógico. Así que venga, ¡preguntadme lo que queráis, buscadme las cosquillas, que aquí estamos pa eso!';
 
     // Enviar texto directamente al TTS (skip_summary = true, sin pasar por el LLM)
     playTTS(greetingText, true);
