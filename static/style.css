@@ -1979,6 +1979,7 @@ body[data-mood-active] .bento-card--mood {
     height: 100vh;
     height: 100dvh;
     padding: 0;
+    background: #FDFAF5;
     animation: screenEnter var(--md-sys-motion-duration-medium4) var(--md-sys-motion-easing-emphasized-decelerate);
 }
 
@@ -4716,6 +4717,7 @@ body[data-mood-active] .message.assistant {
 .blinda-screen {
     padding: 0 !important;
     overflow: hidden;
+    background: #FDFAF5;
     transition:
         opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate),
         transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate);
