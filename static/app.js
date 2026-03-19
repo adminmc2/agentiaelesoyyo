@@ -3877,7 +3877,7 @@ function sendBlindaMessage(message) {
         if (!state._blindaContextSent) {
             payload.prior_context = {
                 question: 'Eliana, ya hemos terminado las actividades. ¿Qué viene ahora?',
-                answer: 'Genial, ya hemos roto el hielo. Ahora vamos a poner a prueba vuestro ojo crítico como profes. He preparado unas tarjetas que os van a sorprender. Román, cuando quieras. [NOTA INTERNA: esto fue solo la introducción, NO es ninguna fase. La FASE 1 empieza con el próximo "continuamos".]'
+                answer: 'Genial, ya hemos roto el hielo. Ahora vamos a poner a prueba vuestro ojo crítico como profes. He preparado unas tarjetas que os van a sorprender. Mando, cuando quieras. [NOTA INTERNA: esto fue solo la introducción, NO es ninguna fase. La FASE 1 empieza con el próximo "continuamos".]'
             };
             state._blindaContextSent = true;
         }
@@ -4626,7 +4626,7 @@ function sendDiapo5Message(message) {
         if (!state._diapo5ContextSent) {
             payload.prior_context = {
                 question: 'Eliana, vamos a explicar qué es un agente de IA con la metáfora del chef.',
-                answer: 'Vamos a ver ahora qué es un agente de IA. Román, cuando quieras.'
+                answer: 'Vamos a ver ahora qué es un agente de IA. Mando, cuando quieras.'
             };
             state._diapo5ContextSent = true;
         }
@@ -5852,7 +5852,7 @@ function addDiapo7ChatBubble(text, role) {
 function sendDiapo7Message(message) {
     addDiapo7ChatBubble(message, 'user');
 
-    // Check if user message (Román) triggers advance
+    // Check if user message (Mando) triggers advance
     checkDiapo7AdvanceFromUser(message);
 
     const messages = document.getElementById('diapo7-chat-messages');
