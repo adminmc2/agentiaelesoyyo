@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía de Presentación — Slides iPad</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; font-family: -apple-system, 'Helvetica Neue', sans-serif; background: #111; color: #fff; -webkit-text-size-adjust: 100%; }
+
+  /* ── Slide container ── */
+  .slides { display: flex; transition: transform 0.4s ease; height: 100vh; width: 100%; }
+  .slide {
+    min-width: 100vw; height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: 48px 56px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── Backgrounds ── */
+  .slide--title  { background: linear-gradient(135deg, #994E95 0%, #6B82C4 100%); }
+  .slide--diapo  { background: #1a1a2e; }
+  .slide--fase   { background: #1e1e30; }
+  .slide--warn   { background: #2d1a1a; }
+  .slide--tip    { background: #1a2d1a; }
+  .slide--table  { background: #1a1a2e; }
+  .slide--final  { background: linear-gradient(135deg, #994E95 0%, #6B82C4 100%); }
+
+  /* ── Typography ── */
+  .slide-number {
+    position: absolute; top: 20px; right: 28px;
+    font-size: 14px; color: rgba(255,255,255,0.4);
+    font-weight: 600;
+  }
+  .diapo-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 8px;
+    padding: 6px 18px;
+    font-size: 14px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 16px;
+    color: rgba(255,255,255,0.8);
+  }
+  h1 { font-size: 52px; font-weight: 800; text-align: center; line-height: 1.15; margin-bottom: 12px; }
+  h1 small { display: block; font-size: 22px; font-weight: 400; margin-top: 10px; opacity: 0.8; }
+  h2 { font-size: 40px; font-weight: 800; text-align: center; line-height: 1.2; margin-bottom: 20px; }
+  h3 { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 16px; color: #B39DDB; }
+  p, li { font-size: 26px; line-height: 1.55; }
+  ul { list-style: none; padding: 0; }
+  ul li { padding: 8px 0; }
+  ul li::before { content: ""; display: inline-block; width: 10px; height: 10px; background: #B39DDB; border-radius: 50%; margin-right: 14px; vertical-align: middle; }
+
+  /* ── Boxes ── */
+  .box {
+    width: 100%; max-width: 900px;
+    padding: 20px 28px;
+    border-radius: 12px;
+    margin: 8px 0;
+    font-size: 24px; line-height: 1.5;
+    text-align: left;
+  }
+  .box--roman {
+    background: rgba(107, 130, 196, 0.2);
+    border-left: 5px solid #6B82C4;
+  }
+  .box--roman::before { content: "ROMÁN dice:"; display: block; font-weight: 800; color: #6B82C4; font-size: 16px; margin-bottom: 6px; letter-spacing: 1px; text-transform: uppercase; }
+  .box--eliana {
+    background: rgba(153, 78, 149, 0.2);
+    border-left: 5px solid #994E95;
+    font-style: italic;
+  }
+  .box--eliana::before { content: "ELIANA responde:"; display: block; font-weight: 800; color: #CE93D8; font-size: 16px; font-style: normal; margin-bottom: 6px; letter-spacing: 1px; text-transform: uppercase; }
+  .box--screen {
+    background: rgba(179, 157, 219, 0.15);
+    border-left: 5px solid #B39DDB;
+  }
+  .box--screen::before { content: "EN PANTALLA:"; display: block; font-weight: 800; color: #B39DDB; font-size: 16px; margin-bottom: 6px; letter-spacing: 1px; text-transform: uppercase; }
+  .box--warn {
+    background: rgba(244, 143, 177, 0.15);
+    border-left: 5px solid #F48FB1;
+  }
+  .box--warn::before { content: "CUIDADO:"; display: block; font-weight: 800; color: #F48FB1; font-size: 16px; margin-bottom: 6px; letter-spacing: 1px; text-transform: uppercase; }
+  .box--tip {
+    background: rgba(129, 199, 132, 0.15);
+    border-left: 5px solid #81C784;
+  }
+  .box--tip::before { content: "CONSEJO:"; display: block; font-weight: 800; color: #81C784; font-size: 16px; margin-bottom: 6px; letter-spacing: 1px; text-transform: uppercase; }
+  .box--chat {
+    background: rgba(255, 183, 77, 0.15);
+    border-left: 5px solid #FFB74D;
+  }
+  .box--chat::before { content: "YA EN EL CHAT AL ENTRAR:"; display: block; font-weight: 800; color: #FFB74D; font-size: 16px; margin-bottom: 6px; letter-spacing: 1px; text-transform: uppercase; }
+
+  /* ── Keywords ── */
+  .kw {
+    display: inline-block;
+    background: rgba(153, 78, 149, 0.3);
+    color: #CE93D8;
+    font-family: monospace;
+    font-size: 20px;
+    padding: 4px 12px;
+    border-radius: 6px;
+    margin: 4px;
+  }
+
+  /* ── Phase badge ── */
+  .phase {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: #994E95; color: #fff;
+    font-weight: 800; font-size: 20px;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+
+  /* ── Table ── */
+  table { border-collapse: collapse; width: 100%; max-width: 900px; }
+  th { background: rgba(255,255,255,0.1); font-weight: 700; text-align: left; padding: 14px 16px; font-size: 20px; border: 1px solid rgba(255,255,255,0.15); }
+  td { padding: 14px 16px; font-size: 20px; border: 1px solid rgba(255,255,255,0.1); vertical-align: top; }
+  tr:nth-child(even) { background: rgba(255,255,255,0.04); }
+
+  /* ── Navigation ── */
+  .nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 28px;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+  }
+  .nav button {
+    background: rgba(255,255,255,0.15);
+    border: none; color: #fff;
+    font-size: 20px; font-weight: 700;
+    padding: 14px 32px;
+    border-radius: 10px;
+    cursor: pointer;
+    min-width: 120px;
+  }
+  .nav button:active { background: rgba(255,255,255,0.3); }
+  .nav-counter { font-size: 18px; color: rgba(255,255,255,0.6); font-weight: 600; }
+
+  /* ── Flex layout helpers ── */
+  .content { width: 100%; max-width: 900px; text-align: center; }
+  .left { text-align: left; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .card {
+    flex: 1; min-width: 250px; max-width: 420px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 20px 24px;
+    text-align: left;
+  }
+  .card strong { color: #CE93D8; }
+
+  /* ── Fase header ── */
+  .fase-header {
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px; font-size: 30px; font-weight: 800;
+  }
+</style>
+</head>
+<body>
+
+<div class="slides" id="slides">
+
+<!-- ==================== SLIDE 1: PORTADA ==================== -->
+<div class="slide slide--title">
+  <div class="content">
+    <h1>
+      Guía de Presentación
+      <small>XVI Encuentro de profesores de ELE en Polonia — AgentiaELE</small>
+    </h1>
+    <p style="font-size:22px; opacity:0.7; margin-top:20px;">
+      Román Navarro (Hablandis) &amp; Armando Cruz (Prisma Consul)<br>
+      Co-presentadora IA: Eliana
+    </p>
+    <p style="font-size:18px; opacity:0.5; margin-top:32px;">Desliza o usa las flechas para avanzar</p>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 2: CÓMO FUNCIONA ==================== -->
+<div class="slide slide--diapo">
+  <div class="content">
+    <h2>Cómo funciona la app</h2>
+    <ul class="left" style="max-width:800px; margin:0 auto;">
+      <li>Flechas arriba izq/der cambian de diapositiva</li>
+      <li>Stepper dots (bolitas) cambian paso DENTRO de una diapo</li>
+      <li>«Hey Eliana» activa el micro (wake word)</li>
+      <li>Cada mensaje tuyo = Eliana avanza UNA fase</li>
+      <li>No envíes dos mensajes seguidos sin esperar respuesta</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 3: DIAPO 1 TÍTULO ==================== -->
+<div class="slide slide--title">
+  <div class="content">
+    <div class="diapo-badge">Diapo 1</div>
+    <h1>Login + Conoce a Eliana</h1>
+    <p style="font-size:24px; opacity:0.8; margin-top:16px;">Rompehielos — los profes juegan en sus móviles</p>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 4: DIAPO 1 DETALLE ==================== -->
+<div class="slide slide--fase">
+  <div class="content">
+    <div class="diapo-badge">Diapo 1</div>
+    <h3>Las 3 actividades de rompehielos</h3>
+    <div class="row" style="margin-top:16px;">
+      <div class="card">
+        <strong>Yo Nunca Nunca de Profe</strong>
+        <p style="font-size:20px; margin-top:8px;">Eliana propone situaciones reales de profe. El profe dice si le ha pasado. 4 turnos, humor docente.</p>
+      </div>
+      <div class="card">
+        <strong>Dime Algo y Te Digo Quién Eres</strong>
+        <p style="font-size:20px; margin-top:8px;">El profe dice una palabra favorita. Eliana hace un «perfil absurdo». Humor puro, 4 turnos.</p>
+      </div>
+      <div class="card">
+        <strong>Lo Que Nunca Le Preguntas a una IA</strong>
+        <p style="font-size:20px; margin-top:8px;">Preguntas íntimas entre profe y Eliana. Tono confesional pero ligero. 4 turnos.</p>
+      </div>
+    </div>
+    <div class="box box--tip" style="margin-top:20px;">No necesitas hablar con Eliana. Los profes juegan solos. Pasea por la sala. Cuando la mayoría termine, flecha derecha.</div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 5: DIAPO 3 TÍTULO ==================== -->
+<div class="slide slide--title">
+  <div class="content">
+    <div class="diapo-badge">Diapo 3</div>
+    <h1>Blinda tu Prompt</h1>
+    <p style="font-size:24px; opacity:0.8; margin-top:16px;">Demo en plenaria — juego de tarjetas sobre IA en ELE</p>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 6: DIAPO 3 TERRITORIOS ==================== -->
+<div class="slide slide--fase">
+  <div class="content">
+    <div class="diapo-badge">Diapo 3</div>
+    <h3>Los 5 territorios</h3>
+    <table style="margin-top:12px;">
+      <tr><th>Color</th><th>Territorio</th><th>Trata sobre...</th></tr>
+      <tr><td style="color:#6B82C4">Azul</td><td>Didáctica</td><td>Diseñar actividades con IA</td></tr>
+      <tr><td style="color:#81C784">Verde</td><td>Precisión</td><td>Que la IA ajuste bien el nivel</td></tr>
+      <tr><td style="color:#F48FB1">Rosa</td><td>Ética</td><td>Sesgos, estereotipos, privacidad</td></tr>
+      <tr><td style="color:#FFB74D">Naranja</td><td>Evaluación</td><td>Rúbricas y feedback</td></tr>
+      <tr><td style="color:#B39DDB">Violeta</td><td>Limitaciones</td><td>Cuando la IA se corta o pierde el hilo</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 7: DIAPO 3 FASES 0-1 ==================== -->
+<div class="slide slide--fase">
+  <div class="content">
+    <div class="diapo-badge">Diapo 3</div>
+    <div class="box box--chat">«Genial, ya hemos roto el hielo. He preparado unas tarjetas que os van a sorprender. Román, cuando quieras.»</div>
+    <div class="fase-header" style="margin-top:12px;"><span class="phase">0</span> Eliana arranca sola</div>
+    <div class="box box--tip">No hagas nada. Espera a que termine de hablar.</div>
+    <div class="fase-header" style="margin-top:20px;"><span class="phase">1</span> Presenta los territorios</div>
+    <div class="box box--roman">«Continuamos» / «Venga, Eliana» / «Adelante»</div>
+    <div class="box box--screen">Aparecen las 5 tarjetas de colores. Se resaltan mientras Eliana las menciona.</div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 8: DIAPO 3 FASE 2 ==================== -->
+<div class="slide slide--fase">
+  <div class="content">
+    <div class="diapo-badge">Diapo 3</div>
+    <div class="fase-header"><span class="phase">2</span> Mecánica + tarjeta demo</div>
+    <div class="box box--roman">«Continuamos» / «¿Cómo funciona?» / «Explícales»</div>
+    <div class="box box--screen">Aparece la tarjeta demo (Verde/Precisión). Situación + opciones A, B, C.</div>
+    <p style="font-size:22px; margin-top:16px; text-align:left; max-width:900px;">
+      <strong>Tarjeta demo:</strong> Prompt «Da feedback sobre esta redacción B1» &rarr; IA responde genérico.<br>
+      <strong>A (correcta):</strong> Specific-feedback — citar frases buenas y errores concretos.<br>
+      <strong>B:</strong> El feedback positivo general motiva.<br>
+      <strong>C:</strong> Pedir más palabras (200+).
+    </p>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 9: DIAPO 3 INTERACCIÓN ==================== -->
+<div class="slide slide--fase">
+  <div class="content">
+    <div class="diapo-badge">Diapo 3</div>
+    <h3>Interacción con la sala</h3>
+    <div class="box box--roman">«Han dicho la A» / «Dicen que la B» / «Alguien dice la C»</div>
+    <table style="margin-top:12px;">
+      <tr><th>Si dicen...</th><th>Eliana responde...</th><th>Tú haces...</th></tr>
+      <tr><td><strong>A (correcta)</strong></td><td>«Enhorabuena, habéis acertado»</td><td>Celebra, di «continuamos»</td></tr>
+      <tr><td><strong>B o C</strong></td><td>Da una pista sin revelar</td><td>Anima a repensar. Si no, di «dinos la respuesta»</td></tr>
+    </table>
+    <div class="fase-header" style="margin-top:24px;"><span class="phase">3</span> Manda a jugar en el móvil</div>
+    <div class="box box--roman">«Ahora os toca a vosotros»</div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 10: DIAPO 3 KEYWORDS ==================== -->
+<div class="slide slide--table">
+  <div class="content">
+    <div class="diapo-badge">Diapo 3</div>
+    <h3>Keywords de auto-avance</h3>
+    <table>
+      <tr><th>Paso</th><th>Se activa cuando Eliana dice...</th></tr>
+      <tr><td>Mostrar tarjetas</td><td><span class="kw">tarjeta</span> <span class="kw">carta</span> <span class="kw">baraja</span></td></tr>
+      <tr><td>Girar demo</td><td><span class="kw">darle la vuelta</span> <span class="kw">ejemplo</span> <span class="kw">tres opciones</span></td></tr>
+      <tr><td>Resolver</td><td><span class="kw">acertado</span> <span class="kw">correcto</span> <span class="kw">os explico</span></td></tr>
+      <tr><td>Jugar en móvil</td><td><span class="kw">os toca</span> <span class="kw">sacad el</span> <span class="kw">vuestro turno</span></td></tr>
+    </table>
+    <div class="box box--warn" style="margin-top:16px;">Si la pantalla no avanza, usa los stepper dots (bolitas de abajo) para mover manualmente.</div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 11: DIAPO 4 ==================== -->
+<div class="slide slide--diapo">
+  <div class="content">
+    <div class="diapo-badge">Diapo 4</div>
+    <h2>Juego Blinda (individual)</h2>
+    <p style="font-size:24px; margin-top:16px;">Los profes juegan en sus móviles con las tarjetas.</p>
+    <div class="box box--tip" style="margin-top:20px;">Pasea por la sala, comenta, ayuda. Cuando la mayoría termine (5-10 min), flecha derecha a diapo 5.</div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 12: DIAPO 5 TÍTULO ==================== -->
+<div class="slide slide--title">
+  <div class="content">
+    <div class="diapo-badge">Diapo 5</div>
+    <h1>¿Qué es un Agente de IA?</h1>
+    <p style="font-size:24px; opacity:0.8; margin-top:16px;">Metáfora del restaurante — 5 capacidades — canción final<br>10 pasos internos (0-9) con stepper dots</p>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 13: DIAPO 5 MENSAJE INICIAL ==================== -->
+<div class="slide slide--fase">
+  <div class="content">
+    <div class="diapo-badge">Diapo 5</div>
+    <div class="box box--chat">«Vamos a ver ahora qué es un agente de IA. Román, cuando quieras.»</div>
+    <div class="box box--screen">Panel derecho: título «¿Qué es un Agente de IA?» con icono de robot y subtítulo «El Chef y el Agente».</div>
+    <div class="box box--tip">Eliana ya ha dicho esto al entrar en la diapo. No necesitas escribir nada todavía. Cuando estés listo, escribe tu primer mensaje para que arranque la Fase 0 (nube de palabras).</div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 14: DIAPO 5 CAPACIDADES ==================== -->
+<div class="slide slide--table">
+  <div class="content">
+    <div class="diapo-badge">Diapo 5</div>
+    <h3>Las 5 capacidades del agente</h3>
+    <table>
+      <tr><th>Capacidad</th><th>El chef...</th><th>El agente...</th></tr>
+      <tr><td style="color:#7EC8E3"><strong>PERCIBIR</strong></td><td>Mira ingredientes, quién está en la mesa</td><td>Observa nivel, necesidades del alumno</td></tr>
+      <tr><td style="color:#81C784"><strong>RAZONAR</strong></td><td>Decide qué plato para cada mesa</td><td>Decide qué estrategia usar</td></tr>
+      <tr><td style="color:#F48FB1"><strong>ACTUAR</strong></td><td>Cocina, no mira la receta</td><td>Genera ejercicios, adapta textos</td></tr>
+      <tr><td style="color:#B39DDB"><strong>HERRAMIENTAS</strong></td><td>Cuchillos, horno, especias</td><td>MCER, generadores, adaptadores</td></tr>
+      <tr><td style="color:#FFB74D"><strong>MEMORIA</strong></td><td>Recuerda que mesa 3 es celíaca</td><td>Recuerda que María lleva 2 semanas con subjuntivo</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 15: DIAPO 5 FASES 0-1 ==================== -->
+<div class="slide slide--fase">
+  <div class="content">
+    <div class="diapo-badge">Diapo 5</div>
+    <div class="fase-header"><span class="phase">0</span> Nube de palabras</div>
+    <div class="box box--roman">«Eliana, empezamos» / «Vamos con los agentes»</div>
+    <div class="box box--eliana">Cuando escucháis agente de IA, ¿qué os viene a la cabeza? Venga, lluvia de ideas.</div>
+    <div class="box box--tip">Recoge palabras de la sala: «Dicen robot», «Alguien dice ChatGPT». Eliana reacciona con humor.</div>
+    <div class="fase-header" style="margin-top:20px;"><span class="phase">1</span> Chatbot vs Agente</div>
+    <div class="box box--roman">«Dale» / «Siguiente» / «Venga»</div>
+    <div class="box box--eliana">Un chatbot es un camarero que lee la carta. Un agente es el chef. Observa, piensa, cocina, tiene herramientas y recuerda.</div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 16: DIAPO 5 FASES 2-4 ==================== -->
+<div class="slide slide--fase">
+  <div class="content">
+    <div class="diapo-badge">Diapo 5</div>
+    <div class="fase-header"><span class="phase">2</span> PERCIBIR</div>
+    <div class="box box--roman">«Siguiente» / «Primera capacidad»</div>
+    <div class="box box--eliana">El chef mira qué ingredientes hay. Vosotros en 30 seg sabéis quién no ha dormido.</div>
+    <div class="fase-header" style="margin-top:16px;"><span class="phase">3</span> RAZONAR</div>
+    <div class="box box--roman">«Siguiente»</div>
+    <div class="box box--eliana">El chef decide qué plato. Vosotros: cambio de plan, hoy toca juego.</div>
+    <div class="fase-header" style="margin-top:16px;"><span class="phase">4</span> ACTUAR</div>
+    <div class="box box--roman">«Siguiente»</div>
+    <div class="box box--eliana">El chef cocina. El agente genera el ejercicio. Vosotros dejáis el café y entráis al aula.</div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 17: DIAPO 5 FASES 5-7 ==================== -->
+<div class="slide slide--fase">
+  <div class="content">
+    <div class="diapo-badge">Diapo 5</div>
+    <div class="fase-header"><span class="phase">5</span> HERRAMIENTAS</div>
+    <div class="box box--roman">«Siguiente»</div>
+    <div class="box box--eliana">El chef tiene cuchillos, horno. El agente tiene MCER, generadores. Vosotros: el libro, ese vídeo de las 11pm.</div>
+    <div class="fase-header" style="margin-top:16px;"><span class="phase">6</span> MEMORIA</div>
+    <div class="box box--roman">«Siguiente» / «La última»</div>
+    <div class="box box--eliana">El chef recuerda que mesa 3 es celíaca. El agente recuerda que María lleva 2 semanas con subjuntivo.</div>
+    <div class="fase-header" style="margin-top:16px;"><span class="phase">7</span> Cierre</div>
+    <div class="box box--roman">«Juntamos todo»</div>
+    <div class="box box--eliana">Un agente es un chef que cocina para cada alumno a la vez. No viene a sustituir. Viene a multiplicarlo.</div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 18: DIAPO 5 FASES 8-9 ==================== -->
+<div class="slide slide--fase">
+  <div class="content">
+    <div class="diapo-badge">Diapo 5</div>
+    <div class="fase-header"><span class="phase">8</span> Diagrama 5 capacidades</div>
+    <div class="box box--screen">Diagrama con las 5 capacidades juntas + frase «No viene a sustituir al chef. Viene a multiplicarlo.»</div>
+    <div class="fase-header" style="margin-top:20px;"><span class="phase">9</span> Canción del Agente</div>
+    <div class="box box--screen">Reproductor de audio con botón play + letra de la canción con las 5 capacidades resaltadas en colores.</div>
+    <div class="box box--tip">Dale al play y deja que suene. Es un buen momento de transición antes de pasar a la siguiente diapo.</div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 19: DIAPO 5 KEYWORDS ==================== -->
+<div class="slide slide--table">
+  <div class="content">
+    <div class="diapo-badge">Diapo 5</div>
+    <h3>Keywords de auto-avance</h3>
+    <table>
+      <tr><th>Paso</th><th>Keywords de Eliana</th></tr>
+      <tr><td>1 Nube</td><td><span class="kw">viene a la cabeza</span> <span class="kw">lluvia de ideas</span></td></tr>
+      <tr><td>2 Chef</td><td><span class="kw">imaginad un restaurante</span> <span class="kw">agente es el chef</span></td></tr>
+      <tr><td>3 Percibir</td><td><span class="kw">percibir</span> <span class="kw">primera capacidad</span></td></tr>
+      <tr><td>4 Razonar</td><td><span class="kw">razonar</span> <span class="kw">segunda capacidad</span></td></tr>
+      <tr><td>5 Actuar</td><td><span class="kw">actuar</span> <span class="kw">tercera capacidad</span></td></tr>
+      <tr><td>6 Herramientas</td><td><span class="kw">herramientas</span> <span class="kw">cuarta capacidad</span></td></tr>
+      <tr><td>7 Memoria</td><td><span class="kw">memoria</span> <span class="kw">recuerda</span></td></tr>
+      <tr><td>8 Cierre</td><td><span class="kw">viene a multiplicar</span> <span class="kw">no viene a sustituir</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 20: DIAPO 6 TÍTULO ==================== -->
+<div class="slide slide--title">
+  <div class="content">
+    <div class="diapo-badge">Diapo 6</div>
+    <h1>Agentes MIAU</h1>
+    <p style="font-size:24px; opacity:0.8; margin-top:16px;">Los 8 gatos — 2 actividades de ejemplo — prueba en móvil — encuesta<br>5 pasos internos (0-4) con stepper dots</p>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 21: DIAPO 6 MENSAJE INICIAL ==================== -->
+<div class="slide slide--fase">
+  <div class="content">
+    <div class="diapo-badge">Diapo 6</div>
+    <div class="box box--chat">«Estos son los agentes MIAU. ¿Por qué gatos? Porque son independientes, curiosos y siempre caen de pie. Como un buen agente IA.»</div>
+    <div class="box box--screen">Panel derecho: título «Agentes MIAU» + subtítulo «¿Por qué gatos?» + cuadrícula con los 8 gatos.</div>
+    <div class="box box--tip">Eliana ya ha dicho esto al entrar en la diapo. No necesitas escribir nada todavía. Cuando estés listo, escribe tu primer mensaje para que arranque la Fase 1.</div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 22: DIAPO 6 GATOS ==================== -->
+<div class="slide slide--fase">
+  <div class="content">
+    <div class="diapo-badge">Diapo 6</div>
+    <h3>Actividad 1 — Vocabulario</h3>
+    <div class="row">
+      <div class="card"><strong>Traductor</strong><p style="font-size:18px; margin-top:6px;">Traducción pedagógica adaptada al nivel</p></div>
+      <div class="card"><strong>Expansor</strong><p style="font-size:18px; margin-top:6px;">Vocabulario adicional por contexto y edad</p></div>
+      <div class="card"><strong>Enfocado</strong><p style="font-size:18px; margin-top:6px;">Trabaja solo las palabras que el alumno elige</p></div>
+      <div class="card"><strong>Improvisador</strong><p style="font-size:18px; margin-top:6px;">Actividad sorpresa basada en el perfil</p></div>
+    </div>
+    <h3 style="margin-top:20px;">Actividad 2 — Texto y gramática</h3>
+    <div class="row">
+      <div class="card"><strong>Masticador</strong><p style="font-size:18px; margin-top:6px;">Extrae vocabulario clave del texto</p></div>
+      <div class="card"><strong>Aprobador</strong><p style="font-size:18px; margin-top:6px;">Píldoras de gramática contextual</p></div>
+      <div class="card"><strong>Mirón</strong><p style="font-size:18px; margin-top:6px;">Comprensión lectora visual</p></div>
+      <div class="card"><strong>Explorador</strong><p style="font-size:18px; margin-top:6px;">Organiza ideas en mapa mental</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 23: DIAPO 6 FASES ==================== -->
+<div class="slide slide--fase">
+  <div class="content">
+    <div class="diapo-badge">Diapo 6</div>
+    <div class="fase-header"><span class="phase">0</span> ¿Por qué gatos? (ya en pantalla)</div>
+    <div class="box box--tip">El paso 0 ya está visible al entrar. El chat ya tiene el mensaje. Cuando quieras avanzar, escribe tu primer mensaje.</div>
+    <div class="fase-header" style="margin-top:16px;"><span class="phase">1</span> Actividad Vocabulario</div>
+    <div class="box box--roman">«Sacad los móviles» / «Vamos a descubrirlos»</div>
+    <div class="fase-header" style="margin-top:16px;"><span class="phase">2</span> Actividad Texto</div>
+    <div class="box box--roman">«Siguiente actividad» / «Venga, la segunda»</div>
+    <div class="fase-header" style="margin-top:16px;"><span class="phase">3</span> Probar agentes en móvil</div>
+    <div class="box box--roman">«Vamos a probarlos» / «Escaneáis el QR»</div>
+    <div class="box box--tip">Dale 5-10 minutos a los profes para probar.</div>
+    <div class="fase-header" style="margin-top:16px;"><span class="phase">4</span> Encuesta</div>
+    <div class="box box--roman">«Vamos con la encuesta» / «Votad»</div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 24: DIAPO 6 KEYWORDS ==================== -->
+<div class="slide slide--table">
+  <div class="content">
+    <div class="diapo-badge">Diapo 6</div>
+    <h3>Keywords de auto-avance</h3>
+    <table>
+      <tr><th>Paso</th><th>Keywords</th></tr>
+      <tr><td>1 Act. Vocab</td><td><span class="kw">descubrir</span> <span class="kw">sacad los móviles</span> <span class="kw">actividad 1</span></td></tr>
+      <tr><td>2 Act. Texto</td><td><span class="kw">siguiente actividad</span> <span class="kw">segunda</span> <span class="kw">diálogo</span></td></tr>
+      <tr><td>3 Probar</td><td><span class="kw">probar</span> <span class="kw">qr</span> <span class="kw">escaneáis</span></td></tr>
+      <tr><td>4 Encuesta</td><td><span class="kw">encuesta</span> <span class="kw">votad</span> <span class="kw">resultados</span></td></tr>
+    </table>
+    <div class="box box--warn" style="margin-top:16px;">Eliana NO debe mencionar nombres de libros, editoriales ni unidades concretas.</div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 25: DIAPO 7 TÍTULO ==================== -->
+<div class="slide slide--title">
+  <div class="content">
+    <div class="diapo-badge">Diapo 7</div>
+    <h1>Construye tu Agente</h1>
+    <p style="font-size:24px; opacity:0.8; margin-top:16px;">Plataforma AgentiaELE — ingredientes, ejemplo, actividades, taller<br>5 pasos internos (0-4) con stepper dots</p>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 26: DIAPO 7 MENSAJE INICIAL ==================== -->
+<div class="slide slide--fase">
+  <div class="content">
+    <div class="diapo-badge">Diapo 7</div>
+    <div class="box box--chat">«Ahora viene lo mejor: os voy a enseñar cómo se construye un agente.»</div>
+    <div class="box box--screen">Panel derecho: título «De la teoría a la práctica» con icono de varita y subtítulo «Así se construye un agente en AgentiaELE».</div>
+    <div class="box box--tip">Eliana ya ha dicho esto al entrar en la diapo. No necesitas escribir nada todavía. Cuando estés listo, escribe tu primer mensaje para arrancar la Fase 0.</div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 27: DIAPO 7 INGREDIENTES ==================== -->
+<div class="slide slide--fase">
+  <div class="content">
+    <div class="diapo-badge">Diapo 7</div>
+    <h3>Los 6 ingredientes de un agente</h3>
+    <div class="row" style="margin-top:12px;">
+      <div class="card"><strong>Nombre y descripción</strong><p style="font-size:18px; margin-top:4px;">Identidad: qué hace y para qué</p></div>
+      <div class="card"><strong>System Prompt</strong><p style="font-size:18px; margin-top:4px;">«El plan de clase del agente»</p></div>
+      <div class="card"><strong>Modelo de IA</strong><p style="font-size:18px; margin-top:4px;">Qué «cerebro» usa (DeepSeek...)</p></div>
+    </div>
+    <div class="row" style="margin-top:12px;">
+      <div class="card"><strong>Temperatura</strong><p style="font-size:18px; margin-top:4px;">Termostato de creatividad (0=exacto, 2=creativo)</p></div>
+      <div class="card"><strong>Nivel MCER</strong><p style="font-size:18px; margin-top:4px;">A1, A2, B1... adapta el lenguaje</p></div>
+      <div class="card"><strong>Adherencia al nivel</strong><p style="font-size:18px; margin-top:4px;">Cuánto se ciñe al nivel MCER</p></div>
+    </div>
+    <div class="box box--warn" style="margin-top:16px;">Eliana NO debe decir número de ingredientes. «Adherencia» = al nivel MCER, NO al manual.</div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 28: DIAPO 7 FASES 0-2 ==================== -->
+<div class="slide slide--fase">
+  <div class="content">
+    <div class="diapo-badge">Diapo 7</div>
+    <div class="fase-header"><span class="phase">0</span> Presentación</div>
+    <div class="box box--roman">«Eliana, empezamos» / «Vamos a construir un agente»</div>
+    <div class="box box--eliana">Os voy a enseñar cómo se construye uno. Es más fácil de lo que pensáis. Solo rellenar unos campos. Román, dale al siguiente.</div>
+
+    <div class="fase-header" style="margin-top:16px;"><span class="phase">1</span> Ingredientes</div>
+    <div class="box box--roman">«Siguiente» / «Dale»</div>
+    <div class="box box--eliana">Nombre, system prompt (plan de clase del agente), modelo, temperatura, nivel MCER y adherencia al nivel.</div>
+
+    <div class="fase-header" style="margin-top:16px;"><span class="phase">2</span> Ejemplo: Traductor</div>
+    <div class="box box--roman">«Siguiente» / «Ponme un ejemplo»</div>
+    <div class="box box--eliana">Este es el Traductor. Nombre, system prompt, modelo DeepSeek, temp 0.3. Así de sencillo.</div>
+    <div class="box box--tip">Hay botón «Ver demo» que abre AgentiaELE real en nueva pestaña.</div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 29: DIAPO 7 FASES 3-4 ==================== -->
+<div class="slide slide--fase">
+  <div class="content">
+    <div class="diapo-badge">Diapo 7</div>
+    <div class="fase-header"><span class="phase">3</span> Actividades</div>
+    <div class="box box--roman">«Siguiente» / «¿Y las actividades?»</div>
+    <div class="box box--eliana">Los agentes no van solos. Viven dentro de actividades. El profe diseña la actividad y elige qué agentes ofrece.</div>
+    <div class="box box--screen">3 tarjetas: 10 tipos, 9 estructuras, agentes a la carta. + «Ver demo de actividad».</div>
+
+    <div class="fase-header" style="margin-top:20px;"><span class="phase">4</span> Taller</div>
+    <div class="box box--roman">«Siguiente» / «Y el taller»</div>
+    <div class="box box--eliana">Taller online en mayo. Ahí os enseñamos paso a paso. Indicadlo en el formulario de inscripción.</div>
+    <div class="box box--screen">3 tarjetas + CTA «Indícalo en el formulario».</div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 30: DIAPO 7 KEYWORDS ==================== -->
+<div class="slide slide--table">
+  <div class="content">
+    <div class="diapo-badge">Diapo 7</div>
+    <h3>Keywords (2 sistemas)</h3>
+    <p style="font-size:20px; margin-bottom:12px; color:#CE93D8;">Sistema 1 — Lo que dice Eliana:</p>
+    <table>
+      <tr><th>Paso</th><th>Keywords</th></tr>
+      <tr><td>1 Ingredientes</td><td><span class="kw">dale al siguiente</span> <span class="kw">más fácil de lo que pensáis</span></td></tr>
+      <tr><td>2 Traductor</td><td><span class="kw">traductor</span> <span class="kw">así de sencillo</span></td></tr>
+      <tr><td>3 Actividades</td><td><span class="kw">actividades</span> <span class="kw">no van solos</span></td></tr>
+      <tr><td>4 Taller</td><td><span class="kw">taller</span> <span class="kw">mayo</span> <span class="kw">inscripción</span></td></tr>
+    </table>
+    <p style="font-size:20px; margin:16px 0 12px; color:#6B82C4;">Sistema 2 — Lo que TÚ dices (avanza directo):</p>
+    <table>
+      <tr><td>2</td><td><span class="kw">siguiente</span> <span class="kw">ejemplo</span> <span class="kw">traductor</span></td></tr>
+      <tr><td>3</td><td><span class="kw">siguiente</span> <span class="kw">actividades</span> <span class="kw">adelante</span></td></tr>
+      <tr><td>4</td><td><span class="kw">siguiente</span> <span class="kw">taller</span> <span class="kw">último</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 31: DIAPO 7 AVISOS ==================== -->
+<div class="slide slide--warn">
+  <div class="content">
+    <div class="diapo-badge">Diapo 7</div>
+    <h2 style="color:#F48FB1;">Avisos importantes — Diapo 7</h2>
+    <ul class="left" style="max-width:860px; margin:0 auto;">
+      <li style="font-size:22px;"><strong>Eliana dice «cinco/seis ingredientes»:</strong> Ignóralo. La pantalla muestra los 6 correctos</li>
+      <li style="font-size:22px;"><strong>Menciona «Español en Marcha» u «8 agentes»:</strong> Di «siguiente» y avanza. Esa sección se eliminó</li>
+      <li style="font-size:22px;"><strong>«Adherencia al manual»:</strong> Es «adherencia al nivel MCER», no al manual ni al método</li>
+      <li style="font-size:22px;"><strong>Tanto tus palabras como las de Eliana</strong> avanzan el panel. Si dices «siguiente», el panel avanza sin esperar a Eliana</li>
+      <li style="font-size:22px;"><strong>La flecha derecha</strong> de la diapo 7 va directamente a la diapo final (no avanza pasos internos)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 32: DIAPO FINAL ==================== -->
+<div class="slide slide--title">
+  <div class="content">
+    <div class="diapo-badge">Diapo Final</div>
+    <h1>Gracias / Labai ačiū</h1>
+    <p style="font-size:24px; opacity:0.8; margin-top:16px;">Canción del agente + datos de contacto</p>
+    <div class="row" style="margin-top:24px;">
+      <div class="card"><strong>Hablandis</strong><p style="font-size:18px; margin-top:6px;">Román Navarro<br>info@hablandis.com</p></div>
+      <div class="card"><strong>Prisma Consul</strong><p style="font-size:18px; margin-top:6px;">Armando Cruz<br>info@prismaconsul.com</p></div>
+    </div>
+    <div class="box box--tip" style="margin-top:20px;">Dale al play de la canción mientras la sala aplaude.</div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 33: PROBLEMAS ==================== -->
+<div class="slide slide--warn">
+  <div class="content">
+    <h2 style="color:#F48FB1;">Resolución de problemas</h2>
+    <ul class="left" style="max-width:860px; margin:0 auto;">
+      <li style="font-size:22px;"><strong>Pantalla no avanza:</strong> Usa stepper dots (bolitas de abajo)</li>
+      <li style="font-size:22px;"><strong>Eliana dice algo mal:</strong> No corrijas. Di «siguiente» y avanza</li>
+      <li style="font-size:22px;"><strong>Se corta a mitad de frase:</strong> Di «continúa». Si no, di «siguiente»</li>
+      <li style="font-size:22px;"><strong>Junta dos fases:</strong> Usa stepper dots para corregir</li>
+      <li style="font-size:22px;"><strong>«Hey Eliana» no funciona:</strong> Usa botón del micro o escribe</li>
+      <li style="font-size:22px;"><strong>Dice «cinco ingredientes»:</strong> Ignóralo. La pantalla muestra los 6</li>
+      <li style="font-size:22px;"><strong>Menciona «Español en Marcha»:</strong> Di «siguiente». Esa sección se eliminó</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 34: NAVEGACIÓN ==================== -->
+<div class="slide slide--table">
+  <div class="content">
+    <h2>Resumen de navegación</h2>
+    <table>
+      <tr><th>Desde</th><th>Hacia</th><th>Cómo</th></tr>
+      <tr><td>Login</td><td>Conoce a Eliana</td><td>Botón «Entrar»</td></tr>
+      <tr><td>Conoce a Eliana</td><td>Actividad chat</td><td>Click en tarjeta</td></tr>
+      <tr><td>Diapo 3 (Blinda)</td><td>Diapo 4 (Juego)</td><td>Flecha derecha</td></tr>
+      <tr><td>Diapo 4 (Juego)</td><td>Diapo 5 (Agentes)</td><td>Flecha derecha</td></tr>
+      <tr><td>Diapo 5 (Agentes)</td><td>Diapo 6 (MIAU)</td><td>Flecha derecha</td></tr>
+      <tr><td>Diapo 6 (MIAU)</td><td>Diapo 7 (Plataforma)</td><td>Flecha derecha</td></tr>
+      <tr><td>Diapo 7 (Plataforma)</td><td>Diapo Final</td><td>Flecha derecha</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 35: FIN ==================== -->
+<div class="slide slide--final">
+  <div class="content">
+    <h1>Listo para la presentación</h1>
+    <p style="font-size:26px; opacity:0.8; margin-top:16px;">XVI Encuentro de profesores de ELE en Polonia</p>
+    <p style="font-size:20px; opacity:0.5; margin-top:32px;">35 slides — guía completa</p>
+  </div>
+</div>
+
+</div><!-- /slides -->
+
+<!-- ── Navigation bar ── -->
+<div class="nav">
+  <button id="prev">&#8592; Anterior</button>
+  <span class="nav-counter" id="counter">1 / 35</span>
+  <button id="next">Siguiente &#8594;</button>
+</div>
+
+<script>
+  const slides = document.getElementById('slides');
+  const total = slides.children.length;
+  let current = 0;
+
+  function goTo(n) {
+    current = Math.max(0, Math.min(n, total - 1));
+    slides.style.transform = `translateX(-${current * 100}vw)`;
+    document.getElementById('counter').textContent = `${current + 1} / ${total}`;
+  }
+
+  document.getElementById('prev').addEventListener('click', () => goTo(current - 1));
+  document.getElementById('next').addEventListener('click', () => goTo(current + 1));
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+  });
+
+  // Touch swipe
+  let startX = 0;
+  document.addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) goTo(current + 1);
+      else goTo(current - 1);
+    }
+  });
+
+  goTo(0);
+</script>
+
+</body>
+</html>

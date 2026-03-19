@@ -1758,7 +1758,13 @@ function startSilenceDetection(stream) {
     let speechFrames = 0;
     let totalFrames = 0;
     const recordStart = Date.now();
+    // Grace period: si es auto-record tras TTS, no contar los primeros 1.5s en speechRatio
+    const isAutoRecord = !!state._autoRecordAfterTTS;
+    const GRACE_PERIOD = isAutoRecord ? 1500 : 0;
+    state._autoRecordAfterTTS = false;
+    let graceFrames = 0; // frames durante el grace period (se restan del total)
 
+    let _dbLogCounter = 0;
     function checkSilence() {
         if (!state.isRecording) return;
 
@@ -1783,6 +1789,19 @@ function startSilenceDetection(stream) {
 
         totalFrames++;
 
+        // Durante grace period, contar frames pero no sumarlos al denominador del ratio
+        if (elapsed < GRACE_PERIOD) {
+            graceFrames++;
+        }
+
+        // LOG cada 500ms (cada 5 frames) para ver los niveles de dB en tiempo real
+        _dbLogCounter++;
+        if (_dbLogCounter % 5 === 0) {
+            const effectiveTotal = totalFrames - graceFrames;
+            const ratio = effectiveTotal > 0 ? (speechFrames / effectiveTotal * 100).toFixed(1) : '0.0';
+            console.log('[AUDIO-LEVEL] rmsDb:', rmsDb.toFixed(1), '| threshold:', SPEECH_THRESHOLD_DB, '| isSpeech:', rmsDb > SPEECH_THRESHOLD_DB, '| speechFrames:', speechFrames + '/' + effectiveTotal, '(' + ratio + '%)', '| elapsed:', (elapsed/1000).toFixed(1) + 's', '| grace:', elapsed < GRACE_PERIOD, '| autoRec:', isAutoRecord);
+        }
+
         if (rmsDb > SPEECH_THRESHOLD_DB) {
             speechDetected = true;
             speechFrames++;
@@ -1802,13 +1821,14 @@ function startSilenceDetection(stream) {
             if (!silenceStart) {
                 silenceStart = Date.now();
             } else if (Date.now() - silenceStart > SILENCE_DURATION) {
-                // Verificar que hubo habla real (>5% de los frames)
-                const speechRatio = speechFrames / totalFrames;
+                // Verificar que hubo habla real (>5% de los frames efectivos)
+                const effectiveTotal = totalFrames - graceFrames;
+                const speechRatio = effectiveTotal > 0 ? speechFrames / effectiveTotal : 0;
                 if (speechRatio < 0.05) {
-                    console.log('[Silence] Speech ratio too low (' + (speechRatio * 100).toFixed(1) + '%), discarding');
+                    console.log('[Silence] Speech ratio too low (' + (speechRatio * 100).toFixed(1) + '%), discarding (graceFrames:', graceFrames, 'effectiveTotal:', effectiveTotal + ')');
                     state._discardRecording = true;
                 }
-                console.log('[Silence] Auto-stop after ' + SILENCE_DURATION + 'ms silence (speechRatio=' + (speechRatio * 100).toFixed(1) + '%)');
+                console.log('[Silence] Auto-stop after ' + SILENCE_DURATION + 'ms silence (speechRatio=' + (speechRatio * 100).toFixed(1) + '%, graceFrames=' + graceFrames + ')');
                 stopRecording();
                 return;
             }
@@ -3142,6 +3162,7 @@ async function playTTS(text, skipSummary = false, isActivity = false) {
                 setTimeout(() => {
                     if (!state.isRecording && !state.ttsPlaying) {
                         console.log('[MIC-DEBUG] Auto-starting recording NOW');
+                        state._autoRecordAfterTTS = true;
                         startRecording();
                     } else {
                         console.log('[MIC-DEBUG] Skipped auto-record — isRecording:', state.isRecording, 'ttsPlaying:', state.ttsPlaying);
@@ -6437,7 +6458,7 @@ function init() {
                     try {
                         await navigator.share({
                             title: 'Mi perfil de Eliana',
-                            text: 'Mi perfil docente generado por Eliana AI - Destino ELE Kaunas 2026',
+                            text: 'Mi perfil docente generado por Eliana AI - XVI Encuentro de profesores de ELE en Polonia',
                             files: [file]
                         });
                     } catch (e) {
