@@ -3157,18 +3157,43 @@ async function playTTS(text, skipSummary = false, isActivity = false) {
 
             // Si la interacción fue por voz, activar micrófono automáticamente
             if (state.voiceTriggered && state.ttsEnabled) {
-                console.log('[MIC-DEBUG] Voice mode — will auto-start recording in 300ms');
-                // Pequeño delay para que el usuario sepa que puede hablar
-                setTimeout(() => {
-                    if (!state.isRecording && !state.ttsPlaying) {
-                        console.log('[MIC-DEBUG] Auto-starting recording NOW');
-                        state._autoRecordAfterTTS = true;
-                        startRecording();
-                    } else {
-                        console.log('[MIC-DEBUG] Skipped auto-record — isRecording:', state.isRecording, 'ttsPlaying:', state.ttsPlaying);
+                // Actividad 3: no auto-grabar, solo invitar con pulso visual
+                if (state.activityMode === 'pregunta_ia') {
+                    console.log('[MIC-DEBUG] pregunta_ia — mic invite pulse (no auto-record)');
+                    const micBtn = document.getElementById('chat-mic-btn');
+                    if (micBtn) {
+                        micBtn.classList.add('mic-invite');
+                        // Quitar pulso al hacer click o tras 8s
+                        const removePulse = () => micBtn.classList.remove('mic-invite');
+                        micBtn.addEventListener('click', removePulse, { once: true });
+                        setTimeout(removePulse, 8000);
                     }
-                }, 300);
+                    resumeWakeWordAfterRecording();
+                } else {
+                    console.log('[MIC-DEBUG] Voice mode — will auto-start recording in 300ms');
+                    // Pequeño delay para que el usuario sepa que puede hablar
+                    setTimeout(() => {
+                        if (!state.isRecording && !state.ttsPlaying) {
+                            console.log('[MIC-DEBUG] Auto-starting recording NOW');
+                            state._autoRecordAfterTTS = true;
+                            startRecording();
+                        } else {
+                            console.log('[MIC-DEBUG] Skipped auto-record — isRecording:', state.isRecording, 'ttsPlaying:', state.ttsPlaying);
+                        }
+                    }, 300);
+                }
             } else {
+                // En pregunta_ia: mostrar pulso aunque voiceTriggered sea false (opener)
+                if (state.activityMode === 'pregunta_ia') {
+                    console.log('[MIC-DEBUG] pregunta_ia opener — mic invite pulse');
+                    const micBtn = document.getElementById('chat-mic-btn');
+                    if (micBtn) {
+                        micBtn.classList.add('mic-invite');
+                        const removePulse = () => micBtn.classList.remove('mic-invite');
+                        micBtn.addEventListener('click', removePulse, { once: true });
+                        setTimeout(removePulse, 8000);
+                    }
+                }
                 // Solo reanudar wake word si no es modo voz
                 console.log('[MIC-DEBUG] No voice mode — calling resumeWakeWordAfterRecording()');
                 resumeWakeWordAfterRecording();
