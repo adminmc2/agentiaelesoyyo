@@ -1808,10 +1808,14 @@ function startSilenceDetection(stream) {
             silenceStart = null;
         }
 
-        // Sin habla en 8s → descartar
+        // Sin habla en 8s → descartar solo auto-records; manuales: enviar a Whisper
         if (!speechDetected && elapsed > NO_SPEECH_TIMEOUT) {
-            console.log('[Silence] No speech in 8s, discarding');
-            state._discardRecording = true;
+            if (isAutoRecord) {
+                console.log('[Silence] No speech in 8s (auto-record), discarding');
+                state._discardRecording = true;
+            } else {
+                console.log('[Silence] No speech in 8s (manual click) — sending to Whisper anyway');
+            }
             stopRecording();
             return;
         }
@@ -1824,9 +1828,11 @@ function startSilenceDetection(stream) {
                 // Verificar que hubo habla real (>5% de los frames efectivos)
                 const effectiveTotal = totalFrames - graceFrames;
                 const speechRatio = effectiveTotal > 0 ? speechFrames / effectiveTotal : 0;
-                if (speechRatio < 0.05) {
-                    console.log('[Silence] Speech ratio too low (' + (speechRatio * 100).toFixed(1) + '%), discarding (graceFrames:', graceFrames, 'effectiveTotal:', effectiveTotal + ')');
+                if (speechRatio < 0.05 && isAutoRecord) {
+                    console.log('[Silence] Speech ratio too low (' + (speechRatio * 100).toFixed(1) + '%), discarding AUTO-record (graceFrames:', graceFrames, 'effectiveTotal:', effectiveTotal + ')');
                     state._discardRecording = true;
+                } else if (speechRatio < 0.05) {
+                    console.log('[Silence] Speech ratio low (' + (speechRatio * 100).toFixed(1) + '%) but MANUAL click — sending to Whisper');
                 }
                 console.log('[Silence] Auto-stop after ' + SILENCE_DURATION + 'ms silence (speechRatio=' + (speechRatio * 100).toFixed(1) + '%, graceFrames=' + graceFrames + ')');
                 stopRecording();

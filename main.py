@@ -1102,7 +1102,11 @@ async def transcribe_voice(audio: UploadFile = File(...)):
                 language="es",
                 temperature=0.0,
                 prompt="Transcripción de conferencia de profesores de español ELE. "
-                       "Temas: enseñanza, prompting, inteligencia artificial, actividades de clase, MCER."
+                       "Temas: enseñanza, prompting, inteligencia artificial, actividades de clase, MCER. "
+                       "Términos técnicos frecuentes: constraint prompting, function-focused prompting, "
+                       "structured prompting, negative prompting, authenticity-check prompting, "
+                       "chain-of-thought, few-shot, zero-shot, role prompting, scaffolding prompting, "
+                       "variantes regionales, rúbrica, DELE, diatópica, hallucination, grounding."
             )
 
         os.remove(temp_filename)
