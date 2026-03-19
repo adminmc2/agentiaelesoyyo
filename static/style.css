@@ -6088,7 +6088,7 @@ body[data-mood-active] .message.assistant {
 .juego-option-btn {
     display: flex;
     align-items: flex-start;
-    gap: var(--space-10);
+    gap: var(--space-12);
     padding: var(--space-12) var(--space-16);
     background: rgba(255, 255, 255, 0.75);
     border: 1.5px solid rgba(0, 0, 0, 0.08);
@@ -6106,15 +6106,16 @@ body[data-mood-active] .message.assistant {
 }
 .juego-option-btn:active { transform: scale(0.98); }
 .juego-option-btn__label {
-    font: 700 13px 'Source Sans 3', sans-serif;
+    font: 700 12px 'Source Sans 3', sans-serif;
     flex-shrink: 0;
-    width: 28px;
-    height: 28px;
-    min-width: 28px;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
+    margin-top: 1px;
     /* background y color set inline desde JS */
 }
 .juego-option-btn--correct {
@@ -6461,7 +6462,8 @@ body[data-mood-active] .message.assistant {
     .juego-intro__step-text { font-size: 13px; }
     .juego-start-btn { font-size: 18px; padding: var(--space-20) var(--space-32); min-width: auto; width: 100%; border-radius: var(--md-sys-shape-extra-large); }
     .juego-card__situation { font-size: 13px; }
-    .juego-option-btn { font-size: 12.5px; padding: var(--space-10) var(--space-12); }
+    .juego-option-btn { font-size: 12.5px; padding: var(--space-10) var(--space-12); gap: var(--space-8); }
+    .juego-option-btn__label { width: 18px; height: 18px; min-width: 18px; font-size: 9px; margin-left: 2px; }
     .juego-carousel { height: 250px; }
     .juego-carousel__mini { width: 140px; height: 220px; }
     .juego-carousel__mini-logo { width: 80px; }
