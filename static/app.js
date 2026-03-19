@@ -1618,20 +1618,19 @@ async function startRecording() {
     }
 
     try {
-        // Stop TTS if playing (don't talk while listening)
-        stopTTS();
+        // iOS Safari: getUserMedia MUST be first async call in user gesture chain
+        // Any other async operation before this breaks the gesture context
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        state.audioStream = stream;
 
-        // iOS: ensure audio element is warmed up for later TTS playback
+        // Now safe to do other operations
+        stopTTS();
         warmupIOSAudio();
 
         // Pause wake word listening while recording
         if (state.wakeWordActive) {
             stopWakeWordListening();
         }
-
-        // Always request fresh getUserMedia — iOS requires this for each recording
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        state.audioStream = stream;
 
         // Detect supported mimeType (webm for desktop, mp4 for iOS)
         let mimeType = 'audio/webm;codecs=opus';

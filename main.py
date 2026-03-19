@@ -908,6 +908,18 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Permissions-Policy header para que Chrome móvil recuerde el permiso del micro
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+
+class PermissionsMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["Permissions-Policy"] = "microphone=(self)"
+        return response
+
+app.add_middleware(PermissionsMiddleware)
+
 # Servir archivos estáticos
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
