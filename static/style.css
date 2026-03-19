@@ -5553,6 +5553,7 @@ body[data-mood-active] .message.assistant {
     background: var(--md-sys-color-surface);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: none;
     transition:
         opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate),
         transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate);
@@ -5777,6 +5778,8 @@ body[data-mood-active] .message.assistant {
     width: 100%;
     max-width: 520px;
     gap: var(--space-24);
+    flex: 1;
+    background: #FDFAF5;
 }
 
 /* Progress */
@@ -6448,7 +6451,8 @@ body[data-mood-active] .message.assistant {
     .juego-modal__close { top: 8px; left: 8px; width: 36px; height: 36px; font-size: 18px; }
 }
 @media (max-width: 480px) {
-    .juego-screen { padding: 1rem 0.75rem !important; }
+    .juego-screen { padding: 1rem 0.75rem !important; position: fixed; inset: 0; z-index: 50; background: #FDFAF5; justify-content: flex-start; padding-top: 3rem !important; }
+    .juego-game { max-width: 100%; min-height: 100%; }
     .juego-intro__logo { width: 150px; }
     .juego-intro__title { font-size: 22px; }
     .juego-intro__subtitle { font-size: 14px; }
