@@ -5785,8 +5785,8 @@ const DIAPO7_TOTAL_STEPS = 5;
 let diapo7Step = 0;
 
 function showDiapo7Screen() {
-    // Diapo 7 solo en escritorio — en móvil saltar a pantalla final (encuesta)
-    if (isMobile()) { showFinalScreen(); return; }
+    // Diapo 7 solo en escritorio — en móvil abrir encuesta directamente
+    if (isMobile()) { window.location.href = '/encuesta'; return; }
     stopTTS();
     elements.loginScreen?.classList.add('hidden');
     elements.conoceScreen?.classList.add('hidden');
