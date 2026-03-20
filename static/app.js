@@ -2762,6 +2762,11 @@ function _getWakeWordRecognition() {
 }
 
 function startWakeWordListening() {
+    // iOS: SpeechRecognition breaks the audio session even when denied,
+    // causing getUserMedia streams to return empty data. Skip entirely on iOS.
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (isIOS) return;
+
     if (state.wakeWordActive || _wkStarting || state.isRecording) return;
 
     const r = _getWakeWordRecognition();
