@@ -6871,7 +6871,7 @@ body[data-mood-active] .message.assistant {
     .diapo6-bar { grid-template-columns: 80px 1fr 30px; }
 }
 @media (max-width: 480px) {
-    .diapo6-page { padding: 2.5rem 0.75rem 1rem; gap: 0; }
+    .diapo6-page { padding: 3.5rem 0.75rem 1rem; gap: 0; }
     /* Ocultar todo lo que no es las actividades */
     .diapo6-left { display: none !important; }
     .diapo6-demo__stepper { display: none !important; }
