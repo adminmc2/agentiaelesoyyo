@@ -1618,7 +1618,13 @@ async function startRecording() {
     }
 
     try {
-        // iOS: getUserMedia MUST come BEFORE stopping audio playback.
+        // iOS: SpeechRecognition (wake word) has exclusive mic access.
+        // Must stop it BEFORE getUserMedia or the stream comes back empty.
+        if (state.wakeWordActive) {
+            stopWakeWordListening();
+        }
+
+        // Get mic stream BEFORE stopping TTS (stopping audio disrupts iOS audio session)
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         state.audioStream = stream;
 
@@ -1626,14 +1632,8 @@ async function startRecording() {
         const track = stream.getAudioTracks()[0];
         console.log('[Recording] Track state:', track?.readyState, 'enabled:', track?.enabled, 'muted:', track?.muted, 'label:', track?.label);
 
-        // Now safe to stop other audio — mic stream is already acquired
+        // Now safe to stop TTS
         stopTTS();
-        // Do NOT call warmupIOSAudio() here — playing audio disrupts iOS mic stream
-
-        // Pause wake word listening while recording
-        if (state.wakeWordActive) {
-            stopWakeWordListening();
-        }
 
         // Detect supported mimeType
         // iOS Safari 18.4+ reports webm support but produces empty blobs — force mp4
