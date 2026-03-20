@@ -6181,6 +6181,17 @@ function showMobileEncuesta() {
         });
         screen.appendChild(backBtn);
 
+        // Flecha siguiente → pantalla final
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'blinda-nav-btn blinda-nav-btn--next';
+        nextBtn.style.cssText = 'position:fixed;top:0.5rem;right:0.5rem;z-index:60;';
+        nextBtn.innerHTML = '<i class="ph ph-arrow-right"></i>';
+        nextBtn.addEventListener('click', () => {
+            screen.classList.add('hidden');
+            showFinalScreen();
+        });
+        screen.appendChild(nextBtn);
+
         // Iframe
         const iframe = document.createElement('iframe');
         iframe.src = '/encuesta';
