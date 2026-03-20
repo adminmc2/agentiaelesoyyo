@@ -1618,20 +1618,20 @@ async function startRecording() {
     }
 
     try {
-        // Stop TTS if playing (don't talk while listening)
-        stopTTS();
+        // iOS: getUserMedia MUST come BEFORE stopping audio playback.
+        // Calling stopTTS() first disrupts the iOS audio session and the
+        // mic stream comes back empty (0 bytes, rmsDb = -Infinity).
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        state.audioStream = stream;
 
-        // iOS: ensure audio element is warmed up for later TTS playback
+        // Now safe to stop other audio — mic stream is already acquired
+        stopTTS();
         warmupIOSAudio();
 
         // Pause wake word listening while recording
         if (state.wakeWordActive) {
             stopWakeWordListening();
         }
-
-        // Always request fresh getUserMedia — iOS requires this for each recording
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        state.audioStream = stream;
 
         // Pause wake word listening while recording
         if (state.wakeWordActive) {
