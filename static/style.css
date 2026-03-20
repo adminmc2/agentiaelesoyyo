@@ -7780,7 +7780,8 @@ body[data-mood-active] .message.assistant {
     gap: var(--space-8);
 }
 .final-title__gracias {
-    font: 800 56px 'Dosis', sans-serif;
+    font: 800 56px/1.15 'Dosis', sans-serif;
+    padding-bottom: 4px;
     background: linear-gradient(135deg, #D4826A 0%, #994E95 50%, #6B82C4 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
