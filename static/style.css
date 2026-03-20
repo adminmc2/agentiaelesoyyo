@@ -7894,10 +7894,12 @@ body[data-mood-active] .message.assistant {
     width: auto;
     object-fit: contain;
 }
-.final-company__info {
+.final-company__info,
+.final-company__qr {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    align-items: center;
+    gap: 4px;
     text-align: center;
 }
 .final-company__info strong {
