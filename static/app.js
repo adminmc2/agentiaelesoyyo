@@ -3139,8 +3139,8 @@ async function playTTS(text, skipSummary = false, isActivity = false) {
             // Si la interacción fue por voz, activar micrófono automáticamente
             if (state.voiceTriggered && state.ttsEnabled) {
                 // Actividad 3: no auto-grabar, solo invitar con pulso visual
-                if (state.activityMode === 'pregunta_ia') {
-                    console.log('[MIC-DEBUG] pregunta_ia — mic invite pulse (no auto-record)');
+                if (state.activityMode) {
+                    console.log('[MIC-DEBUG] activity — mic invite pulse (no auto-record)');
                     const micBtn = document.getElementById('chat-mic-btn');
                     if (micBtn) {
                         micBtn.classList.add('mic-invite');
@@ -3165,8 +3165,8 @@ async function playTTS(text, skipSummary = false, isActivity = false) {
                 }
             } else {
                 // En pregunta_ia: mostrar pulso aunque voiceTriggered sea false (opener)
-                if (state.activityMode === 'pregunta_ia') {
-                    console.log('[MIC-DEBUG] pregunta_ia opener — mic invite pulse');
+                if (state.activityMode) {
+                    console.log('[MIC-DEBUG] activity opener — mic invite pulse');
                     const micBtn = document.getElementById('chat-mic-btn');
                     if (micBtn) {
                         micBtn.classList.add('mic-invite');
