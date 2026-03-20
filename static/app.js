@@ -5785,8 +5785,8 @@ const DIAPO7_TOTAL_STEPS = 5;
 let diapo7Step = 0;
 
 function showDiapo7Screen() {
-    // Diapo 7 solo en escritorio — en móvil abrir encuesta directamente
-    if (isMobile()) { window.location.href = '/encuesta'; return; }
+    // Diapo 7 solo en escritorio — en móvil mostrar encuesta embebida
+    if (isMobile()) { showMobileEncuesta(); return; }
     stopTTS();
     elements.loginScreen?.classList.add('hidden');
     elements.conoceScreen?.classList.add('hidden');
@@ -6155,6 +6155,45 @@ function renderDiapo7Workshop() {
 }
 
 // ============================================
+// ============================================
+// ENCUESTA EMBEBIDA (móvil) — iframe dentro de la presentación
+// ============================================
+function showMobileEncuesta() {
+    stopTTS();
+    document.querySelectorAll('.main-content').forEach(s => s.classList.add('hidden'));
+
+    // Crear pantalla con iframe si no existe
+    let screen = document.getElementById('mobile-encuesta-screen');
+    if (!screen) {
+        screen = document.createElement('main');
+        screen.id = 'mobile-encuesta-screen';
+        screen.className = 'main-content';
+        screen.style.cssText = 'position:fixed;inset:0;z-index:50;background:#FDFAF5;display:flex;flex-direction:column;padding:0;';
+
+        // Flecha atrás
+        const backBtn = document.createElement('button');
+        backBtn.className = 'blinda-nav-btn blinda-nav-btn--back';
+        backBtn.style.cssText = 'position:fixed;top:0.5rem;left:0.5rem;z-index:60;';
+        backBtn.innerHTML = '<i class="ph ph-arrow-left"></i>';
+        backBtn.addEventListener('click', () => {
+            screen.classList.add('hidden');
+            showDiapo6Screen();
+        });
+        screen.appendChild(backBtn);
+
+        // Iframe
+        const iframe = document.createElement('iframe');
+        iframe.src = '/encuesta';
+        iframe.style.cssText = 'flex:1;width:100%;border:none;';
+        iframe.setAttribute('allow', 'microphone');
+        screen.appendChild(iframe);
+
+        document.body.appendChild(screen);
+    }
+
+    screen.classList.remove('hidden');
+}
+
 // DIAPOSITIVA FINAL — Gracias / Ačiū
 // ============================================
 function showFinalScreen() {
