@@ -1606,11 +1606,6 @@ function sendToWebSocket(message, responseMode = 'full') {
 // Grabación de voz
 // ============================================
 async function startRecording() {
-    const currentScreen = !elements.loginScreen.classList.contains('hidden') ? 'login' :
-        (elements.blindaScreen && !elements.blindaScreen.classList.contains('hidden')) ? 'blinda' :
-        (elements.conoceScreen && !elements.conoceScreen.classList.contains('hidden')) ? 'conoce' : 'other';
-    console.log('[MIC-DEBUG] startRecording() called — screen:', currentScreen, 'voiceTriggered:', state.voiceTriggered);
-
     // Prevent starting a new recording if one is already in progress
     if (state.isRecording) {
         console.log('[Recording] Already recording, ignoring startRecording()');
@@ -1618,37 +1613,35 @@ async function startRecording() {
     }
 
     try {
-        // iOS: SpeechRecognition (wake word) has exclusive mic access.
-        // Must stop it BEFORE getUserMedia or the stream comes back empty.
+        // Stop TTS if playing (don't talk while listening)
+        stopTTS();
+
+        // iOS: ensure audio element is warmed up for later TTS playback
+        warmupIOSAudio();
+
+        // Pause wake word listening while recording
         if (state.wakeWordActive) {
             stopWakeWordListening();
         }
 
-        // Get mic stream BEFORE stopping TTS (stopping audio disrupts iOS audio session)
+        // Always request fresh getUserMedia — iOS requires this for each recording
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         state.audioStream = stream;
 
-        // Log track state for iOS debugging
-        const track = stream.getAudioTracks()[0];
-        console.log('[Recording] Track state:', track?.readyState, 'enabled:', track?.enabled, 'muted:', track?.muted, 'label:', track?.label);
-
-        // Now safe to stop TTS
-        stopTTS();
-
-        // Detect supported mimeType
-        // iOS Safari 18.4+ reports webm support but produces empty blobs — force mp4
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-        let mimeType;
-        if (isIOS) {
-            mimeType = MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' :
-                       MediaRecorder.isTypeSupported('audio/aac') ? 'audio/aac' : '';
-        } else {
-            mimeType = 'audio/webm;codecs=opus';
-            if (!MediaRecorder.isTypeSupported(mimeType)) {
-                mimeType = MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '';
+        // Detect supported mimeType (webm for desktop, mp4 for iOS)
+        let mimeType = 'audio/webm;codecs=opus';
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+            // iOS doesn't support webm — use mp4
+            if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                mimeType = 'audio/mp4';
+            } else if (MediaRecorder.isTypeSupported('audio/aac')) {
+                mimeType = 'audio/aac';
+            } else {
+                // Fallback: let browser choose
+                mimeType = '';
             }
         }
-        console.log('[Recording] Using mimeType:', mimeType || 'browser default', 'isIOS:', isIOS);
+        console.log('[Recording] Using mimeType:', mimeType || 'browser default');
 
         const recorderOptions = mimeType ? { mimeType } : {};
         state.mediaRecorder = new MediaRecorder(stream, recorderOptions);
@@ -1719,20 +1712,13 @@ function stopRecording() {
 // Detección automática de silencio (pausa prudencial)
 // Usa getFloatFrequencyData en banda de voz humana (85-3000 Hz)
 // ============================================
-async function startSilenceDetection(stream) {
+function startSilenceDetection(stream) {
     if (state.audioContext) {
         state.audioContext.close().catch(() => {});
         state.audioContext = null;
         state.analyser = null;
     }
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-    // iOS Safari: AudioContext can start in 'suspended' state — resume it
-    // Without this, getFloatFrequencyData returns -Infinity and all recordings get discarded
-    if (audioContext.state === 'suspended') {
-        try { await audioContext.resume(); } catch(e) {}
-        console.log('[Silence] AudioContext was suspended, resumed to:', audioContext.state);
-    }
 
     const analyser = audioContext.createAnalyser();
     const source = audioContext.createMediaStreamSource(stream);
@@ -1768,13 +1754,7 @@ async function startSilenceDetection(stream) {
     let speechFrames = 0;
     let totalFrames = 0;
     const recordStart = Date.now();
-    // Grace period: si es auto-record tras TTS, no contar los primeros 1.5s en speechRatio
-    const isAutoRecord = !!state._autoRecordAfterTTS;
-    const GRACE_PERIOD = isAutoRecord ? 1500 : 0;
-    state._autoRecordAfterTTS = false;
-    let graceFrames = 0; // frames durante el grace period (se restan del total)
 
-    let _dbLogCounter = 0;
     function checkSilence() {
         if (!state.isRecording) return;
 
@@ -1799,33 +1779,16 @@ async function startSilenceDetection(stream) {
 
         totalFrames++;
 
-        // Durante grace period, contar frames pero no sumarlos al denominador del ratio
-        if (elapsed < GRACE_PERIOD) {
-            graceFrames++;
-        }
-
-        // LOG cada 500ms (cada 5 frames) para ver los niveles de dB en tiempo real
-        _dbLogCounter++;
-        if (_dbLogCounter % 5 === 0) {
-            const effectiveTotal = totalFrames - graceFrames;
-            const ratio = effectiveTotal > 0 ? (speechFrames / effectiveTotal * 100).toFixed(1) : '0.0';
-            console.log('[AUDIO-LEVEL] rmsDb:', rmsDb.toFixed(1), '| threshold:', SPEECH_THRESHOLD_DB, '| isSpeech:', rmsDb > SPEECH_THRESHOLD_DB, '| speechFrames:', speechFrames + '/' + effectiveTotal, '(' + ratio + '%)', '| elapsed:', (elapsed/1000).toFixed(1) + 's', '| grace:', elapsed < GRACE_PERIOD, '| autoRec:', isAutoRecord);
-        }
-
         if (rmsDb > SPEECH_THRESHOLD_DB) {
             speechDetected = true;
             speechFrames++;
             silenceStart = null;
         }
 
-        // Sin habla en 8s → descartar solo auto-records; manuales: enviar a Whisper
+        // Sin habla en 8s → descartar
         if (!speechDetected && elapsed > NO_SPEECH_TIMEOUT) {
-            if (isAutoRecord) {
-                console.log('[Silence] No speech in 8s (auto-record), discarding');
-                state._discardRecording = true;
-            } else {
-                console.log('[Silence] No speech in 8s (manual click) — sending to Whisper anyway');
-            }
+            console.log('[Silence] No speech in 8s, discarding');
+            state._discardRecording = true;
             stopRecording();
             return;
         }
@@ -1835,16 +1798,13 @@ async function startSilenceDetection(stream) {
             if (!silenceStart) {
                 silenceStart = Date.now();
             } else if (Date.now() - silenceStart > SILENCE_DURATION) {
-                // Verificar que hubo habla real (>5% de los frames efectivos)
-                const effectiveTotal = totalFrames - graceFrames;
-                const speechRatio = effectiveTotal > 0 ? speechFrames / effectiveTotal : 0;
-                if (speechRatio < 0.05 && isAutoRecord) {
-                    console.log('[Silence] Speech ratio too low (' + (speechRatio * 100).toFixed(1) + '%), discarding AUTO-record (graceFrames:', graceFrames, 'effectiveTotal:', effectiveTotal + ')');
+                // Verificar que hubo habla real (>5% de los frames)
+                const speechRatio = speechFrames / totalFrames;
+                if (speechRatio < 0.05) {
+                    console.log('[Silence] Speech ratio too low (' + (speechRatio * 100).toFixed(1) + '%), discarding');
                     state._discardRecording = true;
-                } else if (speechRatio < 0.05) {
-                    console.log('[Silence] Speech ratio low (' + (speechRatio * 100).toFixed(1) + '%) but MANUAL click — sending to Whisper');
                 }
-                console.log('[Silence] Auto-stop after ' + SILENCE_DURATION + 'ms silence (speechRatio=' + (speechRatio * 100).toFixed(1) + '%, graceFrames=' + graceFrames + ')');
+                console.log('[Silence] Auto-stop after ' + SILENCE_DURATION + 'ms silence (speechRatio=' + (speechRatio * 100).toFixed(1) + '%)');
                 stopRecording();
                 return;
             }
