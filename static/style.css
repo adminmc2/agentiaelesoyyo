@@ -7917,6 +7917,8 @@ body[data-mood-active] .message.assistant {
     .final-title__aciu { font-size: 26px; }
     .final-companies { flex-direction: column; gap: var(--space-16); }
     .final-company { min-width: unset; width: 100%; }
+    .final-company__qr--desktop { display: none !important; }
+    .final-company__cta--mobile { display: inline-block !important; }
 }
 
 /* Responsive diapo7 */
