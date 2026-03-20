@@ -1619,39 +1619,36 @@ async function startRecording() {
 
     try {
         // iOS: getUserMedia MUST come BEFORE stopping audio playback.
-        // Calling stopTTS() first disrupts the iOS audio session and the
-        // mic stream comes back empty (0 bytes, rmsDb = -Infinity).
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         state.audioStream = stream;
 
+        // Log track state for iOS debugging
+        const track = stream.getAudioTracks()[0];
+        console.log('[Recording] Track state:', track?.readyState, 'enabled:', track?.enabled, 'muted:', track?.muted, 'label:', track?.label);
+
         // Now safe to stop other audio — mic stream is already acquired
         stopTTS();
-        warmupIOSAudio();
+        // Do NOT call warmupIOSAudio() here — playing audio disrupts iOS mic stream
 
         // Pause wake word listening while recording
         if (state.wakeWordActive) {
             stopWakeWordListening();
         }
 
-        // Pause wake word listening while recording
-        if (state.wakeWordActive) {
-            stopWakeWordListening();
-        }
-
-        // Detect supported mimeType (webm for desktop, mp4 for iOS)
-        let mimeType = 'audio/webm;codecs=opus';
-        if (!MediaRecorder.isTypeSupported(mimeType)) {
-            // iOS doesn't support webm — use mp4
-            if (MediaRecorder.isTypeSupported('audio/mp4')) {
-                mimeType = 'audio/mp4';
-            } else if (MediaRecorder.isTypeSupported('audio/aac')) {
-                mimeType = 'audio/aac';
-            } else {
-                // Fallback: let browser choose
-                mimeType = '';
+        // Detect supported mimeType
+        // iOS Safari 18.4+ reports webm support but produces empty blobs — force mp4
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        let mimeType;
+        if (isIOS) {
+            mimeType = MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' :
+                       MediaRecorder.isTypeSupported('audio/aac') ? 'audio/aac' : '';
+        } else {
+            mimeType = 'audio/webm;codecs=opus';
+            if (!MediaRecorder.isTypeSupported(mimeType)) {
+                mimeType = MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '';
             }
         }
-        console.log('[Recording] Using mimeType:', mimeType || 'browser default');
+        console.log('[Recording] Using mimeType:', mimeType || 'browser default', 'isIOS:', isIOS);
 
         const recorderOptions = mimeType ? { mimeType } : {};
         state.mediaRecorder = new MediaRecorder(stream, recorderOptions);
