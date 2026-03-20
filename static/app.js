@@ -1605,27 +1605,33 @@ function sendToWebSocket(message, responseMode = 'full') {
 // ============================================
 // Grabación de voz
 // ============================================
-async function startRecording(preAcquiredStream) {
+async function startRecording() {
     const currentScreen = !elements.loginScreen.classList.contains('hidden') ? 'login' :
         (elements.blindaScreen && !elements.blindaScreen.classList.contains('hidden')) ? 'blinda' :
         (elements.conoceScreen && !elements.conoceScreen.classList.contains('hidden')) ? 'conoce' : 'other';
-    console.log('[MIC-DEBUG] startRecording() called — screen:', currentScreen, 'voiceTriggered:', state.voiceTriggered, 'preAcquired:', !!preAcquiredStream);
+    console.log('[MIC-DEBUG] startRecording() called — screen:', currentScreen, 'voiceTriggered:', state.voiceTriggered);
 
     // Prevent starting a new recording if one is already in progress
     if (state.isRecording) {
         console.log('[Recording] Already recording, ignoring startRecording()');
-        if (preAcquiredStream) preAcquiredStream.getTracks().forEach(t => t.stop());
         return;
     }
 
     try {
-        // Use pre-acquired stream (from click handler) or get new one
-        const stream = preAcquiredStream || await navigator.mediaDevices.getUserMedia({ audio: true });
-        state.audioStream = stream;
-
-        // Now safe to do other operations
+        // Stop TTS if playing (don't talk while listening)
         stopTTS();
+
+        // iOS: ensure audio element is warmed up for later TTS playback
         warmupIOSAudio();
+
+        // Pause wake word listening while recording
+        if (state.wakeWordActive) {
+            stopWakeWordListening();
+        }
+
+        // Always request fresh getUserMedia — iOS requires this for each recording
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        state.audioStream = stream;
 
         // Pause wake word listening while recording
         if (state.wakeWordActive) {
@@ -1716,13 +1722,21 @@ function stopRecording() {
 // Detección automática de silencio (pausa prudencial)
 // Usa getFloatFrequencyData en banda de voz humana (85-3000 Hz)
 // ============================================
-function startSilenceDetection(stream) {
+async function startSilenceDetection(stream) {
     if (state.audioContext) {
         state.audioContext.close().catch(() => {});
         state.audioContext = null;
         state.analyser = null;
     }
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    // iOS Safari: AudioContext can start in 'suspended' state — resume it
+    // Without this, getFloatFrequencyData returns -Infinity and all recordings get discarded
+    if (audioContext.state === 'suspended') {
+        try { await audioContext.resume(); } catch(e) {}
+        console.log('[Silence] AudioContext was suspended, resumed to:', audioContext.state);
+    }
+
     const analyser = audioContext.createAnalyser();
     const source = audioContext.createMediaStreamSource(stream);
 
@@ -2127,23 +2141,17 @@ async function transcribeAudio(audioBlob, extension = 'webm') {
     resumeWakeWordAfterRecording();
 }
 
-async function toggleRecording() {
+function toggleRecording() {
     // iOS: Pre-warm audio element on user gesture so TTS can play later
     warmupIOSAudio();
 
     if (state.isRecording) {
         stopRecording();
     } else {
-        // iOS Safari/Chrome: getUserMedia MUST be the first await in user gesture
-        // Get stream immediately, before any other operation
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            enableTTS();
-            state.voiceTriggered = true;
-            startRecording(stream);
-        } catch (e) {
-            console.error('[MIC] getUserMedia failed:', e);
-        }
+        // Voice interaction → auto-enable TTS responses
+        enableTTS();
+        state.voiceTriggered = true;
+        startRecording();
     }
 }
 
@@ -6323,16 +6331,13 @@ function init() {
     });
 
     // Blinda chat — mic (same as main chat mic)
-    document.getElementById('blinda-mic-btn')?.addEventListener('click', async () => {
+    document.getElementById('blinda-mic-btn')?.addEventListener('click', () => {
+        enableTTS();
+        state.voiceTriggered = true;
         if (state.isRecording) {
             stopRecording();
         } else {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                enableTTS();
-                state.voiceTriggered = true;
-                startRecording(stream);
-            } catch (e) { console.error('[MIC] getUserMedia failed:', e); }
+            startRecording();
         }
     });
 
@@ -6346,16 +6351,13 @@ function init() {
     });
 
     // Juego modal — mic (STT)
-    document.getElementById('juego-mic-btn')?.addEventListener('click', async () => {
+    document.getElementById('juego-mic-btn')?.addEventListener('click', () => {
+        enableTTS();
+        state.voiceTriggered = true;
         if (state.isRecording) {
             stopRecording();
         } else {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                enableTTS();
-                state.voiceTriggered = true;
-                startRecording(stream);
-            } catch (e) { console.error('[MIC] getUserMedia failed:', e); }
+            startRecording();
         }
     });
 
@@ -6399,17 +6401,14 @@ function init() {
     // Diapo5 chat — mic
     // Al APAGAR el mic manualmente → descartar audio (evita que Whisper
     // transcriba ruido residual: "gracias", "hola", etc.)
-    document.getElementById('diapo5-mic-btn')?.addEventListener('click', async () => {
+    document.getElementById('diapo5-mic-btn')?.addEventListener('click', () => {
+        enableTTS();
+        state.voiceTriggered = true;
         if (state.isRecording) {
             state._discardRecording = true;
             stopRecording();
         } else {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                enableTTS();
-                state.voiceTriggered = true;
-                startRecording(stream);
-            } catch (e) { console.error('[MIC] getUserMedia failed:', e); }
+            startRecording();
         }
     });
     // Diapo5 chat — voice toggle
@@ -6440,14 +6439,9 @@ function init() {
     document.getElementById('diapo6-chat-input')?.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('diapo6-chat-send')?.click(); }
     });
-    document.getElementById('diapo6-mic-btn')?.addEventListener('click', async () => {
-        if (state.isRecording) { state._discardRecording = true; stopRecording(); } else {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                enableTTS(); state.voiceTriggered = true;
-                startRecording(stream);
-            } catch (e) { console.error('[MIC] getUserMedia failed:', e); }
-        }
+    document.getElementById('diapo6-mic-btn')?.addEventListener('click', () => {
+        enableTTS(); state.voiceTriggered = true;
+        if (state.isRecording) { state._discardRecording = true; stopRecording(); } else { startRecording(); }
     });
     document.getElementById('diapo6-voice-btn')?.addEventListener('click', () => {
         if (state.ttsEnabled) disableTTS(); else enableTTS();
@@ -6475,14 +6469,9 @@ function init() {
     document.getElementById('diapo7-chat-input')?.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('diapo7-chat-send')?.click(); }
     });
-    document.getElementById('diapo7-mic-btn')?.addEventListener('click', async () => {
-        if (state.isRecording) { state._discardRecording = true; stopRecording(); } else {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                enableTTS(); state.voiceTriggered = true;
-                startRecording(stream);
-            } catch (e) { console.error('[MIC] getUserMedia failed:', e); }
-        }
+    document.getElementById('diapo7-mic-btn')?.addEventListener('click', () => {
+        enableTTS(); state.voiceTriggered = true;
+        if (state.isRecording) { state._discardRecording = true; stopRecording(); } else { startRecording(); }
     });
     document.getElementById('diapo7-voice-btn')?.addEventListener('click', () => {
         if (state.ttsEnabled) disableTTS(); else enableTTS();
