@@ -6875,7 +6875,7 @@ body[data-mood-active] .message.assistant {
     /* Ocultar todo lo que no es las actividades */
     .diapo6-left { display: none !important; }
     .diapo6-demo__stepper { display: none !important; }
-    #diapo6-nav-next, #diapo6-nav-back { display: none !important; }
+    /* Nav arrows visible on mobile for slide navigation */
     [data-diapo6-step="0"], /* intro gatos */
     [data-diapo6-step="3"], /* QR presentador */
     [data-diapo6-step="4"]  /* dashboard */
