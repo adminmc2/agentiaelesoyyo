@@ -4536,6 +4536,8 @@ const DIAPO5_KEYWORD_MAP = [
 ];
 
 function showDiapo5Screen() {
+    // Diapo 5 solo en escritorio — en móvil saltar a diapo 6 (gatos MIAU)
+    if (isMobile()) { showDiapo6Screen(); return; }
     stopTTS();
     elements.loginScreen?.classList.add('hidden');
     elements.conoceScreen?.classList.add('hidden');
