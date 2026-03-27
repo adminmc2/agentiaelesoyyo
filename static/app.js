@@ -453,28 +453,28 @@ const MAX_RECENT_SEARCHES = 10;
 
 // Iconos según tipo de búsqueda
 const SEARCH_ICONS = {
-    product:   'package',
-    objection: 'shield',
-    argument:  'trend-up',
+    product:   'chalkboard-teacher',
+    objection: 'exam',
+    argument:  'cat',
     voice:     'microphone',
     default:   'clock'
 };
 
 function classifySearchIcon(query) {
     const q = query.toLowerCase();
-    if (/producto|eliana|biopro|fbio|dvs|hialuronic|relleno/i.test(q)) return 'product';
-    if (/objeción|objecion|caro|no funciona|otra marca|profhilo/i.test(q)) return 'objection';
-    if (/argumento|venta|presentar|dermatólogo|cirujano|perfil|ventaja/i.test(q)) return 'argument';
+    if (/vocabulario|gramática|gramatica|actividad|ejercicio|diálogo|dialogo|lectura/i.test(q)) return 'product';
+    if (/agente|miau|prompt|ia|inteligencia artificial/i.test(q)) return 'argument';
+    if (/evalua|correg|rúbrica|rubrica|examen|nivel/i.test(q)) return 'objection';
     return 'default';
 }
 
 function getSearchDescription(query) {
     const type = classifySearchIcon(query);
     switch (type) {
-        case 'product':   return 'Consulta sobre recursos ELE';
-        case 'objection': return 'Manejo de objeciones médicas';
-        case 'argument':  return 'Estrategia de argumentación comercial';
-        default:          return 'Conversación con el asistente';
+        case 'product':   return 'Consulta sobre actividades ELE';
+        case 'objection': return 'Evaluación y seguimiento';
+        case 'argument':  return 'Agentes IA y tecnología';
+        default:          return 'Conversación con Eliana';
     }
 }
 
@@ -653,35 +653,36 @@ function escapeHtml(str) {
 // Sistema de Plan — Datos y renderizado
 // ============================================
 
-// Tareas mock con fechas reales relativas a hoy (27 enero 2026)
+// Tareas mock con fechas relativas
 const PLAN_TASKS = [
-    // --- En proceso (fecha de hoy) ---
-    { id: 1, title: 'Visita Dra. García — Dermatología', date: '2026-01-27', project: 'visitas', status: 'in_progress', tasks: 2, subtasks: 1 },
-    { id: 2, title: 'Estudiar ficha BioPRO', date: '2026-01-27', project: 'formacion', status: 'in_progress', tasks: 1, subtasks: 0 },
-    { id: 3, title: 'Preparar argumentario Cirugía Plástica', date: '2026-01-27', project: 'visitas', status: 'in_progress', tasks: 3, subtasks: 2 },
-    // --- Por hacer (futuro cercano) ---
-    { id: 4, title: 'Visita Dra. López — Pediatría', date: '2026-01-28', project: 'visitas', status: 'todo', tasks: 2, subtasks: 0 },
-    { id: 5, title: 'Informe semanal de ventas', date: '2026-01-29', project: 'admin', status: 'todo', tasks: 1, subtasks: 0 },
-    { id: 6, title: 'Llamada farmacia central', date: '2026-01-30', project: 'visitas', status: 'todo', tasks: 1, subtasks: 1 },
-    { id: 7, title: 'Revisar catálogo FBio DVS', date: '2026-01-31', project: 'formacion', status: 'todo', tasks: 2, subtasks: 0 },
-    { id: 8, title: 'Reunión equipo zona norte', date: '2026-02-02', project: 'admin', status: 'todo', tasks: 1, subtasks: 0 },
-    { id: 9, title: 'Visita Dr. Fernández — Dermatología', date: '2026-02-03', project: 'visitas', status: 'todo', tasks: 2, subtasks: 1 },
-    { id: 10, title: 'Actualizar CRM contactos', date: '2026-02-05', project: 'admin', status: 'todo', tasks: 1, subtasks: 0 },
-    { id: 11, title: 'Preparar presentación BioPRO', date: '2026-02-07', project: 'formacion', status: 'todo', tasks: 3, subtasks: 2 },
-    // --- Retrasadas (antes de hoy) ---
-    { id: 12, title: 'Seguimiento Dr. Martínez', date: '2026-01-26', project: 'visitas', status: 'overdue', tasks: 1, subtasks: 1 },
-    { id: 13, title: 'Completar módulo tecnología DVS', date: '2026-01-25', project: 'formacion', status: 'overdue', tasks: 2, subtasks: 0 },
-    { id: 14, title: 'Enviar muestras Hospital Clínic', date: '2026-01-24', project: 'visitas', status: 'overdue', tasks: 1, subtasks: 0 },
+    // --- En proceso ---
+    { id: 1, title: 'Preparar actividad de vocabulario A2', date: '2026-03-27', project: 'clases', status: 'in_progress', tasks: 2, subtasks: 1 },
+    { id: 2, title: 'Diseñar rúbrica de expresión oral', date: '2026-03-27', project: 'evaluacion', status: 'in_progress', tasks: 1, subtasks: 0 },
+    { id: 3, title: 'Crear diálogo cotidiano B1', date: '2026-03-27', project: 'clases', status: 'in_progress', tasks: 3, subtasks: 2 },
+    // --- Por hacer ---
+    { id: 4, title: 'Adaptar lectura al nivel A1', date: '2026-03-28', project: 'clases', status: 'todo', tasks: 2, subtasks: 0 },
+    { id: 5, title: 'Revisar ejercicios de gramática U3', date: '2026-03-29', project: 'clases', status: 'todo', tasks: 1, subtasks: 0 },
+    { id: 6, title: 'Preparar actividad cultural — fiestas', date: '2026-03-30', project: 'cultura', status: 'todo', tasks: 1, subtasks: 1 },
+    { id: 7, title: 'Configurar agente corrector MIAU', date: '2026-03-31', project: 'evaluacion', status: 'todo', tasks: 2, subtasks: 0 },
+    { id: 8, title: 'Reunión departamento de lenguas', date: '2026-04-02', project: 'admin', status: 'todo', tasks: 1, subtasks: 0 },
+    { id: 9, title: 'Crear examen parcial B2', date: '2026-04-03', project: 'evaluacion', status: 'todo', tasks: 2, subtasks: 1 },
+    { id: 10, title: 'Actualizar programación didáctica', date: '2026-04-05', project: 'admin', status: 'todo', tasks: 1, subtasks: 0 },
+    { id: 11, title: 'Diseñar tarea final de unidad', date: '2026-04-07', project: 'clases', status: 'todo', tasks: 3, subtasks: 2 },
+    // --- Retrasadas ---
+    { id: 12, title: 'Corregir redacciones grupo B1.2', date: '2026-03-26', project: 'evaluacion', status: 'overdue', tasks: 1, subtasks: 1 },
+    { id: 13, title: 'Subir materiales al aula virtual', date: '2026-03-25', project: 'admin', status: 'overdue', tasks: 2, subtasks: 0 },
+    { id: 14, title: 'Preparar comprensión auditiva A2', date: '2026-03-24', project: 'clases', status: 'overdue', tasks: 1, subtasks: 0 },
     // --- Completadas ---
-    { id: 15, title: 'Visita Dra. Ruiz — Cirugía Plástica', date: '2026-01-23', project: 'visitas', status: 'done', tasks: 2, subtasks: 1 },
-    { id: 16, title: 'Curso online DVS vs BDDE', date: '2026-01-22', project: 'formacion', status: 'done', tasks: 1, subtasks: 0 },
+    { id: 15, title: 'Actividad de roleplay — en el mercado', date: '2026-03-23', project: 'clases', status: 'done', tasks: 2, subtasks: 1 },
+    { id: 16, title: 'Taller IA para profesores ELE', date: '2026-03-22', project: 'cultura', status: 'done', tasks: 1, subtasks: 0 },
 ];
 
 // Proyectos con sus colores
 const PLAN_PROJECTS = {
-    visitas:   { label: 'Visitas médicas', color: 'var(--md-sys-color-primary)' },
-    formacion: { label: 'Formación',       color: 'var(--md-sys-color-secondary)' },
-    admin:     { label: 'Administración',  color: 'var(--md-sys-color-tertiary)' }
+    clases:     { label: 'Clases',       color: 'var(--md-sys-color-primary)' },
+    evaluacion: { label: 'Evaluación',   color: 'var(--md-sys-color-secondary)' },
+    cultura:    { label: 'Cultura',      color: 'var(--md-sys-color-tertiary)' },
+    admin:      { label: 'Organización', color: 'var(--md-sys-color-tertiary)' }
 };
 
 // Grupos de estado con config visual
@@ -999,89 +1000,52 @@ function showChatFromPlan() {
 
 // Map of keywords to Phosphor icon names for semantic enrichment
 const ICON_MAP_HEADERS = {
-    // Product-related
-    'producto':     'package',
-    'productos':    'package',
-    'eliana':    'chalkboard-teacher',
-    'biopro':       'drop',
-    'bio pro':      'drop',
-    'fbio':         'syringe',
-    'dvs':          'drop',
-    'hialuronico':  'drop',
-    'composición':  'flask',
-    'composicion':  'flask',
-    'ingrediente':  'flask',
-    'formulación':  'flask',
-    'formulacion':  'flask',
-    // Clinical / medical
-    'indicación':   'heartbeat',
-    'indicacion':   'heartbeat',
-    'indicaciones': 'heartbeat',
-    'clínic':       'heartbeat',
-    'clinic':       'heartbeat',
-    'dosis':        'eyedropper',
-    'dosificación': 'eyedropper',
-    'posología':    'eyedropper',
-    'beneficio':    'star',
-    'beneficios':   'star',
-    'ventaja':      'star',
-    'ventajas':     'star',
-    // Quality & tech
-    'calidad':      'seal-check',
-    'certificación':'seal-check',
-    'certificacion':'seal-check',
-    'tecnología':   'gear',
-    'tecnologia':   'gear',
-    'rtg':          'gear',
-    'pureza':       'shield-check',
-    'seguridad':    'shield-check',
-    // Sales
-    'argumento':    'megaphone',
-    'argumentos':   'megaphone',
-    'venta':        'trend-up',
-    'ventas':       'trend-up',
-    'estrategia':   'strategy',
-    'presentación': 'presentation-chart',
-    'presentacion': 'presentation-chart',
-    // Objections
-    'objeción':     'shield',
-    'objecion':     'shield',
-    'objeciones':   'shield',
-    'precio':       'currency-circle-dollar',
-    'costo':        'currency-circle-dollar',
-    'coste':        'currency-circle-dollar',
-    'eficacia':     'chart-line-up',
-    'resultado':    'chart-line-up',
-    'resultados':   'chart-line-up',
-    // Medical specialties
-    'cardio':       'heart',
-    'cardiología':  'heart',
-    'cardiologia':  'heart',
-    'ginecología':  'gender-female',
-    'ginecologia':  'gender-female',
-    'neurología':   'brain',
-    'neurologia':   'brain',
-    'pediatría':    'baby',
-    'pediatria':    'baby',
-    'psiquiatría':  'brain',
-    'psiquiatria':  'brain',
-    'reumatología': 'bone',
-    'reumatologia': 'bone',
-    // Specialist
-    'especialista': 'user-circle',
-    'médico':       'stethoscope',
-    'medico':       'stethoscope',
-    'doctor':       'stethoscope',
-    'paciente':     'user',
-    'perfil':       'user-focus',
-    // Sections
-    'reconocimiento': 'handshake',
-    'reencuadre':     'arrows-clockwise',
-    'guion':          'quotes',
-    'guión':          'quotes',
-    'script':         'quotes',
+    // ELE — Enseñanza
+    'eliana':         'chalkboard-teacher',
+    'vocabulario':    'translate',
+    'gramática':      'book-open',
+    'gramatica':      'book-open',
+    'comunicación':   'chat-circle',
+    'comunicacion':   'chat-circle',
+    'cultura':        'globe-hemisphere-west',
+    'destreza':       'target',
+    'destrezas':      'target',
+    'actividad':      'pencil-line',
+    'actividades':    'pencil-line',
+    'ejercicio':      'clipboard-text',
+    'ejercicios':     'clipboard-text',
+    'diálogo':        'chat-dots',
+    'dialogo':        'chat-dots',
+    'lectura':        'book-open-text',
+    'comprensión':    'ear',
+    'comprension':    'ear',
+    'expresión':      'microphone',
+    'expresion':      'microphone',
+    'evaluación':     'exam',
+    'evaluacion':     'exam',
+    'nivel':          'stairs',
+    // IA y agentes
+    'agente':         'cat',
+    'agentes':        'cat',
+    'prompt':         'terminal',
+    'miau':           'cat',
+    'tecnología':     'gear',
+    'tecnologia':     'gear',
+    'personalizar':   'user-focus',
+    'personalización':'user-focus',
+    'personalizacion':'user-focus',
+    // Genéricos
+    'beneficio':      'star',
+    'beneficios':     'star',
+    'ventaja':        'star',
+    'ventajas':       'star',
+    'estrategia':     'strategy',
+    'resultado':      'chart-line-up',
+    'resultados':     'chart-line-up',
+    'ejemplo':        'lightbulb',
+    'ejemplos':       'lightbulb',
+    // Secciones
     'datos clave':    'chart-bar',
-    'evidencia':      'article',
     'estudio':        'book-open-text',
     'estudios':       'book-open-text',
     'referencia':     'book-open-text',
@@ -1089,8 +1053,6 @@ const ICON_MAP_HEADERS = {
     'comparación':    'scales',
     'comparacion':    'scales',
     'diferencia':     'scales',
-    'diferenciación': 'star-four',
-    'diferenciacion': 'star-four',
     'conclusión':     'check-circle',
     'conclusion':     'check-circle',
     'resumen':        'list-bullets',
@@ -1099,26 +1061,17 @@ const ICON_MAP_HEADERS = {
     'tip':            'lightbulb',
     'nota':           'note',
     'importante':     'warning-circle',
-    'advertencia':    'warning',
-    'interacción':    'warning',
-    'interaccion':    'warning',
-    'contraindicación': 'prohibit'
+    'advertencia':    'warning'
 };
 
 // Icon for table header cells based on content
 const ICON_MAP_TABLE = {
-    'producto':       'package',
     'nombre':         'tag',
-    'composición':    'flask',
-    'composicion':    'flask',
-    'dosis':          'eyedropper',
-    'concentración':  'flask',
-    'concentracion':  'flask',
-    'indicación':     'heartbeat',
-    'indicacion':     'heartbeat',
-    'presentación':   'pill',
-    'presentacion':   'pill',
-    'precio':         'currency-circle-dollar',
+    'actividad':      'pencil-line',
+    'nivel':          'stairs',
+    'destreza':       'target',
+    'agente':         'cat',
+    'tipo':           'shapes',
     'beneficio':      'star',
     'ventaja':        'star',
     'característica': 'check-circle',
@@ -1126,18 +1079,10 @@ const ICON_MAP_TABLE = {
     'aspecto':        'list-bullets',
     'dato':           'chart-bar',
     'detalle':        'info',
-    'componente':     'flask',
-    'vlift':          'activity',
-    'dlift':          'activity',
-    'forma':          'shapes',
-    'certificación':  'seal-check',
-    'certificacion':  'seal-check',
     'paso':           'number-circle-one',
     'acción':         'lightning',
     'accion':         'lightning',
-    'argumento':      'megaphone',
-    'objeción':       'shield',
-    'objecion':       'shield',
+    'ejemplo':        'lightbulb',
     'respuesta':      'chat-circle-text'
 };
 
@@ -3009,6 +2954,38 @@ state.ttsAudio = null;       // Audio element actual
 state.ttsPlaying = false;    // Reproducción en curso
 state.ttsEnabled = false;    // Auto-play desactivado por defecto — el usuario lo activa con el botón de voz
 state.ttsManuallyDisabled = false; // true cuando el usuario desactiva TTS con el botón de voz
+state.ttsGain = 3.0;         // Boost de volumen TTS (1.0 = normal, 3.0 = 300%)
+state._ttsAudioCtx = null;   // AudioContext para amplificación
+state._ttsGainNode = null;   // GainNode reutilizable
+
+/**
+ * Amplifica un elemento <audio> usando Web Audio API GainNode.
+ * Permite subir el volumen por encima del máximo del navegador.
+ * createMediaElementSource solo se puede llamar una vez por elemento,
+ * así que marcamos el elemento y reutilizamos la conexión.
+ */
+function boostAudioVolume(audioElement) {
+    try {
+        if (!state._ttsAudioCtx) {
+            state._ttsAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            state._ttsGainNode = state._ttsAudioCtx.createGain();
+            state._ttsGainNode.connect(state._ttsAudioCtx.destination);
+        }
+        // Resume if suspended (iOS)
+        if (state._ttsAudioCtx.state === 'suspended') {
+            state._ttsAudioCtx.resume();
+        }
+        state._ttsGainNode.gain.value = state.ttsGain;
+        // Solo conectar una vez por elemento (createMediaElementSource no se puede repetir)
+        if (!audioElement._boosted) {
+            const source = state._ttsAudioCtx.createMediaElementSource(audioElement);
+            source.connect(state._ttsGainNode);
+            audioElement._boosted = true;
+        }
+    } catch (e) {
+        console.log('[TTS] Boost skipped:', e.message);
+    }
+}
 
 /**
  * Toggles TTS auto-play on/off via the voice button in chat bottom bar.
@@ -3193,6 +3170,9 @@ async function playTTS(text, skipSummary = false, isActivity = false) {
         audio.addEventListener('ended', onEnded);
         audio.addEventListener('error', onError);
 
+        // Amplificar volumen para altavoces externos
+        boostAudioVolume(audio);
+
         await audio.play();
         console.log('[TTS] Playing audio');
 
@@ -3272,6 +3252,9 @@ function playTTSAndWait(text) {
             };
             audio.addEventListener('ended', onEnded);
             audio.addEventListener('error', onError);
+
+            // Amplificar volumen para altavoces externos
+            boostAudioVolume(audio);
 
             console.log('[TTS] playTTSAndWait: starting playback, duration will be shown after load');
             audio.addEventListener('loadedmetadata', () => {
@@ -3511,7 +3494,7 @@ async function handleOrbGreeting() {
 
     if (window.orbSetListening) window.orbSetListening(true);
 
-    const greetingText = '¡Chiquillo, bienvenidos al décimo sexto encuentro de profesores ELE en Polonia! Soy Eliana, y hoy estoy aquí con Mando para enseñaros cómo los agentes de inteligencia artificial pueden personalizar la enseñanza sin que perdáis el control pedagógico. Así que venga, ¡preguntadme lo que queráis, buscadme las cosquillas, que aquí estamos pa eso!';
+    const greetingText = '¡Chiquillo, bienvenidos a la cuarta jornadas internacionales de didáctica ele del Instituto Cervantes de Tetuan! Soy Eliana, y hoy estoy aquí con Mando para enseñaros cómo los agentes de inteligencia artificial pueden personalizar la enseñanza sin que perdáis el control pedagógico. Así que venga, ¡preguntadme lo que queráis, buscadme las cosquillas, que aquí estamos pa eso!';
 
     // Enviar texto directamente al TTS (skip_summary = true, sin pasar por el LLM)
     playTTS(greetingText, true);
@@ -6518,7 +6501,7 @@ function init() {
                     try {
                         await navigator.share({
                             title: 'Mi perfil de Eliana',
-                            text: 'Mi perfil docente generado por Eliana AI - XVI Encuentro de profesores de ELE en Polonia',
+                            text: 'Mi perfil docente generado por Eliana AI - IV Jornadas Internacionales de Didáctica de ELE',
                             files: [file]
                         });
                     } catch (e) {
@@ -6818,6 +6801,20 @@ function init() {
         stopTTS();
         releaseCachedMicStream();
     });
+
+    // Deep link: ?screen=juego salta directamente al juego (desde QR)
+    const urlParams = new URLSearchParams(window.location.search);
+    const screenParam = urlParams.get('screen');
+    if (screenParam === 'juego' && typeof showJuegoScreen === 'function') {
+        localStorage.setItem('eliana_user', 'Participante');
+        localStorage.setItem('eliana_logged_in', 'true');
+        setTimeout(() => {
+            // Ocultar TODAS las pantallas
+            document.querySelectorAll('.main-content, #login-screen, #welcome-screen').forEach(el => el.classList.add('hidden'));
+            // Mostrar solo el juego
+            showJuegoScreen();
+        }, 500);
+    }
 
     console.log('Eliana inicializada');
 }

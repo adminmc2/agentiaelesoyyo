@@ -1504,8 +1504,8 @@ body[data-mood-active] .bento-card--mood {
     margin-top: 1.5rem;
 }
 .conoce-qr__img {
-    width: 140px;
-    height: 140px;
+    width: 200px;
+    height: 200px;
 }
 .conoce-qr__label {
     font: 500 0.85rem/1 'Source Sans 3', sans-serif;

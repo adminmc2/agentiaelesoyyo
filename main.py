@@ -1351,7 +1351,7 @@ def strip_wake_word(message: str) -> str:
     return t
 
 
-GREETING_RESPONSE = """¡Bienvenidos al **XVI Encuentro de profesores de ELE en Polonia**! Soy **Eliana**, y esta tarde estoy aquí con **Mando** para enseñaros cómo los agentes de inteligencia artificial pueden personalizar la enseñanza sin perder el control pedagógico.
+GREETING_RESPONSE = """¡Bienvenidos a las **IV Jornadas Internacionales de Didáctica de ELE**! Soy **Eliana**, y hoy estoy aquí con **Mando** para enseñaros cómo los agentes de inteligencia artificial pueden personalizar la enseñanza sin perder el control pedagógico.
 
 Preguntadme lo que queráis:
 
