@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Sueña con tu agente</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Dosis:wght@400;600;700;800&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #994E95;
+            --primary-light: #EDE0EC;
+            --primary-container: #F5E6F4;
+            --on-surface: #1C1B1F;
+            --on-surface-variant: #49454F;
+            --surface: #FFF8F5;
+            --outline: #CAC4D0;
+            --success: #4CAF50;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Source Sans 3', sans-serif;
+            background: var(--surface);
+            color: var(--on-surface);
+            min-height: 100dvh;
+            padding: 32px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        h1 {
+            font-family: 'Dosis', sans-serif;
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #994E95, #6B82C4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: var(--on-surface-variant);
+            line-height: 1.4;
+        }
+
+        .form {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field label {
+            font-family: 'Dosis', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--on-surface);
+        }
+
+        .field input {
+            padding: 14px 16px;
+            border: 2px solid var(--outline);
+            border-radius: 12px;
+            background: white;
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 1rem;
+            color: var(--on-surface);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .field input:focus {
+            border-color: var(--primary);
+        }
+
+        .field input::placeholder {
+            color: #999;
+        }
+
+        .send-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #994E95, #6B82C4);
+            color: white;
+            font-family: 'Dosis', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: opacity 0.2s;
+        }
+
+        .send-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .send-btn:not(:disabled):active {
+            opacity: 0.8;
+        }
+
+        .thanks {
+            display: none;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            padding: 48px 0;
+        }
+
+        .thanks.visible { display: block; }
+
+        .thanks__icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .thanks__title {
+            font-family: 'Dosis', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .thanks__text {
+            font-size: 0.95rem;
+            color: var(--on-surface-variant);
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Sueña con tu agente</h1>
+        <p class="subtitle">Presentación online de la plataforma de agentes durante el mes de mayo. Más información en el correo electrónico</p>
+    </div>
+
+    <div class="form" id="form">
+        <div class="field">
+            <label>Nombre</label>
+            <input type="text" id="field-nombre" placeholder="Tu nombre" autocomplete="given-name">
+        </div>
+        <div class="field">
+            <label>Apellido</label>
+            <input type="text" id="field-apellido" placeholder="Tu apellido" autocomplete="family-name">
+        </div>
+        <div class="field">
+            <label>Email</label>
+            <input type="email" id="field-email" placeholder="tu@email.com" autocomplete="email">
+        </div>
+        <div class="field">
+            <label>País</label>
+            <input type="text" id="field-pais" placeholder="Tu país" autocomplete="country-name">
+        </div>
+
+        <button class="send-btn" id="send-btn" disabled>Enviar</button>
+    </div>
+
+    <div class="thanks" id="thanks">
+        <div class="thanks__icon">&#10024;</div>
+        <p class="thanks__title">Gracias por apuntarte</p>
+        <p class="thanks__text">Te contactaremos en mayo con los detalles de la presentación de la plataforma.</p>
+    </div>
+
+    <script>
+        const fields = ['nombre', 'apellido', 'email', 'pais'];
+        const inputs = fields.map(f => document.getElementById('field-' + f));
+        const sendBtn = document.getElementById('send-btn');
+
+        inputs.forEach(input => {
+            input.addEventListener('input', () => {
+                const allFilled = inputs.every(i => i.value.trim().length > 0);
+                sendBtn.disabled = !allFilled;
+            });
+        });
+
+        sendBtn.addEventListener('click', async () => {
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Enviando...';
+
+            const data = {};
+            fields.forEach((f, i) => { data[f] = inputs[i].value.trim(); });
+
+            try {
+                const resp = await fetch('/api/suena', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (resp.ok) {
+                    document.getElementById('form').style.display = 'none';
+                    document.getElementById('thanks').classList.add('visible');
+                } else {
+                    sendBtn.textContent = 'Error, inténtalo de nuevo';
+                    sendBtn.disabled = false;
+                }
+            } catch (e) {
+                sendBtn.textContent = 'Error, inténtalo de nuevo';
+                sendBtn.disabled = false;
+            }
+        });
+    </script>
+    <p style="text-align:center;font-size:0.7rem;color:#ccc;margin-top:32px;">v22.16.7</p>
+</body>
+</html>

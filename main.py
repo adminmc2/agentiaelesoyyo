@@ -13,7 +13,7 @@ from contextlib import asynccontextmanager
 
 import httpx
 import asyncpg
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File, HTTPException
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
@@ -762,6 +762,16 @@ async def init_db():
                     created_at TIMESTAMP DEFAULT NOW()
                 )
             """)
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS suena_registros (
+                    id SERIAL PRIMARY KEY,
+                    nombre VARCHAR(100) NOT NULL,
+                    apellido VARCHAR(100) NOT NULL,
+                    email VARCHAR(200) NOT NULL,
+                    pais VARCHAR(100) NOT NULL,
+                    created_at TIMESTAMP DEFAULT NOW()
+                )
+            """)
 
             # Sync: actualizar prompts desde código (siempre aplica la versión más reciente)
             for key, content in _DEFAULT_PROMPTS.items():
@@ -943,6 +953,51 @@ async def root():
 async def encuesta_page():
     """Servir la página de encuesta móvil"""
     return FileResponse("static/encuesta.html")
+
+
+@app.get("/suena")
+async def suena_page():
+    """Servir la página Sueña con tu agente"""
+    return FileResponse("static/suena.html")
+
+
+# ── Sueña con tu agente: registro de interesados ──
+_suena_registros: list[dict] = []
+
+@app.post("/api/suena")
+async def suena_registro(request: Request):
+    """Guardar datos de interesados en la plataforma"""
+    data = await request.json()
+    nombre = data.get("nombre", "").strip()
+    apellido = data.get("apellido", "").strip()
+    email = data.get("email", "").strip()
+    pais = data.get("pais", "").strip()
+
+    if not all([nombre, apellido, email, pais]):
+        return JSONResponse({"error": "Faltan campos"}, status_code=400)
+
+    registro = {
+        "nombre": nombre,
+        "apellido": apellido,
+        "email": email,
+        "pais": pais,
+        "timestamp": __import__("datetime").datetime.now().isoformat()
+    }
+    _suena_registros.append(registro)
+
+    # Guardar en BD si está disponible
+    try:
+        if pool:
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    "INSERT INTO suena_registros (nombre, apellido, email, pais) VALUES ($1, $2, $3, $4)",
+                    nombre, apellido, email, pais
+                )
+    except Exception as e:
+        print(f"[Sueña] DB error (datos guardados en memoria): {e}")
+
+    print(f"[Sueña] Nuevo registro: {nombre} {apellido} ({email}) — {pais}")
+    return JSONResponse({"ok": True})
 
 
 # ── Encuesta MIAU: votación en tiempo real ──
