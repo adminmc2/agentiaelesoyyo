@@ -15,7 +15,7 @@ import httpx
 import asyncpg
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse, JSONResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
