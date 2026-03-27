@@ -6566,7 +6566,7 @@ body[data-mood-active] .message.assistant {
 .diapo6-cats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
+    gap: 16px;
     margin-top: 1.5rem;
     max-width: 680px;
     margin-left: auto;
@@ -6579,8 +6579,8 @@ body[data-mood-active] .message.assistant {
     gap: 6px;
 }
 .diapo6-cat-mini__img {
-    width: 140px;
-    height: 140px;
+    width: 110px;
+    height: 110px;
     border-radius: 16px;
     object-fit: contain;
     background: var(--md-sys-color-surface-container);
@@ -6596,7 +6596,7 @@ body[data-mood-active] .message.assistant {
 .diapo6-cat-mini__name {
     font: 600 13px 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-on-surface-variant);
-    max-width: 140px;
+    max-width: 110px;
     text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;

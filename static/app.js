@@ -6805,14 +6805,15 @@ function init() {
     // Deep link: ?screen=juego salta directamente al juego (desde QR)
     const urlParams = new URLSearchParams(window.location.search);
     const screenParam = urlParams.get('screen');
-    if (screenParam === 'juego' && typeof showJuegoScreen === 'function') {
+    if (screenParam && typeof showJuegoScreen === 'function') {
         localStorage.setItem('eliana_user', 'Participante');
         localStorage.setItem('eliana_logged_in', 'true');
         setTimeout(() => {
             // Ocultar TODAS las pantallas
             document.querySelectorAll('.main-content, #login-screen, #welcome-screen').forEach(el => el.classList.add('hidden'));
-            // Mostrar solo el juego
-            showJuegoScreen();
+            // Mostrar la pantalla solicitada
+            if (screenParam === 'juego') showJuegoScreen();
+            else if (screenParam === 'miau' && typeof showDiapo6Screen === 'function') showDiapo6Screen();
         }, 500);
     }
 
