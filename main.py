@@ -26,14 +26,22 @@ load_dotenv()
 # Clientes API
 groq_api_key = os.getenv("GROQ_API_KEY")
 
-# Cliente Groq para LLM — usando AsyncOpenAI para no bloquear event loop
+# DeepSeek como LLM principal
+deepseek_api_key = os.getenv("DEEPSEEK_API_KEY", "sk-7ccec971680e4176adbfc81c02fa5ec9")
 llm_client = AsyncOpenAI(
+    api_key=deepseek_api_key,
+    base_url="https://api.deepseek.com"
+) if deepseek_api_key else None
+
+LLM_MODEL = "deepseek-chat"
+LLM_FALLBACK_MODEL = "deepseek-chat"
+
+# Cliente Groq como fallback — usa AsyncOpenAI
+groq_llm_client = AsyncOpenAI(
     api_key=groq_api_key,
     base_url="https://api.groq.com/openai/v1"
 ) if groq_api_key else None
-
-LLM_MODEL = "moonshotai/kimi-k2-instruct-0905"
-LLM_FALLBACK_MODEL = "llama-3.3-70b-versatile"
+GROQ_FALLBACK_MODEL = "llama-3.3-70b-versatile"
 
 # Cliente Groq nativo (para transcripción de voz con Whisper)
 groq_client = Groq(api_key=groq_api_key) if groq_api_key else None
@@ -96,22 +104,21 @@ ESTILO DE HABLA — Esto va a ser leído en voz alta por TTS:
 
     "yo_nunca_nunca": """Eres Eliana jugando a "Yo Nunca Nunca" con un profesor de ELE en una conferencia.
 
-El juego tiene EXACTAMENTE 4 turnos. Tú dices "Yo nunca nunca he..." y el profe cuenta si le ha pasado.
+El juego tiene EXACTAMENTE 3 intercambios (tú hablas, profe responde, tú hablas, profe responde, tú cierras).
 
-PRIMER TURNO — El profe acaba de decir su nombre:
+TURNO 1 — El profe acaba de decir su nombre:
 Saludo muy breve + primer "yo nunca nunca".
-Ejemplo: "Bueno [nombre], allá vamos. Yo nunca nunca he dicho 'muy bien' a una respuesta que no entendí ni de lejos."
+Usa el nombre REAL que te dijo el profe (está en su mensaje). NO escribas "[nombre]" literal.
+IMPORTANTE: NUNCA repitas el mismo "yo nunca nunca". Cada vez inventa uno NUEVO, DIFERENTE y CREATIVO. Piensa en situaciones divertidas y realistas de profes. Varía los temas: errores en clase, reuniones, padres, exámenes, tecnología, vacaciones, compañeros...
+PARA aquí. Espera respuesta del profe.
 
-SEGUNDO TURNO — El profe contó su anécdota:
-Reacción breve y cómplice + segundo "yo nunca nunca".
+TURNO 2 — El profe contó su anécdota del primer "yo nunca nunca":
+Reacción breve y cómplice + segundo y ÚLTIMO "yo nunca nunca". Dile: "Venga, el último... yo nunca nunca he..."
+PARA aquí. NO cierres todavía. Espera respuesta del profe.
 
-TERCER TURNO — El profe contó otra anécdota:
-Reacción breve + tercer y ÚLTIMO "yo nunca nunca". Dile que es el último: "Venga, el último... yo nunca nunca he..."
-
-CUARTO TURNO — El profe respondió al último:
-- Reacción breve a lo que contó.
-- CIERRE obligatorio. Termina con algo como: "Oye, me lo he pasado genial contigo. Mira, ya me he hecho una idea bastante clara de qué tipo de profe eres... dale al botón y te lo enseño."
-- NO lances otro "yo nunca nunca". Este es el ÚLTIMO turno.
+TURNO 3 (CIERRE) — El profe respondió al último "yo nunca nunca":
+Reacción breve a lo que contó + cierre obligatorio. Termina con: "Oye, me lo he pasado genial contigo. Ya me he hecho una idea de qué tipo de profe eres... dale al botón y te lo enseño."
+NO lances otro "yo nunca nunca". SOLO reacciona y cierra.
 
 ESPAÑOL CORRECTO — Estás en una conferencia de profesores de ESPAÑOL, tu ortografía y gramática deben ser impecables:
 - Revisa concordancia de género: "el subjuntivo" (no "la subjuntivo"), "el reto" (no "el reato")
@@ -1406,7 +1413,7 @@ def strip_wake_word(message: str) -> str:
     return t
 
 
-GREETING_RESPONSE = """¡Bienvenidos a las **IV Jornadas Internacionales de Didáctica de ELE**! Soy **Eliana**, y hoy estoy aquí con **Mando** para enseñaros cómo los agentes de inteligencia artificial pueden personalizar la enseñanza sin perder el control pedagógico.
+GREETING_RESPONSE = """¡Bienvenidos a **Praguele**! Soy **Eliana**, y hoy estoy aquí con **Mando** para enseñaros cómo los agentes de inteligencia artificial pueden personalizar la enseñanza sin perder el control pedagógico.
 
 Preguntadme lo que queráis:
 
@@ -1562,7 +1569,7 @@ async def websocket_chat(websocket: WebSocket):
                     max_tokens = 500 if response_mode == "short" else 1000
                     temperature = 0.7
 
-                # Stream de respuesta con Groq (fallback si modelo principal no disponible)
+                # Stream de respuesta (DeepSeek principal, Groq fallback)
                 active_model = LLM_MODEL
                 try:
                     stream = await llm_client.chat.completions.create(
@@ -1573,11 +1580,11 @@ async def websocket_chat(websocket: WebSocket):
                         temperature=temperature
                     )
                 except Exception as model_err:
-                    if "503" in str(model_err) or "over capacity" in str(model_err):
-                        print(f"[WS] {LLM_MODEL} no disponible, usando fallback {LLM_FALLBACK_MODEL}")
-                        active_model = LLM_FALLBACK_MODEL
-                        stream = await llm_client.chat.completions.create(
-                            model=LLM_FALLBACK_MODEL,
+                    print(f"[WS] {LLM_MODEL} error: {model_err}, usando Groq fallback {GROQ_FALLBACK_MODEL}")
+                    active_model = GROQ_FALLBACK_MODEL
+                    if groq_llm_client:
+                        stream = await groq_llm_client.chat.completions.create(
+                            model=GROQ_FALLBACK_MODEL,
                             messages=messages,
                             stream=True,
                             max_tokens=max_tokens,

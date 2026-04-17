@@ -1473,7 +1473,7 @@ function sendToWebSocket(message, responseMode = 'full') {
             // Contar mensajes de actividad y cerrar con despedida + botón perfil
             if (state.activityMode) {
                 state.activityMessageCount += 2; // user + assistant
-                if (state.activityMessageCount >= 8 && !state.profileGenerated) {
+                if (state.activityMessageCount >= 6 && !state.profileGenerated) {
                     // Esperar a que termine el TTS de la respuesta antes del cierre
                     const waitAndClose = () => {
                         if (!state.ttsPlaying) {
@@ -1730,10 +1730,15 @@ function startSilenceDetection(stream) {
             silenceStart = null;
         }
 
-        // Sin habla en 8s → descartar
+        // Sin habla en 8s
         if (!speechDetected && elapsed > NO_SPEECH_TIMEOUT) {
-            console.log('[Silence] No speech in 8s, discarding');
-            state._discardRecording = true;
+            if (state.voiceTriggered) {
+                // Manual mic click — send to Whisper anyway, let server decide
+                console.log('[Silence] No speech in 8s (manual click) — sending to Whisper anyway');
+            } else {
+                console.log('[Silence] No speech in 8s (auto) — discarding');
+                state._discardRecording = true;
+            }
             stopRecording();
             return;
         }
@@ -1745,9 +1750,11 @@ function startSilenceDetection(stream) {
             } else if (Date.now() - silenceStart > SILENCE_DURATION) {
                 // Verificar que hubo habla real (>5% de los frames)
                 const speechRatio = speechFrames / totalFrames;
-                if (speechRatio < 0.05) {
-                    console.log('[Silence] Speech ratio too low (' + (speechRatio * 100).toFixed(1) + '%), discarding');
+                if (speechRatio < 0.05 && !state.voiceTriggered) {
+                    console.log('[Silence] Speech ratio too low (' + (speechRatio * 100).toFixed(1) + '%), discarding (auto)');
                     state._discardRecording = true;
+                } else if (speechRatio < 0.05) {
+                    console.log('[Silence] Speech ratio low (' + (speechRatio * 100).toFixed(1) + '%) but manual click — sending to Whisper');
                 }
                 console.log('[Silence] Auto-stop after ' + SILENCE_DURATION + 'ms silence (speechRatio=' + (speechRatio * 100).toFixed(1) + '%)');
                 stopRecording();
@@ -3494,7 +3501,7 @@ async function handleOrbGreeting() {
 
     if (window.orbSetListening) window.orbSetListening(true);
 
-    const greetingText = '¡Chiquillo, bienvenidos a la cuarta jornadas internacionales de didáctica ele del Instituto Cervantes de Tetuan! Soy Eliana, y hoy estoy aquí con Mando para enseñaros cómo los agentes de inteligencia artificial pueden personalizar la enseñanza sin que perdáis el control pedagógico. Así que venga, ¡preguntadme lo que queráis, buscadme las cosquillas, que aquí estamos pa eso!';
+    const greetingText = '¡Chiquillo, bienvenidos a Praguele! Soy Eliana, y hoy estoy aquí con Mando para enseñaros cómo los agentes de inteligencia artificial pueden personalizar la enseñanza sin que perdáis el control pedagógico. Así que venga, ¡preguntadme lo que queráis, buscadme las cosquillas, que aquí estamos pa eso!';
 
     // Enviar texto directamente al TTS (skip_summary = true, sin pasar por el LLM)
     playTTS(greetingText, true);
@@ -3634,7 +3641,10 @@ function showProfileScreen(profileData) {
 
 function renderProfileCard(data) {
     try {
-        const profile = typeof data === 'string' ? JSON.parse(data) : data;
+        let jsonStr = typeof data === 'string' ? data : JSON.stringify(data);
+        // Strip markdown code fences (```json ... ```)
+        jsonStr = jsonStr.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
+        const profile = JSON.parse(jsonStr);
 
         // Phosphor icon en vez de emoji unicode
         const iconName = profile.icono || profile.emoji || 'graduation-cap';
@@ -6501,7 +6511,7 @@ function init() {
                     try {
                         await navigator.share({
                             title: 'Mi perfil de Eliana',
-                            text: 'Mi perfil docente generado por Eliana AI - IV Jornadas Internacionales de Didáctica de ELE',
+                            text: 'Mi perfil docente generado por Eliana AI - Praguele',
                             files: [file]
                         });
                     } catch (e) {
