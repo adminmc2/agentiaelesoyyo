@@ -3503,7 +3503,7 @@ async function handleOrbGreeting() {
 
     if (window.orbSetListening) window.orbSetListening(true);
 
-    const greetingText = '¡Chiquillo, bienvenidos a Praguele! Soy Eliana, y hoy estoy aquí con Mando para enseñaros cómo los agentes de inteligencia artificial pueden personalizar la enseñanza sin que perdáis el control pedagógico. Así que venga, ¡preguntadme lo que queráis, buscadme las cosquillas, que aquí estamos pa eso!';
+    const greetingText = '¡Chiquillo, bienvenidos a Destino ELE VIENA! Soy Eliana, y hoy estoy aquí con Román para enseñaros cómo los agentes de inteligencia artificial pueden personalizar la enseñanza sin que perdáis el control pedagógico. Así que venga, ¡preguntadme lo que queráis, buscadme las cosquillas, que aquí estamos pa eso!';
 
     // Enviar texto directamente al TTS (skip_summary = true, sin pasar por el LLM)
     playTTS(greetingText, true);
@@ -4007,7 +4007,7 @@ function sendBlindaMessage(message) {
         if (!state._blindaContextSent) {
             payload.prior_context = {
                 question: 'Eliana, ya hemos terminado las actividades. ¿Qué viene ahora?',
-                answer: 'Genial, ya hemos roto el hielo. Ahora vamos a poner a prueba vuestro ojo crítico como profes. He preparado unas tarjetas que os van a sorprender. Mando, cuando quieras. [NOTA INTERNA: esto fue solo la introducción, NO es ninguna fase. La FASE 1 empieza con el próximo "continuamos".]'
+                answer: 'Genial, ya hemos roto el hielo. Ahora vamos a poner a prueba vuestro ojo crítico como profes. He preparado unas tarjetas que os van a sorprender. Román, cuando quieras. [NOTA INTERNA: esto fue solo la introducción, NO es ninguna fase. La FASE 1 empieza con el próximo "continuamos".]'
             };
             state._blindaContextSent = true;
         }
@@ -4758,7 +4758,7 @@ function sendDiapo5Message(message) {
         if (!state._diapo5ContextSent) {
             payload.prior_context = {
                 question: 'Eliana, vamos a explicar qué es un agente de IA con la metáfora del chef.',
-                answer: 'Vamos a ver ahora qué es un agente de IA. Mando, cuando quieras.'
+                answer: 'Vamos a ver ahora qué es un agente de IA. Román, cuando quieras.'
             };
             state._diapo5ContextSent = true;
         }
@@ -5986,7 +5986,7 @@ function addDiapo7ChatBubble(text, role) {
 function sendDiapo7Message(message) {
     addDiapo7ChatBubble(message, 'user');
 
-    // Check if user message (Mando) triggers advance
+    // Check if user message (Román) triggers advance
     checkDiapo7AdvanceFromUser(message);
 
     const messages = document.getElementById('diapo7-chat-messages');
@@ -6667,7 +6667,7 @@ function init() {
                     try {
                         await navigator.share({
                             title: 'Mi perfil de Eliana',
-                            text: 'Mi perfil docente generado por Eliana AI - Praguele',
+                            text: 'Mi perfil docente generado por Eliana AI - Destino ELE VIENA',
                             files: [file]
                         });
                     } catch (e) {

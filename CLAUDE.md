@@ -113,3 +113,37 @@ Esto incluye:
 - Los event listeners de `diapo6-chat-send`, `diapo6-mic-btn`, `diapo6-voice-btn`, `diapo6-nav-next`, `diapo6-nav-back`
 
 **Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
+
+---
+
+## Sistema de diseño v23 — Paleta pastel (Combo 3)
+
+### Paleta oficial
+| Rol | Color | Hex | Uso |
+|-----|-------|-----|-----|
+| Primary | Lavanda | `#D0AAD1` | Botones principales (texto oscuro #2c2c2c) |
+| Secondary | Melocotón | `#F4C09D` | Accent / gradiente header |
+| Tertiary | Rosa | `#F2AAAE` | Accent / gradiente header |
+| Surface | Crema | `#FFE7C1` + fondo `#E8F2F3` (menta suave) | Background |
+| Accent | Menta | `#D0E8E9` | Chips, estados tranquilos |
+| Success | Verde menta | `#8CBEB2` | Estados correctos |
+
+### Header estándar de diapositivas
+- Clase: `.slide-header` (position: fixed, top)
+- Fondo: gradiente `linear-gradient(135deg, #F4C09D 0%, #F2AAAE 100%)`
+- Texto: blanco
+- Contiene: número de diapo (pill frosted), título (Dosis 800 22px), subtítulo
+- Navegación: `.slide-nav-btn` redondos Lavanda con iconos oscuros (hover: púrpura + blanco)
+
+### Formato
+- **Escritorio primero**: todos los layouts optimizados para proyector / pantalla grande
+- **Responsive**: solo ajustes menores para móvil
+- **Fondo menta**: `body`/`html` tienen `#E8F2F3` como base; las pantallas usan `background: transparent`
+
+### Versionado
+- Tras CUALQUIER cambio en HTML/CSS/JS: bump `?v=` en `index.html` Y `encuesta.html`
+- Prefijo `v23.x.y` desde el cambio de paleta (abril 2026)
+
+### Gatos reales (static/imagenes/)
+- `aprobador.png`, `enfocado.png`, `expansor.png`, `explorador.png`, `improvisador.png`, `masticador.png`, `miron.png`, `suerte.png`, `traduccion.png`
+- Usar estos cuando se necesiten los personajes gato de la presentación, no los creatures abstractos.
