@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=22.18.0">
+    <link rel="stylesheet" href="/static/style.css?v=23.0.3">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -169,35 +169,80 @@
              PANTALLA BLINDA TU PROMPT
              ============================================ -->
         <main class="main-content blinda-screen hidden" id="blinda-screen">
-            <div class="blinda-page">
-                <!-- Columna izquierda: Eliana (orb + chat) -->
-                <div class="blinda-left">
-                    <button class="blinda-nav-btn blinda-nav-btn--back" id="blinda-nav-back" title="Volver">
+            <div class="blinda-page blinda-page--fullscreen">
+                <!-- Slide header -->
+                <header class="slide-header">
+                    <button class="slide-nav-btn slide-nav-btn--back" id="blinda-nav-back" title="Volver">
                         <i class="ph ph-arrow-left"></i>
                     </button>
+                    <div class="slide-header__title">
+                        <span class="slide-header__num">03</span>
+                        <h1 class="slide-header__text">Blinda tu Prompt</h1>
+                        <span class="slide-header__sub">Demo en plenaria</span>
+                    </div>
+                    <button class="slide-nav-btn slide-nav-btn--next" id="blinda-nav-next" title="Siguiente escena">
+                        <i class="ph ph-arrow-right"></i>
+                    </button>
+                </header>
 
-                    <!-- Orb compacto -->
-                    <div class="blinda-orb-wrapper">
-                        <div class="orb-container" id="blinda-orb-container"></div>
+                <!-- Demo visual — ahora ocupa toda la pantalla -->
+                <div class="blinda-right blinda-right--full">
+                    <div class="blinda-demo" id="blinda-demo">
+                        <div class="blinda-demo__step blinda-demo__step--active" data-demo-step="0">
+                            <img src="/static/imagenes/logo_juego.png" alt="Blindapalabras" class="blinda-intro__logo">
+                            <p class="blinda-subtitle">Demo interactiva</p>
+                        </div>
+                        <div class="blinda-demo__step" data-demo-step="1" id="demo-step-1"></div>
+                        <div class="blinda-demo__step" data-demo-step="2" id="demo-step-2"></div>
+                        <div class="blinda-demo__step" data-demo-step="3" id="demo-step-3"></div>
+                    </div>
+                    <div class="blinda-demo__stepper" id="demo-stepper">
+                        <button class="demo-stepper__dot demo-stepper__dot--active" data-step="0"></button>
+                        <button class="demo-stepper__dot" data-step="1"></button>
+                        <button class="demo-stepper__dot" data-step="2"></button>
+                        <button class="demo-stepper__dot" data-step="3"></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eliana Floating Widget -->
+            <div id="eliana-widget" class="eliana-widget eliana-widget--fab" data-state="fab">
+                <!-- FAB button (minimized state) -->
+                <button class="eliana-widget__fab" id="eliana-widget-fab" title="Habla con Eliana">
+                    <div class="eliana-widget__fab-orb" id="eliana-widget-orb-mini"></div>
+                </button>
+
+                <!-- Chat panel (floating/docked/expanded states) -->
+                <div class="eliana-widget__panel" id="eliana-widget-panel">
+                    <div class="eliana-widget__header" id="eliana-widget-header">
+                        <div class="eliana-widget__header-left">
+                            <div class="eliana-widget__header-orb" id="blinda-orb-container"></div>
+                            <span class="eliana-widget__header-title">Eliana</span>
+                            <span class="eliana-widget__header-status">En linea</span>
+                        </div>
+                        <div class="eliana-widget__header-actions">
+                            <button class="eliana-widget__btn" data-action="dock" title="Anclar lateral">
+                                <i class="ph ph-sidebar-simple"></i>
+                            </button>
+                            <button class="eliana-widget__btn" data-action="expand" title="Ampliar">
+                                <i class="ph ph-arrows-out"></i>
+                            </button>
+                            <button class="eliana-widget__btn" data-action="minimize" title="Minimizar">
+                                <i class="ph ph-minus"></i>
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Chat panel: mensajes de Eliana + input -->
+                    <!-- Chat body — preserva todos los IDs originales -->
                     <div class="blinda-chat" id="blinda-chat">
                         <div class="blinda-chat__messages" id="blinda-chat-messages">
-                            <!-- Mensajes de Eliana aparecen aquí -->
                             <div class="blinda-chat__bubble blinda-chat__bubble--assistant">
                                 Genial, ya hemos roto el hielo. Ahora vamos a poner a prueba vuestro ojo crítico como profes. He preparado unas tarjetas que os van a sorprender. Mando, cuando quieras.
                             </div>
                         </div>
                         <div class="blinda-chat__input-container">
                             <div class="blinda-chat__input-row">
-                                <textarea
-                                    id="blinda-chat-input"
-                                    class="blinda-chat__textarea"
-                                    placeholder="Escribe a Eliana..."
-                                    rows="1"
-                                    autocomplete="off"
-                                ></textarea>
+                                <textarea id="blinda-chat-input" class="blinda-chat__textarea" placeholder="Escribe a Eliana..." rows="1" autocomplete="off"></textarea>
                                 <button class="blinda-chat__send" id="blinda-chat-send" title="Enviar">
                                     <i class="ph ph-paper-plane-tilt"></i>
                                 </button>
@@ -217,36 +262,6 @@
                                 </button>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Columna derecha: demo visual -->
-                <div class="blinda-right">
-                    <button class="blinda-nav-btn blinda-nav-btn--next" id="blinda-nav-next" title="Siguiente escena">
-                        <i class="ph ph-arrow-right"></i>
-                    </button>
-
-                    <!-- Demo visual (5 pasos) -->
-                    <div class="blinda-demo" id="blinda-demo">
-                        <!-- Paso 0: Titulo inicial -->
-                        <div class="blinda-demo__step blinda-demo__step--active" data-demo-step="0">
-                            <img src="/static/imagenes/logo_juego.png" alt="Blindapalabras" class="blinda-intro__logo">
-                            <p class="blinda-subtitle">Demo interactiva</p>
-                        </div>
-                        <!-- Paso 1: Tarjetas boca abajo -->
-                        <div class="blinda-demo__step" data-demo-step="1" id="demo-step-1"></div>
-                        <!-- Paso 2: Tarjeta se abre con situacion + opciones -->
-                        <div class="blinda-demo__step" data-demo-step="2" id="demo-step-2"></div>
-                        <!-- Paso 3: Feedback de ejemplo -->
-                        <div class="blinda-demo__step" data-demo-step="3" id="demo-step-3"></div>
-                    </div>
-
-                    <!-- Stepper dots (control manual backup) -->
-                    <div class="blinda-demo__stepper" id="demo-stepper">
-                        <button class="demo-stepper__dot demo-stepper__dot--active" data-step="0"></button>
-                        <button class="demo-stepper__dot" data-step="1"></button>
-                        <button class="demo-stepper__dot" data-step="2"></button>
-                        <button class="demo-stepper__dot" data-step="3"></button>
                     </div>
                 </div>
             </div>
@@ -1295,6 +1310,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=22.18.0"></script>
+    <script src="/static/app.js?v=23.0.3"></script>
 </body>
 </html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Paleta A — Preview</title>
+<style>
+body { font-family: 'Helvetica Neue', sans-serif; background: #f5f5f5; display: flex; flex-direction: column; align-items: center; padding: 60px 20px; gap: 40px; }
+h1 { font-size: 28px; color: #333; }
+.palette { display: flex; gap: 24px; }
+.swatch { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.swatch__color { width: 120px; height: 180px; border-radius: 60px 60px 20px 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+.swatch__hex { font-size: 14px; color: #666; font-family: monospace; }
+.swatch__name { font-size: 13px; color: #999; }
+.combos { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+.combo { width: 280px; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.combo__header { padding: 20px; color: white; font-weight: 600; font-size: 15px; }
+.combo__body { padding: 20px; font-size: 14px; color: #333; }
+.combo__body span { display: inline-block; padding: 4px 12px; border-radius: 20px; margin: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>PALETA A</h1>
+<div class="palette">
+    <div class="swatch">
+        <div class="swatch__color" style="background: #F2AAAE;"></div>
+        <div class="swatch__hex">#F2AAAE</div>
+        <div class="swatch__name">Rosa</div>
+    </div>
+    <div class="swatch">
+        <div class="swatch__color" style="background: #D0AAD1;"></div>
+        <div class="swatch__hex">#D0AAD1</div>
+        <div class="swatch__name">Lavanda</div>
+    </div>
+    <div class="swatch">
+        <div class="swatch__color" style="background: #FFE7C1;"></div>
+        <div class="swatch__hex">#FFE7C1</div>
+        <div class="swatch__name">Crema</div>
+    </div>
+    <div class="swatch">
+        <div class="swatch__color" style="background: #D0E8E9;"></div>
+        <div class="swatch__hex">#D0E8E9</div>
+        <div class="swatch__name">Menta</div>
+    </div>
+    <div class="swatch">
+        <div class="swatch__color" style="background: #F4C09D;"></div>
+        <div class="swatch__hex">#F4C09D</div>
+        <div class="swatch__name">Melocoton</div>
+    </div>
+</div>
+
+<h1>Combinaciones</h1>
+<div class="combos">
+    <div class="combo">
+        <div class="combo__header" style="background: linear-gradient(135deg, #F2AAAE, #D0AAD1);">Rosa + Lavanda</div>
+        <div class="combo__body" style="background: #FFE7C1;">
+            Texto sobre crema
+            <br><span style="background: #F2AAAE; color: white;">Boton Rosa</span>
+            <span style="background: #D0E8E9; color: #333;">Chip Menta</span>
+        </div>
+    </div>
+    <div class="combo">
+        <div class="combo__header" style="background: linear-gradient(135deg, #D0AAD1, #D0E8E9);">Lavanda + Menta</div>
+        <div class="combo__body" style="background: #FFF8EE;">
+            Texto sobre fondo claro
+            <br><span style="background: #F4C09D; color: white;">Boton Melocoton</span>
+            <span style="background: #F2AAAE22; color: #F2AAAE; border: 1px solid #F2AAAE;">Outline Rosa</span>
+        </div>
+    </div>
+    <div class="combo">
+        <div class="combo__header" style="background: linear-gradient(135deg, #F4C09D, #F2AAAE);">Melocoton + Rosa</div>
+        <div class="combo__body" style="background: #D0E8E933;">
+            Texto sobre menta suave
+            <br><span style="background: #D0AAD1; color: #2c2c2c;">Boton Lavanda</span>
+            <span style="background: #FFE7C1; color: #333;">Chip Crema</span>
+        </div>
+    </div>
+    <div class="combo">
+        <div class="combo__header" style="background: #2c2c2c;">Modo oscuro</div>
+        <div class="combo__body" style="background: #1a1a2e; color: #eee;">
+            Texto claro
+            <br><span style="background: #F2AAAE; color: #1a1a2e;">Rosa</span>
+            <span style="background: #D0AAD1; color: #1a1a2e;">Lavanda</span>
+            <span style="background: #D0E8E9; color: #1a1a2e;">Menta</span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -93,6 +93,8 @@ const state = {
     juegoIndex: 0,
     juegoScore: 0,
     juegoAnswers: [],
+    // Eliana Widget
+    elianaWidgetState: 'fab',  // 'fab' | 'floating' | 'docked' | 'expanded'
     // Diapo 5 — Agentes
     diapo5Step: 0,
     _diapo5Ws: null,
@@ -3770,12 +3772,15 @@ function showBlindaScreen() {
     if (typeof advanceDemoTo === 'function') advanceDemoTo(0);
     if (typeof resetTerritoryHighlight === 'function') resetTerritoryHighlight();
 
-    // Orb — compact size for blinda (120px desktop, smaller on mobile)
+    // Orb — in widget header
     const orbContainer = document.getElementById('blinda-orb-container');
     if (orbContainer && window.orbCreateInElement) {
-        const orbSize = window.innerWidth <= 480 ? 64 : window.innerWidth <= 968 ? 80 : 120;
-        window.orbCreateInElement(orbContainer, orbSize);
+        window.orbCreateInElement(orbContainer, 36);
     }
+
+    // Init Eliana widget — start as FAB
+    setWidgetState('fab');
+    initWidgetListeners();
 }
 
 function hideBlindaScreen() {
@@ -3785,6 +3790,157 @@ function hideBlindaScreen() {
         elements.blindaScreen?.classList.remove('fade-out');
         showConoceScreen();
     }, 300);
+}
+
+// ---- Eliana Widget (floating/docked/expanded chat) ----
+
+function setWidgetState(newState) {
+    const widget = document.getElementById('eliana-widget');
+    const page = document.querySelector('.blinda-page--fullscreen');
+    if (!widget) return;
+
+    const oldState = state.elianaWidgetState;
+    state.elianaWidgetState = newState;
+
+    // Remove all state classes
+    widget.classList.remove('eliana-widget--fab', 'eliana-widget--floating', 'eliana-widget--docked', 'eliana-widget--expanded', 'eliana-widget--dragging');
+    widget.classList.add(`eliana-widget--${newState}`);
+    widget.dataset.state = newState;
+
+    // Reset inline drag position when changing state
+    if (newState !== oldState) {
+        widget.style.left = '';
+        widget.style.top = '';
+        widget.style.bottom = '';
+        widget.style.right = '';
+    }
+
+    // Toggle docked class on page for content margin
+    if (page) {
+        page.classList.toggle('blinda-page--has-docked', newState === 'docked');
+    }
+
+    // Entry animation for panel states
+    if (oldState === 'fab' && newState !== 'fab') {
+        widget.classList.add('eliana-widget--entering');
+        setTimeout(() => widget.classList.remove('eliana-widget--entering'), 400);
+    }
+
+    // Update expand button icon
+    const expandBtn = widget.querySelector('[data-action="expand"]');
+    if (expandBtn) {
+        const icon = expandBtn.querySelector('i');
+        if (icon) {
+            icon.className = newState === 'expanded' ? 'ph ph-arrows-in' : 'ph ph-arrows-out';
+        }
+        expandBtn.title = newState === 'expanded' ? 'Reducir' : 'Ampliar';
+    }
+
+    // Update dock button icon
+    const dockBtn = widget.querySelector('[data-action="dock"]');
+    if (dockBtn) {
+        const icon = dockBtn.querySelector('i');
+        if (icon) {
+            icon.className = newState === 'docked' ? 'ph ph-x-square' : 'ph ph-sidebar-simple';
+        }
+        dockBtn.title = newState === 'docked' ? 'Desanclar' : 'Anclar lateral';
+    }
+}
+
+function initWidgetDrag() {
+    const widget = document.getElementById('eliana-widget');
+    const header = document.getElementById('eliana-widget-header');
+    if (!widget || !header) return;
+
+    let isDragging = false;
+    let startX, startY, origLeft, origTop;
+
+    function onStart(e) {
+        // Only drag in floating/expanded states
+        if (state.elianaWidgetState === 'docked' || state.elianaWidgetState === 'fab') return;
+        // Don't drag from buttons
+        if (e.target.closest('.eliana-widget__btn')) return;
+
+        isDragging = true;
+        widget.classList.add('eliana-widget--dragging');
+
+        const touch = e.touches ? e.touches[0] : e;
+        const rect = widget.getBoundingClientRect();
+        startX = touch.clientX;
+        startY = touch.clientY;
+        origLeft = rect.left;
+        origTop = rect.top;
+
+        // Switch from bottom/right to left/top positioning for drag
+        widget.style.bottom = 'auto';
+        widget.style.right = 'auto';
+        widget.style.left = origLeft + 'px';
+        widget.style.top = origTop + 'px';
+
+        e.preventDefault();
+    }
+
+    function onMove(e) {
+        if (!isDragging) return;
+        const touch = e.touches ? e.touches[0] : e;
+        const dx = touch.clientX - startX;
+        const dy = touch.clientY - startY;
+        widget.style.left = (origLeft + dx) + 'px';
+        widget.style.top = (origTop + dy) + 'px';
+    }
+
+    function onEnd() {
+        if (!isDragging) return;
+        isDragging = false;
+        widget.classList.remove('eliana-widget--dragging');
+
+        // Clamp to viewport
+        const rect = widget.getBoundingClientRect();
+        const maxX = window.innerWidth - rect.width;
+        const maxY = window.innerHeight - rect.height;
+        widget.style.left = Math.max(0, Math.min(rect.left, maxX)) + 'px';
+        widget.style.top = Math.max(0, Math.min(rect.top, maxY)) + 'px';
+    }
+
+    header.addEventListener('mousedown', onStart);
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    header.addEventListener('touchstart', onStart, { passive: false });
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+}
+
+function initWidgetListeners() {
+    const widget = document.getElementById('eliana-widget');
+    if (!widget) return;
+
+    // FAB click → open floating
+    document.getElementById('eliana-widget-fab')?.addEventListener('click', () => {
+        setWidgetState('floating');
+    });
+
+    // Header action buttons
+    widget.querySelectorAll('.eliana-widget__btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const action = btn.dataset.action;
+            if (action === 'minimize') {
+                setWidgetState('fab');
+            } else if (action === 'dock') {
+                setWidgetState(state.elianaWidgetState === 'docked' ? 'floating' : 'docked');
+            } else if (action === 'expand') {
+                setWidgetState(state.elianaWidgetState === 'expanded' ? 'floating' : 'expanded');
+            }
+        });
+    });
+
+    // Init drag
+    initWidgetDrag();
+
+    // Create mini orb in FAB
+    if (window.orbCreateInElement) {
+        const fabOrb = document.getElementById('eliana-widget-orb-mini');
+        if (fabOrb) window.orbCreateInElement(fabOrb, 44);
+    }
 }
 
 // ---- Blinda Chat (interacción con Eliana dentro de diapo 3) ----
@@ -5749,8 +5905,8 @@ function checkDiapo6Advance(fullText) {
 // ============================================
 const DIAPO7_INGREDIENTS = [
     { icon: 'ph-fill ph-identification-badge', label: 'Nombre y descripción', desc: 'Identidad del agente: qué hace y para qué sirve', color: '#7EC8E3' },
-    { icon: 'ph-fill ph-brain', label: 'System Prompt', desc: 'El cerebro: instrucciones que definen su personalidad y comportamiento', color: '#994E95' },
-    { icon: 'ph-fill ph-cpu', label: 'Modelo de IA', desc: 'El motor: qué modelo de lenguaje usa (DeepSeek, GPT, Claude...)', color: '#6B82C4' },
+    { icon: 'ph-fill ph-brain', label: 'System Prompt', desc: 'El cerebro: instrucciones que definen su personalidad y comportamiento', color: '#D0AAD1' },
+    { icon: 'ph-fill ph-cpu', label: 'Modelo de IA', desc: 'El motor: qué modelo de lenguaje usa (DeepSeek, GPT, Claude...)', color: '#D0E8E9' },
     { icon: 'ph-fill ph-thermometer-simple', label: 'Temperatura', desc: 'Creatividad vs precisión: de 0 (exacto) a 2 (creativo)', color: '#F48FB1' },
     { icon: 'ph-fill ph-graduation-cap', label: 'Nivel MCER', desc: 'A1, A2, B1... el agente adapta su lenguaje al nivel del alumno', color: '#81C784' },
     { icon: 'ph-fill ph-sliders-horizontal', label: 'Adherencia al nivel', desc: 'Cuánto debe ceñirse al nivel: flexible o estricto', color: '#FFB74D' }
@@ -5758,15 +5914,15 @@ const DIAPO7_INGREDIENTS = [
 
 const DIAPO7_ACTIVITY_TYPES = [
     { icon: 'ph-fill ph-chat-circle-text', label: 'Expresión oral', color: '#7EC8E3' },
-    { icon: 'ph-fill ph-book-open-text', label: 'Comprensión lectora', color: '#6B82C4' },
+    { icon: 'ph-fill ph-book-open-text', label: 'Comprensión lectora', color: '#D0E8E9' },
     { icon: 'ph-fill ph-text-aa', label: 'Vocabulario', color: '#81C784' },
     { icon: 'ph-fill ph-headphones', label: 'Comprensión auditiva', color: '#B39DDB' },
     { icon: 'ph-fill ph-pencil-line', label: 'Gramática', color: '#F48FB1' },
     { icon: 'ph-fill ph-pen-nib', label: 'Escritura', color: '#FFB74D' },
     { icon: 'ph-fill ph-speaker-high', label: 'Pronunciación', color: '#2A9FCC' },
-    { icon: 'ph-fill ph-check-square', label: 'Autoevaluación', color: '#994E95' },
+    { icon: 'ph-fill ph-check-square', label: 'Autoevaluación', color: '#D0AAD1' },
     { icon: 'ph-fill ph-users-three', label: 'Interacción oral', color: '#6B8F71' },
-    { icon: 'ph-fill ph-textbox', label: 'Ortografía', color: '#D4826A' }
+    { icon: 'ph-fill ph-textbox', label: 'Ortografía', color: '#F2AAAE' }
 ];
 
 const DIAPO7_STRUCTURES = [
@@ -5991,7 +6147,7 @@ function renderDiapo7Ingredients() {
     if (!container) return;
     container.innerHTML = `
         <h3 class="diapo7-section-title">
-            <i class="ph-fill ph-puzzle-piece" style="background: rgba(153,78,149,0.15); color: #994E95"></i>
+            <i class="ph-fill ph-puzzle-piece" style="background: rgba(153,78,149,0.15); color: #D0AAD1"></i>
             Los ingredientes de un agente
         </h3>
         <div class="diapo7-ingredients__grid">
@@ -6068,8 +6224,8 @@ function renderDiapo7Activities() {
         </h3>
         <p class="diapo7-activities__subtitle">El profe diseña actividades y elige qué agentes ofrece al alumno en cada una</p>
         <div class="diapo7-ingredients__grid">
-            <div class="diapo7-ingredient-card" style="background: linear-gradient(160deg, #994E9522 0%, rgba(239,237,247,0.5) 100%); border-color: #994E9533">
-                <div class="diapo7-ingredient-card__icon" style="background: #994E9522; color: #994E95">
+            <div class="diapo7-ingredient-card" style="background: linear-gradient(160deg, #D0AAD122 0%, rgba(239,237,247,0.5) 100%); border-color: #D0AAD133">
+                <div class="diapo7-ingredient-card__icon" style="background: #D0AAD122; color: #D0AAD1">
                     <i class="ph-fill ph-list-bullets"></i>
                 </div>
                 <div class="diapo7-ingredient-card__text">
@@ -6077,8 +6233,8 @@ function renderDiapo7Activities() {
                     <span>Expresión oral, comprensión lectora, vocabulario, gramática, escritura, pronunciación, autoevaluación, interacción oral, ortografía, comprensión auditiva</span>
                 </div>
             </div>
-            <div class="diapo7-ingredient-card" style="background: linear-gradient(160deg, #6B82C422 0%, rgba(239,237,247,0.5) 100%); border-color: #6B82C433">
-                <div class="diapo7-ingredient-card__icon" style="background: #6B82C422; color: #6B82C4">
+            <div class="diapo7-ingredient-card" style="background: linear-gradient(160deg, #D0E8E922 0%, rgba(239,237,247,0.5) 100%); border-color: #D0E8E933">
+                <div class="diapo7-ingredient-card__icon" style="background: #D0E8E922; color: #D0E8E9">
                     <i class="ph-fill ph-grid-four"></i>
                 </div>
                 <div class="diapo7-ingredient-card__text">
@@ -6107,7 +6263,7 @@ function renderDiapo7Workshop() {
     if (!container) return;
     container.innerHTML = `
         <h3 class="diapo7-section-title">
-            <i class="ph-fill ph-chalkboard-teacher" style="background: rgba(212,130,106,0.15); color: #D4826A"></i>
+            <i class="ph-fill ph-chalkboard-teacher" style="background: rgba(212,130,106,0.15); color: #F2AAAE"></i>
             Taller online — Mayo 2026
         </h3>
         <p class="diapo7-activities__subtitle">Crea tus propios agentes para tu manual y tus alumnos</p>
