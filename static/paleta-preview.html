@@ -5,26 +5,47 @@
 <title>Paleta A — Preview</title>
 <style>
 body { font-family: 'Helvetica Neue', sans-serif; background: #f5f5f5; display: flex; flex-direction: column; align-items: center; padding: 60px 20px; gap: 40px; }
-h1 { font-size: 28px; color: #333; }
-.palette { display: flex; gap: 24px; }
+h1 { font-size: 28px; color: #333; margin: 0; }
+h2 { font-size: 18px; color: #666; margin: 0; font-weight: 500; letter-spacing: 0.02em; }
+.section { display: flex; flex-direction: column; gap: 20px; align-items: center; width: 100%; max-width: 1200px; }
+.palette { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
 .swatch { display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .swatch__color { width: 120px; height: 180px; border-radius: 60px 60px 20px 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
 .swatch__hex { font-size: 14px; color: #666; font-family: monospace; }
 .swatch__name { font-size: 13px; color: #999; }
+.swatch__num { font-size: 28px; font-weight: 800; color: #333; font-family: 'Dosis', sans-serif; }
 .combos { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
 .combo { width: 280px; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
 .combo__header { padding: 20px; color: white; font-weight: 600; font-size: 15px; }
 .combo__body { padding: 20px; font-size: 14px; color: #333; }
 .combo__body span { display: inline-block; padding: 4px 12px; border-radius: 20px; margin: 4px; font-size: 12px; }
+
+/* Header mockup — realistic slide-header preview */
+.header-mock { width: 100%; max-width: 1100px; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+.header-mock__label { padding: 10px 16px; background: #fff; font-size: 13px; color: #666; font-family: monospace; display: flex; justify-content: space-between; align-items: center; }
+.header-mock__label b { color: #333; font-size: 15px; font-family: 'Helvetica Neue', sans-serif; }
+.header-mock__bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; color: #fff; }
+.header-mock__nav { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.header-mock__title { display: flex; align-items: baseline; gap: 16px; flex: 1; justify-content: center; }
+.header-mock__num { font-size: 11px; padding: 4px 12px; border-radius: 999px; background: rgba(255,255,255,0.25); letter-spacing: 0.12em; font-weight: 600; }
+.header-mock__text { font-family: 'Dosis', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: 0.02em; }
+.header-mock__preview-body { padding: 30px; background: #E8F2F3; display: flex; gap: 16px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.header-mock__preview-body .chip { padding: 8px 18px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+
+/* Button preview */
+.btn-preview { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.btn { padding: 12px 28px; border-radius: 999px; font-weight: 700; font-size: 14px; font-family: 'Dosis', sans-serif; letter-spacing: 0.08em; }
+
+.recommend { display: inline-block; background: #8CBEB2; color: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; margin-left: 8px; text-transform: uppercase; }
 </style>
 </head>
 <body>
 <h1>PALETA A</h1>
 <div class="palette">
     <div class="swatch">
-        <div class="swatch__color" style="background: #F2AAAE;"></div>
-        <div class="swatch__hex">#F2AAAE</div>
-        <div class="swatch__name">Rosa</div>
+        <div class="swatch__color" style="background: #C9A632;"></div>
+        <div class="swatch__hex">#C9A632</div>
+        <div class="swatch__name">Mostaza oscuro</div>
     </div>
     <div class="swatch">
         <div class="swatch__color" style="background: #D0AAD1;"></div>
@@ -42,19 +63,19 @@ h1 { font-size: 28px; color: #333; }
         <div class="swatch__name">Menta</div>
     </div>
     <div class="swatch">
-        <div class="swatch__color" style="background: #F4C09D;"></div>
-        <div class="swatch__hex">#F4C09D</div>
-        <div class="swatch__name">Melocoton</div>
+        <div class="swatch__color" style="background: #C9A632;"></div>
+        <div class="swatch__hex">#C9A632</div>
+        <div class="swatch__name">Mostaza claro</div>
     </div>
 </div>
 
 <h1>Combinaciones</h1>
 <div class="combos">
     <div class="combo">
-        <div class="combo__header" style="background: linear-gradient(135deg, #F2AAAE, #D0AAD1);">Rosa + Lavanda</div>
+        <div class="combo__header" style="background: linear-gradient(135deg, #C9A632, #D0AAD1);">Mostaza oscuro + Lavanda</div>
         <div class="combo__body" style="background: #FFE7C1;">
             Texto sobre crema
-            <br><span style="background: #F2AAAE; color: white;">Boton Rosa</span>
+            <br><span style="background: #C9A632; color: white;">Boton Mostaza oscuro</span>
             <span style="background: #D0E8E9; color: #333;">Chip Menta</span>
         </div>
     </div>
@@ -62,12 +83,12 @@ h1 { font-size: 28px; color: #333; }
         <div class="combo__header" style="background: linear-gradient(135deg, #D0AAD1, #D0E8E9);">Lavanda + Menta</div>
         <div class="combo__body" style="background: #FFF8EE;">
             Texto sobre fondo claro
-            <br><span style="background: #F4C09D; color: white;">Boton Melocoton</span>
-            <span style="background: #F2AAAE22; color: #F2AAAE; border: 1px solid #F2AAAE;">Outline Rosa</span>
+            <br><span style="background: #C9A632; color: white;">Boton Mostaza claro</span>
+            <span style="background: #C9A63222; color: #C9A632; border: 1px solid #C9A632;">Outline Mostaza oscuro</span>
         </div>
     </div>
     <div class="combo">
-        <div class="combo__header" style="background: linear-gradient(135deg, #F4C09D, #F2AAAE);">Melocoton + Rosa</div>
+        <div class="combo__header" style="background: linear-gradient(135deg, #C9A632, #C9A632);">Mostaza claro + Mostaza oscuro</div>
         <div class="combo__body" style="background: #D0E8E933;">
             Texto sobre menta suave
             <br><span style="background: #D0AAD1; color: #2c2c2c;">Boton Lavanda</span>
@@ -78,11 +99,285 @@ h1 { font-size: 28px; color: #333; }
         <div class="combo__header" style="background: #2c2c2c;">Modo oscuro</div>
         <div class="combo__body" style="background: #1a1a2e; color: #eee;">
             Texto claro
-            <br><span style="background: #F2AAAE; color: #1a1a2e;">Rosa</span>
+            <br><span style="background: #C9A632; color: #1a1a2e;">Mostaza oscuro</span>
             <span style="background: #D0AAD1; color: #1a1a2e;">Lavanda</span>
             <span style="background: #D0E8E9; color: #1a1a2e;">Menta</span>
         </div>
     </div>
 </div>
+
+<!-- ============================================
+     AMARILLOS CANDIDATOS — reemplazo del header melocoton+rosa
+     ============================================ -->
+<div style="width: 100%; height: 2px; background: #ddd; margin: 40px 0 20px;"></div>
+
+<div class="section">
+    <h1>AMARILLOS CANDIDATOS</h1>
+    <h2>Reemplazo del gradiente melocoton -> rosa del header (aplicable a TODAS las diapositivas)</h2>
+
+    <div class="palette">
+        <div class="swatch">
+            <div class="swatch__num">1</div>
+            <div class="swatch__color" style="background: linear-gradient(180deg, #F5D776 0%, #F2C84C 100%);"></div>
+            <div class="swatch__hex">#F5D776 -> #F2C84C</div>
+            <div class="swatch__name">Mantequilla</div>
+        </div>
+        <div class="swatch">
+            <div class="swatch__num">2</div>
+            <div class="swatch__color" style="background: linear-gradient(180deg, #F7C56B 0%, #E8A547 100%);"></div>
+            <div class="swatch__hex">#F7C56B -> #E8A547</div>
+            <div class="swatch__name">Miel <span class="recommend">Sugerido</span></div>
+        </div>
+        <div class="swatch">
+            <div class="swatch__num">3</div>
+            <div class="swatch__color" style="background: linear-gradient(180deg, #FFD960 0%, #FFC233 100%);"></div>
+            <div class="swatch__hex">#FFD960 -> #FFC233</div>
+            <div class="swatch__name">Sol pastel</div>
+        </div>
+        <div class="swatch">
+            <div class="swatch__num">4</div>
+            <div class="swatch__color" style="background: linear-gradient(180deg, #C9A632 0%, #C9A632 100%);"></div>
+            <div class="swatch__hex">#C9A632 -> #C9A632</div>
+            <div class="swatch__name">Mostaza suave</div>
+        </div>
+    </div>
+</div>
+
+<!-- Header mockups en contexto -->
+<div class="section">
+    <h1>Header en contexto</h1>
+    <h2>Como se veria la barra superior de la diapositiva con cada amarillo</h2>
+
+    <!-- ACTUAL: melocoton + rosa (referencia) -->
+    <div class="header-mock">
+        <div class="header-mock__label"><b>ACTUAL (a reemplazar)</b><span>#C9A632 -> #C9A632  |  melocoton + rosa</span></div>
+        <div class="header-mock__bar" style="background: linear-gradient(135deg, #C9A632 0%, #C9A632 100%); box-shadow: 0 2px 12px rgba(232,203,78,0.25);">
+            <div class="header-mock__nav">&larr;</div>
+            <div class="header-mock__title">
+                <span class="header-mock__num">0 2</span>
+                <span class="header-mock__text">&iquest;Que es un agente de IA?</span>
+            </div>
+            <div class="header-mock__nav">&rarr;</div>
+        </div>
+        <div class="header-mock__preview-body">
+            <span class="chip" style="background: #FFE7C1; color: #4A3520;">chip crema</span>
+            <span class="chip" style="background: #D0E8E9; color: #3A7278;">chip menta</span>
+            <span class="chip" style="background: #D0AAD1; color: #fff;">chip lavanda</span>
+        </div>
+    </div>
+
+    <!-- 1. MANTEQUILLA -->
+    <div class="header-mock">
+        <div class="header-mock__label"><b>1. MANTEQUILLA</b><span>#F5D776 -> #F2C84C</span></div>
+        <div class="header-mock__bar" style="background: linear-gradient(135deg, #F5D776 0%, #F2C84C 100%); box-shadow: 0 2px 12px rgba(242,200,76,0.25);">
+            <div class="header-mock__nav">&larr;</div>
+            <div class="header-mock__title">
+                <span class="header-mock__num">0 2</span>
+                <span class="header-mock__text">&iquest;Que es un agente de IA?</span>
+            </div>
+            <div class="header-mock__nav">&rarr;</div>
+        </div>
+        <div class="header-mock__preview-body">
+            <span class="chip" style="background: #FFE7C1; color: #4A3520;">chip crema</span>
+            <span class="chip" style="background: #D0E8E9; color: #3A7278;">chip menta</span>
+            <span class="chip" style="background: #D0AAD1; color: #fff;">chip lavanda</span>
+        </div>
+    </div>
+
+    <!-- 2. MIEL -->
+    <div class="header-mock">
+        <div class="header-mock__label"><b>2. MIEL (sugerido)</b><span>#F7C56B -> #E8A547</span></div>
+        <div class="header-mock__bar" style="background: linear-gradient(135deg, #F7C56B 0%, #E8A547 100%); box-shadow: 0 2px 12px rgba(232,165,71,0.3);">
+            <div class="header-mock__nav">&larr;</div>
+            <div class="header-mock__title">
+                <span class="header-mock__num">0 2</span>
+                <span class="header-mock__text">&iquest;Que es un agente de IA?</span>
+            </div>
+            <div class="header-mock__nav">&rarr;</div>
+        </div>
+        <div class="header-mock__preview-body">
+            <span class="chip" style="background: #FFE7C1; color: #4A3520;">chip crema</span>
+            <span class="chip" style="background: #D0E8E9; color: #3A7278;">chip menta</span>
+            <span class="chip" style="background: #D0AAD1; color: #fff;">chip lavanda</span>
+        </div>
+    </div>
+
+    <!-- 3. SOL PASTEL -->
+    <div class="header-mock">
+        <div class="header-mock__label"><b>3. SOL PASTEL</b><span>#FFD960 -> #FFC233</span></div>
+        <div class="header-mock__bar" style="background: linear-gradient(135deg, #FFD960 0%, #FFC233 100%); box-shadow: 0 2px 12px rgba(255,194,51,0.3);">
+            <div class="header-mock__nav">&larr;</div>
+            <div class="header-mock__title">
+                <span class="header-mock__num">0 2</span>
+                <span class="header-mock__text">&iquest;Que es un agente de IA?</span>
+            </div>
+            <div class="header-mock__nav">&rarr;</div>
+        </div>
+        <div class="header-mock__preview-body">
+            <span class="chip" style="background: #FFE7C1; color: #4A3520;">chip crema</span>
+            <span class="chip" style="background: #D0E8E9; color: #3A7278;">chip menta</span>
+            <span class="chip" style="background: #D0AAD1; color: #fff;">chip lavanda</span>
+        </div>
+    </div>
+
+    <!-- 4. MOSTAZA SUAVE -->
+    <div class="header-mock">
+        <div class="header-mock__label"><b>4. MOSTAZA SUAVE</b><span>#C9A632 -> #C9A632</span></div>
+        <div class="header-mock__bar" style="background: linear-gradient(135deg, #C9A632 0%, #C9A632 100%); box-shadow: 0 2px 12px rgba(201,166,50,0.3);">
+            <div class="header-mock__nav">&larr;</div>
+            <div class="header-mock__title">
+                <span class="header-mock__num">0 2</span>
+                <span class="header-mock__text">&iquest;Que es un agente de IA?</span>
+            </div>
+            <div class="header-mock__nav">&rarr;</div>
+        </div>
+        <div class="header-mock__preview-body">
+            <span class="chip" style="background: #FFE7C1; color: #4A3520;">chip crema</span>
+            <span class="chip" style="background: #D0E8E9; color: #3A7278;">chip menta</span>
+            <span class="chip" style="background: #D0AAD1; color: #fff;">chip lavanda</span>
+        </div>
+    </div>
+</div>
+
+<!-- Combinaciones de cada amarillo con el resto de la paleta -->
+<div class="section">
+    <h1>Combinaciones con la paleta existente</h1>
+    <h2>Como convive cada amarillo con rosa / lavanda / menta / crema</h2>
+
+    <!-- MANTEQUILLA combos -->
+    <div style="width: 100%; text-align: center; padding: 20px 0 10px; font-family: 'Dosis', sans-serif; font-weight: 800; font-size: 20px; color: #333;">1. MANTEQUILLA  (#F5D776 -> #F2C84C)</div>
+    <div class="combos">
+        <div class="combo">
+            <div class="combo__header" style="background: linear-gradient(135deg, #F5D776, #F2C84C);">Mantequilla header</div>
+            <div class="combo__body" style="background: #FFE7C1;">
+                Texto sobre crema
+                <br><span style="background: #D0AAD1; color: #2c2c2c;">Boton lavanda</span>
+                <span style="background: #D0E8E9; color: #3A7278;">Chip menta</span>
+                <span style="background: #C9A632; color: white;">Chip rosa</span>
+            </div>
+        </div>
+        <div class="combo">
+            <div class="combo__header" style="background: linear-gradient(135deg, #F5D776, #F2C84C);">Mantequilla</div>
+            <div class="combo__body" style="background: #E8F2F3;">
+                Texto sobre menta suave (fondo real de la app)
+                <br><span style="background: #F2C84C; color: #2c2c2c;">Chip amarillo</span>
+                <span style="background: #D0AAD1; color: #fff;">Boton lavanda</span>
+            </div>
+        </div>
+        <div class="combo">
+            <div class="combo__header" style="background: #F2C84C; color: #2c2c2c;">Solo (sin gradiente)</div>
+            <div class="combo__body" style="background: #fff;">
+                Uso plano sobre blanco
+                <br><span style="background: #F2C84C; color: #2c2c2c;">Chip amarillo</span>
+                <span style="background: #FFE7C1; color: #A87B3C;">Chip crema</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MIEL combos -->
+    <div style="width: 100%; text-align: center; padding: 30px 0 10px; font-family: 'Dosis', sans-serif; font-weight: 800; font-size: 20px; color: #333;">2. MIEL  (#F7C56B -> #E8A547)  &mdash; sugerido</div>
+    <div class="combos">
+        <div class="combo">
+            <div class="combo__header" style="background: linear-gradient(135deg, #F7C56B, #E8A547);">Miel header</div>
+            <div class="combo__body" style="background: #FFE7C1;">
+                Texto sobre crema
+                <br><span style="background: #D0AAD1; color: #2c2c2c;">Boton lavanda</span>
+                <span style="background: #D0E8E9; color: #3A7278;">Chip menta</span>
+                <span style="background: #C9A632; color: white;">Chip rosa</span>
+            </div>
+        </div>
+        <div class="combo">
+            <div class="combo__header" style="background: linear-gradient(135deg, #F7C56B, #E8A547);">Miel</div>
+            <div class="combo__body" style="background: #E8F2F3;">
+                Texto sobre menta suave (fondo real de la app)
+                <br><span style="background: #E8A547; color: #fff;">Chip miel</span>
+                <span style="background: #D0AAD1; color: #fff;">Boton lavanda</span>
+            </div>
+        </div>
+        <div class="combo">
+            <div class="combo__header" style="background: #E8A547;">Solo (sin gradiente)</div>
+            <div class="combo__body" style="background: #fff;">
+                Uso plano sobre blanco
+                <br><span style="background: #E8A547; color: #fff;">Chip miel</span>
+                <span style="background: #FFE7C1; color: #A87B3C;">Chip crema</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SOL PASTEL combos -->
+    <div style="width: 100%; text-align: center; padding: 30px 0 10px; font-family: 'Dosis', sans-serif; font-weight: 800; font-size: 20px; color: #333;">3. SOL PASTEL  (#FFD960 -> #FFC233)</div>
+    <div class="combos">
+        <div class="combo">
+            <div class="combo__header" style="background: linear-gradient(135deg, #FFD960, #FFC233);">Sol header</div>
+            <div class="combo__body" style="background: #FFE7C1;">
+                Texto sobre crema
+                <br><span style="background: #D0AAD1; color: #2c2c2c;">Boton lavanda</span>
+                <span style="background: #D0E8E9; color: #3A7278;">Chip menta</span>
+                <span style="background: #C9A632; color: white;">Chip rosa</span>
+            </div>
+        </div>
+        <div class="combo">
+            <div class="combo__header" style="background: linear-gradient(135deg, #FFD960, #FFC233);">Sol</div>
+            <div class="combo__body" style="background: #E8F2F3;">
+                Texto sobre menta suave (fondo real de la app)
+                <br><span style="background: #FFC233; color: #2c2c2c;">Chip sol</span>
+                <span style="background: #D0AAD1; color: #fff;">Boton lavanda</span>
+            </div>
+        </div>
+        <div class="combo">
+            <div class="combo__header" style="background: #FFC233; color: #2c2c2c;">Solo (sin gradiente)</div>
+            <div class="combo__body" style="background: #fff;">
+                Uso plano sobre blanco
+                <br><span style="background: #FFC233; color: #2c2c2c;">Chip sol</span>
+                <span style="background: #FFE7C1; color: #A87B3C;">Chip crema</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOSTAZA combos -->
+    <div style="width: 100%; text-align: center; padding: 30px 0 10px; font-family: 'Dosis', sans-serif; font-weight: 800; font-size: 20px; color: #333;">4. MOSTAZA SUAVE  (#C9A632 -> #C9A632)</div>
+    <div class="combos">
+        <div class="combo">
+            <div class="combo__header" style="background: linear-gradient(135deg, #C9A632, #C9A632);">Mostaza header</div>
+            <div class="combo__body" style="background: #FFE7C1;">
+                Texto sobre crema
+                <br><span style="background: #D0AAD1; color: #2c2c2c;">Boton lavanda</span>
+                <span style="background: #D0E8E9; color: #3A7278;">Chip menta</span>
+                <span style="background: #C9A632; color: white;">Chip rosa</span>
+            </div>
+        </div>
+        <div class="combo">
+            <div class="combo__header" style="background: linear-gradient(135deg, #C9A632, #C9A632);">Mostaza</div>
+            <div class="combo__body" style="background: #E8F2F3;">
+                Texto sobre menta suave (fondo real de la app)
+                <br><span style="background: #C9A632; color: #fff;">Chip mostaza</span>
+                <span style="background: #D0AAD1; color: #fff;">Boton lavanda</span>
+            </div>
+        </div>
+        <div class="combo">
+            <div class="combo__header" style="background: #C9A632;">Solo (sin gradiente)</div>
+            <div class="combo__body" style="background: #fff;">
+                Uso plano sobre blanco
+                <br><span style="background: #C9A632; color: #fff;">Chip mostaza</span>
+                <span style="background: #FFE7C1; color: #A87B3C;">Chip crema</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Botones en cada amarillo -->
+<div class="section">
+    <h1>Botones en cada amarillo</h1>
+    <h2>Como se ve un CTA en el amarillo candidato (sobre fondo menta de la app)</h2>
+    <div style="background: #E8F2F3; padding: 40px; border-radius: 16px; width: 100%; max-width: 900px;">
+        <div class="btn-preview">
+            <button class="btn" style="background: #F2C84C; color: #2c2c2c; box-shadow: 0 8px 24px rgba(242,200,76,0.4);">1. MANTEQUILLA</button>
+            <button class="btn" style="background: #E8A547; color: #fff; box-shadow: 0 8px 24px rgba(232,165,71,0.4);">2. MIEL</button>
+            <button class="btn" style="background: #FFC233; color: #2c2c2c; box-shadow: 0 8px 24px rgba(255,194,51,0.4);">3. SOL PASTEL</button>
+            <button class="btn" style="background: #C9A632; color: #fff; box-shadow: 0 8px 24px rgba(201,166,50,0.4);">4. MOSTAZA</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

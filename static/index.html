@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.2.5">
+    <link rel="stylesheet" href="/static/style.css?v=23.3.6">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -102,7 +102,102 @@
         </main>
 
         <!-- ============================================
-             PANTALLA CONOCE A ELIANA
+             PANTALLA 02 — JUEGO INTRO (¿Qué es un agente de IA?)
+             ============================================ -->
+        <main class="main-content jintro-screen hidden" id="juego-intro-screen">
+            <div class="jintro-page">
+                <!-- Slide header -->
+                <header class="slide-header">
+                    <button class="slide-nav-btn slide-nav-btn--back" id="juego-intro-back" title="Volver">
+                        <i class="ph ph-arrow-left"></i>
+                    </button>
+                    <div class="slide-header__title">
+                        <span class="slide-header__num">02</span>
+                        <h1 class="slide-header__text">&iquest;Qu&eacute; es un agente de IA?</h1>
+                    </div>
+                    <button class="slide-nav-btn slide-nav-btn--next" id="juego-intro-next" title="Empezar a jugar">
+                        <i class="ph ph-arrow-right"></i>
+                    </button>
+                </header>
+
+                <!-- Grid principal: ladder (izq) + cómo se juega (der) -->
+                <div class="jintro-grid">
+                    <!-- Columna izquierda: progresión Chatbot → Asistente → Agente + bocadillo -->
+                    <section class="jintro-left">
+                        <p class="jintro-lead">Tres niveles de IA. Solo uno <em>act&uacute;a</em>.</p>
+
+                        <div class="jintro-ladder">
+                            <div class="jintro-step jintro-step--chatbot">
+                                <div class="jintro-step__icon"><i class="ph-fill ph-chat-circle-text"></i></div>
+                                <h3 class="jintro-step__name">Chatbot</h3>
+                                <p class="jintro-step__verb">responde</p>
+                                <p class="jintro-step__desc">Frases pregrabadas, sin contexto</p>
+                            </div>
+                            <div class="jintro-arrow"><i class="ph-bold ph-caret-right"></i></div>
+                            <div class="jintro-step jintro-step--asistente">
+                                <div class="jintro-step__icon"><i class="ph-fill ph-chat-teardrop-text"></i></div>
+                                <h3 class="jintro-step__name">Asistente</h3>
+                                <p class="jintro-step__verb">escribe</p>
+                                <p class="jintro-step__desc">Genera texto, t&uacute; lo manejas</p>
+                            </div>
+                            <div class="jintro-arrow"><i class="ph-bold ph-caret-right"></i></div>
+                            <div class="jintro-step jintro-step--agente">
+                                <div class="jintro-step__icon"><i class="ph-fill ph-robot"></i></div>
+                                <h3 class="jintro-step__name">Agente</h3>
+                                <p class="jintro-step__verb">HACE</p>
+                                <p class="jintro-step__desc">Planifica, ejecuta, entrega</p>
+                            </div>
+                        </div>
+
+                        <!-- Gato + bocadillo -->
+                        <div class="jintro-cat-block">
+                            <img src="/static/imagenes/explorador.png" alt="Explorador" class="jintro-cat">
+                            <div class="jintro-bubble">
+                                <p>&laquo;Un <strong class="jintro-kw jintro-kw--chatbot">chatbot</strong> te responde.<br>Un <strong class="jintro-kw jintro-kw--asistente">asistente</strong> te escribe.<br>Un <strong class="jintro-kw jintro-kw--agente">agente</strong> te lo <em>hace</em>.&raquo;</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Columna derecha: ¿Cómo se juega? + QR -->
+                    <aside class="jintro-right">
+                        <div class="jintro-how">
+                            <h3 class="jintro-how__title"><i class="ph-fill ph-game-controller"></i> &iquest;C&oacute;mo se juega?</h3>
+                            <ol class="jintro-steps">
+                                <li>
+                                    <span class="jintro-step-num">1</span>
+                                    <span class="jintro-step-text">Ver&aacute;s <strong>10 situaciones reales de aula</strong>, una detr&aacute;s de otra.</span>
+                                </li>
+                                <li>
+                                    <span class="jintro-step-num">2</span>
+                                    <span class="jintro-step-text">Para cada una, decide: <strong>&iquest;chatbot, asistente o agente?</strong></span>
+                                </li>
+                                <li>
+                                    <span class="jintro-step-num">3</span>
+                                    <span class="jintro-step-text">Tras responder ver&aacute;s si acertaste y la explicaci&oacute;n.</span>
+                                </li>
+                                <li>
+                                    <span class="jintro-step-num">4</span>
+                                    <span class="jintro-step-text">Al final: <strong>tu puntuaci&oacute;n</strong> y qui&eacute;n domina mejor la diferencia.</span>
+                                </li>
+                            </ol>
+                        </div>
+
+                        <div class="jintro-qr">
+                            <img src="/static/imagenes/qr-juego-intro.svg" alt="QR juego intro" class="jintro-qr__img">
+                            <span class="jintro-qr__label">Juega desde tu m&oacute;vil</span>
+                        </div>
+                    </aside>
+                </div>
+
+                <!-- CTA -->
+                <button class="jintro-cta" id="juego-intro-empezar" type="button">
+                    <i class="ph-fill ph-play"></i> EMPEZAR A JUGAR
+                </button>
+            </div>
+        </main>
+
+        <!-- ============================================
+             PANTALLA CONOCE A ELIANA (LEGACY — oculta, no accesible)
              ============================================ -->
         <main class="main-content conoce-screen hidden" id="conoce-screen">
             <button class="conoce-next-btn" id="conoce-next-btn" title="Siguiente escena">
@@ -1308,6 +1403,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.2.5"></script>
+    <script src="/static/app.js?v=23.3.6"></script>
 </body>
 </html>

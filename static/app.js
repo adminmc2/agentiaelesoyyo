@@ -3526,12 +3526,41 @@ function handleEnterBtn() {
     warmupIOSAudio();
     enableTTS();
 
-    // Transición a la pantalla "Conoce a Eliana"
+    // Transición a la pantalla 02 — Juego Intro (¿Qué es un agente de IA?)
     elements.loginScreen?.classList.add('fade-out');
     setTimeout(() => {
         elements.loginScreen?.classList.add('hidden');
         elements.loginScreen?.classList.remove('fade-out');
-        showConoceScreen();
+        showJuegoIntroScreen();
+    }, 300);
+}
+
+// ---- Diapo 02 — Juego Intro ----
+function showJuegoIntroScreen() {
+    stopTTS();
+    // Ocultar todas las demás pantallas
+    elements.loginScreen?.classList.add('hidden');
+    elements.conoceScreen?.classList.add('hidden');
+    elements.chatScreen?.classList.add('hidden');
+    elements.blindaScreen?.classList.add('hidden');
+    elements.juegoScreen?.classList.add('hidden');
+    elements.diapo5Screen?.classList.add('hidden');
+    elements.diapo6Screen?.classList.add('hidden');
+    elements.diapo7Screen?.classList.add('hidden');
+
+    const screen = document.getElementById('juego-intro-screen');
+    if (!screen) return;
+    screen.classList.remove('hidden');
+    screen.classList.remove('fade-out');
+}
+
+function hideJuegoIntroScreen() {
+    const screen = document.getElementById('juego-intro-screen');
+    if (!screen) return;
+    screen.classList.add('fade-out');
+    setTimeout(() => {
+        screen.classList.add('hidden');
+        screen.classList.remove('fade-out');
     }, 300);
 }
 
@@ -5922,7 +5951,7 @@ const DIAPO7_ACTIVITY_TYPES = [
     { icon: 'ph-fill ph-speaker-high', label: 'Pronunciación', color: '#2A9FCC' },
     { icon: 'ph-fill ph-check-square', label: 'Autoevaluación', color: '#D0AAD1' },
     { icon: 'ph-fill ph-users-three', label: 'Interacción oral', color: '#6B8F71' },
-    { icon: 'ph-fill ph-textbox', label: 'Ortografía', color: '#F2AAAE' }
+    { icon: 'ph-fill ph-textbox', label: 'Ortografía', color: '#C9A632' }
 ];
 
 const DIAPO7_STRUCTURES = [
@@ -6263,7 +6292,7 @@ function renderDiapo7Workshop() {
     if (!container) return;
     container.innerHTML = `
         <h3 class="diapo7-section-title">
-            <i class="ph-fill ph-chalkboard-teacher" style="background: rgba(212,130,106,0.15); color: #F2AAAE"></i>
+            <i class="ph-fill ph-chalkboard-teacher" style="background: rgba(212,130,106,0.15); color: #C9A632"></i>
             Taller online — Mayo 2026
         </h3>
         <p class="diapo7-activities__subtitle">Crea tus propios agentes para tu manual y tus alumnos</p>
@@ -6980,8 +7009,21 @@ function init() {
             // Mostrar la pantalla solicitada
             if (screenParam === 'juego') showJuegoScreen();
             else if (screenParam === 'miau' && typeof showDiapo6Screen === 'function') showDiapo6Screen();
+            else if (screenParam === 'juego-intro') showJuegoIntroScreen();
         }, 500);
     }
+
+    // Event listeners para la diapo 02 — Juego Intro
+    document.getElementById('juego-intro-back')?.addEventListener('click', () => {
+        hideJuegoIntroScreen();
+        setTimeout(() => showLoginScreen(), 300);
+    });
+    const goToBlinda = () => {
+        hideJuegoIntroScreen();
+        setTimeout(() => showBlindaScreen(), 300);
+    };
+    document.getElementById('juego-intro-next')?.addEventListener('click', goToBlinda);
+    document.getElementById('juego-intro-empezar')?.addEventListener('click', goToBlinda);
 
     console.log('Eliana inicializada');
 }

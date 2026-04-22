@@ -122,17 +122,19 @@ Esto incluye:
 | Rol | Color | Hex | Uso |
 |-----|-------|-----|-----|
 | Primary | Lavanda | `#D0AAD1` | Botones principales (texto oscuro #2c2c2c) |
-| Secondary | Melocotón | `#F4C09D` | Accent / gradiente header |
-| Tertiary | Rosa | `#F2AAAE` | Accent / gradiente header |
+| Accent amarillo | Mostaza oscuro | `#C9A632` | Header sólido de todas las diapositivas |
+| Título marca | Mostaza profundo | `#8A6A1C` | Solo para "Eliana" en la portada |
 | Surface | Crema | `#FFE7C1` + fondo `#E8F2F3` (menta suave) | Background |
 | Accent | Menta | `#D0E8E9` | Chips, estados tranquilos |
 | Success | Verde menta | `#8CBEB2` | Estados correctos |
 
+**Nota (v23.3.5):** sistema simplificado a UN SOLO amarillo sólido `#C9A632` (mostaza oscuro) — se eliminó el mostaza claro `#E8CB4E` por falta de contraste. El melocotón `#F4C09D` y el rosa `#F2AAAE` ya habían sido eliminados en v23.3.3.
+
 ### Header estándar de diapositivas
 - Clase: `.slide-header` (position: fixed, top)
-- Fondo: gradiente `linear-gradient(135deg, #F4C09D 0%, #F2AAAE 100%)`
-- Texto: blanco
-- Contiene: número de diapo (pill frosted), título (Dosis 800 22px), subtítulo
+- Fondo: **color sólido** `#C9A632` (sin gradiente)
+- Texto: blanco TODO en **negrita 900** (Dosis 900 título 24px, Source Sans 900 pill, 900 subtítulo)
+- Contiene: número de diapo (pill frosted), título, subtítulo
 - Navegación: `.slide-nav-btn` redondos Lavanda con iconos oscuros (hover: púrpura + blanco)
 
 ### Formato
