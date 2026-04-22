@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Descubre al agente</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Dosis:wght@400;500;600;700;800&family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/fill/style.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body {
+            margin: 0; padding: 0;
+            font-family: 'Source Sans 3', -apple-system, sans-serif;
+            background: #E8F2F3;
+            color: #2c2c2c;
+            min-height: 100vh;
+            min-height: 100dvh;
+            overscroll-behavior: none;
+        }
+        .app {
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header mostaza */
+        .hdr {
+            background: #C9A632;
+            color: #2c2c2c;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 2px 10px rgba(138, 106, 28, 0.3);
+        }
+        .hdr__title {
+            font: 900 16px 'Dosis', sans-serif;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin: 0;
+        }
+        .hdr__progress {
+            font: 900 13px 'Source Sans 3', sans-serif;
+            background: #FFE7C1;
+            padding: 4px 12px;
+            border-radius: 999px;
+            letter-spacing: 0.1em;
+        }
+
+        /* Main area */
+        .main {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Estado idle / ended */
+        .panel {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 28px 24px;
+            box-shadow: 0 6px 20px rgba(74, 45, 75, 0.08);
+            text-align: center;
+            margin-top: 40px;
+        }
+        .panel h2 {
+            font: 900 22px 'Dosis', sans-serif;
+            color: #6B2F6D;
+            margin: 0 0 10px;
+        }
+        .panel p {
+            font: 400 16px/1.5 'Source Sans 3', sans-serif;
+            color: #555;
+            margin: 0;
+        }
+
+        /* Área / título */
+        .area {
+            font: 800 12px 'Source Sans 3', sans-serif;
+            color: #6B2F6D;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin: 0;
+        }
+        .intro {
+            font: 500 16px/1.5 'Source Sans 3', sans-serif;
+            color: #2c2c2c;
+            margin: 0;
+            background: #FFE7C1;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border-left: 4px solid #C9A632;
+        }
+        .intro em { font-style: italic; font-weight: 700; color: #6B2F6D; }
+        .question {
+            font: 900 22px/1.15 'Dosis', sans-serif;
+            color: #2c2c2c;
+            margin: 4px 0 0;
+        }
+
+        /* Opciones (botones) */
+        .options { display: flex; flex-direction: column; gap: 12px; }
+        .option {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 16px;
+            background: #FFFFFF;
+            border: 2px solid rgba(107, 47, 109, 0.12);
+            border-radius: 16px;
+            cursor: pointer;
+            font: 400 15px/1.5 'Source Sans 3', sans-serif;
+            color: #2c2c2c;
+            text-align: left;
+            transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+            box-shadow: 0 3px 10px rgba(74, 45, 75, 0.06);
+        }
+        .option:active { transform: scale(0.98); }
+        .option__letter {
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            border-radius: 50%;
+            background: #D0AAD1;
+            color: #2c2c2c;
+            font: 900 16px/36px 'Dosis', sans-serif;
+            text-align: center;
+            flex-shrink: 0;
+            border: 2px solid #FFFFFF;
+            box-shadow: 0 2px 6px rgba(208, 170, 209, 0.5);
+        }
+        .option__body {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            min-width: 0;
+        }
+        .option__icon {
+            font-size: 22px;
+            color: #6B2F6D;
+        }
+        .option__text { margin: 0; }
+
+        /* Estado seleccionado */
+        .option--selected {
+            border-color: #6B2F6D;
+            background: rgba(208, 170, 209, 0.18);
+        }
+        .option--selected .option__letter { background: #6B2F6D; color: #FFFFFF; }
+
+        /* Estado revelado */
+        .option--correct {
+            border-color: #8CBEB2;
+            background: rgba(140, 190, 178, 0.18);
+        }
+        .option--correct .option__letter { background: #8CBEB2; color: #FFFFFF; }
+        .option--wrong {
+            border-color: #d9a2a6;
+            background: rgba(217, 162, 166, 0.14);
+            opacity: 0.7;
+        }
+
+        /* Waiting banner */
+        .waiting {
+            background: #D0E8E9;
+            color: #3a7278;
+            padding: 14px 18px;
+            border-radius: 14px;
+            text-align: center;
+            font: 700 15px 'Source Sans 3', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* Explicación revelada */
+        .explain {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 6px 20px rgba(74, 45, 75, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .explain__row {
+            display: flex;
+            gap: 10px;
+            font: 400 14px/1.4 'Source Sans 3', sans-serif;
+        }
+        .explain__tag {
+            font-weight: 800;
+            min-width: 82px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            font-size: 11px;
+            padding-top: 2px;
+        }
+        .explain__tag--chatbot { color: #A87B3C; }
+        .explain__tag--asistente { color: #4A8C8E; }
+        .explain__tag--agente { color: #6B2F6D; }
+
+        /* Footer version */
+        .ver {
+            text-align: center;
+            font: 500 10px 'Source Sans 3', sans-serif;
+            color: #aaa;
+            padding: 12px;
+        }
+
+        /* Formato helpers */
+        .format-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font: 700 11px 'Source Sans 3', sans-serif;
+            color: #6B2F6D;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            background: rgba(208, 170, 209, 0.25);
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app" id="app">
+        <header class="hdr">
+            <h1 class="hdr__title">Descubre al agente</h1>
+            <span class="hdr__progress" id="progress">— / 10</span>
+        </header>
+
+        <main class="main" id="content">
+            <!-- Contenido dinámico -->
+        </main>
+
+        <p class="ver">v23.6.0</p>
+    </div>
+
+    <script>
+        const WS_URL = `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws/juego3`;
+        const state = {
+            cards: null,
+            currentCard: -1,
+            phase: 'idle',
+            total: 10,
+            selected: null,      // letra votada por este usuario para la carta actual
+            votedCards: {},       // {cardIdx: letter} — evitar doble voto
+            ws: null,
+            retryMs: 1500
+        };
+
+        async function loadCards() {
+            try {
+                const res = await fetch('/api/juego3/cards');
+                const data = await res.json();
+                state.cards = data.cards;
+                state.total = data.total || 10;
+            } catch (e) {
+                console.error('Error cargando cartas:', e);
+            }
+        }
+
+        function connect() {
+            state.ws = new WebSocket(WS_URL);
+            state.ws.onopen = () => {
+                state.retryMs = 1500;
+            };
+            state.ws.onmessage = (ev) => {
+                try {
+                    const msg = JSON.parse(ev.data);
+                    if (msg.type === 'state') {
+                        state.currentCard = msg.current_card;
+                        state.phase = msg.phase;
+                        state.total = msg.total;
+                        state.selected = state.votedCards[state.currentCard] || null;
+                        render();
+                    }
+                } catch (e) { /* ignore */ }
+            };
+            state.ws.onclose = () => {
+                setTimeout(() => { state.retryMs = Math.min(state.retryMs * 1.5, 10000); connect(); }, state.retryMs);
+            };
+            state.ws.onerror = () => { try { state.ws.close(); } catch (_) {} };
+        }
+
+        function vote(letter) {
+            if (state.phase !== 'voting') return;
+            if (state.votedCards[state.currentCard]) return; // un voto por carta
+            state.votedCards[state.currentCard] = letter;
+            state.selected = letter;
+            if (state.ws && state.ws.readyState === WebSocket.OPEN) {
+                state.ws.send(JSON.stringify({ type: 'vote', card: state.currentCard, letter: letter }));
+            }
+            render();
+        }
+
+        function formatBadgeText(formato) {
+            const map = {
+                'casting': 'Casting',
+                'misma-orden': 'Misma orden',
+                'mientras-no-estabas': 'Mientras no estabas',
+                'titular': 'Titular'
+            };
+            return map[formato] || formato;
+        }
+
+        function render() {
+            const content = document.getElementById('content');
+            const progress = document.getElementById('progress');
+
+            if (state.phase === 'idle' || state.currentCard < 0) {
+                progress.textContent = `— / ${state.total}`;
+                content.innerHTML = `
+                    <div class="panel">
+                        <h2>El juego empezará en breve</h2>
+                        <p>Cuando el ponente avance, verás aquí la primera carta. Toca la opción que creas que es un agente.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (state.phase === 'ended') {
+                progress.textContent = `${state.total} / ${state.total}`;
+                content.innerHTML = `
+                    <div class="panel">
+                        <h2>¡Juego terminado!</h2>
+                        <p>Eliana va a comentar los resultados en la pantalla. Mira hacia el proyector.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const card = state.cards && state.cards[state.currentCard];
+            if (!card) {
+                content.innerHTML = `<div class="panel"><h2>Cargando carta...</h2></div>`;
+                return;
+            }
+
+            progress.textContent = `${state.currentCard + 1} / ${state.total}`;
+
+            const optionsHTML = card.opciones.map(op => {
+                let cls = 'option';
+                if (state.phase === 'revealed') {
+                    if (op.letra === card.correcta) cls += ' option--correct';
+                    else cls += ' option--wrong';
+                } else if (state.selected === op.letra) {
+                    cls += ' option--selected';
+                }
+                const clickable = (state.phase === 'voting' && !state.selected);
+                return `
+                    <button class="${cls}" data-letter="${op.letra}" ${clickable ? '' : 'disabled'}>
+                        <span class="option__letter">${op.letra}</span>
+                        <span class="option__body">
+                            <i class="ph-fill ${op.icono} option__icon"></i>
+                            <span class="option__text">${op.texto}</span>
+                        </span>
+                    </button>
+                `;
+            }).join('');
+
+            const bannerHTML = (state.phase === 'voting' && state.selected)
+                ? `<div class="waiting"><i class="ph-fill ph-check-circle"></i> Voto registrado — esperando al resto</div>`
+                : (state.phase === 'revealed' ? '' : '');
+
+            const explainHTML = state.phase === 'revealed' ? `
+                <div class="explain">
+                    <div class="explain__row">
+                        <span class="explain__tag explain__tag--chatbot">Chatbot</span>
+                        <span>${card.explicaciones.chatbot}</span>
+                    </div>
+                    <div class="explain__row">
+                        <span class="explain__tag explain__tag--asistente">Asistente</span>
+                        <span>${card.explicaciones.asistente}</span>
+                    </div>
+                    <div class="explain__row">
+                        <span class="explain__tag explain__tag--agente">Agente</span>
+                        <span>${card.explicaciones.agente}</span>
+                    </div>
+                </div>
+            ` : '';
+
+            content.innerHTML = `
+                <p class="area">${card.area}</p>
+                <span class="format-badge">${formatBadgeText(card.formato)}</span>
+                <p class="intro">${card.intro}</p>
+                <h2 class="question">${card.pregunta}</h2>
+                <div class="options">${optionsHTML}</div>
+                ${bannerHTML}
+                ${explainHTML}
+            `;
+
+            content.querySelectorAll('.option').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const letter = btn.dataset.letter;
+                    vote(letter);
+                });
+            });
+        }
+
+        (async () => {
+            await loadCards();
+            render();
+            connect();
+        })();
+    </script>
+</body>
+</html>

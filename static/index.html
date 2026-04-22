@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.5.1">
+    <link rel="stylesheet" href="/static/style.css?v=23.6.3">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -236,10 +236,163 @@
             </div>
         </main>
 
+        <!-- Eliana Floating Widget (top-level: se muestra en diapo 3/juego3 y puede reutilizarse) -->
+        <div id="eliana-widget" class="eliana-widget eliana-widget--fab hidden" data-state="fab">
+            <!-- FAB button (minimized state) -->
+            <button class="eliana-widget__fab" id="eliana-widget-fab" title="Habla con Eliana">
+                <div class="eliana-widget__fab-orb" id="eliana-widget-orb-mini"></div>
+            </button>
+
+            <!-- Chat panel (floating/docked/expanded states) -->
+            <div class="eliana-widget__panel" id="eliana-widget-panel">
+                <div class="eliana-widget__header" id="eliana-widget-header">
+                    <div class="eliana-widget__header-left">
+                        <div class="eliana-widget__header-orb" id="blinda-orb-container"></div>
+                        <span class="eliana-widget__header-title">Eliana</span>
+                        <span class="eliana-widget__header-status">En linea</span>
+                    </div>
+                    <div class="eliana-widget__header-actions">
+                        <button class="eliana-widget__btn" data-action="dock" title="Anclar lateral">
+                            <i class="ph ph-sidebar-simple"></i>
+                        </button>
+                        <button class="eliana-widget__btn" data-action="expand" title="Ampliar">
+                            <i class="ph ph-arrows-out"></i>
+                        </button>
+                        <button class="eliana-widget__btn" data-action="minimize" title="Minimizar">
+                            <i class="ph ph-minus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat body — preserva todos los IDs originales -->
+                <div class="blinda-chat" id="blinda-chat">
+                    <div class="blinda-chat__messages" id="blinda-chat-messages">
+                        <div class="blinda-chat__bubble blinda-chat__bubble--assistant">
+                            Hola, soy Eliana. P&iacute;deme cualquier cosa que necesites mientras jug&aacute;is.
+                        </div>
+                    </div>
+                    <div class="blinda-chat__input-container">
+                        <div class="blinda-chat__input-row">
+                            <textarea id="blinda-chat-input" class="blinda-chat__textarea" placeholder="Escribe a Eliana..." rows="1" autocomplete="off"></textarea>
+                            <button class="blinda-chat__send" id="blinda-chat-send" title="Enviar">
+                                <i class="ph ph-paper-plane-tilt"></i>
+                            </button>
+                        </div>
+                        <div class="blinda-chat__actions-row">
+                            <button class="chat-action-btn" id="blinda-photo-btn" title="Subir imagen">
+                                <i class="ph ph-camera"></i>
+                                <span class="chat-action-label">Imagen</span>
+                            </button>
+                            <button class="chat-action-btn" id="blinda-mic-btn" title="Grabar voz">
+                                <i class="ph ph-microphone"></i>
+                                <span class="chat-action-label">Habla con Eliana</span>
+                            </button>
+                            <button class="chat-action-btn chat-action-btn--voice" id="blinda-voice-btn" title="Voz de Eliana">
+                                <i class="ph-bold ph-waveform"></i>
+                                <span class="chat-action-label">Escucha a Eliana</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ============================================
-             PANTALLA BLINDA TU PROMPT
+             PANTALLA 03 — DESCUBRE AL AGENTE (juego3, escritorio / proyector)
              ============================================ -->
-        <main class="main-content blinda-screen hidden" id="blinda-screen">
+        <main class="main-content juego3-screen hidden" id="juego3-screen">
+            <header class="slide-header">
+                <button class="slide-nav-btn slide-nav-btn--back" id="juego3-nav-back" title="Volver">
+                    <i class="ph-bold ph-arrow-left"></i>
+                </button>
+                <div class="slide-header__title">
+                    <span class="slide-header__num">03</span>
+                    <h1 class="slide-header__text">Descubre al agente</h1>
+                </div>
+                <button class="slide-nav-btn slide-nav-btn--next" id="juego3-nav-next" title="Siguiente diapositiva">
+                    <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </header>
+
+            <div class="juego3-page">
+                <!-- Estado idle (antes de empezar) -->
+                <section class="juego3-idle" id="juego3-idle">
+                    <div class="juego3-idle__inner">
+                        <h2 class="juego3-idle__title">Todo listo para empezar</h2>
+                        <p class="juego3-idle__desc">Los profes pueden unirse con el QR de la diapo anterior. Cuando estéis listos, pulsa <strong>EMPEZAR</strong>.</p>
+                        <button class="juego3-ctrl-btn juego3-ctrl-btn--primary" id="juego3-start-btn">
+                            <i class="ph-fill ph-play"></i> Empezar
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Estado jugando: carta izquierda / gráfico derecha -->
+                <section class="juego3-play hidden" id="juego3-play">
+                    <!-- Columna izquierda: la carta -->
+                    <div class="juego3-card" id="juego3-card">
+                        <div class="juego3-card__top">
+                            <span class="juego3-card__area" id="juego3-area">ÁREA</span>
+                            <span class="juego3-card__format-badge" id="juego3-format">
+                                <i class="ph-bold ph-chats-circle"></i>
+                                <span>Formato</span>
+                            </span>
+                        </div>
+                        <p class="juego3-card__intro" id="juego3-intro"></p>
+                        <h2 class="juego3-card__question" id="juego3-question"></h2>
+                        <ol class="juego3-opts" id="juego3-opts"></ol>
+                        <div class="juego3-card__explain hidden" id="juego3-explain"></div>
+                    </div>
+
+                    <!-- Columna derecha: gráfico de respuestas + controles ponente -->
+                    <aside class="juego3-panel">
+                        <div class="juego3-panel__head">
+                            <h3 class="juego3-panel__title">Respuestas del grupo</h3>
+                            <span class="juego3-panel__progress" id="juego3-progress">— / 10</span>
+                        </div>
+                        <div class="juego3-chart" id="juego3-chart">
+                            <!-- Barras dinámicas A/B/C -->
+                        </div>
+                        <div class="juego3-panel__ctrls">
+                            <button class="juego3-ctrl-btn juego3-ctrl-btn--secondary" id="juego3-reveal-btn">
+                                <i class="ph-fill ph-eye"></i> Revelar
+                            </button>
+                            <button class="juego3-ctrl-btn juego3-ctrl-btn--primary" id="juego3-next-btn">
+                                Siguiente <i class="ph-bold ph-arrow-right"></i>
+                            </button>
+                        </div>
+                    </aside>
+                </section>
+
+                <!-- Estado terminado (antes de que Eliana hable) -->
+                <section class="juego3-ended hidden" id="juego3-ended">
+                    <div class="juego3-ended__inner">
+                        <h2 class="juego3-ended__title">10 / 10 cartas completadas</h2>
+                        <p class="juego3-ended__desc">Ahora Eliana va a comentar cómo lo ha hecho el grupo. Pulsa el botón cuando estés listo.</p>
+                        <button class="juego3-ctrl-btn juego3-ctrl-btn--primary" id="juego3-eliana-btn">
+                            <i class="ph-fill ph-sparkle"></i> Ahora Eliana comenta los resultados
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Pantalla Eliana: orb + texto en streaming -->
+                <section class="juego3-eliana hidden" id="juego3-eliana-screen">
+                    <div class="juego3-eliana__orb" id="juego3-eliana-orb"></div>
+                    <div class="juego3-eliana__body">
+                        <h2 class="juego3-eliana__title">Eliana</h2>
+                        <div class="juego3-eliana__text" id="juego3-eliana-text"></div>
+                        <button class="juego3-ctrl-btn juego3-ctrl-btn--primary juego3-eliana__cta hidden" id="juego3-eliana-advance">
+                            Avanzar a diapo 4 <i class="ph-bold ph-arrow-right"></i>
+                        </button>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+
+        <!-- ============================================
+             PANTALLA BLINDA TU PROMPT (LEGACY — sustituida por juego3, oculta)
+             ============================================ -->
+        <main class="main-content blinda-screen hidden" id="blinda-screen" data-legacy="true" aria-hidden="true" style="display:none;">
             <div class="blinda-page blinda-page--fullscreen">
                 <!-- Slide header -->
                 <header class="slide-header">
@@ -276,66 +429,7 @@
                 </div>
             </div>
 
-            <!-- Eliana Floating Widget -->
-            <div id="eliana-widget" class="eliana-widget eliana-widget--fab" data-state="fab">
-                <!-- FAB button (minimized state) -->
-                <button class="eliana-widget__fab" id="eliana-widget-fab" title="Habla con Eliana">
-                    <div class="eliana-widget__fab-orb" id="eliana-widget-orb-mini"></div>
-                </button>
-
-                <!-- Chat panel (floating/docked/expanded states) -->
-                <div class="eliana-widget__panel" id="eliana-widget-panel">
-                    <div class="eliana-widget__header" id="eliana-widget-header">
-                        <div class="eliana-widget__header-left">
-                            <div class="eliana-widget__header-orb" id="blinda-orb-container"></div>
-                            <span class="eliana-widget__header-title">Eliana</span>
-                            <span class="eliana-widget__header-status">En linea</span>
-                        </div>
-                        <div class="eliana-widget__header-actions">
-                            <button class="eliana-widget__btn" data-action="dock" title="Anclar lateral">
-                                <i class="ph ph-sidebar-simple"></i>
-                            </button>
-                            <button class="eliana-widget__btn" data-action="expand" title="Ampliar">
-                                <i class="ph ph-arrows-out"></i>
-                            </button>
-                            <button class="eliana-widget__btn" data-action="minimize" title="Minimizar">
-                                <i class="ph ph-minus"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Chat body — preserva todos los IDs originales -->
-                    <div class="blinda-chat" id="blinda-chat">
-                        <div class="blinda-chat__messages" id="blinda-chat-messages">
-                            <div class="blinda-chat__bubble blinda-chat__bubble--assistant">
-                                Genial, ya hemos roto el hielo. Ahora vamos a poner a prueba vuestro ojo crítico como profes. He preparado unas tarjetas que os van a sorprender. Mando, cuando quieras.
-                            </div>
-                        </div>
-                        <div class="blinda-chat__input-container">
-                            <div class="blinda-chat__input-row">
-                                <textarea id="blinda-chat-input" class="blinda-chat__textarea" placeholder="Escribe a Eliana..." rows="1" autocomplete="off"></textarea>
-                                <button class="blinda-chat__send" id="blinda-chat-send" title="Enviar">
-                                    <i class="ph ph-paper-plane-tilt"></i>
-                                </button>
-                            </div>
-                            <div class="blinda-chat__actions-row">
-                                <button class="chat-action-btn" id="blinda-photo-btn" title="Subir imagen">
-                                    <i class="ph ph-camera"></i>
-                                    <span class="chat-action-label">Imagen</span>
-                                </button>
-                                <button class="chat-action-btn" id="blinda-mic-btn" title="Grabar voz">
-                                    <i class="ph ph-microphone"></i>
-                                    <span class="chat-action-label">Habla con Eliana</span>
-                                </button>
-                                <button class="chat-action-btn chat-action-btn--voice" id="blinda-voice-btn" title="Voz de Eliana">
-                                    <i class="ph-bold ph-waveform"></i>
-                                    <span class="chat-action-label">Escucha a Eliana</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Eliana Floating Widget: movido al top-level, ver antes de #juego3-screen -->
         </main>
 
         <!-- ============================================
@@ -1381,6 +1475,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.5.1"></script>
+    <script src="/static/app.js?v=23.6.3"></script>
 </body>
 </html>

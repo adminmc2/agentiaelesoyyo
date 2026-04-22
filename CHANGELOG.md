@@ -1,5 +1,17 @@
 # Changelog — AgentiaELE
 
+## v23.6.3 — 2026-04-22
+- Diapo 3 "Descubre al agente" (juego3) arrancada:
+  - `static/juego3_cards.json` con 10 cartas (áreas, formatos, opciones, correcta varía A/B/C)
+  - Backend: estado `_juego3_state`, WS `/ws/juego3` (móvil) y `/ws/juego3-dashboard` (escritorio), endpoints `GET /juego3`, `GET /api/juego3/cards`, `GET /api/juego3/state`, `POST /api/juego3/reset`
+  - Página móvil `static/juego3_mobile.html` con votación táctil
+  - Escritorio `#juego3-screen` con layout split (carta izq / barras vivas der) + controles ponente (Revelar, Siguiente)
+  - 4 formatos visuales: casting, misma-orden, mientras-no-estabas, titular
+  - Pantalla final con Eliana + orb comentando resultados (streaming placeholder)
+- Widget flotante de Eliana reutilizado del `.eliana-widget` existente del proyecto: movido al top-level, 4 estados (fab/floating/docked/expanded), drag desde cabecera, orb mini integrado
+- Antigua diapo 3 `#blinda-screen` marcada como LEGACY oculta (`display:none`, `data-legacy="true"`)
+- CLAUDE.md: protección de diapo 3 ahora cubre juego3
+
 ## v23.5.1 — 2026-04-22
 - Diapo 2 bloqueada en CLAUDE.md (protección de zona)
 - Quitado subtítulo "Un juego de 10 cartas" debajo del título

@@ -1,0 +1,337 @@
+{
+  "version": 1,
+  "title": "Descubre al agente",
+  "total": 10,
+  "cards": [
+    {
+      "id": 1,
+      "area": "Actúa por su cuenta",
+      "formato": "casting",
+      "intro": "Tres IAs se presentan. Solo una es un agente. Escúchalas.",
+      "pregunta": "¿Cuál es el agente?",
+      "opciones": [
+        {
+          "letra": "A",
+          "tipo": "chatbot",
+          "icono": "ph-chat-circle-text",
+          "texto": "«Estoy aquí para responder tus preguntas. Pregúntame y contesto. Pero si no me hablas, no hago nada.»"
+        },
+        {
+          "letra": "B",
+          "tipo": "asistente",
+          "icono": "ph-note-pencil",
+          "texto": "«Si me pides un correo, un ejercicio o un resumen, lo escribo. Pero tienes que pedírmelo cada vez. Yo sola no empiezo.»"
+        },
+        {
+          "letra": "C",
+          "tipo": "agente",
+          "icono": "ph-lightning",
+          "texto": "«Dame un objetivo, no órdenes. Yo decido cuándo y cómo actuar. Aunque no me mires, estoy trabajando para cumplirlo.»"
+        }
+      ],
+      "correcta": "C",
+      "explicaciones": {
+        "chatbot": "Reacciona cuando le hablas.",
+        "asistente": "Genera contenido a demanda. También reactivo.",
+        "agente": "Trabaja por un objetivo, no por una orden."
+      }
+    },
+    {
+      "id": 2,
+      "area": "Usa tus herramientas",
+      "formato": "misma-orden",
+      "intro": "A las tres les das la misma instrucción: «Organiza las notas del trimestre de 3ºB».",
+      "pregunta": "¿Cuál respuesta es la de un agente?",
+      "opciones": [
+        {
+          "letra": "A",
+          "tipo": "chatbot",
+          "icono": "ph-chat-circle-text",
+          "texto": "«Te explico cómo: pon el nombre del alumno en una columna, las notas en las siguientes, calcula la media. ¿Te detallo los criterios?»"
+        },
+        {
+          "letra": "B",
+          "tipo": "agente",
+          "icono": "ph-lightning",
+          "texto": "Abre el Excel del centro, lee los 27 nombres, importa las 3 evaluaciones, calcula medias, rellena la columna «final», guarda el archivo y te avisa."
+        },
+        {
+          "letra": "C",
+          "tipo": "asistente",
+          "icono": "ph-note-pencil",
+          "texto": "«Aquí tienes una plantilla con ejemplo. Alumno | Eval 1 | Eval 2 | Eval 3 | Media. Pégale tus datos reales.»"
+        }
+      ],
+      "correcta": "B",
+      "explicaciones": {
+        "chatbot": "Te explica cómo hacerlo. Tú tienes que hacerlo.",
+        "asistente": "Te da una plantilla para completar.",
+        "agente": "Sale del chat y ejecuta en tus apps reales."
+      }
+    },
+    {
+      "id": 3,
+      "area": "Divide tareas grandes en pasos",
+      "formato": "misma-orden",
+      "intro": "La instrucción es: «Prepara una unidad didáctica completa de A2 sobre la familia».",
+      "pregunta": "¿Cuál respuesta es la de un agente?",
+      "opciones": [
+        {
+          "letra": "A",
+          "tipo": "agente",
+          "icono": "ph-lightning",
+          "texto": "Planifica: Paso 1 objetivos → Paso 2 vocabulario ilustrado → Paso 3 lectura → Paso 4 ejercicios → Paso 5 tarea final → Paso 6 rúbrica. Ejecuta cada paso, genera las imágenes, monta un PDF y lo guarda en tu Drive."
+        },
+        {
+          "letra": "B",
+          "tipo": "chatbot",
+          "icono": "ph-chat-circle-text",
+          "texto": "«Podría incluir vocabulario básico, una lectura breve, ejercicios y un juego de roles. ¿Quieres que desarrolle alguno?»"
+        },
+        {
+          "letra": "C",
+          "tipo": "asistente",
+          "icono": "ph-note-pencil",
+          "texto": "Escribe 3 páginas seguidas: objetivos, vocabulario, lectura, preguntas. Todo pegado en el chat. Tú lo separas e imprimes."
+        }
+      ],
+      "correcta": "A",
+      "explicaciones": {
+        "chatbot": "Sugiere ideas sueltas para que las desarrolles tú.",
+        "asistente": "Escribe un texto largo de corrido.",
+        "agente": "Descompone en etapas y las ejecuta en orden."
+      }
+    },
+    {
+      "id": 4,
+      "area": "Recuerda lo hablado",
+      "formato": "casting",
+      "intro": "Han pasado 3 semanas desde tu última conversación con las tres IAs. Vuelves. Esto te dicen.",
+      "pregunta": "¿Cuál es el agente?",
+      "opciones": [
+        {
+          "letra": "A",
+          "tipo": "chatbot",
+          "icono": "ph-chat-circle-text",
+          "texto": "«¿Hola? Dime en qué puedo ayudarte. No sé quién eres.»"
+        },
+        {
+          "letra": "B",
+          "tipo": "asistente",
+          "icono": "ph-note-pencil",
+          "texto": "«¡Hola de nuevo! ¿Nos conocíamos? Empezamos nuevos — cada conversación la abro de cero.»"
+        },
+        {
+          "letra": "C",
+          "tipo": "agente",
+          "icono": "ph-lightning",
+          "texto": "«Hola, Marta. Hace 3 semanas estábamos con la evaluación de 4ºA. He seguido revisando los informes, los subí el lunes a tu carpeta. ¿Retomamos con los alumnos que marcaste de refuerzo?»"
+        }
+      ],
+      "correcta": "C",
+      "explicaciones": {
+        "chatbot": "Cero memoria. Cada encuentro es el primero.",
+        "asistente": "Recuerda dentro de UNA conversación, no entre conversaciones.",
+        "agente": "Memoria persistente. Te reconoce y continúa donde lo dejasteis."
+      }
+    },
+    {
+      "id": 5,
+      "area": "Toma decisiones sobre la marcha",
+      "formato": "mientras-no-estabas",
+      "intro": "Les pediste: «Búscame y resúmeme las novedades de esta semana sobre evaluación de idiomas en Europa». Te fuiste 4 horas. Al volver…",
+      "pregunta": "¿Cuál es el agente?",
+      "opciones": [
+        {
+          "letra": "A",
+          "tipo": "chatbot",
+          "icono": "ph-chat-circle-text",
+          "texto": "Sin hacer nada. Se quedó esperando instrucciones más específicas para empezar."
+        },
+        {
+          "letra": "B",
+          "tipo": "agente",
+          "icono": "ph-lightning",
+          "texto": "Hizo 8 búsquedas, descartó 3 irrelevantes, encontró 2 noticias del Consejo de Europa, las leyó completas, las resumió, verificó las fechas y te dejó un documento con fuentes."
+        },
+        {
+          "letra": "C",
+          "tipo": "asistente",
+          "icono": "ph-note-pencil",
+          "texto": "Te dejó un resumen escrito, pero con datos antiguos, de su conocimiento previo. No pudo salir a buscar."
+        }
+      ],
+      "correcta": "B",
+      "explicaciones": {
+        "chatbot": "No decide. Espera orden exacta.",
+        "asistente": "Responde con lo que tiene. No sale del chat.",
+        "agente": "Construye el guion sobre la marcha: qué buscar, qué descartar, cuándo parar."
+      }
+    },
+    {
+      "id": 6,
+      "area": "Entrega el resultado terminado",
+      "formato": "misma-orden",
+      "intro": "La orden: «Hazme un examen oral de B2 sobre el subjuntivo».",
+      "pregunta": "¿Cuál respuesta es la de un agente?",
+      "opciones": [
+        {
+          "letra": "A",
+          "tipo": "chatbot",
+          "icono": "ph-chat-circle-text",
+          "texto": "«Un examen oral de B2 debería trabajar contraste indicativo/subjuntivo, oraciones concesivas, hipótesis. ¿Quieres que te proponga estructuras?»"
+        },
+        {
+          "letra": "B",
+          "tipo": "asistente",
+          "icono": "ph-note-pencil",
+          "texto": "Te escribe 5 preguntas pegadas en el chat. Tú las copias, las formateas, las imprimes, las fotocopias."
+        },
+        {
+          "letra": "C",
+          "tipo": "agente",
+          "icono": "ph-lightning",
+          "texto": "Redacta 5 preguntas alineadas con los descriptores MCER de B2, crea una rúbrica con 4 criterios, monta un PDF con espacio para notas del examinador, lo guarda en «Exámenes B2». Listo para imprimir."
+        }
+      ],
+      "correcta": "C",
+      "explicaciones": {
+        "chatbot": "Te da una explicación de lo que podrías hacer.",
+        "asistente": "Te entrega un borrador en el chat.",
+        "agente": "Te entrega un producto terminado en su sitio."
+      }
+    },
+    {
+      "id": 7,
+      "area": "Trabaja en segundo plano",
+      "formato": "mientras-no-estabas",
+      "intro": "Les encargaste: «Corrige las 30 redacciones del lunes, aplica mi rúbrica MCER y manda el feedback a cada alumno». Cierras el portátil, te vas al cine. 3 horas después vuelves.",
+      "pregunta": "¿Cuál es el agente?",
+      "opciones": [
+        {
+          "letra": "A",
+          "tipo": "agente",
+          "icono": "ph-lightning",
+          "texto": "Las 30 redacciones corregidas, feedback enviado a cada alumno, y un informe para ti: «los 3 errores más frecuentes esta semana», guardado en tu carpeta."
+        },
+        {
+          "letra": "B",
+          "tipo": "chatbot",
+          "icono": "ph-chat-circle-text",
+          "texto": "Todo como lo dejaste. Nada se movió."
+        },
+        {
+          "letra": "C",
+          "tipo": "asistente",
+          "icono": "ph-note-pencil",
+          "texto": "Una pestaña abierta con UNA corrección hecha — la de la redacción que tú le pegaste antes de irte. No sabía descargar las otras 29."
+        }
+      ],
+      "correcta": "A",
+      "explicaciones": {
+        "chatbot": "Vive solo dentro del chat.",
+        "asistente": "También vive solo dentro del chat.",
+        "agente": "Trabaja horas sin supervisión. Te libera tiempo real."
+      }
+    },
+    {
+      "id": 8,
+      "area": "Detecta sus propios errores",
+      "formato": "casting",
+      "intro": "Las tres acaban de terminar una tarea. Al entregarla, dicen:",
+      "pregunta": "¿Cuál es el agente?",
+      "opciones": [
+        {
+          "letra": "A",
+          "tipo": "chatbot",
+          "icono": "ph-chat-circle-text",
+          "texto": "«Aquí tienes tu respuesta. Si hay algún error, dime qué y lo cambio.»"
+        },
+        {
+          "letra": "B",
+          "tipo": "agente",
+          "icono": "ph-lightning",
+          "texto": "«Tarea entregada… un momento. Al revisar detecté que los descriptores del Paso 3 no cuadraban con los del Paso 1. Lo he rehecho. Esta versión es coherente. Avísame si quieres ver la primera.»"
+        },
+        {
+          "letra": "C",
+          "tipo": "asistente",
+          "icono": "ph-note-pencil",
+          "texto": "«Aquí va el texto. Señala lo que quieres corregir y te hago otra versión.»"
+        }
+      ],
+      "correcta": "B",
+      "explicaciones": {
+        "chatbot": "Espera a que tú detectes los errores.",
+        "asistente": "También espera a que tú los señales.",
+        "agente": "Se revisa a sí mismo antes de entregar."
+      }
+    },
+    {
+      "id": 9,
+      "area": "Conecta con otras apps",
+      "formato": "misma-orden",
+      "intro": "La orden: «Manda un correo a los 25 padres del grupo 3ºB confirmando la excursión del viernes».",
+      "pregunta": "¿Cuál respuesta es la de un agente?",
+      "opciones": [
+        {
+          "letra": "A",
+          "tipo": "agente",
+          "icono": "ph-lightning",
+          "texto": "Redacta el correo, abre Gmail, extrae los 25 emails de tu lista «Familias 3ºB», rellena asunto y cuerpo, envía, confirma: «25 correos enviados, sin rebotes»."
+        },
+        {
+          "letra": "B",
+          "tipo": "asistente",
+          "icono": "ph-note-pencil",
+          "texto": "Escribe el correo entero con fecha, hora, material. Lo deja en el chat. Tú abres Gmail, pegas, añades los 25 destinatarios."
+        },
+        {
+          "letra": "C",
+          "tipo": "chatbot",
+          "icono": "ph-chat-circle-text",
+          "texto": "«Aquí un modelo: Estimadas familias, les confirmamos… ¿Lo personalizas tú?»"
+        }
+      ],
+      "correcta": "A",
+      "explicaciones": {
+        "chatbot": "Solo la ventana del chat.",
+        "asistente": "Solo la ventana del chat. El resto lo haces tú.",
+        "agente": "Tu ecosistema entero: correo, contactos, Drive, Moodle."
+      }
+    },
+    {
+      "id": 10,
+      "area": "Aprende cómo trabajas tú",
+      "formato": "titular",
+      "intro": "Tras 3 meses usando la misma IA, lees esta autodescripción en su perfil.",
+      "pregunta": "¿Cuál es el agente?",
+      "opciones": [
+        {
+          "letra": "A",
+          "tipo": "chatbot",
+          "icono": "ph-chat-circle-text",
+          "texto": "«Soy una IA que responde preguntas. Cada conversación empieza desde cero.»"
+        },
+        {
+          "letra": "B",
+          "tipo": "asistente",
+          "icono": "ph-note-pencil",
+          "texto": "«Genero buen contenido: redacto, corrijo, traduzco. Pero no guardo nada entre sesiones.»"
+        },
+        {
+          "letra": "C",
+          "tipo": "agente",
+          "icono": "ph-lightning",
+          "texto": "«Soy tu IA. Tras 3 meses contigo sé que prefieres las correcciones con rojo y azul, que no te gustan los exámenes con más de 6 preguntas, y que los lunes no puedes nada antes de las 10. Me he adaptado a cómo trabajas tú.»"
+        }
+      ],
+      "correcta": "C",
+      "explicaciones": {
+        "chatbot": "Cada encuentro es el primero.",
+        "asistente": "Buena memoria dentro de una sesión, cero fuera.",
+        "agente": "Aprende de ti con el tiempo y se personaliza."
+      }
+    }
+  ]
+}

@@ -31,23 +31,23 @@ El antiguo `#conoce-screen` (Conoce a Eliana) queda como LEGACY oculto y no form
 
 **Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
 
-### Diapositiva 3 (Blinda tu Prompt — Demo en plenaria)
+### Diapositiva 3 (Descubre al agente — juego3)
 **PROHIBIDO ABSOLUTAMENTE** modificar cualquier código relacionado con la diapositiva 3. No importa el contexto: refactor, limpieza, mejora, bug fix general, cambio de diseño — NADA justifica tocar la diapo 3 salvo que el usuario diga EXPLÍCITAMENTE "modifica la diapo 3" o "cambia esto de la diapo 3".
 
 Esto incluye:
-- `showBlindaScreen()` y todo el flujo de demo (pasos 0-3, auto-advance, territory highlight)
-- `sendBlindaMessage()` — detección de fase (`blindaPhase`), envío por WebSocket, `handleBlindaMessage`
-- `advanceDemoTo()` — transiciones visuales entre pasos de la demo
-- `checkTerritoryHighlight()` — resaltado de tarjetas de territorio durante streaming
-- `TERRITORY_KEYWORD_MAP` — mapeo de palabras clave a territorios
-- `BLINDA_COLORS`, `BLINDA_TERRITORIES`, `BLINDA_ICONS`, `BLINDA_LETTERS`
-- `fetchBlindaCards()` — carga de tarjetas desde BD/JSON
-- `DEMO_CARD` — tarjeta ejemplo de la demo
-- Prompt "blinda" en `main.py` (ACTIVITY_PROMPTS["blinda"]) — fases 1-3, glosario, instrucciones
-- Todo el HTML de `#blinda-screen` y sus hijos en `index.html`
-- Todo el CSS de `.blinda-demo__*`, `.blinda-chat__*`, `.blinda-card__*`, `.blinda-title`, `.blinda-progress__*`, `.blinda-option-btn*`, `.blinda-feedback*`, `.blinda-summary*`, `.blinda-action-btn*`, `.demo-stepper__*`
-- La lógica de `prior_context` para blinda en el WebSocket handler de `main.py`
-- La normalización de acentos en `sendBlindaMessage()`
+- El juego de cartas: `#juego3-screen` (escritorio) y `/juego3` / `static/juego3_mobile.html` (móvil)
+- Archivo de datos: `static/juego3_cards.json` (10 cartas con áreas, formatos, opciones, correcta y explicaciones)
+- Backend en `main.py`:
+  - Estado `_juego3_state`, caché `_juego3_cards_cache`, conexiones `_juego3_mobile_ws` / `_juego3_dashboard_ws`
+  - Funciones `_load_juego3_cards`, `_juego3_state_msg`, `_juego3_tally_msg`, `_juego3_broadcast`
+  - Endpoints `GET /juego3`, `GET /api/juego3/cards`, `GET /api/juego3/state`, `POST /api/juego3/reset`
+  - WebSockets `/ws/juego3` (móvil) y `/ws/juego3-dashboard` (escritorio)
+- 4 formatos visuales: `casting`, `misma-orden`, `mientras-no-estabas`, `titular`
+- Iconos exclusivamente Phosphor (sin emojis)
+- Widget Eliana flotante con orb reutilizado de `static/orb.js` (paleta clara, arrastrable)
+- Pantalla final con Eliana comentando resultados (prompt con tono jocoso/jovial)
+
+El antiguo `#blinda-screen` (Blinda tu Prompt, demo en plenaria) queda como LEGACY oculto con `display:none`, `data-legacy="true"`. Su código HTML/CSS/JS sigue en el repositorio pero no forma parte del flujo activo.
 
 **Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
 

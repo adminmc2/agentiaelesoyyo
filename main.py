@@ -1081,6 +1081,198 @@ def _build_vote_summary() -> dict:
     }
 
 
+# ── Juego 3: Descubre al agente ──
+_juego3_cards_cache: Optional[dict] = None
+_juego3_state: dict = {
+    "current_card": -1,   # -1 = no empezado; 0..N-1 = carta activa; N = terminado
+    "phase": "idle",       # "idle" | "voting" | "revealed" | "ended"
+    "votes": {},           # {card_idx: {"A": int, "B": int, "C": int}}
+    "history": [],         # [{"card": int, "letter": str}]
+}
+_juego3_mobile_ws: set[WebSocket] = set()
+_juego3_dashboard_ws: set[WebSocket] = set()
+
+
+def _load_juego3_cards() -> dict:
+    global _juego3_cards_cache
+    if _juego3_cards_cache is None:
+        path = os.path.join("static", "juego3_cards.json")
+        with open(path, "r", encoding="utf-8") as f:
+            _juego3_cards_cache = json.load(f)
+    return _juego3_cards_cache
+
+
+def _juego3_total() -> int:
+    return _load_juego3_cards().get("total", 10)
+
+
+def _juego3_state_msg() -> dict:
+    return {
+        "type": "state",
+        "current_card": _juego3_state["current_card"],
+        "phase": _juego3_state["phase"],
+        "total": _juego3_total(),
+    }
+
+
+def _juego3_tally_msg(card_idx: int) -> dict:
+    return {
+        "type": "tally",
+        "card": card_idx,
+        "votes": _juego3_state["votes"].get(card_idx, {"A": 0, "B": 0, "C": 0}),
+    }
+
+
+async def _juego3_broadcast(message: dict, dashboard: bool = True, mobile: bool = True) -> None:
+    if dashboard:
+        dead = set()
+        for ws in _juego3_dashboard_ws:
+            try:
+                await ws.send_json(message)
+            except Exception:
+                dead.add(ws)
+        _juego3_dashboard_ws.difference_update(dead)
+    if mobile:
+        dead = set()
+        for ws in _juego3_mobile_ws:
+            try:
+                await ws.send_json(message)
+            except Exception:
+                dead.add(ws)
+        _juego3_mobile_ws.difference_update(dead)
+
+
+@app.get("/juego3")
+async def juego3_mobile_page():
+    """Página móvil del juego Descubre al agente."""
+    return FileResponse("static/juego3_mobile.html")
+
+
+@app.get("/api/juego3/cards")
+async def juego3_cards():
+    """Devuelve todas las cartas (incluye la respuesta correcta — no hay riesgo, es un aula)."""
+    return _load_juego3_cards()
+
+
+@app.get("/api/juego3/state")
+async def juego3_state_get():
+    return {
+        "state": _juego3_state_msg(),
+        "tally": _juego3_tally_msg(_juego3_state["current_card"]) if _juego3_state["current_card"] >= 0 else None,
+        "history_count": len(_juego3_state["history"]),
+    }
+
+
+@app.post("/api/juego3/reset")
+async def juego3_reset():
+    _juego3_state["current_card"] = -1
+    _juego3_state["phase"] = "idle"
+    _juego3_state["votes"] = {}
+    _juego3_state["history"] = []
+    await _juego3_broadcast(_juego3_state_msg())
+    return {"ok": True}
+
+
+@app.websocket("/ws/juego3")
+async def ws_juego3_mobile(websocket: WebSocket):
+    """Móviles: reciben estado + emiten votos."""
+    await websocket.accept()
+    _juego3_mobile_ws.add(websocket)
+    try:
+        await websocket.send_json(_juego3_state_msg())
+        idx = _juego3_state["current_card"]
+        if idx >= 0:
+            await websocket.send_json(_juego3_tally_msg(idx))
+        while True:
+            data = await websocket.receive_json()
+            kind = data.get("type")
+            if kind == "vote":
+                card = int(data.get("card", -1))
+                letter = str(data.get("letter", "")).upper()
+                if card != _juego3_state["current_card"]:
+                    continue
+                if _juego3_state["phase"] != "voting":
+                    continue
+                if letter not in ("A", "B", "C"):
+                    continue
+                votes = _juego3_state["votes"].setdefault(card, {"A": 0, "B": 0, "C": 0})
+                votes[letter] = votes.get(letter, 0) + 1
+                _juego3_state["history"].append({"card": card, "letter": letter})
+                await _juego3_broadcast(_juego3_tally_msg(card))
+    except WebSocketDisconnect:
+        pass
+    except Exception as e:
+        print(f"[Juego3] ws_mobile error: {e}")
+    finally:
+        _juego3_mobile_ws.discard(websocket)
+        try:
+            await websocket.close()
+        except Exception:
+            pass
+
+
+@app.websocket("/ws/juego3-dashboard")
+async def ws_juego3_dashboard(websocket: WebSocket):
+    """Escritorio (proyector): recibe estado/tally + emite comandos del ponente."""
+    await websocket.accept()
+    _juego3_dashboard_ws.add(websocket)
+    try:
+        await websocket.send_json(_juego3_state_msg())
+        idx = _juego3_state["current_card"]
+        if idx >= 0:
+            await websocket.send_json(_juego3_tally_msg(idx))
+        while True:
+            data = await websocket.receive_json()
+            kind = data.get("type")
+            total = _juego3_total()
+            if kind == "advance":
+                current = _juego3_state["current_card"]
+                # Si estaba en -1 → carta 0 (empezar)
+                # Si estaba en N-1 y revealed → ended
+                # Si estaba en medio y revealed → siguiente carta
+                if current < 0:
+                    _juego3_state["current_card"] = 0
+                    _juego3_state["phase"] = "voting"
+                    _juego3_state["votes"].setdefault(0, {"A": 0, "B": 0, "C": 0})
+                elif current >= total - 1:
+                    _juego3_state["phase"] = "ended"
+                else:
+                    _juego3_state["current_card"] = current + 1
+                    _juego3_state["phase"] = "voting"
+                    _juego3_state["votes"].setdefault(current + 1, {"A": 0, "B": 0, "C": 0})
+                await _juego3_broadcast(_juego3_state_msg())
+                idx2 = _juego3_state["current_card"]
+                if idx2 >= 0:
+                    await _juego3_broadcast(_juego3_tally_msg(idx2))
+            elif kind == "reveal":
+                if _juego3_state["phase"] == "voting" and _juego3_state["current_card"] >= 0:
+                    _juego3_state["phase"] = "revealed"
+                    await _juego3_broadcast(_juego3_state_msg())
+            elif kind == "back":
+                current = _juego3_state["current_card"]
+                if current > 0:
+                    _juego3_state["current_card"] = current - 1
+                    _juego3_state["phase"] = "revealed"
+                    await _juego3_broadcast(_juego3_state_msg())
+                    await _juego3_broadcast(_juego3_tally_msg(current - 1))
+            elif kind == "reset":
+                _juego3_state["current_card"] = -1
+                _juego3_state["phase"] = "idle"
+                _juego3_state["votes"] = {}
+                _juego3_state["history"] = []
+                await _juego3_broadcast(_juego3_state_msg())
+    except WebSocketDisconnect:
+        pass
+    except Exception as e:
+        print(f"[Juego3] ws_dashboard error: {e}")
+    finally:
+        _juego3_dashboard_ws.discard(websocket)
+        try:
+            await websocket.close()
+        except Exception:
+            pass
+
+
 @app.get("/api/health")
 async def health_check():
     """Verificar estado del sistema"""

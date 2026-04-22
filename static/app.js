@@ -6458,6 +6458,287 @@ function initFinalSongPlayer() {
 }
 
 // ============================================
+// Diapo 03 — Juego "Descubre al agente" (juego3)
+// ============================================
+const juego3 = {
+    cards: null,
+    ws: null,
+    retryMs: 1500,
+    currentCard: -1,
+    phase: 'idle',       // idle | voting | revealed | ended
+    total: 10,
+    tally: { A: 0, B: 0, C: 0 },
+    widgetExpanded: false,
+    widgetOrb: null,     // three.js orb instance
+    elianaOrb: null,     // three.js orb for final screen
+    elianaStreaming: false,
+};
+
+const JUEGO3_FORMAT_META = {
+    'casting': { icon: 'ph-chats-circle', label: 'Casting' },
+    'misma-orden': { icon: 'ph-flask', label: 'Misma orden' },
+    'mientras-no-estabas': { icon: 'ph-moon', label: 'Mientras no estabas' },
+    'titular': { icon: 'ph-newspaper', label: 'Titular' },
+};
+
+async function loadJuego3Cards() {
+    if (juego3.cards) return juego3.cards;
+    try {
+        const res = await fetch('/api/juego3/cards');
+        const data = await res.json();
+        juego3.cards = data.cards;
+        juego3.total = data.total || 10;
+        return juego3.cards;
+    } catch (e) {
+        console.error('[Juego3] Error cargando cartas', e);
+        return [];
+    }
+}
+
+function connectJuego3Dashboard() {
+    const url = `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws/juego3-dashboard`;
+    juego3.ws = new WebSocket(url);
+    juego3.ws.onopen = () => { juego3.retryMs = 1500; console.log('[Juego3] dashboard conectado'); };
+    juego3.ws.onmessage = (ev) => {
+        try {
+            const msg = JSON.parse(ev.data);
+            if (msg.type === 'state') {
+                juego3.currentCard = msg.current_card;
+                juego3.phase = msg.phase;
+                juego3.total = msg.total;
+                renderJuego3();
+            } else if (msg.type === 'tally' && msg.card === juego3.currentCard) {
+                juego3.tally = msg.votes;
+                renderJuego3Bars();
+            }
+        } catch (e) { /* ignore */ }
+    };
+    juego3.ws.onclose = () => {
+        setTimeout(() => { juego3.retryMs = Math.min(juego3.retryMs * 1.5, 10000); connectJuego3Dashboard(); }, juego3.retryMs);
+    };
+    juego3.ws.onerror = () => { try { juego3.ws.close(); } catch (_) {} };
+}
+
+function sendJuego3Cmd(type) {
+    if (juego3.ws && juego3.ws.readyState === WebSocket.OPEN) {
+        juego3.ws.send(JSON.stringify({ type }));
+    }
+}
+
+async function showJuego3Screen() {
+    stopTTS();
+    document.querySelectorAll('.main-content, #login-screen, #welcome-screen').forEach(el => el.classList.add('hidden'));
+    const screen = document.getElementById('juego3-screen');
+    if (!screen) return;
+    screen.classList.remove('hidden');
+
+    // Mostrar el widget flotante de Eliana (reutiliza el widget del proyecto con sus 4 estados)
+    const widget = document.getElementById('eliana-widget');
+    if (widget) {
+        widget.classList.remove('hidden');
+        if (!juego3.elianaWidgetInit) {
+            if (typeof setWidgetState === 'function') setWidgetState('fab');
+            if (typeof initWidgetListeners === 'function') initWidgetListeners();
+            juego3.elianaWidgetInit = true;
+        } else {
+            if (typeof setWidgetState === 'function') setWidgetState('fab');
+        }
+    }
+
+    await loadJuego3Cards();
+    if (!juego3.ws || juego3.ws.readyState === WebSocket.CLOSED) {
+        connectJuego3Dashboard();
+    }
+    renderJuego3();
+}
+
+function hideJuego3Screen() {
+    const screen = document.getElementById('juego3-screen');
+    if (!screen) return;
+    screen.classList.add('hidden');
+    // Ocultar widget de Eliana al salir
+    const widget = document.getElementById('eliana-widget');
+    if (widget) widget.classList.add('hidden');
+}
+
+function renderJuego3() {
+    const idle = document.getElementById('juego3-idle');
+    const play = document.getElementById('juego3-play');
+    const ended = document.getElementById('juego3-ended');
+    const eliana = document.getElementById('juego3-eliana-screen');
+    if (!idle || !play || !ended || !eliana) return;
+
+    // Reset visibility
+    [idle, play, ended, eliana].forEach(el => el.classList.add('hidden'));
+
+    if (juego3.currentCard < 0 || juego3.phase === 'idle') {
+        idle.classList.remove('hidden');
+        return;
+    }
+
+    if (juego3.phase === 'ended' && !juego3.elianaStreaming) {
+        ended.classList.remove('hidden');
+        return;
+    }
+
+    if (juego3.elianaStreaming) {
+        eliana.classList.remove('hidden');
+        return;
+    }
+
+    // Jugando: mostrar split
+    play.classList.remove('hidden');
+    renderJuego3Card();
+    renderJuego3Bars();
+    updateJuego3Controls();
+}
+
+function renderJuego3Card() {
+    if (!juego3.cards) return;
+    const card = juego3.cards[juego3.currentCard];
+    if (!card) return;
+
+    const container = document.getElementById('juego3-card');
+    const areaEl = document.getElementById('juego3-area');
+    const formatEl = document.getElementById('juego3-format');
+    const introEl = document.getElementById('juego3-intro');
+    const questionEl = document.getElementById('juego3-question');
+    const optsEl = document.getElementById('juego3-opts');
+    const explainEl = document.getElementById('juego3-explain');
+    const progressEl = document.getElementById('juego3-progress');
+
+    areaEl.textContent = card.area;
+    const fmt = JUEGO3_FORMAT_META[card.formato] || { icon: 'ph-circle', label: card.formato };
+    formatEl.innerHTML = `<i class="ph-bold ${fmt.icon}"></i><span>${fmt.label}</span>`;
+    introEl.textContent = card.intro;
+    questionEl.textContent = card.pregunta;
+    progressEl.textContent = `${juego3.currentCard + 1} / ${juego3.total}`;
+
+    // Variante por formato
+    container.className = `juego3-card juego3-card--${card.formato}`;
+
+    // Opciones
+    optsEl.innerHTML = card.opciones.map(op => {
+        let cls = 'juego3-opt';
+        if (juego3.phase === 'revealed') {
+            if (op.letra === card.correcta) cls += ' juego3-opt--correct';
+            else cls += ' juego3-opt--wrong';
+        }
+        return `
+            <li class="${cls}">
+                <span class="juego3-opt__letter">${op.letra}</span>
+                <span class="juego3-opt__body">
+                    <i class="ph-fill ${op.icono} juego3-opt__icon"></i>
+                    <span class="juego3-opt__text">${op.texto}</span>
+                </span>
+            </li>
+        `;
+    }).join('');
+
+    // Explicación (solo si revelado)
+    if (juego3.phase === 'revealed') {
+        explainEl.classList.remove('hidden');
+        explainEl.innerHTML = `
+            <div class="juego3-card__explain-row">
+                <span class="juego3-card__explain-tag juego3-card__explain-tag--chatbot">Chatbot</span>
+                <span>${card.explicaciones.chatbot}</span>
+            </div>
+            <div class="juego3-card__explain-row">
+                <span class="juego3-card__explain-tag juego3-card__explain-tag--asistente">Asistente</span>
+                <span>${card.explicaciones.asistente}</span>
+            </div>
+            <div class="juego3-card__explain-row">
+                <span class="juego3-card__explain-tag juego3-card__explain-tag--agente">Agente</span>
+                <span>${card.explicaciones.agente}</span>
+            </div>
+        `;
+    } else {
+        explainEl.classList.add('hidden');
+        explainEl.innerHTML = '';
+    }
+}
+
+function renderJuego3Bars() {
+    const chartEl = document.getElementById('juego3-chart');
+    if (!chartEl) return;
+    const card = juego3.cards ? juego3.cards[juego3.currentCard] : null;
+    const total = (juego3.tally.A || 0) + (juego3.tally.B || 0) + (juego3.tally.C || 0);
+    const letters = ['A', 'B', 'C'];
+
+    chartEl.innerHTML = letters.map(L => {
+        const count = juego3.tally[L] || 0;
+        const pct = total > 0 ? (count / total) * 100 : 0;
+        const isCorrect = juego3.phase === 'revealed' && card && card.correcta === L;
+        return `
+            <div class="juego3-bar ${isCorrect ? 'juego3-bar--correct' : ''}">
+                <span class="juego3-bar__letter">${L}</span>
+                <div class="juego3-bar__track">
+                    <div class="juego3-bar__fill" style="width: ${pct}%"></div>
+                </div>
+                <span class="juego3-bar__count">${count}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+function updateJuego3Controls() {
+    const revealBtn = document.getElementById('juego3-reveal-btn');
+    const nextBtn = document.getElementById('juego3-next-btn');
+    if (!revealBtn || !nextBtn) return;
+    revealBtn.disabled = (juego3.phase !== 'voting');
+    nextBtn.disabled = false;
+    const isLast = juego3.currentCard >= juego3.total - 1;
+    nextBtn.innerHTML = isLast
+        ? `Terminar <i class="ph-bold ph-check"></i>`
+        : `Siguiente <i class="ph-bold ph-arrow-right"></i>`;
+}
+
+// ── Eliana final ──
+async function startJuego3ElianaFinal() {
+    juego3.elianaStreaming = true;
+    renderJuego3();
+
+    if (!juego3.elianaOrb && typeof window.orbCreateInElement === 'function') {
+        try {
+            juego3.elianaOrb = window.orbCreateInElement(document.getElementById('juego3-eliana-orb'), 340);
+        } catch (e) { console.warn('[Juego3] orb eliana init:', e); }
+    }
+
+    const textEl = document.getElementById('juego3-eliana-text');
+    const cta = document.getElementById('juego3-eliana-advance');
+    if (textEl) textEl.textContent = '';
+    if (cta) cta.classList.add('hidden');
+
+    // Recuperar historial del servidor
+    let summary = '';
+    try {
+        const res = await fetch('/api/juego3/state');
+        const data = await res.json();
+        summary = `El grupo ha terminado el juego de 10 cartas. Total de votos: ${data.history_count}.`;
+    } catch (e) { /* fallback */ }
+
+    // Placeholder streaming hasta que conectemos el LLM real
+    const mock = `¡Buff, menudo recorrido! Diez cartas, tres IAs disfrazadas en cada una, y vosotros intentando pillar al agente entre el lío. La verdad es que no es fácil: hay veces que el asistente se parece tanto al agente que hasta a mí me despistaría.
+
+Lo importante de esto no es cuántas habéis acertado — es que ahora sabéis mirar con otros ojos. Porque cuando os sentéis el lunes delante de ChatGPT, ya no vais a ver «una IA»: vais a ver un chatbot que responde. Y cuando veáis algo que decide por vosotros, que abre apps, que os entrega el trabajo hecho — vais a saber que eso tiene nombre, y que ese nombre es AGENTE.
+
+Venga, pasamos a la siguiente diapo y sigamos descubriendo qué podéis hacer con esto.`;
+
+    await typeText(textEl, mock, 22);
+    if (cta) cta.classList.remove('hidden');
+    juego3.elianaStreaming = false;
+}
+
+async function typeText(el, text, delay = 20) {
+    if (!el) return;
+    el.textContent = '';
+    for (const ch of text) {
+        el.textContent += ch;
+        await new Promise(r => setTimeout(r, delay));
+    }
+}
+
+// ============================================
 // Event Listeners
 // ============================================
 function init() {
@@ -7018,12 +7299,35 @@ function init() {
         hideJuegoIntroScreen();
         setTimeout(() => showLoginScreen(), 300);
     });
-    const goToBlinda = () => {
+    const goToJuego3 = () => {
         hideJuegoIntroScreen();
-        setTimeout(() => showBlindaScreen(), 300);
+        setTimeout(() => showJuego3Screen(), 300);
     };
-    document.getElementById('juego-intro-next')?.addEventListener('click', goToBlinda);
-    document.getElementById('juego-intro-empezar')?.addEventListener('click', goToBlinda);
+    document.getElementById('juego-intro-next')?.addEventListener('click', goToJuego3);
+    document.getElementById('juego-intro-empezar')?.addEventListener('click', goToJuego3);
+
+    // Event listeners para la diapo 03 — Juego "Descubre al agente"
+    document.getElementById('juego3-nav-back')?.addEventListener('click', () => {
+        hideJuego3Screen();
+        setTimeout(() => showJuegoIntroScreen(), 300);
+    });
+    document.getElementById('juego3-nav-next')?.addEventListener('click', () => {
+        // TODO: cuando exista diapo 4, avanzar; por ahora solo ocultar
+        hideJuego3Screen();
+    });
+    document.getElementById('juego3-start-btn')?.addEventListener('click', () => sendJuego3Cmd('advance'));
+    document.getElementById('juego3-reveal-btn')?.addEventListener('click', () => sendJuego3Cmd('reveal'));
+    document.getElementById('juego3-next-btn')?.addEventListener('click', () => sendJuego3Cmd('advance'));
+    document.getElementById('juego3-eliana-btn')?.addEventListener('click', () => startJuego3ElianaFinal());
+    document.getElementById('juego3-eliana-advance')?.addEventListener('click', () => {
+        // Avanzar a diapo 4 — por ahora solo cerrar
+        hideJuego3Screen();
+    });
+
+    // Deep link adicional para diapo 3
+    if (screenParam === 'juego3') {
+        setTimeout(() => showJuego3Screen(), 500);
+    }
 
     console.log('Eliana inicializada');
 }
