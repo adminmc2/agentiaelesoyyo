@@ -1,5 +1,21 @@
 # Changelog — AgentiaELE
 
+## v23.6.9 — 2026-04-22
+- Orb del widget Eliana más grande: FAB 60 → 110px, orb 44 → 100px (init también a 100 para canvas nítido)
+
+## v23.6.8 — 2026-04-22
+- Visualización del FAB del orb corregida: quitado `background: #1a1a2e` (navy oscuro), `box-shadow` y `animation: fabPulse` con glow azul. El orb ahora flota libre como en la diapo 1 del login, sin contenedor oscuro alrededor
+
+## v23.6.7 — 2026-04-22
+- Fix diapo 3: el estado del juego se resetea automáticamente al refrescar el navegador (fetch POST a `/api/juego3/reset` al cargar). Navegar entre diapos sin recargar conserva el estado; recargar vuelve a idle
+
+## v23.6.6 — 2026-04-22
+- Diapo 2: eliminado el botón "Empezar a jugar" — navegación solo por flecha derecha del header
+- Diapo 2: revertido `margin-bottom: -18px` del heading "¿Cómo se juega?" (causaba overlap con el paso 1)
+
+## v23.6.4 — 2026-04-22
+- Diapo 2: `margin-bottom: -18px` en `.jintro-main__how` para acercar el título a los pasos (demasiado agresivo, se revierte en v23.6.6)
+
 ## v23.6.3 — 2026-04-22
 - Diapo 3 "Descubre al agente" (juego3) arrancada:
   - `static/juego3_cards.json` con 10 cartas (áreas, formatos, opciones, correcta varía A/B/C)

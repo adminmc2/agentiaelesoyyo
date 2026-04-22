@@ -3968,7 +3968,7 @@ function initWidgetListeners() {
     // Create mini orb in FAB
     if (window.orbCreateInElement) {
         const fabOrb = document.getElementById('eliana-widget-orb-mini');
-        if (fabOrb) window.orbCreateInElement(fabOrb, 44);
+        if (fabOrb) window.orbCreateInElement(fabOrb, 100);
     }
 }
 
@@ -6742,6 +6742,10 @@ async function typeText(el, text, delay = 20) {
 // Event Listeners
 // ============================================
 function init() {
+    // Reset del juego3 en cada carga/refresh: el estado vuelve a "idle" en el servidor
+    // para que el presentador siempre empiece limpio al recargar.
+    fetch('/api/juego3/reset', { method: 'POST' }).catch(() => {});
+
     // Versión automática desde cache bust del CSS
     const cssLink = document.querySelector('link[href*="style.css?v="]');
     if (cssLink) {
