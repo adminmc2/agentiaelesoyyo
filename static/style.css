@@ -5982,7 +5982,7 @@ body[data-mood-active] .message.assistant {
 
 .slide-header__title {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 16px;
     flex: 1;
     justify-content: center;
@@ -5990,16 +5990,15 @@ body[data-mood-active] .message.assistant {
 .slide-header__num {
     font: 900 13px 'Source Sans 3', sans-serif;
     letter-spacing: 0.2em;
-    color: #FFFFFF;
+    color: #2c2c2c;
     text-transform: uppercase;
-    padding: 4px 10px;
+    padding: 4px 12px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.32);
-    backdrop-filter: blur(8px);
+    background: #FFE7C1;
 }
 .slide-header__text {
     font: 900 24px/1.2 'Dosis', sans-serif;
-    color: #FFFFFF;
+    color: #2c2c2c;
     margin: 0;
     letter-spacing: 0.01em;
 }
@@ -6009,28 +6008,32 @@ body[data-mood-active] .message.assistant {
     letter-spacing: 0.06em;
 }
 
-/* Nav buttons — Lavanda (primary) con texto oscuro */
+/* Nav buttons — círculo negro con flecha lavanda (color de botones CTA) */
 .slide-nav-btn {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     border: none;
-    background: #D0AAD1;
-    color: #2c2c2c;
-    font-size: 18px;
+    background: #2c2c2c;
+    color: #D0AAD1;
+    font-size: 20px;
+    font-weight: 900;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(74, 45, 75, 0.25), 0 0 0 2px rgba(255, 255, 255, 0.35) inset;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
     transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
     flex-shrink: 0;
 }
+.slide-nav-btn i {
+    font-weight: 900;
+}
 .slide-nav-btn:hover {
-    background: #BC95BD;
-    color: #FFFFFF;
+    background: #D0AAD1;
+    color: #2c2c2c;
     transform: scale(1.08);
-    box-shadow: 0 4px 14px rgba(74, 45, 75, 0.35);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
 }
 .slide-nav-btn:active {
     transform: scale(0.95);

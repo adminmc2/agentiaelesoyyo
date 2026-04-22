@@ -1,5 +1,25 @@
 # Changelog — AgentiaELE
 
+## v23.4.1 — 2026-04-22
+- Flecha de los botones nav → lavanda `#D0AAD1` (coherencia con el CTA "EMPEZAR A JUGAR")
+- Hover invierte: círculo lavanda + flecha negra
+- Contraste ~8:1 (WCAG AAA)
+
+## v23.4.0 — 2026-04-22
+- `.slide-nav-btn`: círculo negro `#2c2c2c` (antes lavanda), sombra exterior más profunda, inset blanco eliminado
+
+## v23.3.9 — 2026-04-22
+- Pill del número de diapo `.slide-header__num`: fondo crema `#FFE7C1` + texto negro `#2c2c2c` → contraste ~13:1 (WCAG AAA). Eliminado `backdrop-filter: blur`.
+
+## v23.3.8 — 2026-04-22
+- `.slide-header__text` título → negro `#2c2c2c` (antes blanco sobre mostaza, contraste insuficiente)
+- Google Fonts URL ampliada: Dosis 800 + Source Sans 3 800/900 para que `font-weight: 900` renderice de verdad (antes caía a 700 por falta de pesos cargados)
+
+## v23.3.7 — 2026-04-22
+- `.slide-nav-btn`: flecha violeta `#6B2F6D`, tamaño 20px, Phosphor `ph-bold` en diapo 2
+- `.slide-header__title`: `align-items: baseline` → `center` (pill y título en el mismo eje vertical)
+- Portada: tagline 22px peso 700, subtítulo 26px peso 600 (más visibles a distancia)
+
 ## v23.3.6 — 2026-04-22
 - Portada: tagline "enseñanza · lenguas · IA · agentes" 16px → 22px, peso 700
 - Portada: subtítulo del taller "Agentes que personalizan..." 18px → 26px, peso 600
