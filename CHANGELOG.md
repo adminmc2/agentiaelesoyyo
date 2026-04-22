@@ -1,5 +1,18 @@
 # Changelog — AgentiaELE
 
+## v23.5.1 — 2026-04-22
+- Diapo 2 bloqueada en CLAUDE.md (protección de zona)
+- Quitado subtítulo "Un juego de 10 cartas" debajo del título
+
+## v23.5.0 — 2026-04-22
+- Diapo 2 — contenido y layout rediseñado por completo:
+  - Título: "Aprende qué es un agente de IA" (gato al lado)
+  - Subsección "¿Cómo se juega?" en violeta profundo
+  - 5 pasos reescritos sin inventar situaciones de aula (enfocado en aprender QUÉ es un agente)
+  - QR inline SVG en tarjeta blanca grande (220px) a la izquierda, ya no depende del servidor
+  - CTA "Empezar a jugar" pequeño centrado al final de la columna derecha
+- Sistema de tarjetas del juego diseñado conceptualmente (10 cartas secuenciales, 4 formatos: Casting, Misma orden, Mientras no estabas, Titular)
+
 ## v23.4.1 — 2026-04-22
 - Flecha de los botones nav → lavanda `#D0AAD1` (coherencia con el CTA "EMPEZAR A JUGAR")
 - Hover invierte: círculo lavanda + flecha negra

@@ -14,17 +14,20 @@ Esto incluye:
 
 **Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
 
-### Diapositiva 2 (Conoce a Eliana — Actividades)
+### Diapositiva 2 (Aprende qué es un agente de IA — juego-intro)
 **PROHIBIDO ABSOLUTAMENTE** modificar cualquier código relacionado con la diapositiva 2. No importa el contexto: refactor, limpieza, mejora, bug fix general, cambio de diseño — NADA justifica tocar la diapo 2 salvo que el usuario diga EXPLÍCITAMENTE "modifica la diapo 2" o "cambia esto de la diapo 2".
 
 Esto incluye:
-- `showConoceScreen()`, `showActivityChat()`, `sendMessage()` — flujo de actividades
-- Todo el HTML de `#conoce-screen`, `#chat-screen`, `#profile-screen` y sus hijos en `index.html`
-- Todo el CSS de `.conoce-*`, `.activity-card*`, `.chat-*`, `.profile-*`
-- Los prompts "yo_nunca_nunca", "dime_algo", "pregunta_ia" en `main.py`
-- La lógica de perfil card (`showProfileCard`, `PROFILE_CARD_PROMPT`)
-- El QR de `qr-agentiaele.svg` en la pantalla conoce
-- Los event listeners de actividades y chat principal
+- `showJuegoIntroScreen()`, `hideJuegoIntroScreen()` — mostrar/ocultar la pantalla
+- Todo el HTML de `#juego-intro-screen` y sus hijos en `index.html` (QR SVG inline, gato, título, subtítulo, "¿Cómo se juega?", 5 pasos, CTA)
+- Todo el CSS de `.jintro-*` (screen, page, body, qr-side, qr-card, qr-svg, qr-label, main, main__head, main__cat, main__head-text, main__title, main__subtitle, main__how, list, list__item, list__num, list__text, cta, responsive breakpoints)
+- El QR SVG inline con path completo en `index.html` (no depender del archivo servido)
+- La imagen `static/imagenes/explorador.png` (gato narrador)
+- Los event listeners de `juego-intro-back`, `juego-intro-next`, `juego-intro-empezar`
+- El deep link `?screen=juego-intro`
+- Los textos de los 5 pasos ("Aprende qué es un agente de IA", "¿Cómo se juega?", y los 5 items)
+
+El antiguo `#conoce-screen` (Conoce a Eliana) queda como LEGACY oculto y no forma parte del flujo activo. No es necesario mantenerlo protegido.
 
 **Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
 
