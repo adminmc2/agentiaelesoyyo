@@ -949,6 +949,7 @@ function showWelcomeScreen() {
 
 /**
  * @deprecated v23.7.5 — body eliminado. No-op definitivo (ver MODO_PRESENTACION).
+ * Para restaurar: `git show <hash-anterior>:static/app.js`.
  */
 function showPlanScreen() {
     __legacyGuard('showPlanScreen');
@@ -956,6 +957,7 @@ function showPlanScreen() {
 
 /**
  * @deprecated v23.7.5 — body eliminado. No-op definitivo (ver MODO_PRESENTACION).
+ * Para restaurar: `git show <hash-anterior>:static/app.js`.
  */
 function showWelcomeFromPlan() {
     __legacyGuard('showWelcomeFromPlan');
@@ -963,6 +965,7 @@ function showWelcomeFromPlan() {
 
 /**
  * @deprecated v23.7.5 — body eliminado. No-op definitivo (ver MODO_PRESENTACION).
+ * Para restaurar: `git show <hash-anterior>:static/app.js`.
  */
 function showChatFromPlan() {
     __legacyGuard('showChatFromPlan');
