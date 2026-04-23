@@ -5339,12 +5339,62 @@ body[data-mood-active] .message.assistant {
     flex-shrink: 0;
     transition: transform 150ms ease, background 150ms ease;
 }
+.blinda-chat__send--small {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    font-size: 15px;
+}
 .blinda-chat__send:hover {
     transform: scale(1.06);
     background: var(--md-sys-color-secondary);
 }
 .blinda-chat__send:active {
     transform: scale(0.92);
+}
+
+/* Bocina por burbuja (flujo texto) — reproduce TTS de esa respuesta */
+.blinda-chat__tts {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    margin: -4px 0 0 8px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #8B5A8C;
+    cursor: pointer;
+    font-size: 13px;
+    opacity: 0.7;
+    transition: opacity 0.2s ease, background 0.2s ease, transform 0.15s ease;
+}
+.blinda-chat__tts:hover {
+    background: rgba(208, 170, 209, 0.3);
+    opacity: 1;
+    transform: scale(1.1);
+}
+.blinda-chat__tts--playing {
+    color: #6B2F6D;
+    background: rgba(208, 170, 209, 0.4);
+    opacity: 1;
+    animation: ttsPulse 1.2s ease-in-out infinite;
+}
+@keyframes ttsPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+}
+
+/* MUTE button (botón "Silenciar a Eliana") — estado visual cuando hay TTS sonando */
+.chat-action-btn--voice.is-tts-playing {
+    background: rgba(208, 170, 209, 0.3);
+    border-color: #6B2F6D;
+    color: #6B2F6D;
+}
+.chat-action-btn--voice.is-tts-playing i {
+    animation: ttsPulse 1.2s ease-in-out infinite;
 }
 
 /* -- Nav arrows (same style as conoce-back-btn/conoce-next-btn) -- */
@@ -6278,21 +6328,28 @@ body[data-mood-active] .message.assistant {
 .eliana-widget__header-left {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 .eliana-widget__header-orb {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     flex-shrink: 0;
 }
+.eliana-widget__header-id {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    line-height: 1;
+}
 .eliana-widget__header-title {
-    font: 700 15px 'Dosis', sans-serif;
+    font: 800 17px 'Dosis', sans-serif;
     color: var(--md-sys-color-on-surface);
+    letter-spacing: 0.02em;
 }
 .eliana-widget__header-status {
-    font: 400 11px 'Source Sans 3', sans-serif;
+    font: 500 11px 'Source Sans 3', sans-serif;
     color: var(--md-sys-color-primary);
-    opacity: 0.8;
+    opacity: 0.85;
 }
 .eliana-widget__header-actions {
     display: flex;

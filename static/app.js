@@ -3094,6 +3094,8 @@ async function playTTS(text, skipSummary = false, isActivity = false) {
             state.ttsPlaying = false;
             URL.revokeObjectURL(audioUrl);
             if (window.orbSetListening) window.orbSetListening(false);
+            // Hook: notifica a componentes UI que el TTS terminó
+            window.dispatchEvent(new CustomEvent('tts:end'));
 
             console.log('[MIC-DEBUG] TTS onEnded — voiceTriggered:', state.voiceTriggered, 'ttsEnabled:', state.ttsEnabled, 'isRecording:', state.isRecording, 'screen:', !elements.loginScreen.classList.contains('hidden') ? 'login' : 'other');
 
@@ -3149,6 +3151,7 @@ async function playTTS(text, skipSummary = false, isActivity = false) {
             state.ttsPlaying = false;
             URL.revokeObjectURL(audioUrl);
             if (window.orbSetListening) window.orbSetListening(false);
+            window.dispatchEvent(new CustomEvent('tts:end'));
         };
 
         audio.addEventListener('ended', onEnded);
@@ -3156,6 +3159,9 @@ async function playTTS(text, skipSummary = false, isActivity = false) {
 
         // Amplificar volumen para altavoces externos
         boostAudioVolume(audio);
+
+        // Hook: notifica a componentes UI que el TTS empieza (botón MUTE pulsa, bocinas de burbuja)
+        window.dispatchEvent(new CustomEvent('tts:start'));
 
         await audio.play();
         console.log('[TTS] Playing audio');
@@ -3260,6 +3266,7 @@ function playTTSAndWait(text) {
  * Detiene la reproducción TTS actual.
  */
 function stopTTS() {
+    const wasPlaying = state.ttsPlaying;
     state.ttsCancelled = true;  // Cancelar cualquier TTS en progreso (fetch pendiente)
     if (state.ttsAudio) {
         state.ttsAudio.pause();
@@ -3271,6 +3278,8 @@ function stopTTS() {
     }
     state.ttsPlaying = false;
     if (window.orbSetListening) window.orbSetListening(false);
+    // Si estaba sonando, notifica fin para que los componentes UI limpien su estado visual
+    if (wasPlaying) window.dispatchEvent(new CustomEvent('tts:end'));
 }
 
 /**
@@ -3879,9 +3888,9 @@ function initWidgetListeners() {
     const widget = document.getElementById('eliana-widget');
     if (!widget) return;
 
-    // FAB click → activar voz (escucha + habla, sin abrir chat)
+    // FAB click → activar voz (sin abrir chat). Fix #1: solo voiceTriggered,
+    // no enableTTS persistente.
     document.getElementById('eliana-widget-fab')?.addEventListener('click', () => {
-        enableTTS();
         state.voiceTriggered = true;
         if (state.isRecording) {
             stopRecording();
@@ -3969,12 +3978,47 @@ function initWidgetListeners() {
         const fabOrb = document.getElementById('eliana-widget-orb-mini');
         if (fabOrb) window.orbCreateInElement(fabOrb, 100);
     }
+
+    // Orb pequeño al lado del nombre "Eliana" en la cabecera del chat
+    if (window.orbCreateInElement) {
+        const headerOrb = document.getElementById('blinda-orb-container');
+        if (headerOrb && !headerOrb.querySelector('canvas')) {
+            window.orbCreateInElement(headerOrb, 44);
+        }
+    }
+
+    // Mensaje de bienvenida inicial (con bocina incluida al ser addBlindaChatBubble)
+    const messagesEl = document.getElementById('blinda-chat-messages');
+    if (messagesEl && messagesEl.childElementCount === 0) {
+        addBlindaChatBubble('Hola, soy Eliana. Pídeme cualquier cosa que necesites mientras jugáis.', 'assistant');
+    }
+
+    // Sincronizar estado visual del botón MUTE (bocina grande) con eventos reales de TTS.
+    // Se registra una sola vez por sesión (protegido con flag global).
+    if (!window.__elianaVoiceBtnTTSHooked) {
+        window.__elianaVoiceBtnTTSHooked = true;
+        window.addEventListener('tts:start', () => {
+            const voiceBtn = document.getElementById('blinda-voice-btn');
+            if (voiceBtn) voiceBtn.classList.add('is-tts-playing');
+        });
+        window.addEventListener('tts:end', () => {
+            const voiceBtn = document.getElementById('blinda-voice-btn');
+            if (voiceBtn) voiceBtn.classList.remove('is-tts-playing');
+        });
+    }
 }
 
 // ---- Blinda Chat (interacción con Eliana dentro de diapo 3) ----
 
 function isOnBlindaScreen() {
-    return elements.blindaScreen && !elements.blindaScreen.classList.contains('hidden');
+    // v23.8.x: el flujo activo usa `#juego3-screen` + widget `#eliana-widget`.
+    // `#blinda-screen` queda como legacy oculto y no debe gobernar el enrutado STT.
+    // Basta con que la pantalla juego3 esté visible — da igual el estado del widget
+    // (fab/floating/docked/expanded): el audio va siempre a sendBlindaMessage.
+    const legacyVisible = elements.blindaScreen && !elements.blindaScreen.classList.contains('hidden');
+    const juego3Screen = document.getElementById('juego3-screen');
+    const juego3Visible = !!(juego3Screen && !juego3Screen.classList.contains('hidden'));
+    return !!legacyVisible || juego3Visible;
 }
 function isOnJuegoModal() {
     const modal = document.getElementById('juego-card-modal');
@@ -3992,6 +4036,34 @@ function addBlindaChatBubble(text, role) {
         bubble.textContent = text;
     }
     messages.appendChild(bubble);
+
+    // Bocina por burbuja: solo en respuestas de Eliana.
+    // Al pulsar reproduce el TTS de ESA respuesta concreta; el pulso visual
+    // se limpia con el evento real `tts:end` (no con timeout).
+    if (role === 'assistant') {
+        const ttsBtn = document.createElement('button');
+        ttsBtn.className = 'blinda-chat__tts';
+        ttsBtn.title = 'Escuchar esta respuesta';
+        ttsBtn.setAttribute('aria-label', 'Escuchar respuesta');
+        ttsBtn.innerHTML = '<i class="ph ph-speaker-simple-high"></i>';
+        ttsBtn.addEventListener('click', () => {
+            const content = bubble.textContent.trim();
+            if (!content) return;
+            // Detiene TTS previo (dispatch `tts:end` limpia cualquier bocina pulsante)
+            stopTTS();
+            // Pulso en ESTA bocina
+            ttsBtn.classList.add('blinda-chat__tts--playing');
+            // Listener one-shot para limpiar cuando termine este audio
+            const clearPulse = () => {
+                ttsBtn.classList.remove('blinda-chat__tts--playing');
+                window.removeEventListener('tts:end', clearPulse);
+            };
+            window.addEventListener('tts:end', clearPulse);
+            playTTS(content, true);
+        });
+        messages.appendChild(ttsBtn);
+    }
+
     messages.scrollTop = messages.scrollHeight;
     return bubble;
 }
@@ -4000,22 +4072,9 @@ function sendBlindaMessage(message) {
     // Add user bubble
     addBlindaChatBubble(message, 'user');
 
-    // Detectar fase: si el usuario dice "continuamos" o pregunta por tarjeta, avanzar fase
-    // Normalize: strip accents so "continúa" matches "continu"
-    const lowerMsg = message.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    if (/continu|adelante|siguiente|vamos/.test(lowerMsg) || /tarjeta|carta|mecanica|como funciona|como se juega/.test(lowerMsg)) {
-        state.blindaPhase = (state.blindaPhase || 0) + 1;
-        console.log('[Blinda] Phase advanced to:', state.blindaPhase);
-    }
-
-    // Auto-advance: si el USUARIO dice la respuesta correcta (A), avanzar al paso 3
-    if (state.demoStep === 2 && typeof advanceDemoTo === 'function') {
-        const lower = message.toLowerCase();
-        // Solo avanzar si menciona la A como respuesta (no B ni C)
-        if ((lower.includes('es la a') || lower.includes('la a.') || lower.includes('la a,') || lower.includes('respuesta es a') || /la a/.test(lower)) && !lower.includes('la b') && !lower.includes('la c')) {
-            setTimeout(() => advanceDemoTo(3), 3000);
-        }
-    }
+    // NOTA: lógica de fases (blindaPhase) y auto-advance con advanceDemoTo ELIMINADA
+    // en v23.8.x. Pertenecía al juego legacy "Blinda tu Prompt" (diapo 3 antigua,
+    // ahora oculta). El flujo actual "Descubre al agente" no usa fases ni demo DOM.
 
     // Typing indicator
     const messages = document.getElementById('blinda-chat-messages');
@@ -4029,22 +4088,16 @@ function sendBlindaMessage(message) {
     let assistantBubble = null;
 
     const doSend = () => {
-        // activity_mode: "blinda" → prompt de co-presentadora (no pregunta nombre, habla ante la sala)
-        const payload = { message, response_mode: 'full', activity_mode: 'blinda' };
-        // Primera vez: enviar el texto estático como contexto previo para que Eliana no repita saludo
-        if (!state._blindaContextSent) {
-            payload.prior_context = {
-                question: 'Eliana, ya hemos terminado las actividades. ¿Qué viene ahora?',
-                answer: 'Genial, ya hemos roto el hielo. Ahora vamos a poner a prueba vuestro ojo crítico como profes. He preparado unas tarjetas que os van a sorprender. Román, cuando quieras. [NOTA INTERNA: esto fue solo la introducción, NO es ninguna fase. La FASE 1 empieza con el próximo "continuamos".]'
-            };
-            state._blindaContextSent = true;
-        }
+        // activity_mode: 'juego3_chat' → prompt del juego "Descubre al agente".
+        // prior_context eliminado: la narrativa antigua ("tarjetas", "FASE 1", "ojo crítico")
+        // contaminaba el contexto del LLM aunque el system prompt fuera el nuevo.
+        const payload = { message, response_mode: 'full', activity_mode: 'juego3_chat' };
         state._blindaWs.send(JSON.stringify(payload));
     };
 
     const handleBlindaMessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log('[BlindaWS] msg type:', data.type, 'demoStep:', state.demoStep, 'phase:', state.blindaPhase);
+        console.log('[BlindaWS] msg type:', data.type);
 
         if (data.type === 'token') {
             if (!assistantBubble) {
@@ -4065,34 +4118,21 @@ function sendBlindaMessage(message) {
                     ? renderMarkdown(state.currentMessage, false) : state.currentMessage;
             }
             messages.scrollTop = messages.scrollHeight;
-            // Live demo: auto-advance + territory highlight. Step 4 manual only.
-            if (typeof checkTerritoryHighlight === 'function') {
-                const lower = state.currentMessage.toLowerCase();
-                if (state.demoStep === 0 && state.blindaPhase === 1) {
-                    console.log('[Demo] Step0 check:', lower.includes('tarjeta'), lower.includes('territorio'), 'msg:', lower.substring(0,60));
-                }
-                if (state.demoStep === 0 && state.blindaPhase === 1 && (lower.includes('tarjeta') || lower.includes('carta') || lower.includes('categor') || lower.includes('territorio'))) {
-                    console.log('[Demo] Advancing to step 1!');
-                    advanceDemoTo(1);
-                }
-                if (state.demoStep === 1 && state.blindaPhase >= 2 && (lower.includes('darle la vuelta') || lower.includes('situaci') || lower.includes('tres opcion') || lower.includes('a, b') || lower.includes('opci'))) {
-                    advanceDemoTo(2);
-                }
-                if (state.demoStep === 2 && (lower.includes('enhorabuena') || lower.includes('bingo') || lower.includes('habéis acertado') || lower.includes('muy bien'))) {
-                    advanceDemoTo(3);
-                }
-                checkTerritoryHighlight(state.currentMessage);
-            }
+            // NOTA: bloque de auto-advance por keywords (tarjeta/territorio/opci/etc.) ELIMINADO
+            // en v23.8.x. Pertenecía a la demo "Blinda tu Prompt" (diapo 3 legacy). El juego
+            // actual "Descubre al agente" no usa demoStep/blindaPhase/checkTerritoryHighlight.
         }
         else if (data.type === 'end') {
             if (state._blindaSmdParser) {
                 window.smd.parser_end(state._blindaSmdParser);
                 state._blindaSmdParser = null;
             }
-            // TTS
+            // TTS: solo si el usuario invocó por voz (Fix #1) o ttsEnabled explícito.
             if (state.currentMessage && (state.ttsEnabled || state.voiceTriggered)) {
                 playTTS(state.currentMessage, true);
             }
+            // Reset del flag voz: el próximo turno empieza limpio (texto → silencioso).
+            state.voiceTriggered = false;
             // Demo: avance de pasos 2-4 es manual (dots/flecha).
             // Paso 0→1 ya se hace en streaming (token handler).
             assistantBubble = null;
@@ -6526,6 +6566,10 @@ function sendJuego3Cmd(type) {
 
 async function showJuego3Screen() {
     stopTTS();
+    // Fix #1: TTS OFF por defecto al entrar al widget (ignora persistencia previa).
+    // Solo el micro (voiceTriggered) activará voz para esa respuesta concreta.
+    if (typeof disableTTS === 'function') disableTTS();
+    state.voiceTriggered = false;
     document.querySelectorAll('.main-content, #login-screen, #welcome-screen').forEach(el => el.classList.add('hidden'));
     const screen = document.getElementById('juego3-screen');
     if (!screen) return;
@@ -6808,9 +6852,9 @@ function init() {
         }
     });
 
-    // Blinda chat — mic (same as main chat mic)
+    // Blinda chat — mic (widget). Fix #1: NO enableTTS persistente; solo voiceTriggered
+    // para que ESTA respuesta se reproduzca por voz (se resetea tras la respuesta).
     document.getElementById('blinda-mic-btn')?.addEventListener('click', () => {
-        enableTTS();
         state.voiceTriggered = true;
         if (state.isRecording) {
             stopRecording();
@@ -6819,13 +6863,9 @@ function init() {
         }
     });
 
-    // Blinda chat — voice toggle (TTS on/off)
+    // Blinda chat — botón MUTE: silencia el TTS en curso (sin desactivar el sistema)
     document.getElementById('blinda-voice-btn')?.addEventListener('click', () => {
-        if (state.ttsEnabled) {
-            disableTTS();
-        } else {
-            enableTTS();
-        }
+        stopTTS();
     });
 
     // Juego modal — mic (STT)

@@ -1,5 +1,42 @@
 # Changelog — AgentiaELE
 
+## v23.8.6 — 2026-04-23
+- Fix crítico del enrutado STT del widget en diapo 3:
+  - `isOnBlindaScreen()` relajado: basta con que `#juego3-screen` esté visible (antes exigía `juego3 + widget` y fallaba si el widget tenía estado transitorio), lo que disparaba `showChatScreen` legacy no-op
+  - Log `[BlindaWS]` simplificado (se eliminaron referencias residuales a `demoStep` y `blindaPhase`)
+
+## v23.8.5 — 2026-04-23
+- Saneo profundo del chat del widget Eliana (post-audit reviser):
+  - `prior_context` legacy eliminado en `sendBlindaMessage` — dejaba de contaminar el LLM con narrativa del juego viejo ("tarjetas", "FASE 1", "ojo crítico")
+  - Nuevo prompt `juego3_chat` en `main.py` + registrado en `ACTIVITY_PROMPTS`; widget envía `activity_mode: 'juego3_chat'` (`'blinda'` queda solo para diapo 4 legacy)
+  - `_BLINDA_LEGACY_TERMS` ampliado de 5 a 11 términos; chequea ahora ambos prompts ('blinda' y 'juego3_chat')
+  - Lógica de fases y auto-advance (`blindaPhase`, `advanceDemoTo`, `checkTerritoryHighlight`) eliminada del chat activo del widget (-34 líneas)
+
+## v23.8.4 — 2026-04-23
+- Hotfix del prompt "blinda": reescrito para el juego actual ("Descubre al agente")
+  - Conocimiento completo sobre chatbot/asistente/agente y autonomía operativa
+  - Descripción de 10 cartas, 10 áreas de aprendizaje y 4 formatos visuales
+  - Reglas de conversación (pistas sin revelar respuesta, aclaración asistente↔agente)
+  - Tono jocoso/jovial con conectores orales
+- Anti-regresión en arranque (`main.py`): chequeo silencioso de términos legacy en prompts clave; `[WARN]` si alguno reaparece en merges futuros
+
+## v23.8.3 — 2026-04-23
+- Fixes #1, #2 y #3 del audit del reviser sobre el chat del widget:
+  - #1 TTS OFF por defecto al entrar al widget (anula persistencia previa); `voiceTriggered` se resetea tras cada respuesta
+  - #2 Sincronización visual del botón MUTE con eventos reales `tts:start`/`tts:end` disparados desde `playTTS`/`stopTTS`/onEnded/onError
+  - #3 Pulso de la bocina de burbuja ligado al evento real `tts:end` (no más `setTimeout` 2s)
+
+## v23.8.2 — 2026-04-23
+- Cambios en el chat de Eliana al abrirlo:
+  - Header reorganizado: orb 3D a la izquierda (44px), "Eliana" arriba + "En línea" debajo (apilado vertical)
+  - Botón enviar (✈) variante `--small` (44→34px)
+  - Botón "Imagen" eliminado
+  - Cada burbuja de Eliana lleva bocina pequeña (`ph-speaker-simple-high`, 26px, semi-transparente) para escuchar TTS individualmente
+  - "Escucha a Eliana" renombrado a "Silenciar a Eliana" con icono `ph-speaker-slash`; comportamiento cambia de toggle TTS on/off a MUTE inmediato (corta TTS en curso)
+  - TTS automático eliminado del flujo texto: solo suena al pulsar una bocina o si el input vino por micro
+  - Mensaje de bienvenida movido a JS para que use el mismo renderizador (con bocina)
+- Orb del chat inicializado al abrir el widget (antes solo lo hacía showBlindaScreen legacy)
+
 ## v23.8.1 — 2026-04-23
 - Cluster de acciones del orb widget (mover/chat/anclar) rediseñado para ser más sutil y combinar mejor con el orb 3D:
   - Tamaño botones: 30 → 24px

@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.8.2">
+    <link rel="stylesheet" href="/static/style.css?v=23.8.6">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -258,8 +258,10 @@
                 <div class="eliana-widget__header" id="eliana-widget-header">
                     <div class="eliana-widget__header-left">
                         <div class="eliana-widget__header-orb" id="blinda-orb-container"></div>
-                        <span class="eliana-widget__header-title">Eliana</span>
-                        <span class="eliana-widget__header-status">En linea</span>
+                        <div class="eliana-widget__header-id">
+                            <span class="eliana-widget__header-title">Eliana</span>
+                            <span class="eliana-widget__header-status">En linea</span>
+                        </div>
                     </div>
                     <div class="eliana-widget__header-actions">
                         <button class="eliana-widget__btn" data-action="dock" title="Anclar lateral">
@@ -276,30 +278,22 @@
 
                 <!-- Chat body — preserva todos los IDs originales -->
                 <div class="blinda-chat" id="blinda-chat">
-                    <div class="blinda-chat__messages" id="blinda-chat-messages">
-                        <div class="blinda-chat__bubble blinda-chat__bubble--assistant">
-                            Hola, soy Eliana. P&iacute;deme cualquier cosa que necesites mientras jug&aacute;is.
-                        </div>
-                    </div>
+                    <div class="blinda-chat__messages" id="blinda-chat-messages"></div>
                     <div class="blinda-chat__input-container">
                         <div class="blinda-chat__input-row">
                             <textarea id="blinda-chat-input" class="blinda-chat__textarea" placeholder="Escribe a Eliana..." rows="1" autocomplete="off"></textarea>
-                            <button class="blinda-chat__send" id="blinda-chat-send" title="Enviar">
+                            <button class="blinda-chat__send blinda-chat__send--small" id="blinda-chat-send" title="Enviar">
                                 <i class="ph ph-paper-plane-tilt"></i>
                             </button>
                         </div>
                         <div class="blinda-chat__actions-row">
-                            <button class="chat-action-btn" id="blinda-photo-btn" title="Subir imagen">
-                                <i class="ph ph-camera"></i>
-                                <span class="chat-action-label">Imagen</span>
-                            </button>
                             <button class="chat-action-btn" id="blinda-mic-btn" title="Grabar voz">
                                 <i class="ph ph-microphone"></i>
                                 <span class="chat-action-label">Habla con Eliana</span>
                             </button>
-                            <button class="chat-action-btn chat-action-btn--voice" id="blinda-voice-btn" title="Voz de Eliana">
-                                <i class="ph-bold ph-waveform"></i>
-                                <span class="chat-action-label">Escucha a Eliana</span>
+                            <button class="chat-action-btn chat-action-btn--voice" id="blinda-voice-btn" title="Silenciar a Eliana">
+                                <i class="ph-bold ph-speaker-slash"></i>
+                                <span class="chat-action-label">Silenciar a Eliana</span>
                             </button>
                         </div>
                     </div>
@@ -1485,6 +1479,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.8.2"></script>
+    <script src="/static/app.js?v=23.8.6"></script>
 </body>
 </html>
