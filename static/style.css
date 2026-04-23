@@ -1354,6 +1354,11 @@ body[data-mood-active] .bento-card--mood {
 }
 
 /* Responsive */
+/* ─────────────────────────────────────────────────────────────
+   Responsive login — cubre desde 4K hasta portátil pequeño 1280×720
+   ───────────────────────────────────────────────────────────── */
+
+/* 1500px-: gatos un poco más pequeños */
 @media (max-width: 1500px) {
     .login-cat--far-l, .login-cat--far-r { width: 120px; height: 120px; }
     .login-cat--back-tl, .login-cat--back-tr { width: 160px; height: 160px; }
@@ -1361,19 +1366,53 @@ body[data-mood-active] .bento-card--mood {
     .login-cat--front-l { width: 130px; height: 130px; left: -50px; bottom: -15px; }
     .login-cat--front-r { width: 130px; height: 130px; right: -45px; bottom: -20px; }
 }
-@media (max-width: 1200px) {
+
+/* 1400px-: compresión media — tarjeta interior y texto */
+@media (max-width: 1400px) {
+    .login-content--v23 { max-width: 720px; padding: 2.4rem 2rem; gap: 1.2rem; }
+    .login-name--v23 { font-size: 76px; }
+    .login-tagline--v23 { font-size: 20px; letter-spacing: 0.22em; }
+    .login-orb-wrapper--v23 { width: 240px; height: 240px; margin: 4px 0; }
+    .workshop-title--v23 { font-size: 36px; }
+    .workshop-subtitle { font-size: 22px; max-width: 620px; }
+    .login-btn--v23 { padding: 16px 42px; font-size: 16px; }
+}
+
+/* 1280px- / 768px-alto: HP y portátiles viejos */
+@media (max-width: 1280px), (max-height: 800px) {
+    .login-content--v23 { max-width: 660px; padding: 2rem 1.75rem; gap: 1rem; }
+    .login-name--v23 { font-size: 64px; letter-spacing: 0.12em; }
+    .login-tagline--v23 { font-size: 18px; letter-spacing: 0.2em; }
+    .login-orb-wrapper--v23 { width: 200px; height: 200px; margin: 2px 0; }
+    .workshop-title--v23 { font-size: 30px; }
+    .workshop-subtitle { font-size: 19px; max-width: 540px; }
+    .login-btn--v23 { padding: 14px 36px; font-size: 15px; }
     .login-cat--far-l, .login-cat--far-r { width: 95px; height: 95px; }
     .login-cat--back-tl, .login-cat--back-tr { width: 125px; height: 125px; }
     .login-cat--back-bl, .login-cat--back-br { width: 105px; height: 105px; }
     .login-cat--front-l { width: 110px; height: 110px; left: -30px; }
     .login-cat--front-r { width: 110px; height: 110px; right: -25px; }
 }
+
+/* 720px-alto extremo: portátiles HP 1366×720 con chrome */
+@media (max-height: 720px) {
+    .login-content--v23 { padding: 1.5rem 1.5rem; gap: 0.75rem; }
+    .login-name--v23 { font-size: 56px; }
+    .login-orb-wrapper--v23 { width: 170px; height: 170px; }
+    .workshop-title--v23 { font-size: 26px; }
+    .workshop-subtitle { font-size: 17px; }
+    .login-btn--v23 { padding: 12px 32px; font-size: 14px; }
+    .login-footer--v23 { margin-top: 12px; gap: 10px; }
+    .credit-box { padding: 8px 14px; min-width: 180px; }
+}
+
+/* 900px-: móvil / tablet vertical */
 @media (max-width: 900px) {
     .login-cat { display: none; }
-    .login-content--v23 { max-width: 95%; }
-    .login-name--v23 { font-size: 56px; }
-    .workshop-title--v23 { font-size: 28px; }
-    .login-orb-wrapper--v23 { width: 200px; height: 200px; }
+    .login-content--v23 { max-width: 95%; padding: 1.75rem 1.25rem; }
+    .login-name--v23 { font-size: 52px; }
+    .workshop-title--v23 { font-size: 26px; }
+    .login-orb-wrapper--v23 { width: 180px; height: 180px; }
 }
 
 /* ============================================
@@ -8923,7 +8962,11 @@ body[data-mood-active] .message.assistant {
     transform: translateY(0);
 }
 
-/* Responsive */
+/* ─────────────────────────────────────────────────────────────
+   Responsive jintro — cubre desde 4K hasta portátil pequeño 1280×720
+   ───────────────────────────────────────────────────────────── */
+
+/* 1400px-: compresión ligera */
 @media (max-width: 1400px) {
     .jintro-screen { padding: 92px 24px 20px; }
     .jintro-body { grid-template-columns: minmax(300px, 0.85fr) minmax(0, 1.8fr); gap: 40px; }
@@ -8932,16 +8975,56 @@ body[data-mood-active] .message.assistant {
     .jintro-main__subtitle { font-size: 16px; }
     .jintro-main__how { font-size: 26px; }
     .jintro-main__cat { width: 150px; }
-    .jintro-list__text { font-size: 18px; }
+    .jintro-list__text { font-size: 20px; }
+    .jintro-list { gap: 18px; }
+    .jintro-list__item { grid-template-columns: 60px 1fr; gap: 20px; }
+    .jintro-list__num { width: 52px; height: 52px; font-size: 24px; line-height: 52px; }
 }
-@media (max-width: 1100px) {
+
+/* 1280px- / 800px-alto: HP típico y portátiles antiguos */
+@media (max-width: 1280px), (max-height: 800px) {
+    .jintro-screen { padding: 88px 20px 16px; }
+    .jintro-body { gap: 32px; }
     .jintro-qr-card { max-width: 320px; padding: 18px; }
+    .jintro-qr-svg { max-width: 260px; }
+    .jintro-qr-label { font-size: 16px; }
+    .jintro-main { gap: 8px; }
+    .jintro-main__head { gap: 18px; }
+    .jintro-main__cat { width: 120px; }
     .jintro-main__title { font-size: 30px; }
     .jintro-main__subtitle { font-size: 14px; }
-    .jintro-main__how { font-size: 22px; }
-    .jintro-main__cat { width: 130px; }
-    .jintro-list__text { font-size: 16px; }
+    .jintro-main__how { font-size: 22px; margin: 2px 0 0; }
+    .jintro-list { gap: 12px; }
+    .jintro-list__item { grid-template-columns: 52px 1fr; gap: 16px; }
+    .jintro-list__num { width: 46px; height: 46px; font-size: 20px; line-height: 46px; }
+    .jintro-list__text { font-size: 17px; line-height: 1.45; padding-top: 10px; }
+    .jintro-cta { padding: 12px 30px; font-size: 14px; }
+    .jintro-cta i { font-size: 15px; }
 }
+
+/* 1100px-: más compresión en ancho */
+@media (max-width: 1100px) {
+    .jintro-body { grid-template-columns: minmax(240px, 0.8fr) minmax(0, 1.9fr); gap: 24px; }
+    .jintro-qr-card { max-width: 260px; padding: 14px; }
+    .jintro-main__title { font-size: 26px; }
+    .jintro-main__how { font-size: 20px; }
+    .jintro-main__cat { width: 110px; }
+    .jintro-list__text { font-size: 15px; }
+}
+
+/* 720px-alto: portátiles muy cortos (HP 1366×720) */
+@media (max-height: 720px) {
+    .jintro-screen { padding: 84px 20px 12px; }
+    .jintro-main__cat { width: 100px; }
+    .jintro-main__title { font-size: 26px; }
+    .jintro-main__how { font-size: 18px; }
+    .jintro-list { gap: 8px; }
+    .jintro-list__item { gap: 14px; }
+    .jintro-list__num { width: 40px; height: 40px; font-size: 18px; line-height: 40px; }
+    .jintro-list__text { font-size: 15px; line-height: 1.4; padding-top: 8px; }
+}
+
+/* 900px-: móvil / tablet vertical */
 @media (max-width: 900px) {
     .jintro-screen { height: auto; min-height: 100vh; min-height: 100dvh; padding: 88px 20px 24px; overflow: auto; }
     .jintro-body { grid-template-columns: 1fr; gap: 28px; }
@@ -9337,16 +9420,84 @@ body[data-mood-active] .message.assistant {
 /* Widget Eliana — reutiliza .eliana-widget (estados fab/floating/docked/expanded).
    El estilo completo está en la sección "Eliana Widget" más arriba en este mismo fichero. */
 
-/* Responsive */
-@media (max-width: 1200px) {
-    .juego3-screen { padding: 88px 20px 20px; }
-    .juego3-play { grid-template-columns: 1.2fr 0.8fr; gap: 20px; }
-    .juego3-card { padding: 24px 26px; }
-    .juego3-card__question { font-size: 26px; }
+/* ─────────────────────────────────────────────────────────────
+   Responsive juego3 — cubre desde 4K hasta portátil HP 1280×720
+   ───────────────────────────────────────────────────────────── */
+
+/* 1500px-: ajustes suaves */
+@media (max-width: 1500px) {
+    .juego3-screen { padding: 88px 24px 20px; }
+    .juego3-play { gap: 28px; }
+    .juego3-card { padding: 26px 28px; gap: 14px; }
+    .juego3-card__question { font-size: 28px; }
+    .juego3-card__intro { font-size: 17px; padding: 12px 16px; }
+    .juego3-opt { padding: 14px 18px; gap: 14px; }
     .juego3-opt__text { font-size: 16px; }
-    .juego3-panel { padding: 22px; }
+    .juego3-opt__letter { width: 40px; height: 40px; font-size: 18px; line-height: 40px; }
+    .juego3-panel { padding: 24px; gap: 18px; }
+    .juego3-panel__title { font-size: 20px; }
+    .juego3-bar__track { height: 34px; }
 }
+
+/* 1280px-: portátiles 1366×768 y similares */
+@media (max-width: 1280px) {
+    .juego3-screen { padding: 84px 18px 16px; }
+    .juego3-play { grid-template-columns: 1.3fr 0.7fr; gap: 20px; }
+    .juego3-card { padding: 20px 22px; gap: 10px; border-radius: 22px; }
+    .juego3-card__area { font-size: 11px; padding: 4px 10px; }
+    .juego3-card__format-badge { font-size: 11px; padding: 4px 10px; }
+    .juego3-card__format-badge i { font-size: 14px; }
+    .juego3-card__intro { font-size: 15px; padding: 10px 14px; border-left-width: 3px; }
+    .juego3-card__question { font-size: 24px; }
+    .juego3-opts { gap: 10px; }
+    .juego3-opt { padding: 11px 14px; gap: 12px; border-width: 1.5px; border-radius: 14px; }
+    .juego3-opt__text { font-size: 15px; line-height: 1.4; }
+    .juego3-opt__icon { font-size: 18px; }
+    .juego3-opt__letter { width: 36px; height: 36px; font-size: 16px; line-height: 36px; border-width: 1.5px; }
+    .juego3-card__explain { padding: 12px 14px; }
+    .juego3-card__explain-row { grid-template-columns: 90px 1fr; font-size: 14px; }
+    .juego3-panel { padding: 18px; gap: 14px; border-radius: 22px; }
+    .juego3-panel__head { padding-bottom: 10px; }
+    .juego3-panel__title { font-size: 18px; }
+    .juego3-panel__progress { font-size: 12px; padding: 3px 10px; }
+    .juego3-bar { grid-template-columns: 34px 1fr 42px; gap: 10px; }
+    .juego3-bar__letter { font-size: 18px; }
+    .juego3-bar__track { height: 28px; }
+    .juego3-bar__count { font-size: 16px; }
+    .juego3-panel__ctrls { gap: 10px; padding-top: 10px; }
+    .juego3-ctrl-btn { padding: 10px 16px; font-size: 13px; letter-spacing: 0.1em; }
+    .juego3-ctrl-btn i { font-size: 15px; }
+
+    /* Pantallas idle/ended/eliana también se compactan */
+    .juego3-idle__inner, .juego3-ended__inner { padding: 28px; border-radius: 20px; }
+    .juego3-idle__title, .juego3-ended__title { font-size: 32px; }
+    .juego3-idle__desc, .juego3-ended__desc { font-size: 17px; }
+    .juego3-eliana { gap: 36px; }
+    .juego3-eliana__orb { width: 240px; height: 240px; }
+    .juego3-eliana__title { font-size: 32px; }
+    .juego3-eliana__text { font-size: 19px; min-height: 140px; }
+}
+
+/* 720px-alto: portátiles HP 1366×720 con chrome */
+@media (max-height: 720px) {
+    .juego3-screen { padding: 78px 18px 12px; }
+    .juego3-card { padding: 16px 18px; gap: 8px; }
+    .juego3-card__question { font-size: 22px; }
+    .juego3-card__intro { font-size: 14px; padding: 8px 12px; }
+    .juego3-opts { gap: 8px; }
+    .juego3-opt { padding: 9px 12px; gap: 10px; }
+    .juego3-opt__text { font-size: 14px; }
+    .juego3-opt__letter { width: 32px; height: 32px; font-size: 14px; line-height: 32px; }
+    .juego3-panel { padding: 16px; gap: 12px; }
+    .juego3-panel__title { font-size: 17px; }
+    .juego3-bar__track { height: 24px; }
+    .juego3-ctrl-btn { padding: 9px 14px; font-size: 12px; }
+    .juego3-card__explain { padding: 10px 12px; }
+    .juego3-card__explain-row { font-size: 13px; }
+}
+
+/* 900px-: móvil / tablet — oculta panel de votos (solo desktop) */
 @media (max-width: 900px) {
     .juego3-play { grid-template-columns: 1fr; overflow: auto; }
-    .juego3-panel { display: none; } /* Móvil: panel de votos no tiene sentido, se usa /juego3 */
+    .juego3-panel { display: none; } /* Votos en vivo no tienen sentido en móvil; usa /juego3 */
 }

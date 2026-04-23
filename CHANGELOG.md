@@ -1,5 +1,16 @@
 # Changelog — AgentiaELE
 
+## v23.8.0 — 2026-04-23
+- Responsive sweep para escritorio/portátil en diapos 1, 2, 3:
+  - Breakpoints homogéneos: 1500px, 1400px, 1280px, 1100px + `max-height: 800px` y `max-height: 720px`
+  - Portátiles tipo HP 1366×768 ahora renderizan sin cropping
+  - Comprensión progresiva: tamaños de texto, paddings, gaps, orbs y elementos gráficos
+  - Fallback móvil (`max-width: 900px`) conservado sin cambios
+- Diapo 1: login-name, orb wrapper, workshop-title/subtitle, login-btn, login-footer y gatos decorativos escalan con viewport
+- Diapo 2: grid jintro-body, qr-card, cat, title/how/list se reducen coherentemente; breakpoint `max-height: 720px` específico para portátiles cortos
+- Diapo 3: layout split (carta/panel) se compacta antes de apilar; card question, options, bars, controles y pantallas idle/ended/eliana se escalan
+- Fuera de scope de este sweep: diapos 4-7 (rediseño pendiente)
+
 ## v23.7.5 — 2026-04-23
 - Saneo legacy Fase 3 (opción A+B):
   - A) Se cancela el borrado masivo de HTML/CSS: las pantallas legacy están
