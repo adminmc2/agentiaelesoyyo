@@ -1,5 +1,21 @@
 # Changelog — AgentiaELE
 
+## v23.7.5 — 2026-04-23
+- Saneo legacy Fase 3 (opción A+B):
+  - A) Se cancela el borrado masivo de HTML/CSS: las pantallas legacy están
+    acopladas a JS activo (30+ referencias a `elements.welcomeScreen`, etc.).
+    Borrar el HTML rompe código. Permanecen con `display:none` y guards.
+  - B) Bodies de las 7 funciones legacy reducidos al guard
+    (`showChatScreen`, `showWelcomeScreen`, `showPlanScreen`,
+    `showWelcomeFromPlan`, `showChatFromPlan`, `showConoceScreen`,
+    `showBlindaScreen`). −118 líneas de código muerto eliminadas.
+- Documentación arquitectónica (tras audit del reviser):
+  - Comentario de `MODO_PRESENTACION` actualizado: ahora explica la dualidad
+    "toggle real vs marcador de auditoría". En estas 7 funciones `false` ya
+    no restaura comportamiento — requiere recuperar body de git.
+  - Añadido JSDoc `@deprecated` en cada función reducida con instrucción
+    `git show <hash>:static/app.js` para recuperación futura.
+
 ## v23.7.4 — 2026-04-23
 - Saneo legacy Fase 2 corregido tras audit:
   - Quitado guard de `showJuegoScreen` (protegida por diapo 4 + rompía `?screen=juego`)

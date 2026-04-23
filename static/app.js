@@ -47,6 +47,15 @@ document.addEventListener('touchstart', _markInteracted, true);
 // original (welcome/chat/plan/conoce) son NO-OP. Esto evita efectos
 // colaterales (WebSocket abiertos, TTS pisado, state mutado) aunque algún
 // listener legacy las invoque.
+//
+// IMPORTANTE — dualidad de comportamiento (Fase 3B, v23.7.5):
+//   · Toggle real: solo en funciones cuyo BODY original siga intacto tras el
+//     `if (__legacyGuard(...)) return;`. Actualmente NINGUNA.
+//   · Marcador de auditoría: en las 7 funciones con body eliminado en v23.7.5
+//     (ver marcadores `@deprecated` en cada una). Aunque pongas false, esas
+//     funciones siguen siendo no-op porque su body ya no existe; para
+//     restaurarlo haría falta recuperarlo del historial de git.
+//
 // Para debug: cambiar a `false` manualmente en este archivo y recargar
 // (es `const`, no se puede reasignar en runtime desde consola).
 // ─────────────────────────────────────────────────────────────────────────
@@ -900,35 +909,12 @@ function renderPlanTasks() {
 // ============================================
 // Navegación entre pantallas
 // ============================================
+/**
+ * @deprecated v23.7.5 — body eliminado. No-op definitivo (ver MODO_PRESENTACION).
+ * Para restaurar: `git show <hash-anterior>:static/app.js`.
+ */
 function showChatScreen(initialMessage, showSelector = false, skipSend = false) {
-    if (__legacyGuard('showChatScreen')) return;
-    // Fade out welcome
-    elements.welcomeScreen.classList.add('fade-out');
-
-    setTimeout(() => {
-        elements.welcomeScreen.classList.add('hidden');
-        elements.welcomeScreen.classList.remove('fade-out');
-        elements.chatScreen.classList.remove('hidden');
-
-        // Crear orb en el header del chat
-        if (window.orbCreateChatHeader) window.orbCreateChatHeader();
-
-        // Añadir mensaje del usuario
-        if (initialMessage) {
-            addMessage(initialMessage, 'user');
-            if (skipSend) {
-                // Voice mode: ask mode by TTS after transition
-                askResponseModeByVoice(initialMessage);
-            } else if (showSelector) {
-                showResponseModeSelector(initialMessage);
-            } else {
-                sendToWebSocket(initialMessage);
-            }
-        }
-
-        // Focus en input
-        elements.chatInput.focus();
-    }, 300);
+    __legacyGuard('showChatScreen');
 }
 
 function showChatScreenWithAnswer(question, answer) {
@@ -953,70 +939,33 @@ function showChatScreenWithAnswer(question, answer) {
     }, 300);
 }
 
+/**
+ * @deprecated v23.7.5 — body eliminado. No-op definitivo (ver MODO_PRESENTACION).
+ * Para restaurar: `git show <hash-anterior>:static/app.js`.
+ */
 function showWelcomeScreen() {
-    if (__legacyGuard('showWelcomeScreen')) return;
-    // Detener TTS inmediatamente al navegar atrás
-    stopTTS();
-
-    elements.chatScreen.classList.add('hidden');
-    elements.planScreen?.classList.add('hidden');
-    elements.conoceScreen?.classList.add('hidden');
-    elements.profileScreen?.classList.add('hidden');
-    elements.welcomeScreen.classList.remove('hidden');
-
-    // Limpiar chat
-    elements.chatMessages.innerHTML = '';
-
-    // Cerrar WebSocket si existe
-    if (state.websocket) {
-        state.websocket.close();
-        state.websocket = null;
-    }
-
-    // Limpiar contexto previo
-    state.priorContext = null;
-
-    // Reset activity state
-    state.activityMode = null;
-    state.activityMessageCount = 0;
-    state.profileGenerated = false;
-
-    // Actualizar búsquedas recientes
-    renderRecentSearches();
+    __legacyGuard('showWelcomeScreen');
 }
 
+/**
+ * @deprecated v23.7.5 — body eliminado. No-op definitivo (ver MODO_PRESENTACION).
+ */
 function showPlanScreen() {
-    if (__legacyGuard('showPlanScreen')) return;
-    // Fade out welcome
-    elements.welcomeScreen.classList.add('fade-out');
-
-    setTimeout(() => {
-        elements.welcomeScreen.classList.add('hidden');
-        elements.welcomeScreen.classList.remove('fade-out');
-        elements.planScreen.classList.remove('hidden');
-
-        // Renderizar tareas con el overview actual
-        renderPlanTasks();
-
-        // Crear orb en el nav
-        if (window.orbCreateNav) window.orbCreateNav();
-    }, 300);
+    __legacyGuard('showPlanScreen');
 }
 
+/**
+ * @deprecated v23.7.5 — body eliminado. No-op definitivo (ver MODO_PRESENTACION).
+ */
 function showWelcomeFromPlan() {
-    if (__legacyGuard('showWelcomeFromPlan')) return;
-    stopTTS();
-    elements.planScreen.classList.add('hidden');
-    elements.welcomeScreen.classList.remove('hidden');
-    renderRecentSearches();
+    __legacyGuard('showWelcomeFromPlan');
 }
 
+/**
+ * @deprecated v23.7.5 — body eliminado. No-op definitivo (ver MODO_PRESENTACION).
+ */
 function showChatFromPlan() {
-    if (__legacyGuard('showChatFromPlan')) return;
-    elements.planScreen.classList.add('hidden');
-    elements.chatScreen.classList.remove('hidden');
-    // Crear orb en el header del chat
-    if (window.orbCreateChatHeader) window.orbCreateChatHeader();
+    __legacyGuard('showChatFromPlan');
 }
 
 // ============================================
@@ -3602,26 +3551,12 @@ const ACTIVITY_OPENERS = {
     pregunta_ia: 'Vamos a conocernos de verdad. Funciona así: yo te hago preguntas sobre ti como profe y charlamos un rato. Pero antes, ¿cómo te llamas?'
 };
 
+/**
+ * @deprecated v23.7.5 — body eliminado. No-op definitivo (ver MODO_PRESENTACION).
+ * Para restaurar: `git show <hash-anterior>:static/app.js`.
+ */
 function showConoceScreen() {
-    if (__legacyGuard('showConoceScreen')) return;
-    stopTTS();
-    elements.loginScreen?.classList.add('hidden');
-    elements.welcomeScreen?.classList.add('hidden');
-    elements.chatScreen?.classList.add('hidden');
-    elements.planScreen?.classList.add('hidden');
-    elements.profileScreen?.classList.add('hidden');
-    elements.blindaScreen?.classList.add('hidden');
-    elements.juegoScreen?.classList.add('hidden');
-    elements.diapo5Screen?.classList.add('hidden');
-    elements.conoceScreen?.classList.remove('hidden');
-    elements.conoceScreen?.classList.remove('fade-out');
-
-    // Crear orb en el contenedor
-    const orbContainer = document.getElementById('conoce-orb-container');
-    if (orbContainer && window.orbCreateInElement) {
-        const orbSize = window.innerWidth <= 480 ? 280 : window.innerWidth <= 968 ? 320 : 220;
-        window.orbCreateInElement(orbContainer, orbSize);
-    }
+    __legacyGuard('showConoceScreen');
 }
 
 function showActivityChat(activityMode) {
@@ -3802,39 +3737,12 @@ function isMobile() {
     return window.innerWidth <= 968;
 }
 
+/**
+ * @deprecated v23.7.5 — body eliminado. No-op definitivo (ver MODO_PRESENTACION).
+ * Diapo 3 original (Blinda tu Prompt demo). Para restaurar: `git show <hash>:static/app.js`.
+ */
 function showBlindaScreen() {
-    if (__legacyGuard('showBlindaScreen')) return;
-    // Diapo 3 solo en escritorio — en móvil saltar a diapo 4 (juego)
-    if (isMobile()) { showJuegoScreen(); return; }
-    stopTTS();
-    // Hide all screens (can come from profile or conoce)
-    elements.profileScreen?.classList.add('hidden');
-    elements.conoceScreen?.classList.add('hidden');
-    elements.chatScreen?.classList.add('hidden');
-    elements.loginScreen?.classList.add('hidden');
-    elements.welcomeScreen?.classList.add('hidden');
-    elements.planScreen?.classList.add('hidden');
-    elements.juegoScreen?.classList.add('hidden');
-    elements.diapo5Screen?.classList.add('hidden');
-
-    elements.blindaScreen?.classList.remove('hidden');
-    elements.blindaScreen?.classList.remove('fade-out');
-
-    // Reset demo to step 0
-    state.demoStep = 0;
-    state.blindaPhase = 0;
-    if (typeof advanceDemoTo === 'function') advanceDemoTo(0);
-    if (typeof resetTerritoryHighlight === 'function') resetTerritoryHighlight();
-
-    // Orb — in widget header
-    const orbContainer = document.getElementById('blinda-orb-container');
-    if (orbContainer && window.orbCreateInElement) {
-        window.orbCreateInElement(orbContainer, 36);
-    }
-
-    // Init Eliana widget — start as FAB
-    setWidgetState('fab');
-    initWidgetListeners();
+    __legacyGuard('showBlindaScreen');
 }
 
 function hideBlindaScreen() {
