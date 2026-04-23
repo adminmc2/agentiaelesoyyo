@@ -6119,6 +6119,47 @@ body[data-mood-active] .message.assistant {
     pointer-events: none;
 }
 
+/* Cluster de acciones encima del FAB (solo visible en estado FAB) */
+.eliana-widget__fab-actions {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 10px;
+    background: #FFFFFF;
+    border-radius: 999px;
+    padding: 4px;
+    gap: 4px;
+    box-shadow: 0 4px 14px rgba(74, 45, 75, 0.2);
+    white-space: nowrap;
+    z-index: 1;
+}
+.eliana-widget--fab .eliana-widget__fab-actions { display: flex; }
+.eliana-widget__fab-action {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: #D0AAD1;
+    color: #2c2c2c;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: transform 0.15s ease, background 0.2s ease, color 0.2s ease;
+    flex-shrink: 0;
+    padding: 0;
+}
+.eliana-widget__fab-action:hover {
+    background: #BC95BD;
+    color: #FFFFFF;
+    transform: scale(1.08);
+}
+.eliana-widget__fab-action[data-action="move"] { cursor: grab; }
+.eliana-widget__fab-action[data-action="move"]:active { cursor: grabbing; }
+
 /* --- Panel (shared by floating/docked/expanded) --- */
 .eliana-widget__panel {
     display: none;

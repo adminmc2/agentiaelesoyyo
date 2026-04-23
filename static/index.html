@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.6.9">
+    <link rel="stylesheet" href="/static/style.css?v=23.7.1">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -235,10 +235,23 @@
 
         <!-- Eliana Floating Widget (top-level: se muestra en diapo 3/juego3 y puede reutilizarse) -->
         <div id="eliana-widget" class="eliana-widget eliana-widget--fab hidden" data-state="fab">
-            <!-- FAB button (minimized state) -->
+            <!-- FAB button (minimized state): click = activar voz -->
             <button class="eliana-widget__fab" id="eliana-widget-fab" title="Habla con Eliana">
                 <div class="eliana-widget__fab-orb" id="eliana-widget-orb-mini"></div>
             </button>
+
+            <!-- Cluster de acciones (visible solo en estado FAB) -->
+            <div class="eliana-widget__fab-actions" id="eliana-widget-fab-actions">
+                <button class="eliana-widget__fab-action" data-action="move" title="Mover">
+                    <i class="ph-bold ph-arrows-out-cardinal"></i>
+                </button>
+                <button class="eliana-widget__fab-action" data-action="chat" title="Abrir chat">
+                    <i class="ph-bold ph-chat-circle-text"></i>
+                </button>
+                <button class="eliana-widget__fab-action" data-action="dock" title="Anclar a la derecha">
+                    <i class="ph-bold ph-sidebar"></i>
+                </button>
+            </div>
 
             <!-- Chat panel (floating/docked/expanded states) -->
             <div class="eliana-widget__panel" id="eliana-widget-panel">
@@ -1472,6 +1485,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.6.9"></script>
+    <script src="/static/app.js?v=23.7.1"></script>
 </body>
 </html>

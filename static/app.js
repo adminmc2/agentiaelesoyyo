@@ -3943,9 +3943,72 @@ function initWidgetListeners() {
     const widget = document.getElementById('eliana-widget');
     if (!widget) return;
 
-    // FAB click → open floating
+    // FAB click → activar voz (escucha + habla, sin abrir chat)
     document.getElementById('eliana-widget-fab')?.addEventListener('click', () => {
-        setWidgetState('floating');
+        enableTTS();
+        state.voiceTriggered = true;
+        if (state.isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    });
+
+    // Cluster de acciones bajo el FAB: Mover / Chat / Anclar
+    widget.querySelectorAll('.eliana-widget__fab-action').forEach(btn => {
+        const action = btn.dataset.action;
+        if (action === 'chat') {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                setWidgetState('floating');
+            });
+        } else if (action === 'dock') {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                setWidgetState('docked');
+            });
+        } else if (action === 'move') {
+            // Drag del widget desde el botón "mover"
+            let dragging = false;
+            let startX, startY, origLeft, origTop;
+            const onStart = (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                dragging = true;
+                widget.classList.add('eliana-widget--dragging');
+                const t = e.touches ? e.touches[0] : e;
+                const rect = widget.getBoundingClientRect();
+                startX = t.clientX; startY = t.clientY;
+                origLeft = rect.left; origTop = rect.top;
+                widget.style.bottom = 'auto';
+                widget.style.right = 'auto';
+                widget.style.left = origLeft + 'px';
+                widget.style.top = origTop + 'px';
+            };
+            const onMove = (e) => {
+                if (!dragging) return;
+                const t = e.touches ? e.touches[0] : e;
+                widget.style.left = (origLeft + t.clientX - startX) + 'px';
+                widget.style.top = (origTop + t.clientY - startY) + 'px';
+                if (e.touches) e.preventDefault();
+            };
+            const onEnd = () => {
+                if (!dragging) return;
+                dragging = false;
+                widget.classList.remove('eliana-widget--dragging');
+                const rect = widget.getBoundingClientRect();
+                const maxX = window.innerWidth - rect.width;
+                const maxY = window.innerHeight - rect.height;
+                widget.style.left = Math.max(0, Math.min(rect.left, maxX)) + 'px';
+                widget.style.top = Math.max(0, Math.min(rect.top, maxY)) + 'px';
+            };
+            btn.addEventListener('mousedown', onStart);
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onEnd);
+            btn.addEventListener('touchstart', onStart, { passive: false });
+            document.addEventListener('touchmove', onMove, { passive: false });
+            document.addEventListener('touchend', onEnd);
+        }
     });
 
     // Header action buttons
