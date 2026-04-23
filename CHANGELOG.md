@@ -1,5 +1,15 @@
 # Changelog — AgentiaELE
 
+## v23.8.1 — 2026-04-23
+- Cluster de acciones del orb widget (mover/chat/anclar) rediseñado para ser más sutil y combinar mejor con el orb 3D:
+  - Tamaño botones: 30 → 24px
+  - Fondo botones: lavanda sólido → transparente
+  - Contenedor: blanco sólido → blanco translúcido con blur
+  - Color iconos: negro → púrpura suave `#8B5A8C`
+  - Iconos Phosphor: `ph-bold` → `ph` (trazos más finos)
+  - Opacidad 0.85 por defecto → 1.0 en hover del widget (integración visual)
+- Orb y posición intactos. Aplica a toda diapositiva que use el widget.
+
 ## v23.8.0 — 2026-04-23
 - Responsive sweep para escritorio/portátil en diapos 1, 2, 3:
   - Breakpoints homogéneos: 1500px, 1400px, 1280px, 1100px + `max-height: 800px` y `max-height: 720px`

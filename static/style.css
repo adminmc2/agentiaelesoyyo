@@ -6158,43 +6158,50 @@ body[data-mood-active] .message.assistant {
     pointer-events: none;
 }
 
-/* Cluster de acciones encima del FAB (solo visible en estado FAB) */
+/* Cluster de acciones encima del FAB (solo visible en estado FAB)
+   — sutil, translúcido, pequeño para no competir con el orb */
 .eliana-widget__fab-actions {
     display: none;
     position: absolute;
     bottom: 100%;
     left: 50%;
     transform: translateX(-50%);
-    margin-bottom: 10px;
-    background: #FFFFFF;
+    margin-bottom: 8px;
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
     border-radius: 999px;
-    padding: 4px;
-    gap: 4px;
-    box-shadow: 0 4px 14px rgba(74, 45, 75, 0.2);
+    padding: 3px;
+    gap: 2px;
+    box-shadow: 0 3px 10px rgba(74, 45, 75, 0.12);
     white-space: nowrap;
     z-index: 1;
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
 }
 .eliana-widget--fab .eliana-widget__fab-actions { display: flex; }
+.eliana-widget:hover .eliana-widget__fab-actions { opacity: 1; }
 .eliana-widget__fab-action {
-    width: 30px;
-    height: 30px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     border: none;
-    background: #D0AAD1;
-    color: #2c2c2c;
+    background: transparent;
+    color: #8B5A8C;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 11px;
     transition: transform 0.15s ease, background 0.2s ease, color 0.2s ease;
     flex-shrink: 0;
     padding: 0;
 }
 .eliana-widget__fab-action:hover {
-    background: #BC95BD;
-    color: #FFFFFF;
-    transform: scale(1.08);
+    background: rgba(208, 170, 209, 0.35);
+    color: #6B2F6D;
+    transform: scale(1.12);
 }
 .eliana-widget__fab-action[data-action="move"] { cursor: grab; }
 .eliana-widget__fab-action[data-action="move"]:active { cursor: grabbing; }
@@ -9043,13 +9050,13 @@ body[data-mood-active] .message.assistant {
     display: block;
     height: 100vh;
     height: 100dvh;
-    padding: 88px 32px 24px;
+    padding: clamp(78px, 8vh, 88px) clamp(16px, 2.2vw, 32px) clamp(12px, 2.2vh, 24px);
     background: transparent;
     overflow: hidden;
     position: relative;
 }
 .juego3-page {
-    max-width: 1680px;
+    max-width: min(1680px, 100%);
     height: 100%;
     margin: 0 auto;
     position: relative;
@@ -9091,22 +9098,24 @@ body[data-mood-active] .message.assistant {
 .juego3-play {
     height: 100%;
     display: grid;
-    grid-template-columns: 1.3fr 0.8fr;
-    gap: 32px;
+    grid-template-columns: minmax(0, 1.3fr) minmax(300px, 0.8fr);
+    gap: clamp(16px, 2vw, 32px);
     align-items: stretch;
+    min-height: 0;
 }
 
 /* Tarjeta (izquierda) */
 .juego3-card {
     background: #FFFFFF;
     border-radius: 28px;
-    padding: 32px 36px;
+    padding: clamp(18px, 1.8vw, 32px) clamp(20px, 2vw, 36px);
     box-shadow: 0 14px 44px rgba(74, 45, 75, 0.12);
     border: 1px solid rgba(107, 47, 109, 0.06);
     display: flex;
     flex-direction: column;
     gap: 16px;
     overflow: auto;
+    min-height: 0;
 }
 .juego3-card__top {
     display: flex;
@@ -9265,12 +9274,13 @@ body[data-mood-active] .message.assistant {
 .juego3-panel {
     background: #FFFFFF;
     border-radius: 28px;
-    padding: 28px;
+    padding: clamp(16px, 1.6vw, 28px);
     box-shadow: 0 14px 44px rgba(74, 45, 75, 0.12);
     border: 1px solid rgba(107, 47, 109, 0.06);
     display: flex;
     flex-direction: column;
     gap: 20px;
+    min-height: 0;
 }
 .juego3-panel__head {
     display: flex;
@@ -9439,6 +9449,27 @@ body[data-mood-active] .message.assistant {
     .juego3-bar__track { height: 34px; }
 }
 
+/* 1366px-: portátiles comunes (1366x768) sin perder dos columnas */
+@media (max-width: 1366px) and (min-width: 901px) {
+    .juego3-play { grid-template-columns: minmax(0, 1.25fr) minmax(270px, 0.75fr); gap: 16px; }
+    .juego3-card { padding: 18px 20px; gap: 8px; border-radius: 20px; }
+    .juego3-card__question { font-size: 22px; }
+    .juego3-card__intro { font-size: 14px; padding: 8px 12px; }
+    .juego3-opts { gap: 8px; }
+    .juego3-opt { padding: 9px 12px; gap: 10px; }
+    .juego3-opt__text { font-size: 14px; line-height: 1.38; }
+    .juego3-opt__letter { width: 32px; height: 32px; font-size: 14px; line-height: 32px; }
+    .juego3-panel { padding: 14px; gap: 10px; border-radius: 20px; }
+    .juego3-panel__title { font-size: 16px; }
+    .juego3-panel__progress { font-size: 11px; }
+    .juego3-bar { grid-template-columns: 30px 1fr 38px; gap: 8px; }
+    .juego3-bar__letter { font-size: 16px; }
+    .juego3-bar__track { height: 22px; }
+    .juego3-bar__count { font-size: 14px; }
+    .juego3-ctrl-btn { padding: 8px 10px; font-size: 11px; letter-spacing: 0.08em; }
+    .juego3-ctrl-btn i { font-size: 13px; }
+}
+
 /* 1280px-: portátiles 1366×768 y similares */
 @media (max-width: 1280px) {
     .juego3-screen { padding: 84px 18px 16px; }
@@ -9476,6 +9507,19 @@ body[data-mood-active] .message.assistant {
     .juego3-eliana__orb { width: 240px; height: 240px; }
     .juego3-eliana__title { font-size: 32px; }
     .juego3-eliana__text { font-size: 19px; min-height: 140px; }
+}
+
+/* 768px-alto: portátiles 1366×768 con UI de navegador abierta */
+@media (max-height: 768px) and (min-width: 901px) {
+    .juego3-screen { padding-top: 74px; padding-bottom: 10px; }
+    .juego3-card { gap: 7px; }
+    .juego3-card__question { font-size: 21px; }
+    .juego3-card__intro { font-size: 13.5px; }
+    .juego3-opt { padding: 8px 10px; }
+    .juego3-opt__text { font-size: 13.5px; }
+    .juego3-panel { gap: 10px; }
+    .juego3-panel__head { padding-bottom: 8px; }
+    .juego3-panel__ctrls { padding-top: 8px; }
 }
 
 /* 720px-alto: portátiles HP 1366×720 con chrome */
