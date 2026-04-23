@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.7.1">
+    <link rel="stylesheet" href="/static/style.css?v=23.7.4">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -1020,7 +1020,7 @@
         <!-- ============================================
              PANTALLA TARJETA PERFIL
              ============================================ -->
-        <main class="main-content profile-screen hidden" id="profile-screen">
+        <main class="main-content profile-screen hidden" id="profile-screen" data-legacy="true" aria-hidden="true" style="display:none;">
             <div class="profile-card-container">
                 <div class="profile-card" id="profile-card">
                     <div class="profile-card__orb" id="profile-orb-container"></div>
@@ -1055,7 +1055,7 @@
         <!-- ============================================
              PANTALLA DE BIENVENIDA
              ============================================ -->
-        <main class="main-content welcome-screen hidden" id="welcome-screen">
+        <main class="main-content welcome-screen hidden" id="welcome-screen" data-legacy="true" aria-hidden="true" style="display:none;">
             <!-- Header con perfil e iconos -->
             <div class="header-row">
                 <button class="profile-btn" id="profile-btn" title="Mi cuenta">
@@ -1194,7 +1194,7 @@
         <!-- ============================================
              PANTALLA DE CHAT
              ============================================ -->
-        <main class="chat-screen hidden" id="chat-screen">
+        <main class="chat-screen hidden" id="chat-screen" data-legacy="true" aria-hidden="true" style="display:none;">
             <!-- Header del chat -->
             <div class="chat-header">
                 <button class="back-btn" id="back-btn" title="Volver">
@@ -1261,7 +1261,7 @@
         <!-- ============================================
              PANTALLA DE PLAN
              ============================================ -->
-        <main class="plan-screen hidden" id="plan-screen">
+        <main class="plan-screen hidden" id="plan-screen" data-legacy="true" aria-hidden="true" style="display:none;">
             <!-- Contenido scrollable -->
             <div class="plan-body">
                 <!-- Header limpio (mismo estilo que welcome) -->
@@ -1485,6 +1485,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.7.1"></script>
+    <script src="/static/app.js?v=23.7.4"></script>
 </body>
 </html>

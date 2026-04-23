@@ -1,5 +1,26 @@
 # Changelog — AgentiaELE
 
+## v23.7.4 — 2026-04-23
+- Saneo legacy Fase 2 corregido tras audit:
+  - Quitado guard de `showJuegoScreen` (protegida por diapo 4 + rompía `?screen=juego`)
+  - Añadido guard en `showPlanScreen` (faltaba, se dispara desde click en plan-card)
+  - Comentario del kill-switch reescrito (const no se reasigna en runtime)
+
+## v23.7.3 — 2026-04-23
+- Fase 2: kill-switch `MODO_PRESENTACION` + 7 guards en funciones legacy (showWelcomeScreen, showWelcomeFromPlan, showChatFromPlan, showChatScreen, showConoceScreen, showBlindaScreen, showPlanScreen). Corte funcional: aunque un listener legacy invoque la función, el guard la hace NO-OP con console.warn `[LEGACY bloqueado]` para trazar.
+
+## v23.7.2 — 2026-04-23
+- Fase 1 saneo legacy: pantallas `#welcome-screen`, `#chat-screen`, `#plan-screen`, `#profile-screen` forzadas ocultas con `style="display:none"` inline + `data-legacy="true"` + `aria-hidden="true"`. No pueden reaparecer aunque `.hidden` se pierda.
+
+## v23.7.1 — 2026-04-23
+- Cluster de acciones del orb: botones movidos ENCIMA del FAB (`bottom:100%` en vez de `top:100%`) para que no se corten por la parte inferior del viewport
+- Tamaño de los 3 botones: 40 → 30px
+
+## v23.7.0 — 2026-04-23
+- FAB click handler cambiado: activa voz (micro + TTS) directamente en vez de abrir el chat floating
+- Nuevo cluster de 3 botones Phosphor bajo el FAB (visible solo en estado FAB): Mover (arrastrar con drag), Chat (floating), Anclar derecha (docked)
+- Drag del widget desde el botón Mover con soporte mouse + touch, clamp al viewport
+
 ## v23.6.9 — 2026-04-22
 - Orb del widget Eliana más grande: FAB 60 → 110px, orb 44 → 100px (init también a 100 para canvas nítido)
 

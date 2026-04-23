@@ -41,6 +41,24 @@ const _markInteracted = () => {
 document.addEventListener('click', _markInteracted, true);
 document.addEventListener('touchstart', _markInteracted, true);
 
+// ─────────────────────────────────────────────────────────────────────────
+// KILL-SWITCH — modo presentación (Fase 2 de saneo legacy)
+// Cuando true, las funciones de navegación a pantallas de la app personal
+// original (welcome/chat/plan/conoce) son NO-OP. Esto evita efectos
+// colaterales (WebSocket abiertos, TTS pisado, state mutado) aunque algún
+// listener legacy las invoque.
+// Para debug: cambiar a `false` manualmente en este archivo y recargar
+// (es `const`, no se puede reasignar en runtime desde consola).
+// ─────────────────────────────────────────────────────────────────────────
+const MODO_PRESENTACION = true;
+function __legacyGuard(fnName) {
+    if (MODO_PRESENTACION) {
+        console.warn(`[LEGACY bloqueado] ${fnName} — si ves esto, alguna ruta antigua sigue activa`);
+        return true;
+    }
+    return false;
+}
+
 // Estado global
 const state = {
     isRecording: false,
@@ -883,6 +901,7 @@ function renderPlanTasks() {
 // Navegación entre pantallas
 // ============================================
 function showChatScreen(initialMessage, showSelector = false, skipSend = false) {
+    if (__legacyGuard('showChatScreen')) return;
     // Fade out welcome
     elements.welcomeScreen.classList.add('fade-out');
 
@@ -935,6 +954,7 @@ function showChatScreenWithAnswer(question, answer) {
 }
 
 function showWelcomeScreen() {
+    if (__legacyGuard('showWelcomeScreen')) return;
     // Detener TTS inmediatamente al navegar atrás
     stopTTS();
 
@@ -966,6 +986,7 @@ function showWelcomeScreen() {
 }
 
 function showPlanScreen() {
+    if (__legacyGuard('showPlanScreen')) return;
     // Fade out welcome
     elements.welcomeScreen.classList.add('fade-out');
 
@@ -983,6 +1004,7 @@ function showPlanScreen() {
 }
 
 function showWelcomeFromPlan() {
+    if (__legacyGuard('showWelcomeFromPlan')) return;
     stopTTS();
     elements.planScreen.classList.add('hidden');
     elements.welcomeScreen.classList.remove('hidden');
@@ -990,6 +1012,7 @@ function showWelcomeFromPlan() {
 }
 
 function showChatFromPlan() {
+    if (__legacyGuard('showChatFromPlan')) return;
     elements.planScreen.classList.add('hidden');
     elements.chatScreen.classList.remove('hidden');
     // Crear orb en el header del chat
@@ -3580,6 +3603,7 @@ const ACTIVITY_OPENERS = {
 };
 
 function showConoceScreen() {
+    if (__legacyGuard('showConoceScreen')) return;
     stopTTS();
     elements.loginScreen?.classList.add('hidden');
     elements.welcomeScreen?.classList.add('hidden');
@@ -3779,6 +3803,7 @@ function isMobile() {
 }
 
 function showBlindaScreen() {
+    if (__legacyGuard('showBlindaScreen')) return;
     // Diapo 3 solo en escritorio — en móvil saltar a diapo 4 (juego)
     if (isMobile()) { showJuegoScreen(); return; }
     stopTTS();
