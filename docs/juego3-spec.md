@@ -163,7 +163,7 @@ Redundancia triple (color + icono Phosphor + texto) para accesibilidad.
   - Highlights: concepto mejor + peor + confusion_top + pct global.
   - Cierre puente a la siguiente diapositiva.
   - Rama especial si `cartas_jugadas == 0`.
-- max_tokens=350, temperature=0.75.
+- `max_tokens=360`, `temperature=0.75`. Ver detalle en sección 10-ter.
 - UI mientras streamea: orb animado + texto en progreso + strip compacto de pct por carta **si el texto no ha llegado a los 2s** (fallback condicional).
 
 ## 10-ter. Pantalla final Eliana: estructura + panel de resultados (v23.14.0)
@@ -242,6 +242,32 @@ Desde DevTools → pestaña **Network**:
 3. Cerrar el backend (Ctrl+C) → mismo comportamiento que Offline.
 
 Tras cada test, `juego3DevMetrics()` confirma que los contadores se incrementaron donde esperábamos.
+
+### Test manual: summary ausente al abrir pantalla final
+Caso específico para el **panel de resultados detallados** (v23.14.0): cuando se abre la pantalla Eliana final sin datos disponibles, el panel debe ocultarse y el CTA no debe romperse.
+
+**Pasos**:
+1. Con el backend arrancado, abre el proyector directamente en la pantalla Eliana final (sin haber jugado ninguna carta): DevTools → consola →
+   ```js
+   juego3.phase = 'ended';
+   juego3.elianaStreaming = true;
+   document.getElementById('juego3-eliana-screen').classList.remove('hidden');
+   juego3.summary = null;
+   renderJuego3Results();
+   ```
+2. O bien: pulsa "Reiniciar juego" → EMPEZAR → pulsa directamente "Ahora Eliana comenta los resultados" sin votar nada.
+
+**Resultado esperado**:
+- El panel `#juego3-eliana-results` tiene la clase `hidden` (display: none).
+- NO aparecen filas ni total.
+- Eliana dice el mensaje amable de "no ha habido tiempo de votar, pasemos a lo siguiente" (ramal sin LLM).
+- El botón "Avanzar a diapo 4" aparece al terminar el texto y es pulsable.
+- No hay errores en consola.
+
+**Resultado si el fetch de summary falla** (otro subcaso):
+- `juego3DevSimulate('summary_fail')` → pulsar "Eliana comenta…"
+- Panel oculto (al no haber summary cargado).
+- Texto streaming del LLM llega si el WS funciona (el backend inyecta summary server-side).
 
 ## 11. Iconografía por tipo (consistente en móvil + proyector)
 

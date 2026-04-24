@@ -1,5 +1,14 @@
 # Changelog — AgentiaELE
 
+## v23.14.1 — 2026-04-24 — Fix doc consistency + test manual panel resultados
+Dos correcciones menores tras revisión v23.14.0:
+- **Fix inconsistencia doc**: sección §10 del spec decía `max_tokens=350` mientras que la §10-ter nueva decía `360`. Unificado a 360 en ambas, con referencia cruzada a §10-ter como fuente de verdad.
+- **Nuevo test manual en §10-bis**: "Test manual: summary ausente al abrir pantalla final" con pasos exactos para validar que el panel de resultados se oculta correctamente cuando `juego3.summary` es null y que el CTA no se rompe. Incluye el subcaso del fetch fallido.
+
+Sin cambios de código — solo documentación.
+
+Versionado sincronizado en los 3 ficheros visibles → v23.14.1.
+
 ## v23.14.0 — 2026-04-24 — Eliana final estructurada + panel de resultados detallados
 Propuesta del usuario aprobada por reviser (con ajustes). Implementada Opción A (extender pantalla Eliana), sin tocar diapo 4 legacy aunque el permiso estaba levantado.
 
