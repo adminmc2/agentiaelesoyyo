@@ -3536,6 +3536,48 @@ function showJuegoIntroScreen() {
     if (!screen) return;
     screen.classList.remove('hidden');
     screen.classList.remove('fade-out');
+
+    // Generar el QR dinámico apuntando a /juego3 (página móvil del juego).
+    // Se usa la URL absoluta del servidor actual para que funcione con cualquier
+    // deployment (ngrok, producción, local) sin hardcodear dominio.
+    renderJintroQRCode();
+}
+
+// Genera el QR SVG dentro de #jintro-qr-svg apuntando a ${origin}/juego3
+function renderJintroQRCode() {
+    const host = document.getElementById('jintro-qr-svg');
+    if (!host) return;
+    if (typeof window.qrcode !== 'function') {
+        // Lib no cargada aún → reintento breve
+        setTimeout(renderJintroQRCode, 200);
+        return;
+    }
+    try {
+        const url = `${location.origin}/juego3`;
+        // Type 0 = autodetect versión, 'M' = corrección media (adecuada para escaneo en aula)
+        const qr = window.qrcode(0, 'M');
+        qr.addData(url);
+        qr.make();
+        // createSvgTag(cellSize, margin) — usamos cellSize=1 y margin=2 para un SVG limpio
+        // que escala con CSS (la clase .jintro-qr-svg ya le da tamaño visual).
+        host.innerHTML = qr.createSvgTag({ cellSize: 1, margin: 2, scalable: true });
+        const svg = host.querySelector('svg');
+        if (svg) {
+            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+            svg.style.width = '100%';
+            svg.style.height = '100%';
+            svg.style.display = 'block';
+            // Color del módulo: negro sobre blanco (máximo contraste para escaneo)
+            svg.querySelectorAll('rect, path').forEach(n => {
+                if (n.getAttribute('fill') !== 'white' && n.getAttribute('fill') !== '#ffffff' && n.getAttribute('fill') !== '#FFFFFF') {
+                    n.setAttribute('fill', '#2c2c2c');
+                }
+            });
+        }
+        console.log('[juego-intro] QR generado →', url);
+    } catch (e) {
+        console.warn('[juego-intro] QR generation failed:', e);
+    }
 }
 
 function hideJuegoIntroScreen() {
