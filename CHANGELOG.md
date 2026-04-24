@@ -1,5 +1,14 @@
 # Changelog — AgentiaELE
 
+## v23.13.6 — 2026-04-24 — Fix: strip de chips no aparece prematuramente
+Bug señalado por el reviser: el handler de `summary` en el dashboard llamaba a `renderJuego3ElianaFallback()` sin condiciones, lo que insertaba los chips en el DOM oculto de la pantalla Eliana durante el juego normal (cada reveal emite un summary). Al abrir la pantalla final, el usuario podía ver chips antes de que el LLM fallara o terminara — violación del contrato "fallback solo si LLM timeout/error".
+
+Fix: el handler ahora **solo refresca** el strip si `document.getElementById('juego3-eliana-fallback')` ya existe (es decir, si fue creado por el timeout de 2s en `startJuego3ElianaFinal`). Nunca lo crea desde este camino.
+
+Resultado: el strip aparece exclusivamente en su caso de uso legítimo (LLM tardó o falló). Si existe y llega un summary actualizado, los valores se refrescan; si no existe, no se crea uno nuevo prematuramente.
+
+Versionado sincronizado en los 3 ficheros visibles → v23.13.6.
+
 ## v23.13.5 — 2026-04-24 — Feedback WS en hello + "0 de 0" explícito
 Dos ajustes del reviser (opcionales, no bloqueantes):
 - **Backend**: en `hello`, si el `participant_id` es inválido o ausente, ahora enviamos al móvil un mensaje `{type:"participant_rejected", reason, message}` en el momento, en vez de esperar al intento de voto. Da feedback proactivo al usuario (aunque en la práctica el móvil nunca debería enviar un pid malformado, porque lo genera el propio código).

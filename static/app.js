@@ -6596,8 +6596,12 @@ function connectJuego3Dashboard() {
                 renderJuego3Bars();
             } else if (msg.type === 'summary') {
                 juego3.summary = msg.data;
-                // Si estamos en pantalla Eliana final, refrescar strip de chips
-                if (typeof renderJuego3ElianaFallback === 'function') {
+                // REFRESCAR fallback SOLO si ya existe (lo creó el timeout de
+                // startJuego3ElianaFinal tras 2s sin tokens del LLM). Nunca crear
+                // desde este handler — si el LLM está streameando o aún no se abrió
+                // la pantalla final, el strip no debe aparecer.
+                const fbExists = document.getElementById('juego3-eliana-fallback');
+                if (fbExists && typeof renderJuego3ElianaFallback === 'function') {
                     renderJuego3ElianaFallback();
                 }
             }
