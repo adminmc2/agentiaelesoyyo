@@ -6605,10 +6605,15 @@ function connectJuego3Dashboard() {
                 renderJuego3Bars();
             } else if (msg.type === 'summary') {
                 juego3.summary = msg.data;
-                // REFRESCAR fallback SOLO si ya existe (lo creó el timeout de
-                // startJuego3ElianaFinal tras 2s sin tokens del LLM). Nunca crear
-                // desde este handler — si el LLM está streameando o aún no se abrió
-                // la pantalla final, el strip no debe aparecer.
+                // Si el proyector está en estado revealed, refrescar el donut acumulativo
+                // con los nuevos datos agregados.
+                if (juego3.phase === 'revealed' && typeof renderJuego3Cumulative === 'function') {
+                    renderJuego3Cumulative();
+                }
+                // REFRESCAR fallback de pantalla final SOLO si ya existe (lo creó el
+                // timeout de startJuego3ElianaFinal tras 2s sin tokens). Nunca crear
+                // desde aquí — si el LLM está streameando o aún no se abrió la pantalla
+                // final, el strip no debe aparecer.
                 const fbExists = document.getElementById('juego3-eliana-fallback');
                 if (fbExists && typeof renderJuego3ElianaFallback === 'function') {
                     renderJuego3ElianaFallback();
@@ -6846,6 +6851,7 @@ function renderJuego3Bars() {
 function renderJuego3Panel() {
     const waitingEl = document.getElementById('juego3-waiting');
     const chartTipoEl = document.getElementById('juego3-chart-tipo');
+    const cumEl = document.getElementById('juego3-chart-cumulative');
     const titleEl = document.getElementById('juego3-panel-title');
     if (!waitingEl || !chartTipoEl) return;
 
@@ -6855,10 +6861,12 @@ function renderJuego3Panel() {
     const nVivo = (juego3.nVivo != null) ? juego3.nVivo : totalVotos;
 
     if (juego3.phase === 'revealed' && card) {
-        // ── Chart por TIPO de IA ──
+        // ── Chart por TIPO de IA + donut acumulativo ──
         waitingEl.classList.add('hidden');
         chartTipoEl.classList.remove('hidden');
+        if (cumEl) cumEl.classList.remove('hidden');
         if (titleEl) titleEl.textContent = `Carta ${juego3.currentCard + 1} — Resultados`;
+        renderJuego3Cumulative();
 
         if (totalVotos === 0) {
             chartTipoEl.innerHTML = `<div class="juego3-ctipo-empty">Nadie respondió esta carta</div>`;
@@ -6913,6 +6921,7 @@ function renderJuego3Panel() {
     // ── Waiting (voting, sin distribución para evitar rebaño) ──
     waitingEl.classList.remove('hidden');
     chartTipoEl.classList.add('hidden');
+    if (cumEl) cumEl.classList.add('hidden');
     if (titleEl) titleEl.textContent = 'Respuestas del grupo';
 
     const countEl = document.getElementById('juego3-waiting-count');
@@ -7106,6 +7115,74 @@ async function startJuego3ElianaFinal() {
     if (summaryFetchFailed) {
         console.info('[Juego3] summary HTTP fetch falló — LLM streaming depende del WS; si WS también falla, caerá al último recurso.');
     }
+}
+
+/**
+ * Donut acumulativo: % de aciertos de agente agregado sobre el total de votos
+ * de todas las cartas jugadas. Se actualiza en cada reveal.
+ *
+ * Fuente de datos: juego3.summary.global (rellenado por el WS handler de summary
+ * y por el fetch inicial si se abre la pantalla final).
+ *
+ * Fallback: si aún no hay summary local (sesión recién iniciada), lo calculamos
+ * a partir del tally de la carta actual para que al menos muestre algo coherente.
+ */
+function renderJuego3Cumulative() {
+    const host = document.getElementById('juego3-chart-cumulative');
+    if (!host) return;
+
+    let aciertos = 0;
+    let votos = 0;
+    let cartasJugadas = 0;
+    let totalCartas = juego3.total || 5;
+
+    if (juego3.summary && juego3.summary.global) {
+        aciertos = juego3.summary.global.aciertos || 0;
+        votos = juego3.summary.global.votos || 0;
+        cartasJugadas = juego3.summary.cartas_jugadas || 0;
+        totalCartas = juego3.summary.total_cartas || totalCartas;
+    } else {
+        // Fallback: calcular desde tally de la carta actual.
+        const card = juego3.cards ? juego3.cards[juego3.currentCard] : null;
+        if (card && juego3.tally) {
+            const tally = juego3.tally;
+            const totalCard = (tally.A || 0) + (tally.B || 0) + (tally.C || 0);
+            const correctos = tally[card.correcta] || 0;
+            aciertos = correctos;
+            votos = totalCard;
+            cartasJugadas = totalCard > 0 ? 1 : 0;
+        }
+    }
+
+    const pct = votos > 0 ? Math.round((aciertos / votos) * 100) : 0;
+    const fallos = Math.max(0, votos - aciertos);
+
+    host.innerHTML = `
+        <div class="juego3-cum__header">
+            <h4 class="juego3-cum__title">Acumulado</h4>
+            <span class="juego3-cum__cards">${cartasJugadas} / ${totalCartas} cartas</span>
+        </div>
+        <div class="juego3-cum__body">
+            <div class="juego3-donut" style="--pct: ${pct}">
+                <div class="juego3-donut__center">
+                    <span class="juego3-donut__pct">${pct}%</span>
+                    <span class="juego3-donut__label">Aciertos</span>
+                </div>
+            </div>
+            <div class="juego3-cum__legend">
+                <div class="juego3-cum__row">
+                    <span class="juego3-cum__dot juego3-cum__dot--ok"></span>
+                    <span class="juego3-cum__num">${aciertos}</span>
+                    <span>aciertos de agente</span>
+                </div>
+                <div class="juego3-cum__row juego3-cum__row--ko">
+                    <span class="juego3-cum__dot juego3-cum__dot--ko"></span>
+                    <span class="juego3-cum__num">${fallos}</span>
+                    <span>confusiones</span>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 /**

@@ -9619,6 +9619,112 @@ body[data-mood-active] .message.assistant {
     font: 500 16px 'Source Sans 3', sans-serif;
     font-style: italic;
 }
+
+/* ─── Donut acumulativo: % de aciertos agregados sobre total de votos ─── */
+.juego3-chart-cumulative {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1.5px solid rgba(107, 47, 109, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.juego3-chart-cumulative.hidden { display: none; }
+.juego3-cum__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+}
+.juego3-cum__title {
+    font: 800 13px 'Source Sans 3', sans-serif;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #6B2F6D;
+    margin: 0;
+}
+.juego3-cum__cards {
+    font: 700 12px 'Source Sans 3', sans-serif;
+    color: #888;
+}
+
+.juego3-cum__body {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 22px;
+    align-items: center;
+}
+.juego3-donut {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    position: relative;
+    background: conic-gradient(
+        #8CBEB2 0 calc(var(--pct, 0) * 1%),
+        rgba(107, 47, 109, 0.18) calc(var(--pct, 0) * 1%) 100%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.juego3-donut::before {
+    content: '';
+    position: absolute;
+    inset: 18px;
+    background: #FFFFFF;
+    border-radius: 50%;
+    z-index: 0;
+}
+.juego3-donut__center {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    line-height: 1;
+}
+.juego3-donut__pct {
+    font: 900 30px 'Dosis', sans-serif;
+    color: #2A5F52;
+    display: block;
+}
+.juego3-donut__label {
+    font: 800 9px 'Source Sans 3', sans-serif;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #888;
+    display: block;
+    margin-top: 4px;
+}
+
+.juego3-cum__legend {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+}
+.juego3-cum__row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font: 600 14px 'Source Sans 3', sans-serif;
+    color: #2c2c2c;
+}
+.juego3-cum__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.juego3-cum__dot--ok { background: #8CBEB2; }
+.juego3-cum__dot--ko { background: rgba(107, 47, 109, 0.4); }
+.juego3-cum__num {
+    font-weight: 900;
+    color: #2A5F52;
+    font-size: 18px;
+    margin-right: 4px;
+}
+.juego3-cum__row--ko .juego3-cum__num { color: #6B2F6D; }
 .juego3-bar {
     display: grid;
     grid-template-columns: 40px 1fr 48px;

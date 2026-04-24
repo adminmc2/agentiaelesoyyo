@@ -1,5 +1,20 @@
 # Changelog — AgentiaELE
 
+## v23.13.11 — 2026-04-24 — Donut acumulativo en el panel del proyector
+Dos gráficos ahora en el panel derecho durante `phase=revealed`:
+
+1. **Por pregunta** (ya existía): barras horizontales por tipo de IA (chatbot / asistente / agente) con el agente destacado en verde.
+2. **Acumulativo (nuevo)**: donut debajo que muestra el % de aciertos de agente agregado sobre el total de votos de todas las cartas jugadas.
+   - Centro del donut: pct grande (ej. `65%`) + "Aciertos" debajo.
+   - Leyenda a la derecha: `X aciertos de agente` (verde) + `Y confusiones` (violeta) + contador de cartas jugadas `3 / 5 cartas`.
+   - Implementado con `conic-gradient` CSS (sin dependencias JS externas).
+   - Se actualiza en cada reveal cuando llega un nuevo `summary` por WS.
+   - Fallback: si aún no hay `juego3.summary`, calcula desde el tally de la carta actual para que muestre algo coherente.
+
+Caso de uso didáctico: el grupo ve en vivo cómo va su comprensión del concepto "agente" a medida que avanzan las 5 cartas.
+
+Versionado sincronizado en los 3 ficheros visibles → v23.13.11.
+
 ## v23.13.10 — 2026-04-24 — Botón visible "Reiniciar juego" en el proyector
 No había forma de resetear el juego desde la UI sin recargar la página entera. Añadido botón discreto "Reiniciar juego" en la columna izquierda del proyector, debajo de Revelar/Siguiente.
 - Estilo terciario (dashed border violeta tenue) — no compite con los botones primarios.
