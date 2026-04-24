@@ -25,3 +25,19 @@ Thumbs.db
 # Docs (Word/PDF files - keep in separate docs repo)
 *.docx
 *.pdf
+
+# Claude Code local config (per-project, nunca versionar)
+.claude/settings.json
+.claude/settings.local.json
+.claude/
+
+# Nota sobre user_data.json: SIGUE TRACKED con datos seed canónicos.
+# El backend append-a modificaciones runtime (searches de sesión). ANTES de cada
+# commit funcional, verifica con `git diff user_data.json` y si hay cambios
+# runtime no intencionados, revierte con `git checkout HEAD -- user_data.json`.
+
+# Binarios fuente de diseño sueltos en la raíz (PSD, MP3, PNG).
+# Si quieres versionar alguno, muévelo a assets/raw/ o similar y quita la regla.
+/*.psd
+/*.mp3
+/sofainicial.png
