@@ -1227,6 +1227,14 @@ def _juego3_n_sesion() -> int:
 
 
 def _juego3_state_msg() -> dict:
+    # card_total_votos: solo se rellena en 'revealed' para que el móvil pueda
+    # distinguir "yo no voté" (total>0, yo vacío) de "nadie votó" (total==0).
+    # En otras fases es null.
+    idx = _juego3_state["current_card"]
+    card_total_votos = None
+    if _juego3_state["phase"] == "revealed" and idx >= 0:
+        votes = _juego3_state["votes"].get(idx, {})
+        card_total_votos = sum(votes.values())
     return {
         "type": "state",
         "current_card": _juego3_state["current_card"],
@@ -1234,6 +1242,7 @@ def _juego3_state_msg() -> dict:
         "total": _juego3_total(),
         "n_vivo": _juego3_n_vivo(),
         "n_sesion": _juego3_n_sesion(),
+        "card_total_votos": card_total_votos,
     }
 
 
@@ -1435,6 +1444,20 @@ async def ws_juego3_mobile(websocket: WebSocket):
                     _juego3_mobile_pid[websocket] = pid_raw
                 pid = pid_raw or _juego3_mobile_pid.get(websocket, "")
 
+                # Rechazo estricto: voto sin participant_id no se cuenta.
+                # Garantiza que summary + dedup son fiables al 100%.
+                if not pid:
+                    print(f"[juego3] vote rejected: no participant_id (card={card} letter={letter})")
+                    try:
+                        await websocket.send_json({
+                            "type": "vote_rejected",
+                            "reason": "no_participant",
+                            "message": "Tu voto no se registró. Activa el almacenamiento del navegador y recarga."
+                        })
+                    except Exception:
+                        pass
+                    continue
+
                 if card != _juego3_state["current_card"]:
                     continue
                 if _juego3_state["phase"] != "voting":
@@ -1443,13 +1466,12 @@ async def ws_juego3_mobile(websocket: WebSocket):
                     continue
 
                 # Dedup server-side: un participant solo vota una vez por carta
-                if pid:
-                    vbp = _juego3_state["votes_by_participant"].setdefault(pid, {})
-                    if card in vbp:
-                        print(f"[juego3] duplicate vote ignored: participant={_short_pid(pid)} card={card}")
-                        continue
-                    vbp[card] = letter
-                    _juego3_state["session_participants"].add(pid)
+                vbp = _juego3_state["votes_by_participant"].setdefault(pid, {})
+                if card in vbp:
+                    print(f"[juego3] duplicate vote ignored: participant={_short_pid(pid)} card={card}")
+                    continue
+                vbp[card] = letter
+                _juego3_state["session_participants"].add(pid)
 
                 votes = _juego3_state["votes"].setdefault(card, {"A": 0, "B": 0, "C": 0})
                 votes[letter] = votes.get(letter, 0) + 1

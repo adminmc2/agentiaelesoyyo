@@ -271,43 +271,74 @@
 
         <main class="main" id="content"></main>
 
-        <p class="ver">v23.13.2</p>
+        <p class="ver">v23.13.3</p>
     </div>
 
     <script>
         const WS_URL = `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws/juego3`;
 
-        // ─── Participant ID: UUID v4 persistido en localStorage ───
+        // ─── Participant ID: UUID v4 con fallback de 3 niveles ───
+        //   1. localStorage (persistente entre sesiones — ideal)
+        //   2. sessionStorage (persiste solo mientras la pestaña está abierta)
+        //   3. en memoria (dura hasta recargar — peor caso)
+        //   4. si todo falla → string vacío → backend rechaza + aviso al usuario
+        function genUUIDv4() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        const STORAGE_KEY = 'juego3_participant_id';
+        let _inMemoryPid = null;   // fallback de último recurso
+        let _storageLevel = 'none'; // para diagnosticar en consola
+
         function getOrCreateParticipantId() {
+            // Nivel 1: localStorage
             try {
-                const key = 'juego3_participant_id';
-                let pid = localStorage.getItem(key);
+                let pid = localStorage.getItem(STORAGE_KEY);
                 if (!pid) {
-                    // UUID v4 simple (sin depender de crypto.randomUUID para compat)
-                    pid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-                        const r = Math.random() * 16 | 0;
-                        const v = c === 'x' ? r : (r & 0x3 | 0x8);
-                        return v.toString(16);
-                    });
-                    localStorage.setItem(key, pid);
+                    pid = genUUIDv4();
+                    localStorage.setItem(STORAGE_KEY, pid);
                 }
+                _storageLevel = 'localStorage';
                 return pid;
-            } catch (_) {
-                return '';
+            } catch (_) { /* fallthrough */ }
+
+            // Nivel 2: sessionStorage
+            try {
+                let pid = sessionStorage.getItem(STORAGE_KEY);
+                if (!pid) {
+                    pid = genUUIDv4();
+                    sessionStorage.setItem(STORAGE_KEY, pid);
+                }
+                _storageLevel = 'sessionStorage';
+                return pid;
+            } catch (_) { /* fallthrough */ }
+
+            // Nivel 3: memoria
+            if (!_inMemoryPid) {
+                _inMemoryPid = genUUIDv4();
+                _storageLevel = 'memory';
             }
+            return _inMemoryPid;
         }
 
         const PARTICIPANT_ID = getOrCreateParticipantId();
+        console.log('[juego3] participant_id storage level:', _storageLevel);
 
         const state = {
             cards: null,
             currentCard: -1,
             phase: 'idle',
             total: 5,
-            selected: null,       // letra votada esta carta (lo que ESTE jugador eligió)
-            votedCards: {},       // {cardIdx: letter} — caché local de votos
+            cardTotalVotos: null,  // en revealed: 0 si nadie votó, >0 si alguien votó
+            selected: null,        // letra votada esta carta (lo que ESTE jugador eligió)
+            votedCards: {},        // {cardIdx: letter} — caché local de votos
             ws: null,
-            retryMs: 1500
+            retryMs: 1500,
+            rejectedMsg: null,     // mensaje del backend si el voto fue rechazado
         };
 
         // Persistir votos en localStorage para sobrevivir recarga
@@ -352,7 +383,19 @@
                         state.currentCard = msg.current_card;
                         state.phase = msg.phase;
                         state.total = msg.total || state.total;
+                        state.cardTotalVotos = (msg.card_total_votos != null) ? msg.card_total_votos : null;
                         state.selected = state.votedCards[state.currentCard] || null;
+                        render();
+                    } else if (msg.type === 'vote_rejected') {
+                        // Backend rechazó el voto (típicamente: participant_id vacío).
+                        // Revertir el voto local y avisar al usuario.
+                        console.warn('[juego3] vote rejected by server:', msg.reason, msg.message);
+                        if (state.currentCard != null && state.votedCards[state.currentCard]) {
+                            delete state.votedCards[state.currentCard];
+                            saveLocalVotes();
+                        }
+                        state.selected = null;
+                        state.rejectedMsg = msg.message || 'Tu voto no se pudo registrar.';
                         render();
                     }
                     // tally/summary se ignoran en móvil (son para dashboard)
@@ -514,12 +557,16 @@
                     </div>
                 `;
             } else if (noVoto) {
+                // Distinguir "nadie votó" (total=0) vs "yo solo no voté" (total>0)
+                const nadieVoto = (state.cardTotalVotos === 0);
+                const title = nadieVoto ? 'Nadie respondió esta vez' : 'No votaste esta vez';
+                const hint = `La correcta era (${correctLetter}) — un ${tipoLabel(correctTipo).toLowerCase()}.`;
                 bannerHTML = `
                     <div class="banner banner--neutral" role="status">
                         <i class="ph-fill ph-info banner__icon"></i>
                         <div class="banner__body">
-                            <p class="banner__title">No votaste esta vez</p>
-                            <p class="banner__hint">La correcta era (${correctLetter}) — un ${tipoLabel(correctTipo).toLowerCase()}.</p>
+                            <p class="banner__title">${title}</p>
+                            <p class="banner__hint">${hint}</p>
                         </div>
                     </div>
                 `;
@@ -533,8 +580,39 @@
                 `;
             }
 
-            // Orden: pregunta → opciones → banner → explicación
+            // Aviso de storage bloqueado (memoria = voto no sobrevive recarga)
+            // o aviso de rechazo reciente del backend.
+            let storageWarnHTML = '';
+            if (_storageLevel === 'memory' || _storageLevel === 'none') {
+                storageWarnHTML = `
+                    <div class="banner banner--wrong" role="alert" style="border-width:1.5px">
+                        <i class="ph-fill ph-warning banner__icon"></i>
+                        <div class="banner__body">
+                            <p class="banner__title">Almacenamiento limitado</p>
+                            <p class="banner__hint">Tu voto podría no sobrevivir a una recarga. Activa cookies/almacenamiento del navegador si puedes.</p>
+                        </div>
+                    </div>
+                `;
+            }
+            let rejectedHTML = '';
+            if (state.rejectedMsg) {
+                rejectedHTML = `
+                    <div class="banner banner--wrong" role="alert">
+                        <i class="ph-fill ph-x-circle banner__icon"></i>
+                        <div class="banner__body">
+                            <p class="banner__title">Voto no registrado</p>
+                            <p class="banner__hint">${state.rejectedMsg}</p>
+                        </div>
+                    </div>
+                `;
+                // El mensaje se muestra una sola vez y se limpia
+                state.rejectedMsg = null;
+            }
+
+            // Orden: aviso (si aplica) → pregunta → opciones → banner de fase → explicación
             content.innerHTML = `
+                ${storageWarnHTML}
+                ${rejectedHTML}
                 <h2 class="question">${card.pregunta}</h2>
                 <div class="options">${optionsHTML}</div>
                 ${bannerHTML}
