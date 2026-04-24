@@ -9581,6 +9581,93 @@ body[data-mood-active] .message.assistant {
    Responsive juego3 — cubre desde 4K hasta portátil HP 1280×720
    ───────────────────────────────────────────────────────────── */
 
+/* 1920px+: TVs grandes, proyectores FullHD/4K, monitores 2K/4K.
+   Escala fuentes + padding + separación + elementos de soporte
+   (círculo A/B/C, contador 1/5, barras, botones). */
+@media (min-width: 1920px) {
+    /* Columna izquierda: sube ancho moderadamente (no ahoga el panel) */
+    .juego3-left-col {
+        width: clamp(560px, 36vw, 780px);
+        gap: 20px;
+    }
+
+    /* Frente violeta */
+    .juego3-card { gap: 20px; }
+    .juego3-card__front {
+        padding: 30px 32px;
+        border-radius: 28px;
+        gap: 16px;
+    }
+    .juego3-card__front-icon { font-size: 44px; }
+    .juego3-card__front-name {
+        font-size: 28px;
+        padding: 0 16px;
+        line-height: 1.3;
+    }
+    .juego3-card__front-num {
+        font-size: 14px;
+        padding: 5px 14px;
+        top: 16px;
+        right: 20px;
+    }
+
+    /* Dorso blanco */
+    .juego3-card__back {
+        padding: 28px;
+        gap: 18px;
+        border-radius: 20px;
+    }
+    .juego3-card__question { font-size: 36px; }
+    .juego3-card__area-chip {
+        font-size: 13px;
+        padding: 10px 18px;
+    }
+    .juego3-card__explain { padding: 22px 26px; }
+    .juego3-card__explain-row { font-size: 18px; grid-template-columns: 130px 1fr; }
+    .juego3-card__explain-tag { font-size: 13px; }
+
+    /* Opciones */
+    .juego3-opts { gap: 14px; }
+    .juego3-opt {
+        padding: 18px 24px;
+        gap: 16px;
+        border-radius: 18px;
+    }
+    .juego3-opt__text { font-size: 24px; line-height: 1.4; }
+    .juego3-opt__icon { font-size: 22px; }
+    .juego3-opt__letter {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        font-size: 22px;
+        line-height: 42px;
+    }
+
+    /* Panel derecho: título, barras y controles también escalan */
+    .juego3-panel {
+        padding: 28px;
+        gap: 22px;
+        border-radius: 24px;
+    }
+    .juego3-panel__head { padding-bottom: 18px; }
+    .juego3-panel__title { font-size: 26px; }
+    .juego3-panel__progress { font-size: 15px; padding: 6px 14px; }
+    .juego3-bar { grid-template-columns: 48px 1fr 60px; gap: 14px; }
+    .juego3-bar__letter { font-size: 26px; }
+    .juego3-bar__count { font-size: 22px; }
+    .juego3-bar__track { height: 42px; border-radius: 12px; }
+    .juego3-panel__ctrls { gap: 14px; padding-top: 18px; }
+
+    /* Botones Revelar/Siguiente (abajo de la columna izquierda) */
+    .juego3-ctrl-btn {
+        padding: 18px 28px;
+        font-size: 17px;
+        letter-spacing: 0.12em;
+        border-radius: 16px;
+    }
+    .juego3-ctrl-btn i { font-size: 20px; }
+}
+
 /* 1500px-: ajustes suaves */
 @media (max-width: 1500px) {
     .juego3-screen { padding: 88px 24px 20px; }
