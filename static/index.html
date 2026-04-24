@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.8.6">
+    <link rel="stylesheet" href="/static/style.css?v=23.9.6">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -330,21 +330,21 @@
                     </div>
                 </section>
 
-                <!-- Estado jugando: carta izquierda / gráfico derecha -->
+                <!-- Estado jugando: card-pair estilo Blindapalabras + panel -->
                 <section class="juego3-play hidden" id="juego3-play">
-                    <!-- Columna izquierda: la carta -->
+                    <!-- Card-pair: frente coloreado + dorso blanco -->
                     <div class="juego3-card" id="juego3-card">
-                        <div class="juego3-card__top">
-                            <span class="juego3-card__area" id="juego3-area">ÁREA</span>
-                            <span class="juego3-card__format-badge" id="juego3-format">
-                                <i class="ph-bold ph-chats-circle"></i>
-                                <span>Formato</span>
-                            </span>
+                        <div class="juego3-card__front" id="juego3-card-front">
+                            <i class="ph-fill ph-chats-circle juego3-card__front-icon" id="juego3-card-icon"></i>
+                            <div class="juego3-card__front-name" id="juego3-area">&Aacute;REA</div>
+                            <div class="juego3-card__front-num" id="juego3-card-num">1 / 10</div>
                         </div>
-                        <p class="juego3-card__intro" id="juego3-intro"></p>
-                        <h2 class="juego3-card__question" id="juego3-question"></h2>
-                        <ol class="juego3-opts" id="juego3-opts"></ol>
-                        <div class="juego3-card__explain hidden" id="juego3-explain"></div>
+                        <div class="juego3-card__back" id="juego3-card-back">
+                            <p class="juego3-card__intro" id="juego3-intro"></p>
+                            <h2 class="juego3-card__question" id="juego3-question"></h2>
+                            <ol class="juego3-opts" id="juego3-opts"></ol>
+                            <div class="juego3-card__explain hidden" id="juego3-explain"></div>
+                        </div>
                     </div>
 
                     <!-- Columna derecha: gráfico de respuestas + controles ponente -->
@@ -1479,6 +1479,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.8.6"></script>
+    <script src="/static/app.js?v=23.9.6"></script>
 </body>
 </html>

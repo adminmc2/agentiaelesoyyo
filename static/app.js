@@ -6514,10 +6514,10 @@ const juego3 = {
 };
 
 const JUEGO3_FORMAT_META = {
-    'casting': { icon: 'ph-chats-circle', label: 'Casting' },
-    'misma-orden': { icon: 'ph-flask', label: 'Misma orden' },
-    'mientras-no-estabas': { icon: 'ph-moon', label: 'Mientras no estabas' },
-    'titular': { icon: 'ph-newspaper', label: 'Titular' },
+    'casting':              { icon: 'ph-chats-circle', label: 'Casting',              color: '#D0AAD1' },
+    'misma-orden':          { icon: 'ph-flask',        label: 'Misma orden',          color: '#C9A632' },
+    'mientras-no-estabas':  { icon: 'ph-moon',         label: 'Mientras no estabas',  color: '#6B2F6D' },
+    'titular':              { icon: 'ph-newspaper',    label: 'Titular',              color: '#8CBEB2' },
 };
 
 async function loadJuego3Cards() {
@@ -6642,22 +6642,31 @@ function renderJuego3Card() {
     if (!card) return;
 
     const container = document.getElementById('juego3-card');
+    const frontEl = document.getElementById('juego3-card-front');
+    const backEl = document.getElementById('juego3-card-back');
     const areaEl = document.getElementById('juego3-area');
-    const formatEl = document.getElementById('juego3-format');
+    const iconEl = document.getElementById('juego3-card-icon');
+    const numEl = document.getElementById('juego3-card-num');
     const introEl = document.getElementById('juego3-intro');
     const questionEl = document.getElementById('juego3-question');
     const optsEl = document.getElementById('juego3-opts');
     const explainEl = document.getElementById('juego3-explain');
     const progressEl = document.getElementById('juego3-progress');
 
-    areaEl.textContent = card.area;
     const fmt = JUEGO3_FORMAT_META[card.formato] || { icon: 'ph-circle', label: card.formato };
-    formatEl.innerHTML = `<i class="ph-bold ${fmt.icon}"></i><span>${fmt.label}</span>`;
+    const color = '#6B2F6D'; // color único para todas las cartas (violeta oscuro Eliana)
+
+    areaEl.textContent = card.area;
+    if (iconEl) iconEl.className = `ph-fill ${fmt.icon} juego3-card__front-icon`;
+    if (numEl) numEl.textContent = `${juego3.currentCard + 1} / ${juego3.total}`;
     introEl.textContent = card.intro;
     questionEl.textContent = card.pregunta;
     progressEl.textContent = `${juego3.currentCard + 1} / ${juego3.total}`;
 
-    // Variante por formato
+    // Colores inline estilo Blinda: frente gradiente + dorso borde superior
+    if (frontEl) frontEl.style.background = `linear-gradient(145deg, ${color}, ${color}bb)`;
+    if (backEl) backEl.style.borderTop = `5px solid ${color}`;
+
     container.className = `juego3-card juego3-card--${card.formato}`;
 
     // Opciones
