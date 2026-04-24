@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.12.0">
+    <link rel="stylesheet" href="/static/style.css?v=23.13.0">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -356,14 +356,26 @@
                         </div>
                     </div>
 
-                    <!-- Columna derecha: gráfico de respuestas -->
+                    <!-- Columna derecha: panel de resultados (estados waiting / revealed) -->
                     <aside class="juego3-panel">
                         <div class="juego3-panel__head">
-                            <h3 class="juego3-panel__title">Respuestas del grupo</h3>
+                            <h3 class="juego3-panel__title" id="juego3-panel-title">Respuestas del grupo</h3>
                             <span class="juego3-panel__progress" id="juego3-progress">— / 5</span>
                         </div>
-                        <div class="juego3-chart" id="juego3-chart">
-                            <!-- Barras dinámicas A/B/C -->
+
+                        <!-- Estado waiting: progreso de participación sin sesgo de opción -->
+                        <div class="juego3-waiting" id="juego3-waiting">
+                            <i class="ph-fill ph-users-three juego3-waiting__icon"></i>
+                            <p class="juego3-waiting__label" id="juego3-waiting-label">Esperando respuestas…</p>
+                            <p class="juego3-waiting__count" id="juego3-waiting-count">0 de 0 han votado</p>
+                            <div class="juego3-waiting__bar">
+                                <div class="juego3-waiting__fill" id="juego3-waiting-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Estado revealed: chart por tipo de IA (chatbot / asistente / agente) -->
+                        <div class="juego3-chart-tipo hidden" id="juego3-chart-tipo">
+                            <!-- Inyectado dinámicamente desde app.js renderJuego3ChartByType() -->
                         </div>
                     </aside>
                 </section>
@@ -1480,6 +1492,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.12.0"></script>
+    <script src="/static/app.js?v=23.13.0"></script>
 </body>
 </html>

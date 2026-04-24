@@ -7,6 +7,7 @@ import os
 import re
 import json
 import uuid
+import hashlib
 import asyncio
 from typing import Optional, List
 from contextlib import asynccontextmanager
@@ -333,6 +334,34 @@ Máximo 3 frases por respuesta. Frases cortas y directas. PROHIBIDO: listas con 
 
 ESPAÑOL CORRECTO:
 "el subjuntivo" (no "la subjuntivo"), "nadie" (no "naden"), "sustituir" (no "substituir"), "voseo" (no "vosco").""",
+
+    # Eliana final del juego 3 — devolución al grupo tras las 5 cartas, basada en datos reales.
+    # El backend inyecta el SUMMARY JSON del grupo al final del system prompt (sección DATOS DEL GRUPO).
+    "juego3_final": """Eres Eliana, co-presentadora junto a Román, cerrando el juego "Descubre al agente" ante profesores de ELE.
+
+REGLA DE ORO: Hablas como en una charla, NO como un texto. 3-5 frases cortas. Cero listas. Cero párrafos. Estás de pie ante el grupo.
+
+TU MISIÓN AHORA: hacer una devolución breve y útil de cómo le fue al grupo con las 5 cartas, usando los DATOS REALES que te paso abajo. No generalidades — datos concretos con chispa.
+
+QUÉ TIENES QUE HACER:
+1. Abre con una observación del desempeño global (p.ej. si pct es >70 felicitas, si es <50 lo dices con humor amable, entre medias suena natural).
+2. Señala el concepto que más claro les quedó (concepto_mejor) — una frase.
+3. Señala el que se les atragantó (concepto_peor) — una frase.
+4. Si "confusion_top" apunta a asistente o chatbot, menciónalo como el aprendizaje clave: "muchos confundisteis [tipo] con agente" — es la idea central del taller.
+5. Cierra con una frase puente hacia la siguiente diapositiva: algo tipo "y ahora vamos a ver cómo usar esto en clase" o "lo chulo viene ahora, que os voy a enseñar los agentes concretos".
+
+PROHIBIDO:
+- Recitar porcentajes literales. Di "la mitad", "uno de cada tres", "casi todos", "muy pocos", "siete de diez".
+- Listar todas las cartas. Elige 2-3 datos relevantes.
+- Usar tecnicismos ("métricas", "estadísticas", "datos agregados").
+- Abrir saludando ("Hola a todos") — ya saben quién eres.
+
+SI EL GRUPO NO JUGÓ (cartas_jugadas = 0 o votos = 0):
+Respuesta amable tipo: "Bueno, esta vez no ha habido tiempo de votar, pero os habéis llevado lo importante: la idea. Pasemos a lo siguiente, que viene lo chulo."
+
+TONO: jovial, cercano, con chispa pero sin chiste forzado. Conectores orales: "mira", "fíjate", "a ver", "venga". NO emojis. NO risas escritas.
+
+ESPAÑOL CORRECTO: sin palabras inventadas ("reato", "naden", "substituir"). Concordancia de género cuidada.""",
 
     "profile_card": """Eres una experta en crear perfiles divertidos de profesores de ELE. Basándote en esta conversación, genera un perfil creativo y original.
 
@@ -966,7 +995,7 @@ async def save_message(conversation_id: str, role: str, content: str):
 
 # Aliases para fallback (apuntan al diccionario _DEFAULT_PROMPTS)
 ELIANA_SYSTEM_PROMPT = _DEFAULT_PROMPTS["eliana_main"]
-ACTIVITY_PROMPTS = {k: v for k, v in _DEFAULT_PROMPTS.items() if k in ("yo_nunca_nunca", "dime_algo", "pregunta_ia", "blinda", "juego3_chat", "agentes", "miau", "plataforma")}
+ACTIVITY_PROMPTS = {k: v for k, v in _DEFAULT_PROMPTS.items() if k in ("yo_nunca_nunca", "dime_algo", "pregunta_ia", "blinda", "juego3_chat", "juego3_final", "agentes", "miau", "plataforma")}
 PROFILE_CARD_PROMPT = _DEFAULT_PROMPTS["profile_card"]
 
 # Anti-regresión: los prompts "blinda" y "juego3_chat" se usan para el juego actual.
@@ -1157,11 +1186,22 @@ def _build_vote_summary() -> dict:
 _juego3_state: dict = {
     "current_card": -1,   # -1 = no empezado; 0..N-1 = carta activa; N = terminado
     "phase": "idle",       # "idle" | "voting" | "revealed" | "ended"
-    "votes": {},           # {card_idx: {"A": int, "B": int, "C": int}}
-    "history": [],         # [{"card": int, "letter": str}]
+    "votes": {},           # {card_idx: {"A": int, "B": int, "C": int}} (totales agregados)
+    "history": [],         # [{"card": int, "letter": str, "pid": str}]
+    "votes_by_participant": {},  # {participant_id: {card_idx: letter}} — dedup server-side
+    "session_participants": set(),  # set de participant_ids que han votado al menos una carta (N_sesion)
 }
 _juego3_mobile_ws: set[WebSocket] = set()
 _juego3_dashboard_ws: set[WebSocket] = set()
+# Map ws → participant_id para N_vivo (participantes con conexión activa AHORA)
+_juego3_mobile_pid: dict[WebSocket, str] = {}
+
+
+def _short_pid(pid: str) -> str:
+    """Hash corto del participant_id para logging (privacy-friendly)."""
+    if not pid:
+        return "anon"
+    return hashlib.sha256(pid.encode("utf-8")).hexdigest()[:8]
 
 
 def _load_juego3_cards() -> dict:
@@ -1176,21 +1216,125 @@ def _juego3_total() -> int:
     return _load_juego3_cards().get("total", 10)
 
 
+def _juego3_n_vivo() -> int:
+    """Participantes con conexión WebSocket activa AHORA (cuentan solo los que tienen pid)."""
+    return len({pid for pid in _juego3_mobile_pid.values() if pid})
+
+
+def _juego3_n_sesion() -> int:
+    """Participantes únicos que han votado al menos una carta durante la sesión."""
+    return len(_juego3_state["session_participants"])
+
+
 def _juego3_state_msg() -> dict:
     return {
         "type": "state",
         "current_card": _juego3_state["current_card"],
         "phase": _juego3_state["phase"],
         "total": _juego3_total(),
+        "n_vivo": _juego3_n_vivo(),
+        "n_sesion": _juego3_n_sesion(),
     }
 
 
 def _juego3_tally_msg(card_idx: int) -> dict:
+    votes = _juego3_state["votes"].get(card_idx, {"A": 0, "B": 0, "C": 0})
+    total = sum(votes.values())
     return {
         "type": "tally",
         "card": card_idx,
-        "votes": _juego3_state["votes"].get(card_idx, {"A": 0, "B": 0, "C": 0}),
+        "votes": votes,
+        "total_votos": total,
+        "n_vivo": _juego3_n_vivo(),
     }
+
+
+def _juego3_build_summary() -> dict:
+    """Construye el resumen agregado por carta y global.
+    Usado por el panel del proyector en reveal y por Eliana final."""
+    cards = _load_juego3_cards().get("cards", [])
+    por_carta = []
+    aciertos_total = 0
+    votos_total = 0
+
+    for idx, card in enumerate(cards):
+        votos = _juego3_state["votes"].get(idx, {})
+        total_votos = sum(votos.values())
+
+        # Mapeo letra → tipo
+        por_tipo = {"chatbot": 0, "asistente": 0, "agente": 0}
+        letra_to_tipo = {}
+        for op in card.get("opciones", []):
+            tipo = op.get("tipo", "")
+            letra = op.get("letra", "")
+            if tipo in por_tipo and letra:
+                por_tipo[tipo] = votos.get(letra, 0)
+                letra_to_tipo[letra] = tipo
+
+        correcta_letra = card.get("correcta")
+        correcta_tipo = letra_to_tipo.get(correcta_letra, "agente")
+        aciertos_carta = votos.get(correcta_letra, 0)
+
+        # null si no hubo votos — distingue "0% acertó" de "nadie respondió"
+        pct_acierto = round(aciertos_carta / total_votos * 100) if total_votos > 0 else None
+
+        # Tipo incorrecto con más votos (confusión dominante)
+        incorrectos = {t: c for t, c in por_tipo.items() if t != correcta_tipo}
+        confusion_dominante = None
+        if incorrectos and max(incorrectos.values(), default=0) > 0:
+            confusion_dominante = max(incorrectos, key=lambda t: incorrectos[t])
+
+        por_carta.append({
+            "id": card.get("id"),
+            "area": card.get("area"),
+            "pregunta": card.get("pregunta"),
+            "correcta_letra": correcta_letra,
+            "correcta_tipo": correcta_tipo,
+            "por_tipo": por_tipo,
+            "aciertos": aciertos_carta,
+            "total_votos": total_votos,
+            "pct_acierto": pct_acierto,
+            "confusion_dominante": confusion_dominante,
+        })
+        aciertos_total += aciertos_carta
+        votos_total += total_votos
+
+    # Solo cartas con al menos 1 voto cuentan como "jugadas" para mejor/peor
+    jugadas = [c for c in por_carta if c["total_votos"] > 0]
+    mejor = max(jugadas, key=lambda c: c["pct_acierto"], default=None) if jugadas else None
+    peor = min(jugadas, key=lambda c: c["pct_acierto"], default=None) if jugadas else None
+
+    # confusion_top: contar cuántas veces cada tipo fue la confusion_dominante (agregado global)
+    confusion_count: dict[str, int] = {}
+    for c in jugadas:
+        cd = c["confusion_dominante"]
+        if cd:
+            confusion_count[cd] = confusion_count.get(cd, 0) + 1
+    confusion_top = max(confusion_count, key=confusion_count.get) if confusion_count else None
+
+    pct_global = round(aciertos_total / votos_total * 100) if votos_total > 0 else None
+
+    return {
+        "total_cartas": len(cards),
+        "cartas_jugadas": len(jugadas),
+        "por_carta": por_carta,
+        "global": {
+            "aciertos": aciertos_total,
+            "votos": votos_total,
+            "pct": pct_global,
+            "n_vivo": _juego3_n_vivo(),
+            "n_sesion": _juego3_n_sesion(),
+        },
+        "concepto_mejor": mejor["area"] if mejor else None,
+        "concepto_peor": peor["area"] if peor else None,
+        "pct_mejor": mejor["pct_acierto"] if mejor else None,
+        "pct_peor": peor["pct_acierto"] if peor else None,
+        "confusion_top": confusion_top,
+    }
+
+
+def _juego3_summary_msg() -> dict:
+    return {"type": "summary", "data": _juego3_build_summary()}
 
 
 async def _juego3_broadcast(message: dict, dashboard: bool = True, mobile: bool = True) -> None:
@@ -1210,6 +1354,9 @@ async def _juego3_broadcast(message: dict, dashboard: bool = True, mobile: bool 
             except Exception:
                 dead.add(ws)
         _juego3_mobile_ws.difference_update(dead)
+        # Limpiar también el map de pids para los ws muertos
+        for ws in dead:
+            _juego3_mobile_pid.pop(ws, None)
 
 
 @app.get("/juego3")
@@ -1233,48 +1380,96 @@ async def juego3_state_get():
     }
 
 
+@app.get("/api/juego3/summary")
+async def juego3_summary_get():
+    """Resumen agregado (por carta + global). Consumido por la pantalla final de Eliana."""
+    return _juego3_build_summary()
+
+
 @app.post("/api/juego3/reset")
 async def juego3_reset():
     _juego3_state["current_card"] = -1
     _juego3_state["phase"] = "idle"
     _juego3_state["votes"] = {}
     _juego3_state["history"] = []
+    _juego3_state["votes_by_participant"] = {}
+    _juego3_state["session_participants"] = set()
+    print(f"[juego3] reset: estado limpiado")
     await _juego3_broadcast(_juego3_state_msg())
     return {"ok": True}
 
 
 @app.websocket("/ws/juego3")
 async def ws_juego3_mobile(websocket: WebSocket):
-    """Móviles: reciben estado + emiten votos."""
+    """Móviles: reciben estado + emiten votos. Soporta dedup por participant_id."""
     await websocket.accept()
     _juego3_mobile_ws.add(websocket)
+    # pid se setea cuando el cliente envía su hello (o con el primer voto legacy sin hello)
+    _juego3_mobile_pid[websocket] = ""
     try:
         await websocket.send_json(_juego3_state_msg())
         idx = _juego3_state["current_card"]
         if idx >= 0:
             await websocket.send_json(_juego3_tally_msg(idx))
+            if _juego3_state["phase"] == "revealed":
+                await websocket.send_json(_juego3_summary_msg())
         while True:
             data = await websocket.receive_json()
             kind = data.get("type")
+            pid_raw = str(data.get("participant", "")).strip()
+
+            if kind == "hello":
+                # Cliente registra su participant_id (UUID generado en localStorage)
+                if pid_raw:
+                    _juego3_mobile_pid[websocket] = pid_raw
+                    # Notificar cambio de N_vivo al dashboard
+                    await _juego3_broadcast(_juego3_state_msg(), mobile=False)
+                    print(f"[juego3] hello: participant={_short_pid(pid_raw)} n_vivo={_juego3_n_vivo()}")
+                continue
+
             if kind == "vote":
                 card = int(data.get("card", -1))
                 letter = str(data.get("letter", "")).upper()
+                # Asegurar que tenemos pid (si el cliente votó sin hello previo)
+                if pid_raw and not _juego3_mobile_pid.get(websocket):
+                    _juego3_mobile_pid[websocket] = pid_raw
+                pid = pid_raw or _juego3_mobile_pid.get(websocket, "")
+
                 if card != _juego3_state["current_card"]:
                     continue
                 if _juego3_state["phase"] != "voting":
                     continue
                 if letter not in ("A", "B", "C"):
                     continue
+
+                # Dedup server-side: un participant solo vota una vez por carta
+                if pid:
+                    vbp = _juego3_state["votes_by_participant"].setdefault(pid, {})
+                    if card in vbp:
+                        print(f"[juego3] duplicate vote ignored: participant={_short_pid(pid)} card={card}")
+                        continue
+                    vbp[card] = letter
+                    _juego3_state["session_participants"].add(pid)
+
                 votes = _juego3_state["votes"].setdefault(card, {"A": 0, "B": 0, "C": 0})
                 votes[letter] = votes.get(letter, 0) + 1
-                _juego3_state["history"].append({"card": card, "letter": letter})
+                _juego3_state["history"].append({"card": card, "letter": letter, "pid": pid})
+                print(f"[juego3] vote: card={card} letter={letter} participant={_short_pid(pid)} total={sum(votes.values())}")
                 await _juego3_broadcast(_juego3_tally_msg(card))
     except WebSocketDisconnect:
         pass
     except Exception as e:
         print(f"[Juego3] ws_mobile error: {e}")
     finally:
+        pid = _juego3_mobile_pid.pop(websocket, "")
         _juego3_mobile_ws.discard(websocket)
+        if pid:
+            print(f"[juego3] bye: participant={_short_pid(pid)} n_vivo={_juego3_n_vivo()}")
+        # Notificar cambio de N_vivo al dashboard
+        try:
+            await _juego3_broadcast(_juego3_state_msg(), mobile=False)
+        except Exception:
+            pass
         try:
             await websocket.close()
         except Exception:
@@ -1317,7 +1512,16 @@ async def ws_juego3_dashboard(websocket: WebSocket):
             elif kind == "reveal":
                 if _juego3_state["phase"] == "voting" and _juego3_state["current_card"] >= 0:
                     _juego3_state["phase"] = "revealed"
+                    idx = _juego3_state["current_card"]
+                    votes = _juego3_state["votes"].get(idx, {})
+                    summary = _juego3_build_summary()
+                    carta_stats = next((c for c in summary["por_carta"] if c["id"] == (idx + 1)), None)
+                    aciertos = carta_stats["aciertos"] if carta_stats else 0
+                    total_v = carta_stats["total_votos"] if carta_stats else 0
+                    confusion = carta_stats["confusion_dominante"] if carta_stats else None
+                    print(f"[juego3] reveal: card={idx} aciertos={aciertos}/{total_v} confusion={confusion}")
                     await _juego3_broadcast(_juego3_state_msg())
+                    await _juego3_broadcast(_juego3_summary_msg())
             elif kind == "back":
                 current = _juego3_state["current_card"]
                 if current > 0:
@@ -1325,11 +1529,15 @@ async def ws_juego3_dashboard(websocket: WebSocket):
                     _juego3_state["phase"] = "revealed"
                     await _juego3_broadcast(_juego3_state_msg())
                     await _juego3_broadcast(_juego3_tally_msg(current - 1))
+                    await _juego3_broadcast(_juego3_summary_msg())
             elif kind == "reset":
                 _juego3_state["current_card"] = -1
                 _juego3_state["phase"] = "idle"
                 _juego3_state["votes"] = {}
                 _juego3_state["history"] = []
+                _juego3_state["votes_by_participant"] = {}
+                _juego3_state["session_participants"] = set()
+                print(f"[juego3] reset (via ws): estado limpiado")
                 await _juego3_broadcast(_juego3_state_msg())
     except WebSocketDisconnect:
         pass
@@ -1809,8 +2017,20 @@ async def websocket_chat(websocket: WebSocket):
                 if current_activity_mode == "blinda":
                     glossary_text = await get_glossary_text()
 
+                # Inyectar summary de juego3 al final del system prompt (modo juego3_final)
+                juego3_summary_text = ""
+                if current_activity_mode == "juego3_final":
+                    try:
+                        _summary = _juego3_build_summary()
+                        juego3_summary_text = (
+                            "\n\nDATOS DEL GRUPO (usa estos números reales, no los inventes):\n"
+                            + json.dumps(_summary, ensure_ascii=False, indent=2)
+                        )
+                    except Exception as _e:
+                        print(f"[juego3] summary injection error: {_e}")
+
                 prior_text = locals().get('_prior_text', '')
-                messages = [{"role": "system", "content": system_prompt + glossary_text + training_text + prior_text}]
+                messages = [{"role": "system", "content": system_prompt + glossary_text + juego3_summary_text + training_text + prior_text}]
 
                 for hist_msg in conversation_history:
                     messages.append(hist_msg)
@@ -1824,6 +2044,9 @@ async def websocket_chat(websocket: WebSocket):
                 elif current_activity_mode == "plataforma":
                     max_tokens = 400
                     temperature = 0.3
+                elif current_activity_mode == "juego3_final":
+                    max_tokens = 350
+                    temperature = 0.75
                 elif current_activity_mode:
                     max_tokens = 200
                     temperature = 0.78

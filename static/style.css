@@ -9458,6 +9458,167 @@ body[data-mood-active] .message.assistant {
     gap: 14px;
     flex: 1;
 }
+
+/* ─── Panel derecho: estado WAITING (participación sin sesgo) ─── */
+.juego3-waiting {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    flex: 1;
+    padding: 32px 20px;
+    text-align: center;
+}
+.juego3-waiting.hidden { display: none; }
+.juego3-waiting__icon {
+    font-size: 64px;
+    color: #6B2F6D;
+    opacity: 0.8;
+}
+.juego3-waiting__label {
+    font: 900 22px 'Dosis', sans-serif;
+    color: #2c2c2c;
+    margin: 0;
+}
+.juego3-waiting__count {
+    font: 700 18px 'Source Sans 3', sans-serif;
+    color: #6B2F6D;
+    letter-spacing: 0.02em;
+    margin: 0;
+}
+.juego3-waiting__bar {
+    width: 100%;
+    height: 14px;
+    background: rgba(107, 47, 109, 0.12);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+.juego3-waiting__fill {
+    height: 100%;
+    background: linear-gradient(90deg, #D0AAD1 0%, #6B2F6D 100%);
+    border-radius: 999px;
+    transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    width: 0%;
+}
+
+/* ─── Panel derecho: estado REVEALED (chart por tipo de IA) ─── */
+.juego3-chart-tipo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+    justify-content: flex-start;
+}
+.juego3-chart-tipo.hidden { display: none; }
+
+.juego3-ctipo-row {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 10px 0;
+}
+.juego3-ctipo-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(107, 47, 109, 0.1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #6B2F6D;
+}
+.juego3-ctipo-row--agente .juego3-ctipo-icon {
+    background: rgba(140, 190, 178, 0.22);
+    color: #2A5F52;
+}
+.juego3-ctipo-main {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+.juego3-ctipo-label {
+    font: 800 14px 'Source Sans 3', sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #2c2c2c;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.juego3-ctipo-badge {
+    font: 800 10px 'Source Sans 3', sans-serif;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: #8CBEB2;
+    color: #FFFFFF;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+.juego3-ctipo-track {
+    height: 22px;
+    background: rgba(107, 47, 109, 0.08);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+.juego3-ctipo-fill {
+    height: 100%;
+    background: linear-gradient(90deg, rgba(107, 47, 109, 0.25) 0%, rgba(107, 47, 109, 0.4) 100%);
+    border-radius: 8px;
+    transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.juego3-ctipo-row--agente .juego3-ctipo-fill {
+    background: linear-gradient(90deg, #A5D4C8 0%, #8CBEB2 100%);
+}
+.juego3-ctipo-count {
+    font: 900 20px 'Source Sans 3', sans-serif;
+    color: #2c2c2c;
+    min-width: 60px;
+    text-align: right;
+}
+.juego3-ctipo-count__pct {
+    font: 700 13px 'Source Sans 3', sans-serif;
+    color: #6B2F6D;
+    margin-left: 4px;
+}
+
+.juego3-ctipo-footer {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1.5px solid rgba(107, 47, 109, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+.juego3-ctipo-footer__label {
+    font: 700 13px 'Source Sans 3', sans-serif;
+    color: #6B2F6D;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.juego3-ctipo-footer__value {
+    font: 900 22px 'Dosis', sans-serif;
+    color: #2A5F52;
+}
+.juego3-ctipo-footer__value--none {
+    color: #888;
+    font-size: 16px;
+}
+
+/* Estado "sin respuestas" dentro del chart */
+.juego3-ctipo-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #888;
+    font: 500 16px 'Source Sans 3', sans-serif;
+    font-style: italic;
+}
 .juego3-bar {
     display: grid;
     grid-template-columns: 40px 1fr 48px;
@@ -9573,6 +9734,35 @@ body[data-mood-active] .message.assistant {
     white-space: pre-wrap;
 }
 .juego3-eliana__cta { margin-top: 20px; }
+
+/* Strip fallback condicional: chips de pct por carta, solo si LLM tarda >2s o falla */
+.juego3-eliana__fallback {
+    margin-top: 18px;
+}
+.juego3-chip-pct__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.juego3-chip-pct {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: 600 14px 'Source Sans 3', sans-serif;
+    color: #2c2c2c;
+    background: rgba(107, 47, 109, 0.08);
+    border: 1.5px solid rgba(107, 47, 109, 0.2);
+    padding: 8px 14px;
+    border-radius: 999px;
+}
+.juego3-chip-pct strong {
+    color: #6B2F6D;
+    font-weight: 900;
+}
+.juego3-chip-pct--empty {
+    opacity: 0.55;
+    border-style: dashed;
+}
 
 /* Widget Eliana — reutiliza .eliana-widget (estados fab/floating/docked/expanded).
    El estilo completo está en la sección "Eliana Widget" más arriba en este mismo fichero. */

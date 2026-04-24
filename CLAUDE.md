@@ -36,16 +36,13 @@ El antiguo `#conoce-screen` (Conoce a Eliana) queda como LEGACY oculto y no form
 
 Esto incluye:
 - El juego de cartas: `#juego3-screen` (escritorio) y `/juego3` / `static/juego3_mobile.html` (móvil)
-- Archivo de datos: `static/juego3_cards.json` (**5 cartas** con `area`, `formato`, `enunciado_frente`, `intro`, `pregunta`, `opciones`, `correcta`, `explicaciones`). El `enunciado_frente` es lo que lee Eliana en voz alta y lo que aparece en el panel violeta del frente. El `area` es el "concepto aprendido" que aparece como chip en el dorso SOLO tras el reveal
+- Archivo de datos: `static/juego3_cards.json` (10 cartas con áreas, formatos, opciones, correcta y explicaciones)
 - Backend en `main.py`:
-  - Estado `_juego3_state`, conexiones `_juego3_mobile_ws` / `_juego3_dashboard_ws` (caché `_juego3_cards_cache` eliminada — `_load_juego3_cards` lee del disco en cada request)
+  - Estado `_juego3_state`, caché `_juego3_cards_cache`, conexiones `_juego3_mobile_ws` / `_juego3_dashboard_ws`
   - Funciones `_load_juego3_cards`, `_juego3_state_msg`, `_juego3_tally_msg`, `_juego3_broadcast`
   - Endpoints `GET /juego3`, `GET /api/juego3/cards`, `GET /api/juego3/state`, `POST /api/juego3/reset`
   - WebSockets `/ws/juego3` (móvil) y `/ws/juego3-dashboard` (escritorio)
-- 4 formatos narrativos: `casting`, `misma-orden`, `mientras-no-estabas`, `titular` (solo definen el icono y la narrativa de la carta — el color es único violeta `#6B2F6D` para todas)
-- Layout card-pair vertical: frente violeta arriba (full-width, con icono + `enunciado_frente` + número 1/5) + dorso blanco abajo (pregunta + 3 opciones A/B/C + chip "Concepto" post-reveal + explicaciones). Columna izquierda `.juego3-left-col` contiene tarjeta + botones Revelar/Siguiente
-- Panel derecho (aside `.juego3-panel`): título "Respuestas del grupo", progress, barras de votación en vivo (chart)
-- TTS automático al abrir cada carta: `triggerJuego3CardTTS(card)` lee SOLO `enunciado_frente` (no intro, no pregunta, no opciones). Ignora `state.ttsEnabled` — es narrativa del juego, no conversacional. Guard `_juego3LastTTSCardIdx` evita repetición en re-renders por votos
+- 4 formatos visuales: `casting`, `misma-orden`, `mientras-no-estabas`, `titular`
 - Iconos exclusivamente Phosphor (sin emojis)
 - Widget Eliana flotante con orb reutilizado de `static/orb.js` (paleta clara, arrastrable)
 - Pantalla final con Eliana comentando resultados (prompt con tono jocoso/jovial)

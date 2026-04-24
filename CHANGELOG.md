@@ -1,5 +1,46 @@
 # Changelog — AgentiaELE
 
+## v23.13.0 — 2026-04-24 — Móvil rediseñado + chart por tipo + Eliana final con datos reales
+Tres cambios sincronizados en diapo 3 (spec técnica en `docs/juego3-spec.md`):
+
+**Móvil (`/juego3`, `static/juego3_mobile.html`)** — reescritura completa:
+- Estados claros: idle → voting → waiting (tras voto) → revealed.
+- **Elimina spoilers**: fuera `area`, `intro`, `format-badge` y paleta crema mostaza.
+- **Feedback personalizado tras reveal**: banner verde `#8CBEB2` "¡Correcto!" (1 explicación) / banner ámbar `#D4826A` "Confundiste X con agente" (2 explicaciones) / banner neutro "No votaste esta vez" (1 explicación). Triple redundancia accesible: icono Phosphor + texto + color.
+- Tipografía agrandada: pregunta 26px Dosis 900, opciones 18px, min-height 80px por opción.
+- **UUID v4 persistente** en `localStorage.juego3_participant_id` enviado en cada voto para dedup server-side.
+- `localStorage.juego3_votes` cachea votos por carta para sobrevivir recarga del navegador.
+
+**Proyector (panel derecho)** — chart de confusión por TIPO de IA:
+- Estado `voting`: mensaje "Esperando respuestas" + contador `N / N_vivo` + barra de progreso. **No revela distribución A/B/C** (evita efecto rebaño).
+- Estado `revealed`: barras horizontales etiquetadas por TIPO (chatbot / asistente / agente) con icono Phosphor, la barra del agente destacada en verde `#8CBEB2` + badge "Correcta". Las otras dos en violeta tenue. Footer con aciertos/total y pct.
+- El objetivo didáctico clave ("distinguir asistente de agente") queda visualmente explícito.
+
+**Backend (`main.py`)** — soporte completo para datos reales:
+- `_juego3_build_summary()`: por carta → `por_tipo`, `aciertos`, `pct_acierto` (null si 0 votos), `confusion_dominante`. Global → `aciertos`, `votos`, `pct`, `n_vivo`, `n_sesion`. Extras → `concepto_mejor`, `concepto_peor`, `confusion_top`.
+- `GET /api/juego3/summary` — endpoint nuevo para la pantalla final.
+- Evento WS `{type: "summary", data: {...}}` emitido en cada reveal (también en `back` a carta anterior).
+- **Dedup server-side**: `_juego3_state["votes_by_participant"]` rechaza segundo voto del mismo UUID en la misma carta. Votos duplicados se logean como `duplicate vote ignored`.
+- **N_vivo** (participantes WS abiertos ahora) y **N_sesion** (participantes que han votado al menos una carta): métricas separadas, expuestas en `state` y `summary`.
+- Logging con **hash SHA256[:8]** del UUID (`_short_pid`) para trazabilidad sin PII.
+
+**Eliana final** — devolución basada en datos del grupo:
+- Nuevo prompt `juego3_final` en `_DEFAULT_PROMPTS` + registrado en `ACTIVITY_PROMPTS`.
+- El backend inyecta el `SummaryObject` JSON al final del system prompt cuando `activity_mode == "juego3_final"` (sin construcción de prompts en cliente).
+- `startJuego3ElianaFinal()` en `app.js`: fetch summary → si `cartas_jugadas=0` usa ramal amable sin LLM; si hay datos abre `/ws/chat` con activity_mode y streamea tokens.
+- **Fallback condicional**: si a los 2s no ha llegado ningún token, muestra strip de chips con pct_acierto por carta (`juego3-chip-pct`). Si llegan tokens después, el strip se retira.
+- `max_tokens=350`, `temperature=0.75`. Prompt instruye tono jovial, 3-5 frases, no recitar porcentajes crudos ("la mitad", "uno de cada tres").
+
+**Docs**:
+- Nueva spec técnica `docs/juego3-spec.md` — contrato de datos completo, eventos WS, criterios de aceptación (DoD).
+- **CLAUDE.md NO modificado** (regla del repo respetada). La sección diapo 3 se revirtió al estado pre-v23.11.8 al inicio de este cambio.
+
+## v23.12.0 — 2026-04-24 — Breakpoint >=1920px para TVs/proyectores/monitores grandes
+- Nuevo `@media (min-width: 1920px)` en juego3 con escalado completo (fuentes + padding + controles + panel), tras aprobación del reviser.
+- Enunciado 22→28px, opciones 20→24px, pregunta 28→36px, círculo A/B/C 34→42px, icono frente 36→44px, panel título 22→26px, barras alto 38→42px.
+- Columna izquierda: `clamp(560px, 36vw, 780px)` — máximo 780px para que el panel derecho mantenga 60-80% del ancho.
+- Altura natural de opciones (flex: 0 0 auto) preservada — hueco controlado en cartas cortas (1, 2) preferible al recorte en largas (3, 4, 5).
+
 ## v23.11.8 — 2026-04-24
 - Diapo 3 "Descubre al agente" — rediseño profundo del card-pair tras iteraciones con feedback del usuario:
   - **10 cartas → 5**: seleccionadas las 5 más memorables (ids originales 1, 2, 5, 8, 10) — renumeradas 1-5. `total: 5` en `juego3_cards.json`

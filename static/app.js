@@ -6545,10 +6545,19 @@ function connectJuego3Dashboard() {
                 juego3.currentCard = msg.current_card;
                 juego3.phase = msg.phase;
                 juego3.total = msg.total;
+                if (msg.n_vivo != null) juego3.nVivo = msg.n_vivo;
+                if (msg.n_sesion != null) juego3.nSesion = msg.n_sesion;
                 renderJuego3();
             } else if (msg.type === 'tally' && msg.card === juego3.currentCard) {
                 juego3.tally = msg.votes;
+                if (msg.n_vivo != null) juego3.nVivo = msg.n_vivo;
                 renderJuego3Bars();
+            } else if (msg.type === 'summary') {
+                juego3.summary = msg.data;
+                // Si estamos en pantalla Eliana final, refrescar strip de chips
+                if (typeof renderJuego3ElianaFallback === 'function') {
+                    renderJuego3ElianaFallback();
+                }
             }
         } catch (e) { /* ignore */ }
     };
@@ -6761,27 +6770,108 @@ function triggerJuego3CardTTS(card) {
     }, 400);
 }
 
-function renderJuego3Bars() {
-    const chartEl = document.getElementById('juego3-chart');
-    if (!chartEl) return;
-    const card = juego3.cards ? juego3.cards[juego3.currentCard] : null;
-    const total = (juego3.tally.A || 0) + (juego3.tally.B || 0) + (juego3.tally.C || 0);
-    const letters = ['A', 'B', 'C'];
+// Metadata de los 3 tipos de IA para el chart de confusión (proyector)
+const JUEGO3_TIPO_META = {
+    chatbot:   { label: 'Chatbot',   icon: 'ph-chat-circle-text' },
+    asistente: { label: 'Asistente', icon: 'ph-note-pencil' },
+    agente:    { label: 'Agente',    icon: 'ph-lightning' },
+};
 
-    chartEl.innerHTML = letters.map(L => {
-        const count = juego3.tally[L] || 0;
-        const pct = total > 0 ? (count / total) * 100 : 0;
-        const isCorrect = juego3.phase === 'revealed' && card && card.correcta === L;
-        return `
-            <div class="juego3-bar ${isCorrect ? 'juego3-bar--correct' : ''}">
-                <span class="juego3-bar__letter">${L}</span>
-                <div class="juego3-bar__track">
-                    <div class="juego3-bar__fill" style="width: ${pct}%"></div>
+function renderJuego3Bars() {
+    // El panel ya no muestra barras A/B/C en voting (evita efecto rebaño).
+    // Delegamos a renderJuego3Panel() que decide qué estado mostrar.
+    renderJuego3Panel();
+}
+
+/**
+ * Panel derecho del proyector.
+ *   voting   → estado "waiting" con contador de participación (sin distribución A/B/C).
+ *   revealed → chart por TIPO de IA (chatbot / asistente / agente), agente destacado verde.
+ */
+function renderJuego3Panel() {
+    const waitingEl = document.getElementById('juego3-waiting');
+    const chartTipoEl = document.getElementById('juego3-chart-tipo');
+    const titleEl = document.getElementById('juego3-panel-title');
+    if (!waitingEl || !chartTipoEl) return;
+
+    const card = juego3.cards ? juego3.cards[juego3.currentCard] : null;
+    const tally = juego3.tally || {};
+    const totalVotos = (tally.A || 0) + (tally.B || 0) + (tally.C || 0);
+    const nVivo = (juego3.nVivo != null) ? juego3.nVivo : totalVotos;
+
+    if (juego3.phase === 'revealed' && card) {
+        // ── Chart por TIPO de IA ──
+        waitingEl.classList.add('hidden');
+        chartTipoEl.classList.remove('hidden');
+        if (titleEl) titleEl.textContent = `Carta ${juego3.currentCard + 1} — Resultados`;
+
+        if (totalVotos === 0) {
+            chartTipoEl.innerHTML = `<div class="juego3-ctipo-empty">Nadie respondió esta carta</div>`;
+            return;
+        }
+
+        const porTipo = { chatbot: 0, asistente: 0, agente: 0 };
+        const letraToTipo = {};
+        (card.opciones || []).forEach(op => {
+            if (op.tipo in porTipo) {
+                porTipo[op.tipo] = tally[op.letra] || 0;
+                letraToTipo[op.letra] = op.tipo;
+            }
+        });
+        const correctaTipo = letraToTipo[card.correcta] || 'agente';
+        const aciertos = porTipo[correctaTipo] || 0;
+        const pctAcierto = Math.round((aciertos / totalVotos) * 100);
+
+        const orden = ['chatbot', 'asistente', 'agente'];
+        const rows = orden.map(tipo => {
+            const meta = JUEGO3_TIPO_META[tipo];
+            const count = porTipo[tipo];
+            const pct = totalVotos > 0 ? Math.round((count / totalVotos) * 100) : 0;
+            const isCorrect = (tipo === correctaTipo);
+            return `
+                <div class="juego3-ctipo-row ${isCorrect ? 'juego3-ctipo-row--agente' : ''}">
+                    <div class="juego3-ctipo-icon"><i class="ph-fill ${meta.icon}"></i></div>
+                    <div class="juego3-ctipo-main">
+                        <div class="juego3-ctipo-label">
+                            <span>${meta.label}</span>
+                            ${isCorrect ? '<span class="juego3-ctipo-badge">Correcta</span>' : ''}
+                        </div>
+                        <div class="juego3-ctipo-track">
+                            <div class="juego3-ctipo-fill" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                    <div class="juego3-ctipo-count">${count}<span class="juego3-ctipo-count__pct">${pct}%</span></div>
                 </div>
-                <span class="juego3-bar__count">${count}</span>
+            `;
+        }).join('');
+
+        const footer = `
+            <div class="juego3-ctipo-footer">
+                <span class="juego3-ctipo-footer__label">Aciertos</span>
+                <span class="juego3-ctipo-footer__value">${aciertos} / ${totalVotos} <small style="font-size:14px;opacity:0.7">(${pctAcierto}%)</small></span>
             </div>
         `;
-    }).join('');
+        chartTipoEl.innerHTML = rows + footer;
+        return;
+    }
+
+    // ── Waiting (voting, sin distribución para evitar rebaño) ──
+    waitingEl.classList.remove('hidden');
+    chartTipoEl.classList.add('hidden');
+    if (titleEl) titleEl.textContent = 'Respuestas del grupo';
+
+    const countEl = document.getElementById('juego3-waiting-count');
+    const fillEl = document.getElementById('juego3-waiting-fill');
+    const labelEl = document.getElementById('juego3-waiting-label');
+    const denom = (nVivo && nVivo > 0) ? nVivo : (totalVotos > 0 ? totalVotos : '…');
+    if (countEl) countEl.textContent = `${totalVotos} de ${denom} ${totalVotos === 1 ? 'ha' : 'han'} votado`;
+    if (fillEl) {
+        const pct = (nVivo > 0) ? Math.min(100, Math.round((totalVotos / nVivo) * 100)) : 0;
+        fillEl.style.width = `${pct}%`;
+    }
+    if (labelEl) {
+        labelEl.textContent = (totalVotos === 0) ? 'Esperando respuestas…' : 'Llegando votos…';
+    }
 }
 
 function updateJuego3Controls() {
@@ -6797,6 +6887,17 @@ function updateJuego3Controls() {
 }
 
 // ── Eliana final ──
+/**
+ * Arranca la pantalla final de Eliana:
+ *  1. Obtiene el summary real del backend.
+ *  2. Si cartas_jugadas === 0 → mensaje fallback amable sin LLM.
+ *  3. Si hay datos → abre WS /ws/chat con activity_mode='juego3_final', el backend
+ *     inyecta el summary JSON en el system prompt. Streamea tokens al DOM.
+ *  4. Fallback condicional: si a los 2s no ha llegado ningún token, muestra strip
+ *     de chips con pct_acierto por carta junto al texto (si luego llegan tokens,
+ *     los chips se quedan debajo como complemento; si nunca llegan, son el único
+ *     contenido visible).
+ */
 async function startJuego3ElianaFinal() {
     juego3.elianaStreaming = true;
     renderJuego3();
@@ -6812,24 +6913,136 @@ async function startJuego3ElianaFinal() {
     if (textEl) textEl.textContent = '';
     if (cta) cta.classList.add('hidden');
 
-    // Recuperar historial del servidor
-    let summary = '';
+    // 1. Obtener summary real del servidor
+    let summary = null;
     try {
-        const res = await fetch('/api/juego3/state');
-        const data = await res.json();
-        summary = `El grupo ha terminado el juego de 5 cartas. Total de votos: ${data.history_count}.`;
-    } catch (e) { /* fallback */ }
+        const res = await fetch('/api/juego3/summary');
+        summary = await res.json();
+        juego3.summary = summary;
+    } catch (e) {
+        console.warn('[Juego3] summary fetch failed:', e);
+    }
 
-    // Placeholder streaming hasta que conectemos el LLM real
-    const mock = `¡Buff, menudo recorrido! Cinco cartas, tres IAs disfrazadas en cada una, y vosotros intentando pillar al agente entre el lío. La verdad es que no es fácil: hay veces que el asistente se parece tanto al agente que hasta a mí me despistaría.
+    // 2. Caso borde: nadie jugó — mensaje amable sin llamar al LLM
+    if (!summary || summary.cartas_jugadas === 0 || summary.global?.votos === 0) {
+        const msg = `Bueno, esta vez no ha habido tiempo de votar, pero os habéis llevado lo importante: la idea. Pasemos a lo siguiente, que viene lo chulo.`;
+        await typeText(textEl, msg, 18);
+        if (cta) cta.classList.remove('hidden');
+        juego3.elianaStreaming = false;
+        return;
+    }
 
-Lo importante de esto no es cuántas habéis acertado — es que ahora sabéis mirar con otros ojos. Porque cuando os sentéis el lunes delante de ChatGPT, ya no vais a ver «una IA»: vais a ver un chatbot que responde. Y cuando veáis algo que decide por vosotros, que abre apps, que os entrega el trabajo hecho — vais a saber que eso tiene nombre, y que ese nombre es AGENTE.
+    // 3. LLM streaming vía /ws/chat con activity_mode='juego3_final'
+    //    El backend inyecta el summary JSON en el system prompt (no se construye aquí).
+    let anyTokenReceived = false;
+    let fallbackTimer = null;
 
-Venga, pasamos a la siguiente diapo y sigamos descubriendo qué podéis hacer con esto.`;
+    const armFallback = () => {
+        // Si en 2s no hemos recibido nada, mostrar strip de chips como complemento
+        fallbackTimer = setTimeout(() => {
+            if (!anyTokenReceived) {
+                renderJuego3ElianaFallback();
+            }
+        }, 2000);
+    };
 
-    await typeText(textEl, mock, 22);
-    if (cta) cta.classList.remove('hidden');
-    juego3.elianaStreaming = false;
+    const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${wsProtocol}//${location.host}/ws/chat`);
+
+    let buffer = '';
+
+    ws.onopen = () => {
+        ws.send(JSON.stringify({
+            message: 'Comenta los resultados del grupo en tono jovial según los datos.',
+            response_mode: 'full',
+            activity_mode: 'juego3_final'
+        }));
+        armFallback();
+    };
+
+    ws.onmessage = (ev) => {
+        try {
+            const data = JSON.parse(ev.data);
+            if (data.type === 'token') {
+                if (!anyTokenReceived) {
+                    anyTokenReceived = true;
+                    if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = null; }
+                    // Quitar chips fallback si estaban visibles
+                    const oldFb = document.getElementById('juego3-eliana-fallback');
+                    if (oldFb) oldFb.remove();
+                }
+                buffer += data.content;
+                if (textEl) textEl.textContent = buffer;
+            } else if (data.type === 'end') {
+                if (cta) cta.classList.remove('hidden');
+                juego3.elianaStreaming = false;
+                // TTS: que Eliana hable si el profesor tiene TTS activo o lo pidió por voz
+                if (buffer && (state.ttsEnabled || state.voiceTriggered)) {
+                    playTTS(buffer, true);
+                }
+                try { ws.close(); } catch (_) {}
+            } else if (data.type === 'error') {
+                console.warn('[Juego3] eliana error:', data.message);
+                renderJuego3ElianaFallback();
+                if (cta) cta.classList.remove('hidden');
+                juego3.elianaStreaming = false;
+                try { ws.close(); } catch (_) {}
+            }
+        } catch (e) { /* ignore */ }
+    };
+
+    ws.onerror = () => {
+        console.warn('[Juego3] eliana ws error');
+        renderJuego3ElianaFallback();
+        if (cta) cta.classList.remove('hidden');
+        juego3.elianaStreaming = false;
+    };
+
+    ws.onclose = () => {
+        if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = null; }
+        if (juego3.elianaStreaming && !anyTokenReceived) {
+            // Cerró sin enviar tokens
+            renderJuego3ElianaFallback();
+            if (cta) cta.classList.remove('hidden');
+            juego3.elianaStreaming = false;
+        }
+    };
+}
+
+/**
+ * Strip de chips con pct_acierto por carta — fallback condicional.
+ * Se muestra solo si el LLM no respondió en 2s o erroró.
+ * Si luego llegan tokens, se retira.
+ */
+function renderJuego3ElianaFallback() {
+    const bodyEl = document.querySelector('.juego3-eliana__body');
+    if (!bodyEl) return;
+    const summary = juego3.summary;
+    if (!summary || !summary.por_carta) return;
+
+    // No duplicar si ya existe
+    let fbEl = document.getElementById('juego3-eliana-fallback');
+    if (!fbEl) {
+        fbEl = document.createElement('div');
+        fbEl.id = 'juego3-eliana-fallback';
+        fbEl.className = 'juego3-eliana__fallback';
+        // Insertar después del texto
+        const textEl = document.getElementById('juego3-eliana-text');
+        if (textEl && textEl.parentNode) {
+            textEl.parentNode.insertBefore(fbEl, textEl.nextSibling);
+        } else {
+            bodyEl.appendChild(fbEl);
+        }
+    }
+
+    const chips = summary.por_carta.map((c, i) => {
+        const pct = c.pct_acierto;
+        const pctLabel = (pct == null) ? '—' : `${pct}%`;
+        const clsExtra = (pct == null) ? 'juego3-chip-pct--empty' : '';
+        return `<span class="juego3-chip-pct ${clsExtra}" title="${c.area || ''}">Carta ${i + 1}: <strong>${pctLabel}</strong></span>`;
+    }).join('');
+
+    fbEl.innerHTML = `<div class="juego3-chip-pct__row">${chips}</div>`;
 }
 
 async function typeText(el, text, delay = 20) {
