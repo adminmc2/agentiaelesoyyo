@@ -1,5 +1,30 @@
 # Changelog — AgentiaELE
 
+## v23.16.0 — 2026-04-25 — Diapo 5 rewrite: "Eres un profe ELITE"
+Reescritura completa de la diapositiva 5. Se sustituye la metáfora del chef (10 pasos guiados por chat con Eliana + canción) por una diapositiva estática, densa y autónoma con foco narrativo en el profesor.
+
+**Concepto**
+- Hook: "Eres un profe ELITE. Tus agentes lo serán también. / Lo que harán por ti · para ti · contigo."
+- 4 zonas en grid 2×2 (tras el hook a ancho completo):
+  - **Zona A** — "Ingredientes que SOLO tú tienes" con chip rotator animado (Pedagogía, Lingüística ELE, MCER, Errores por L1, Cultura, Empatía, Tu estilo — cambia cada 2.5s con blur in/out).
+  - **Zona B** — Focus cards "Contigo, en clase" vs "Después, con tu alumno" (hover desenfoca la otra) + slogan "Construyes una vez. Se usa dos veces." con highlighter lavanda.
+  - **Zona C** — Comunidad: "¿Por qué no sacas ese agente que llevas dentro?" + QR dinámico al form de Hablandis + orb de Eliana decorativo en esquina.
+  - **Zona D** — Acrónimo ELITE como revelación final: Empático · Leal · Intuitivo · Tenaz · Elegante (stagger 200ms por letra vía IntersectionObserver, con fallback).
+
+**TTS** — Eliana dice SOLO el hook+subtitulo al abrir la diapo (400ms de delay). Román continúa en persona. No hay chat, no hay wake-word, no hay auto-avance por keywords.
+
+**Cambios técnicos**
+- `static/index.html`: reemplazado el bloque `#diapo5-screen` completo. Nueva estructura con `slide-header` + `.diapo5-page` (grid-template-areas "hook hook / a b / c d") + cuatro `.diapo5-zone` + lista `.diapo5-elite-list` con 5 items.
+- `static/style.css`: eliminados todos los estilos legacy de la metáfora del chef (`.diapo5-demo*`, `.diapo5-wordcloud*`, `.diapo5-chef-intro*`, `.diapo5-cap*`, `.diapo5-closing*`, `.diapo5-song*`, responsive antiguo). Añadidos `.diapo5-hook`, `.diapo5-hook__elite` (con highlighter amarillo), `.diapo5-zone*` base + por zona, `.diapo5-chip-rotator` + keyframes `diapo5ChipOut`/`diapo5ChipIn`, `.diapo5-focus-grid` (hover: `:hover ~` blur siblings), `.diapo5-highlight` (slogan con lavanda), `.diapo5-elite-item` (reveal con `transform: translateX(-14px) → 0`). Paleta v23: mostaza #C9A632 + profundo #8A6A1C, lavanda #D0AAD1, violeta #6B2F6D para acentos.
+- `static/app.js`: eliminado todo el bloque legacy (DIAPO5_CAPABILITIES, DIAPO5_CLOUD_WORDS, DIAPO5_KEYWORD_MAP, renderDiapo5WordCloud/Intro/Capability/Closing/Song, advanceDiapo5To, checkDiapo5Advance, sendDiapo5Message, addDiapo5ChatBubble, state.diapo5Step/_diapo5Ws/_diapo5ContextSent/_diapo5SmdParser, listeners de diapo5-chat-send/diapo5-chat-input/diapo5-mic-btn/diapo5-voice-btn/[data-diapo5-dot], el diapo5MicBtn en updateRecordingUI, diapo5-voice-btn en el array de updateVoiceButtonsUI, la rama diapo5 en el handler de wake-word y la rama en processTranscription). Añadidas las constantes DIAPO5_CHIP_WORDS, DIAPO5_CHIP_INTERVAL_MS, DIAPO5_COMMUNITY_URL, DIAPO5_TTS_TEXT y las funciones `showDiapo5Screen`, `hideDiapo5Screen`, `isOnDiapo5Screen`, `initDiapo5ChipRotator`/`rotateDiapo5Chip`/`stopDiapo5ChipRotator`, `initDiapo5QR` (usa `window.qrcode` ya cargado), `initDiapo5ElianaOrb` (usa `window.orbCreateInElement`), `initDiapo5Reveals` (IntersectionObserver + fallback 1.5s).
+- Versionado sincronizado en los 3 ficheros visibles → v23.16.0 (`index.html` CSS+JS, `encuesta.html` footer, `juego3_mobile.html` footer).
+- CLAUDE.md: sección de protección de diapo 5 queda stale y debe reescribirse con el usuario antes de bloquear de nuevo. Protegemos el nuevo código en la siguiente iteración (no en este commit).
+
+**Lo que NO cambia**
+- Diapos 1-4 y 6 intactas.
+- `ACTIVITY_PROMPTS["agentes"]` en `main.py` permanece por ahora (ya no se usa desde el front, pero se mantiene hasta confirmar con el reviser que se puede eliminar — low-risk diferir).
+- `static/cancion-agente.mp3` permanece en el repositorio (no referenciado desde el código activo).
+
 ## v23.15.1 — 2026-04-25 — Fix doc consistency §10-ter tras cierre reviser
 Residuo documental señalado por el reviser:
 - **`docs/juego3-spec.md` §10-ter** aún decía "Layout 3 columnas en `.juego3-eliana`: orb | cuerpo | tabla", contradiciendo la §10 que ya reflejaba el nuevo layout de 2 columnas (v23.15.0). Corregido: §10-ter ahora dice "Layout 2 columnas (v23.15.0+)" con nota sobre la eliminación del orb central.

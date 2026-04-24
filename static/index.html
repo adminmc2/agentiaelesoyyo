@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.15.1">
+    <link rel="stylesheet" href="/static/style.css?v=23.16.0">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -635,103 +635,136 @@
         <!-- ============================================
              DIAPO 5 — ¿QUE ES UN AGENTE? (Grandes Maestros)
              ============================================ -->
+        <!-- ============================================
+             DIAPO 5 — Sacas lo que llevas dentro (v23.16.0)
+             Rediseño completo: sustituye la metáfora del chef por
+             el concepto ELITE + dualidad de agente (profe ↔ alumno).
+             ============================================ -->
         <main class="main-content diapo5-screen hidden" id="diapo5-screen">
+            <header class="slide-header">
+                <button class="slide-nav-btn slide-nav-btn--back" id="diapo5-nav-back" title="Volver">
+                    <i class="ph-bold ph-arrow-left"></i>
+                </button>
+                <div class="slide-header__title">
+                    <span class="slide-header__num">05</span>
+                    <h1 class="slide-header__text">Sacas lo que llevas dentro</h1>
+                </div>
+                <button class="slide-nav-btn slide-nav-btn--next" id="diapo5-nav-next" title="Siguiente diapositiva">
+                    <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </header>
+
             <div class="diapo5-page">
-                <!-- Columna izquierda: Eliana (orb + chat) -->
-                <div class="diapo5-left">
-                    <button class="blinda-nav-btn blinda-nav-btn--back" id="diapo5-nav-back" title="Volver">
-                        <i class="ph ph-arrow-left"></i>
-                    </button>
+                <!-- HOOK TÍTULO — narrado por Eliana al abrir la diapo -->
+                <section class="diapo5-hook">
+                    <h2 class="diapo5-hook__title">
+                        Eres un profe <span class="diapo5-hook__elite" id="diapo5-elite-highlight">ELITE</span>.
+                        Tus agentes lo serán también.
+                    </h2>
+                    <p class="diapo5-hook__subtitle">
+                        Lo que harán <span class="diapo5-hook__accent">por ti</span>
+                        · <span class="diapo5-hook__accent">para ti</span>
+                        · <span class="diapo5-hook__accent">contigo</span>.
+                    </p>
+                </section>
 
-                    <!-- Orb compacto -->
-                    <div class="blinda-orb-wrapper">
-                        <div class="orb-container" id="diapo5-orb-container"></div>
+                <!-- ZONA A — ingredientes que SOLO tú tienes (chip rotator) -->
+                <section class="diapo5-zone diapo5-zone-a" data-zone="a">
+                    <p class="diapo5-zone-a__intro">
+                        Tú sabes enseñar. Tú sabes de lengua. Tú conoces a tus alumnos.
+                    </p>
+                    <p class="diapo5-zone-a__ingredient-label">Ingredientes que SOLO tú tienes:</p>
+                    <div class="diapo5-chip-rotator" id="diapo5-chip-rotator" aria-live="polite">
+                        <span class="diapo5-chip" id="diapo5-chip-word">Pedagogía</span>
+                    </div>
+                </section>
+
+                <!-- ZONA B — focus cards: un agente, dos vidas -->
+                <section class="diapo5-zone diapo5-zone-b" data-zone="b">
+                    <div class="diapo5-focus-grid" id="diapo5-focus-grid">
+                        <article class="diapo5-card" data-diapo5-card="clase">
+                            <div class="diapo5-card__head">
+                                <i class="ph-fill ph-chalkboard-teacher diapo5-card__icon"></i>
+                                <h3 class="diapo5-card__title">Contigo, en clase</h3>
+                            </div>
+                            <ul class="diapo5-card__list">
+                                <li>Genera el quiz del texto que subiste.</li>
+                                <li>Corrige 27 redacciones con <strong>tu rúbrica</strong>.</li>
+                                <li>Redacta correos a 25 familias en 1 minuto.</li>
+                                <li>Detecta el error grupal del día.</li>
+                            </ul>
+                            <p class="diapo5-card__foot">Lo construyes una vez.</p>
+                        </article>
+
+                        <article class="diapo5-card" data-diapo5-card="alumno">
+                            <div class="diapo5-card__head">
+                                <i class="ph-fill ph-graduation-cap diapo5-card__icon"></i>
+                                <h3 class="diapo5-card__title">Después, con tu alumno</h3>
+                            </div>
+                            <ul class="diapo5-card__list">
+                                <li>Practica fuera de clase.</li>
+                                <li>Explica con <strong>tus ejemplos</strong>.</li>
+                                <li>Corrige como <strong>tú</strong> lo harías.</li>
+                                <li>Nunca se impacienta. Disponible a las 23:00.</li>
+                            </ul>
+                            <p class="diapo5-card__foot">Lo recibe — con tu voz dentro.</p>
+                        </article>
                     </div>
 
-                    <!-- Chat panel -->
-                    <div class="blinda-chat" id="diapo5-chat">
-                        <div class="blinda-chat__messages" id="diapo5-chat-messages">
-                            <div class="blinda-chat__bubble blinda-chat__bubble--assistant">
-                                Vamos a ver ahora que es un agente de IA. Mando, cuando quieras.
-                            </div>
+                    <p class="diapo5-zone-b__slogan">
+                        <span class="diapo5-highlight" id="diapo5-slogan-highlight">Construyes una vez. Se usa dos veces.</span>
+                    </p>
+                </section>
+
+                <!-- ZONA C — comunidad + QR + Eliana -->
+                <section class="diapo5-zone diapo5-zone-c" data-zone="c">
+                    <div class="diapo5-community">
+                        <h3 class="diapo5-community__title">
+                            ¿Por qué no sacas ese agente que llevas dentro?
+                        </h3>
+                        <p class="diapo5-community__body">
+                            Te ayudamos. Únete a la comunidad ELE.
+                            <br>Sin código — solo tu expertise.
+                        </p>
+                        <div class="diapo5-community__cta">
+                            <div class="diapo5-qr" id="diapo5-qr" aria-label="QR del formulario para unirte a la comunidad"></div>
+                            <span class="diapo5-qr__hint">Escanea para unirte</span>
                         </div>
-                        <div class="blinda-chat__input-container">
-                            <div class="blinda-chat__input-row">
-                                <textarea
-                                    id="diapo5-chat-input"
-                                    class="blinda-chat__textarea"
-                                    placeholder="Escribe a Eliana..."
-                                    rows="1"
-                                    autocomplete="off"
-                                ></textarea>
-                                <button class="blinda-chat__send" id="diapo5-chat-send" title="Enviar">
-                                    <i class="ph ph-paper-plane-tilt"></i>
-                                </button>
-                            </div>
-                            <div class="blinda-chat__actions-row">
-                                <button class="chat-action-btn" id="diapo5-mic-btn" title="Grabar voz">
-                                    <i class="ph ph-microphone"></i>
-                                    <span class="chat-action-label">Habla con Eliana</span>
-                                </button>
-                                <button class="chat-action-btn chat-action-btn--voice" id="diapo5-voice-btn" title="Voz de Eliana">
-                                    <i class="ph-bold ph-waveform"></i>
-                                    <span class="chat-action-label">Escucha a Eliana</span>
-                                </button>
-                            </div>
-                        </div>
                     </div>
-                </div>
+                    <div class="diapo5-eliana-orb" id="diapo5-eliana-orb" aria-hidden="true"></div>
+                </section>
 
-                <!-- Columna derecha: quiz artistico -->
-                <div class="diapo5-right">
-                    <button class="blinda-nav-btn blinda-nav-btn--next" id="diapo5-nav-next" title="Siguiente">
-                        <i class="ph ph-arrow-right"></i>
-                    </button>
-
-                    <!-- Demo visual (9 pasos: titulo + nube palabras + intro chef + 5 capacidades + cierre) -->
-                    <div class="diapo5-demo" id="diapo5-demo">
-                        <!-- Paso 0: Titulo -->
-                        <div class="diapo5-demo__step diapo5-demo__step--active" data-diapo5-step="0">
-                            <div class="blinda-intro__icon">
-                                <i class="ph-fill ph-robot"></i>
-                            </div>
-                            <h2 class="blinda-title">¿Qué es un Agente de IA?</h2>
-                            <p class="blinda-subtitle">El Chef y el Agente</p>
-                        </div>
-                        <!-- Paso 1: Nube de palabras (debate) -->
-                        <div class="diapo5-demo__step" data-diapo5-step="1" id="diapo5-step-1"></div>
-                        <!-- Paso 2: Intro chef vs chatbot -->
-                        <div class="diapo5-demo__step" data-diapo5-step="2" id="diapo5-step-2"></div>
-                        <!-- Paso 3: PERCIBIR -->
-                        <div class="diapo5-demo__step" data-diapo5-step="3" id="diapo5-step-3"></div>
-                        <!-- Paso 4: RAZONAR -->
-                        <div class="diapo5-demo__step" data-diapo5-step="4" id="diapo5-step-4"></div>
-                        <!-- Paso 5: ACTUAR -->
-                        <div class="diapo5-demo__step" data-diapo5-step="5" id="diapo5-step-5"></div>
-                        <!-- Paso 6: HERRAMIENTAS -->
-                        <div class="diapo5-demo__step" data-diapo5-step="6" id="diapo5-step-6"></div>
-                        <!-- Paso 7: MEMORIA -->
-                        <div class="diapo5-demo__step" data-diapo5-step="7" id="diapo5-step-7"></div>
-                        <!-- Paso 8: Cierre -->
-                        <div class="diapo5-demo__step" data-diapo5-step="8" id="diapo5-step-8"></div>
-                        <!-- Paso 9: Canción -->
-                        <div class="diapo5-demo__step" data-diapo5-step="9" id="diapo5-step-9"></div>
-                    </div>
-
-                    <!-- Stepper dots (10) -->
-                    <div class="diapo5-demo__stepper" id="diapo5-stepper">
-                        <button class="demo-stepper__dot demo-stepper__dot--active" data-diapo5-dot="0"></button>
-                        <button class="demo-stepper__dot" data-diapo5-dot="1"></button>
-                        <button class="demo-stepper__dot" data-diapo5-dot="2"></button>
-                        <button class="demo-stepper__dot" data-diapo5-dot="3"></button>
-                        <button class="demo-stepper__dot" data-diapo5-dot="4"></button>
-                        <button class="demo-stepper__dot" data-diapo5-dot="5"></button>
-                        <button class="demo-stepper__dot" data-diapo5-dot="6"></button>
-                        <button class="demo-stepper__dot" data-diapo5-dot="7"></button>
-                        <button class="demo-stepper__dot" data-diapo5-dot="8"></button>
-                        <button class="demo-stepper__dot" data-diapo5-dot="9"></button>
-                    </div>
-                </div>
+                <!-- ZONA D — ELITE acrónimo (reveal final) -->
+                <section class="diapo5-zone diapo5-zone-d" data-zone="d">
+                    <h3 class="diapo5-elite-title">Qué significa ser <span class="diapo5-elite-title__word">ELITE</span></h3>
+                    <ol class="diapo5-elite-list" id="diapo5-elite-list">
+                        <li class="diapo5-elite-item" data-letter="E">
+                            <span class="diapo5-elite-item__letter">E</span>
+                            <span class="diapo5-elite-item__word">Empático</span>
+                            <span class="diapo5-elite-item__gloss">escucha al alumno · lee el contexto</span>
+                        </li>
+                        <li class="diapo5-elite-item" data-letter="L">
+                            <span class="diapo5-elite-item__letter">L</span>
+                            <span class="diapo5-elite-item__word">Leal</span>
+                            <span class="diapo5-elite-item__gloss">fiel a tu criterio · a tu rúbrica</span>
+                        </li>
+                        <li class="diapo5-elite-item" data-letter="I">
+                            <span class="diapo5-elite-item__letter">I</span>
+                            <span class="diapo5-elite-item__word">Intuitivo</span>
+                            <span class="diapo5-elite-item__gloss">sabe qué pasa · actúa sin dictado</span>
+                        </li>
+                        <li class="diapo5-elite-item" data-letter="T">
+                            <span class="diapo5-elite-item__letter">T</span>
+                            <span class="diapo5-elite-item__word">Tenaz</span>
+                            <span class="diapo5-elite-item__gloss">no abandona · termina lo empezado</span>
+                        </li>
+                        <li class="diapo5-elite-item" data-letter="E">
+                            <span class="diapo5-elite-item__letter">E</span>
+                            <span class="diapo5-elite-item__word">Elegante</span>
+                            <span class="diapo5-elite-item__gloss">explica con gracia · entrega pulido</span>
+                        </li>
+                    </ol>
+                </section>
             </div>
         </main>
 
@@ -1504,6 +1537,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.15.1"></script>
+    <script src="/static/app.js?v=23.16.0"></script>
 </body>
 </html>

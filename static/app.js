@@ -122,11 +122,6 @@ const state = {
     juegoAnswers: [],
     // Eliana Widget
     elianaWidgetState: 'fab',  // 'fab' | 'floating' | 'docked' | 'expanded'
-    // Diapo 5 — Agentes
-    diapo5Step: 0,
-    _diapo5Ws: null,
-    _diapo5ContextSent: false,
-    _diapo5SmdParser: null,
     // Diapo 6 — MIAU
     _diapo6Ws: null,
     _diapo6ContextSent: false,
@@ -1801,16 +1796,7 @@ function updateRecordingUI(recording, processing = false) {
         juegoMicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
     }
 
-    // Diapo5 screen — same toggle for diapo5 mic button
-    const diapo5MicBtn = document.getElementById('diapo5-mic-btn');
-    if (diapo5MicBtn) {
-        diapo5MicBtn.classList.toggle('recording', recording);
-        const icon = diapo5MicBtn.querySelector('.ph');
-        if (icon) {
-            icon.className = recording ? 'ph ph-stop-circle' : 'ph ph-microphone';
-        }
-        diapo5MicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
-    }
+    // Diapo 5 ya no tiene mic (v23.16)
 
     // Diapo6 screen
     const diapo6MicBtn = document.getElementById('diapo6-mic-btn');
@@ -1936,9 +1922,8 @@ async function transcribeAudio(audioBlob, extension = 'webm') {
                 return;
             }
 
-            // Si estamos en Diapo 5, enviar al chat de Diapo 5
+            // Diapo 5 ya no tiene chat (v23.16) — ignorar voz en esa pantalla
             if (isOnDiapo5Screen()) {
-                sendDiapo5Message(cleanText);
                 updateRecordingUI(false);
                 resumeWakeWordAfterRecording();
                 return;
@@ -2771,21 +2756,8 @@ function onWakeWordDetected(transcript = '') {
         return;
     }
 
-    // Si estamos en Diapo 5, misma logica que Blinda
+    // Diapo 5 ya no tiene chat ni wake-word (v23.16) — Eliana habla sola al abrir
     if (elements.diapo5Screen && !elements.diapo5Screen.classList.contains('hidden')) {
-        console.log('[WakeWord] En Diapo5 — interaccion en contexto');
-        const diapo5Orb = document.getElementById('diapo5-orb-container');
-        if (diapo5Orb && window.orbSetListening) window.orbSetListening(true);
-
-        const diapo5Text = stripWakeWordForBlinda(transcript);
-        if (diapo5Text) {
-            console.log('[WakeWord] Diapo5 text:', diapo5Text);
-            sendDiapo5Message(diapo5Text);
-            if (window.orbSetListening) window.orbSetListening(false);
-            resumeWakeWordAfterRecording();
-        } else {
-            startRecording();
-        }
         return;
     }
 
@@ -3020,7 +2992,7 @@ function forceEnableTTS() {
  */
 function updateVoiceButton(enabled) {
     // Update both chat and blinda voice buttons
-    ['chat-voice-btn', 'blinda-voice-btn', 'diapo5-voice-btn', 'juego-voice-btn', 'diapo6-voice-btn', 'diapo7-voice-btn'].forEach(id => {
+    ['chat-voice-btn', 'blinda-voice-btn', 'juego-voice-btn', 'diapo6-voice-btn', 'diapo7-voice-btn'].forEach(id => {
         const btn = document.getElementById(id);
         if (!btn) return;
         if (enabled) {
@@ -4746,75 +4718,18 @@ function hideJuegoScreen() {
 }
 
 // ============================================
-// DIAPO 5 — El Chef y el Agente
+// DIAPO 5 — Eres un profe ELITE (v23.16)
 // ============================================
 
-const DIAPO5_CAPABILITIES = [
-    {
-        id: 'percibir',
-        name: 'PERCIBIR',
-        icon: 'ph-fill ph-eye',
-        color: '#7EC8E3',
-        chef: 'El chef mira qué ingredientes hay, quién está en la mesa, si es una cena romántica o un cumpleaños de niños.',
-        agent: 'Observa quién es el alumno, qué nivel tiene, qué ha estudiado, dónde falla. Lee el contexto antes de actuar.',
-        teacher: 'Entráis a clase y en 30 segundos sabéis quién no ha dormido, quién no ha estudiado y quién va a dar guerra.',
-        punchline: 'Sin esto, es como cocinar sin saber para quién.'
-    },
-    {
-        id: 'razonar',
-        name: 'RAZONAR',
-        icon: 'ph-fill ph-brain',
-        color: '#81C784',
-        chef: 'Decide: para esta mesa, risotto; para aquella, algo rápido porque tienen prisa.',
-        agent: 'Decide qué estrategia usar: ¿práctica oral o escrita? ¿Juego de rol o texto? ¿Repaso o avanzo? Elige el mejor camino.',
-        teacher: 'Decidís en tiempo real: «Cambio de plan, hoy toca juego porque es viernes y están muertos.»',
-        punchline: 'No improvisa a lo loco. Tiene un plan.'
-    },
-    {
-        id: 'actuar',
-        name: 'ACTUAR',
-        icon: 'ph-fill ph-lightning',
-        color: '#F48FB1',
-        chef: 'Cocina. No se queda mirando la receta eternamente. Lo ejecuta.',
-        agent: 'Genera el ejercicio, adapta el texto, crea el audio, prepara la actividad. Pasa de la estrategia a la acción.',
-        teacher: 'El momento en que dejáis el café y entráis al aula. Creáis la actividad, adaptáis el material, improvisáis.',
-        punchline: 'Basta de pensar. Es hora de hacer.'
-    },
-    {
-        id: 'herramientas',
-        name: 'HERRAMIENTAS',
-        icon: 'ph-fill ph-wrench',
-        color: '#B39DDB',
-        chef: 'Tiene cuchillos, horno, especias, batidora. Sin herramientas no hay cocina.',
-        agent: 'Tiene el MCER, generadores de audio, bancos de ejercicios, adaptadores de textos por nivel, correctores.',
-        teacher: 'El libro, el MCER, ese vídeo que encontrasteis a las 11 de la noche, las fichas de la compañera.',
-        punchline: 'No solo piensa. Tiene con qué trabajar.'
-    },
-    {
-        id: 'memoria',
-        name: 'MEMORIA',
-        icon: 'ph-fill ph-clock-counter-clockwise',
-        color: '#FFB74D',
-        chef: 'Recuerda que la mesa 3 es celíaca, que la mesa 7 pidió el vino de ayer, que el del fondo es alérgico al marisco.',
-        agent: 'Recuerda que María lleva dos semanas con el subjuntivo, que Lucas no habla pero entiende todo, que Ahmed necesita vocabulario práctico.',
-        teacher: '«Ahmed ya domina comida, María sigue con el subjuntivo, Lucas no habla pero entiende todo.»',
-        punchline: 'No empieza de cero cada sesión.'
-    }
+const DIAPO5_CHIP_WORDS = [
+    'Pedagogía', 'Lingüística ELE', 'MCER', 'Errores por L1',
+    'Cultura', 'Empatía', 'Tu estilo'
 ];
-
-const DIAPO5_KEYWORD_MAP = [
-    { step: 1, patterns: ['viene a la cabeza', 'lluvia de ideas', 'nube de palabras', 'qué pensáis', 'qué os viene', 'escucháis', 'escuchais', 'agente de ia'] },
-    { step: 2, patterns: ['imaginad un restaurante', 'chatbot es un camarero', 'agente es el chef'] },
-    { step: 3, patterns: ['percibir', 'primera capacidad', 'primer poder'] },
-    { step: 4, patterns: ['razonar', 'segunda capacidad', 'segundo poder'] },
-    { step: 5, patterns: ['actuar', 'tercera capacidad', 'tercer poder', 'acción'] },
-    { step: 6, patterns: ['herramientas', 'cuarta capacidad', 'cuarto poder'] },
-    { step: 7, patterns: ['memoria', 'quinta capacidad', 'quinto poder', 'recuerda'] },
-    { step: 8, patterns: ['multiplicar', 'vosotros por mil', 'no viene a sustituir', 'viene a multiplicar'] }
-];
+const DIAPO5_CHIP_INTERVAL_MS = 2500;
+const DIAPO5_COMMUNITY_URL = 'https://forms.hablandis.com/hablandis/form/elencuentroeleMiln/formperma/RZKSb0WA04Szly2Z32iJ1i6yml9-5md5qPNbw2hCQ8A';
+const DIAPO5_TTS_TEXT = 'Eres un profe ELITE. Tus agentes lo serán también. Lo que harán por ti, para ti, contigo.';
 
 function showDiapo5Screen() {
-    // Diapo 5 solo en escritorio — en móvil saltar a diapo 6 (gatos MIAU)
     if (isMobile()) { showDiapo6Screen(); return; }
     stopTTS();
     elements.loginScreen?.classList.add('hidden');
@@ -4829,19 +4744,19 @@ function showDiapo5Screen() {
     elements.diapo5Screen?.classList.remove('hidden');
     elements.diapo5Screen?.classList.remove('fade-out');
 
-    // Reset demo to step 0
-    state.diapo5Step = 0;
-    advanceDiapo5To(0);
+    initDiapo5ChipRotator();
+    initDiapo5QR();
+    initDiapo5ElianaOrb();
+    initDiapo5Reveals();
 
-    // Orb
-    const orbContainer = document.getElementById('diapo5-orb-container');
-    if (orbContainer && window.orbCreateInElement) {
-        const orbSize = window.innerWidth <= 480 ? 64 : window.innerWidth <= 968 ? 80 : 120;
-        window.orbCreateInElement(orbContainer, orbSize);
+    if (typeof playTTS === 'function') {
+        setTimeout(() => playTTS(DIAPO5_TTS_TEXT), 400);
     }
 }
 
 function hideDiapo5Screen() {
+    stopDiapo5ChipRotator();
+    stopTTS();
     elements.diapo5Screen?.classList.add('fade-out');
     setTimeout(() => {
         elements.diapo5Screen?.classList.add('hidden');
@@ -4854,436 +4769,111 @@ function isOnDiapo5Screen() {
     return elements.diapo5Screen && !elements.diapo5Screen.classList.contains('hidden');
 }
 
-function addDiapo5ChatBubble(text, role) {
-    const messages = document.getElementById('diapo5-chat-messages');
-    if (!messages) return null;
-    const bubble = document.createElement('div');
-    bubble.className = `blinda-chat__bubble blinda-chat__bubble--${role}`;
-    if (role === 'assistant' && text) {
-        bubble.innerHTML = typeof renderMarkdown === 'function' ? renderMarkdown(text) : text;
-    } else {
-        bubble.textContent = text;
-    }
-    messages.appendChild(bubble);
-    messages.scrollTop = messages.scrollHeight;
-    return bubble;
+// ---- Chip rotator (Zona A) ----
+let _diapo5ChipTimer = null;
+let _diapo5ChipIndex = 0;
+
+function initDiapo5ChipRotator() {
+    stopDiapo5ChipRotator();
+    _diapo5ChipIndex = 0;
+    const span = document.getElementById('diapo5-chip-word');
+    if (!span) return;
+    span.textContent = DIAPO5_CHIP_WORDS[0];
+    span.classList.remove('is-in', 'is-out');
+    _diapo5ChipTimer = setInterval(rotateDiapo5Chip, DIAPO5_CHIP_INTERVAL_MS);
 }
 
-function sendDiapo5Message(message) {
-    addDiapo5ChatBubble(message, 'user');
+function rotateDiapo5Chip() {
+    const span = document.getElementById('diapo5-chip-word');
+    if (!span) return;
+    span.classList.remove('is-in');
+    span.classList.add('is-out');
+    setTimeout(() => {
+        _diapo5ChipIndex = (_diapo5ChipIndex + 1) % DIAPO5_CHIP_WORDS.length;
+        span.textContent = DIAPO5_CHIP_WORDS[_diapo5ChipIndex];
+        span.classList.remove('is-out');
+        // Force reflow to restart animation
+        void span.offsetWidth;
+        span.classList.add('is-in');
+    }, 350);
+}
 
-    const messages = document.getElementById('diapo5-chat-messages');
-    const typing = document.createElement('div');
-    typing.className = 'blinda-chat__bubble blinda-chat__bubble--assistant blinda-chat__typing';
-    typing.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
-    messages.appendChild(typing);
-    messages.scrollTop = messages.scrollHeight;
+function stopDiapo5ChipRotator() {
+    if (_diapo5ChipTimer) {
+        clearInterval(_diapo5ChipTimer);
+        _diapo5ChipTimer = null;
+    }
+}
 
-    state.currentMessage = '';
-    let assistantBubble = null;
-
-    const doSend = () => {
-        const payload = { message, response_mode: 'full', activity_mode: 'agentes' };
-        if (!state._diapo5ContextSent) {
-            payload.prior_context = {
-                question: 'Eliana, vamos a explicar qué es un agente de IA con la metáfora del chef.',
-                answer: 'Vamos a ver ahora qué es un agente de IA. Román, cuando quieras.'
-            };
-            state._diapo5ContextSent = true;
-        }
-        state._diapo5Ws.send(JSON.stringify(payload));
-    };
-
-    const handleDiapo5Message = (event) => {
-        const data = JSON.parse(event.data);
-
-        if (data.type === 'token') {
-            if (!assistantBubble) {
-                typing.remove();
-                assistantBubble = addDiapo5ChatBubble('', 'assistant');
-                if (window.smd && assistantBubble) {
-                    const renderer = window.smd.default_renderer(assistantBubble);
-                    state._diapo5SmdParser = window.smd.parser(renderer);
-                } else {
-                    state._diapo5SmdParser = null;
-                }
-            }
-            state.currentMessage += data.content;
-            if (state._diapo5SmdParser) {
-                window.smd.parser_write(state._diapo5SmdParser, data.content);
-            } else if (assistantBubble) {
-                assistantBubble.innerHTML = typeof renderMarkdown === 'function'
-                    ? renderMarkdown(state.currentMessage, false) : state.currentMessage;
-            }
-            messages.scrollTop = messages.scrollHeight;
-            // Live auto-advance: detect keywords while Eliana speaks (streaming)
-            checkDiapo5Advance(state.currentMessage);
-        }
-        else if (data.type === 'end') {
-            if (state._diapo5SmdParser) {
-                window.smd.parser_end(state._diapo5SmdParser);
-                state._diapo5SmdParser = null;
-            }
-            if (state.currentMessage && (state.ttsEnabled || state.voiceTriggered)) {
-                playTTS(state.currentMessage, true);
-            }
-            // Final check in case streaming missed a keyword
-            if (state.currentMessage) {
-                checkDiapo5Advance(state.currentMessage);
-            }
-            assistantBubble = null;
-            resumeWakeWordAfterRecording();
-        }
-        else if (data.type === 'error') {
-            typing.remove();
-            addDiapo5ChatBubble('Error: ' + data.message, 'assistant');
-            assistantBubble = null;
-        }
-    };
-
-    if (state._diapo5Ws && state._diapo5Ws.readyState === WebSocket.OPEN) {
-        state._diapo5Ws.onmessage = handleDiapo5Message;
-        doSend();
+// ---- QR (Zona C) ----
+function initDiapo5QR() {
+    const container = document.getElementById('diapo5-qr');
+    if (!container || container.dataset.rendered === 'true') return;
+    if (typeof window.qrcode !== 'function') {
+        console.warn('[Diapo5] qrcode-generator no cargado');
         return;
     }
-
-    if (state._diapo5Ws) {
-        state._diapo5Ws.close();
-        state._diapo5Ws = null;
-        state._diapo5ContextSent = false;
-    }
-
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    state._diapo5Ws = new WebSocket(`${wsProtocol}//${window.location.host}/ws/chat`);
-    state._diapo5Ws.onopen = doSend;
-    state._diapo5Ws.onmessage = handleDiapo5Message;
-    state._diapo5Ws.onerror = () => {
-        typing.remove();
-        addDiapo5ChatBubble('Error de conexion', 'assistant');
-    };
-}
-
-function checkDiapo5Advance(fullText) {
-    const lower = fullText.toLowerCase();
-    // Only check for the NEXT step — never skip steps
-    const nextStep = state.diapo5Step + 1;
-    const mapping = DIAPO5_KEYWORD_MAP.find(m => m.step === nextStep);
-    if (!mapping) return;
-    for (const pat of mapping.patterns) {
-        if (lower.includes(pat)) {
-            advanceDiapo5To(nextStep);
-            return;
-        }
+    try {
+        const qr = window.qrcode(0, 'M');
+        qr.addData(DIAPO5_COMMUNITY_URL);
+        qr.make();
+        container.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+        container.dataset.rendered = 'true';
+    } catch (err) {
+        console.error('[Diapo5] Error generando QR:', err);
     }
 }
 
-function advanceDiapo5To(step) {
-    state.diapo5Step = step;
-    document.querySelectorAll('.diapo5-demo__step').forEach(el => {
-        el.classList.remove('diapo5-demo__step--active');
-    });
-    const target = document.querySelector(`[data-diapo5-step="${step}"]`);
-    if (target) {
-        target.classList.add('diapo5-demo__step--active');
-        if (step === 1) renderDiapo5WordCloud();
-        else if (step === 2) renderDiapo5Intro();
-        else if (step >= 3 && step <= 7) renderDiapo5Capability(step - 3);
-        else if (step === 8) renderDiapo5Closing();
-        else if (step === 9) renderDiapo5Song();
+// ---- Eliana orb (Zona C, decorativo) ----
+function initDiapo5ElianaOrb() {
+    const host = document.getElementById('diapo5-eliana-orb');
+    if (!host || host.dataset.rendered === 'true') return;
+    if (window.orbCreateInElement) {
+        window.orbCreateInElement(host, 88);
+        host.dataset.rendered = 'true';
     }
-    document.querySelectorAll('[data-diapo5-dot]').forEach(dot => {
-        dot.classList.toggle('demo-stepper__dot--active', parseInt(dot.dataset.diapo5Dot) === step);
-    });
 }
 
-// Step 1: Word cloud (nube de palabras)
-const DIAPO5_CLOUD_WORDS = [
-    { text: 'Responde preguntas', size: 'md', color: '#9E9E9E' },
-    { text: 'Usa herramientas', size: 'lg', color: '#B39DDB' },
-    { text: 'Genera texto', size: 'md', color: '#9E9E9E' },
-    { text: 'Planifica pasos', size: 'lg', color: '#81C784' },
-    { text: 'Necesita instrucciones exactas', size: 'sm', color: '#BCAAA4' },
-    { text: 'Recuerda lo anterior', size: 'lg', color: '#FFB74D' },
-    { text: 'Actúa por su cuenta', size: 'lg', color: '#F48FB1' },
-    { text: 'Busca información', size: 'md', color: '#B39DDB' },
-    { text: 'Copia y pega', size: 'sm', color: '#BCAAA4' },
-    { text: 'Adapta su estrategia', size: 'lg', color: '#81C784' },
-    { text: 'Siempre dice lo mismo', size: 'sm', color: '#BCAAA4' },
-    { text: 'Observa el contexto', size: 'lg', color: '#7EC8E3' },
-    { text: 'Ejecuta tareas', size: 'md', color: '#F48FB1' },
-    { text: 'Solo habla', size: 'sm', color: '#BCAAA4' },
-    { text: 'Aprende del alumno', size: 'md', color: '#FFB74D' },
-    { text: 'Traduce palabra por palabra', size: 'sm', color: '#BCAAA4' },
-];
+// ---- Reveals: highlighter + ELITE stagger ----
+function initDiapo5Reveals() {
+    // Highlighter en el título del hook + slogan de zona B — se activan al abrir
+    const eliteHighlight = document.getElementById('diapo5-elite-highlight');
+    const sloganHighlight = document.getElementById('diapo5-slogan-highlight');
+    [eliteHighlight, sloganHighlight].forEach(el => el?.classList.remove('is-lit'));
+    setTimeout(() => eliteHighlight?.classList.add('is-lit'), 600);
+    setTimeout(() => sloganHighlight?.classList.add('is-lit'), 1400);
 
-function renderDiapo5WordCloud() {
-    const container = document.getElementById('diapo5-step-1');
-    if (!container || container.dataset.rendered) return;
-    container.dataset.rendered = 'true';
+    // ELITE list stagger via IntersectionObserver (o directo si siempre visible en layout)
+    const items = document.querySelectorAll('#diapo5-elite-list .diapo5-elite-item');
+    items.forEach(it => it.classList.remove('is-revealed'));
 
-    container.innerHTML = `
-        <div class="diapo5-wordcloud">
-            <h3 class="diapo5-wordcloud__title">¿Cuáles describen a un agente de IA?</h3>
-            <div class="diapo5-wordcloud__cloud" id="diapo5-cloud">
-                ${DIAPO5_CLOUD_WORDS.map(w => `
-                    <span class="diapo5-wordcloud__word diapo5-wordcloud__word--${w.size}" style="color: ${w.color}; border-color: ${w.color}">${w.text}</span>
-                `).join('')}
-            </div>
-        </div>
-    `;
-
-    const words = container.querySelectorAll('.diapo5-wordcloud__word');
-    words.forEach((word, i) => {
-        gsap.fromTo(word,
-            { scale: 0, opacity: 0 },
-            { scale: 1, opacity: 1, duration: 0.35, delay: i * 0.06, ease: 'back.out(1.5)' }
-        );
-    });
-}
-
-// Step 2: Chef vs Chatbot intro
-function renderDiapo5Intro() {
-    const container = document.getElementById('diapo5-step-2');
-    if (!container || container.dataset.rendered) return;
-    container.dataset.rendered = 'true';
-
-    container.innerHTML = `
-        <div class="diapo5-chef-intro">
-            <div class="diapo5-chef-intro__vs">
-                <div class="diapo5-chef-intro__card diapo5-chef-intro__card--chatbot">
-                    <div class="diapo5-chef-intro__icon-wrap" style="background: var(--md-sys-color-surface-container-high)">
-                        <i class="ph-fill ph-chat-dots" style="color: var(--md-sys-color-outline)"></i>
-                    </div>
-                    <h4 class="diapo5-chef-intro__label">Chatbot</h4>
-                    <p class="diapo5-chef-intro__desc">Un camarero que lee la carta. Le preguntas qué hay y te dice «sopa, ensalada y carne». A todos igual. Siempre lo mismo.</p>
-                </div>
-                <div class="diapo5-chef-intro__divider">
-                    <span>VS</span>
-                </div>
-                <div class="diapo5-chef-intro__card diapo5-chef-intro__card--agent">
-                    <div class="diapo5-chef-intro__icon-wrap" style="background: linear-gradient(135deg, var(--md-sys-color-primary), var(--md-sys-color-secondary))">
-                        <i class="ph-fill ph-chef-hat" style="color: #fff"></i>
-                    </div>
-                    <h4 class="diapo5-chef-intro__label">Agente</h4>
-                    <p class="diapo5-chef-intro__desc">Un chef. Observa, piensa, cocina, usa herramientas y recuerda los gustos de cada mesa.</p>
-                </div>
-            </div>
-            <p class="diapo5-chef-intro__hook">Un agente trabaja como un chef. Y como vosotros.</p>
-        </div>
-    `;
-
-    const cards = container.querySelectorAll('.diapo5-chef-intro__card');
-    cards.forEach((card, i) => {
-        gsap.fromTo(card,
-            { y: 30, opacity: 0, scale: 0.9 },
-            { y: 0, opacity: 1, scale: 1, duration: 0.5, delay: i * 0.25, ease: 'back.out(1.4)' }
-        );
-    });
-    const hook = container.querySelector('.diapo5-chef-intro__hook');
-    if (hook) gsap.fromTo(hook, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5, delay: 0.7, ease: 'power2.out' });
-}
-
-// Steps 3-7: Individual capabilities
-function renderDiapo5Capability(capIndex) {
-    const cap = DIAPO5_CAPABILITIES[capIndex];
-    if (!cap) return;
-    const container = document.getElementById(`diapo5-step-${capIndex + 3}`);
-    if (!container || container.dataset.rendered) return;
-    container.dataset.rendered = 'true';
-
-    container.innerHTML = `
-        <div class="diapo5-cap">
-            <div class="diapo5-cap__header" style="background: linear-gradient(135deg, ${cap.color}, ${cap.color}cc)">
-                <div class="diapo5-cap__icon">
-                    <i class="${cap.icon}"></i>
-                </div>
-                <h3 class="diapo5-cap__name">${cap.name}</h3>
-            </div>
-            <div class="diapo5-cap__rows">
-                <div class="diapo5-cap__row">
-                    <div class="diapo5-cap__row-icon"><i class="ph-fill ph-chef-hat"></i></div>
-                    <div class="diapo5-cap__row-content">
-                        <span class="diapo5-cap__row-label">El chef</span>
-                        <p class="diapo5-cap__row-text">${cap.chef}</p>
-                    </div>
-                </div>
-                <div class="diapo5-cap__row diapo5-cap__row--agent">
-                    <div class="diapo5-cap__row-icon" style="background: ${cap.color}"><i class="ph-fill ph-robot"></i></div>
-                    <div class="diapo5-cap__row-content">
-                        <span class="diapo5-cap__row-label">El agente</span>
-                        <p class="diapo5-cap__row-text">${cap.agent}</p>
-                    </div>
-                </div>
-                <div class="diapo5-cap__row diapo5-cap__row--teacher">
-                    <div class="diapo5-cap__row-icon"><i class="ph-fill ph-chalkboard-teacher"></i></div>
-                    <div class="diapo5-cap__row-content">
-                        <span class="diapo5-cap__row-label">Vosotros</span>
-                        <p class="diapo5-cap__row-text">${cap.teacher}</p>
-                    </div>
-                </div>
-            </div>
-            <p class="diapo5-cap__punchline" style="background: linear-gradient(135deg, ${cap.color}22, ${cap.color}11); color: ${cap.color}">${cap.punchline}</p>
-        </div>
-    `;
-
-    // Animate
-    const header = container.querySelector('.diapo5-cap__header');
-    const rows = container.querySelectorAll('.diapo5-cap__row');
-    const punch = container.querySelector('.diapo5-cap__punchline');
-    if (header) gsap.fromTo(header, { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' });
-    rows.forEach((row, i) => {
-        gsap.fromTo(row,
-            { x: -20, opacity: 0 },
-            { x: 0, opacity: 1, duration: 0.35, delay: 0.2 + i * 0.15, ease: 'power2.out' }
-        );
-    });
-    if (punch) gsap.fromTo(punch, { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: 0.4, delay: 0.75, ease: 'power2.out' });
-}
-
-// Step 8: Closing
-function renderDiapo5Closing() {
-    const container = document.getElementById('diapo5-step-8');
-    if (!container || container.dataset.rendered) return;
-    container.dataset.rendered = 'true';
-
-    container.innerHTML = `
-        <div class="diapo5-closing">
-            <div class="diapo5-closing__caps">
-                ${DIAPO5_CAPABILITIES.map((cap, i) => `
-                    <div class="diapo5-closing__cap" style="background: linear-gradient(135deg, ${cap.color}, ${cap.color}cc)">
-                        <i class="${cap.icon}"></i>
-                        <span>${cap.name}</span>
-                    </div>
-                `).join('')}
-            </div>
-            <div class="diapo5-closing__message">
-                <p class="diapo5-closing__text">Vosotros ya sois chefs. Cada clase es un menú distinto para comensales distintos.</p>
-                <p class="diapo5-closing__text">La diferencia es que vosotros cocinéis para 25 mesas a la vez, solos, cansados y sin ayudante.</p>
-                <p class="diapo5-closing__highlight">Un agente es un chef que puede cocinar para cada alumno a la vez, sin cansarse, sin olvidar nada, con todos los ingredientes del mundo.</p>
-            </div>
-            <div class="diapo5-closing__tagline">
-                <i class="ph-fill ph-arrow-fat-lines-right"></i>
-                <span>No viene a sustituir al chef. Viene a multiplicarlo.</span>
-            </div>
-        </div>
-    `;
-
-    // Animate caps
-    const caps = container.querySelectorAll('.diapo5-closing__cap');
-    caps.forEach((cap, i) => {
-        gsap.fromTo(cap,
-            { scale: 0, opacity: 0 },
-            { scale: 1, opacity: 1, duration: 0.35, delay: i * 0.1, ease: 'back.out(1.7)' }
-        );
-    });
-    // Animate message
-    const texts = container.querySelectorAll('.diapo5-closing__text, .diapo5-closing__highlight');
-    texts.forEach((t, i) => {
-        gsap.fromTo(t, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4, delay: 0.6 + i * 0.2, ease: 'power2.out' });
-    });
-    // Animate tagline
-    const tagline = container.querySelector('.diapo5-closing__tagline');
-    if (tagline) gsap.fromTo(tagline, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.5, delay: 1.4, ease: 'back.out(1.5)' });
-}
-
-// Step 9: Song
-function renderDiapo5Song() {
-    const container = document.getElementById('diapo5-step-9');
-    if (!container || container.dataset.rendered) return;
-    container.dataset.rendered = 'true';
-
-    container.innerHTML = `
-        <div class="diapo5-song">
-            <div class="diapo5-song__header">
-                <i class="ph-fill ph-music-notes"></i>
-                <h3 class="diapo5-song__title">LA CANCIÓN DEL AGENTE</h3>
-            </div>
-            <div class="diapo5-song__player">
-                <button class="diapo5-song__play-btn" id="diapo5-song-btn">
-                    <i class="ph-fill ph-play"></i>
-                </button>
-                <div class="diapo5-song__progress">
-                    <div class="diapo5-song__progress-bar" id="diapo5-song-progress"></div>
-                </div>
-                <span class="diapo5-song__time" id="diapo5-song-time">0:00</span>
-            </div>
-            <div class="diapo5-song__lyrics">
-                <div class="diapo5-song__section diapo5-song__section--intro">
-                    <span class="diapo5-song__line">¡ATENCIÓN PROFES! ESTO NO ES UN CHATBOT CUALQUIERA.</span>
-                </div>
-                <div class="diapo5-song__section diapo5-song__section--verse">
-                    <span class="diapo5-song__line">PRIMERO TE MIRO, TE LEO, TE ESCUCHO</span>
-                    <span class="diapo5-song__line"><strong style="color: #7EC8E3">PERCIBO</strong> TU MUNDO, ENTIENDO TU ASUNTO</span>
-                    <span class="diapo5-song__line">DESPUÉS ME LO PIENSO, <strong style="color: #81C784">RAZONO</strong> UN RATITO</span>
-                    <span class="diapo5-song__line">ELIJO EL CAMINO, CON CALMA Y CON RUMBO</span>
-                    <span class="diapo5-song__line">¡Y AHORA SÍ, <strong style="color: #F48FB1">ACTÚO</strong> CON GANAS!</span>
-                </div>
-                <div class="diapo5-song__section diapo5-song__section--chorus">
-                    <span class="diapo5-song__line"><strong style="color: #7EC8E3">PERCIBO</strong>, <strong style="color: #81C784">RAZONO</strong>, Y LUEGO <strong style="color: #F48FB1">ACTÚO</strong></span>
-                    <span class="diapo5-song__line">CON MIS <strong style="color: #B39DDB">HERRAMIENTAS</strong> SOY UN AGENTAZO</span>
-                    <span class="diapo5-song__line">Y SI VUELVES MAÑANA YO ME ACUERDO DE TODO</span>
-                    <span class="diapo5-song__line">¡<strong style="color: #FFB74D">MEMORIA</strong> DE PROFE, PERO SIN EL CANSANCIO!</span>
-                </div>
-            </div>
-        </div>
-    `;
-
-    // Song player
-    const songBtn = container.querySelector('#diapo5-song-btn');
-    const progressBar = container.querySelector('#diapo5-song-progress');
-    const timeDisplay = container.querySelector('#diapo5-song-time');
-    let songAudio = null;
-    let progressInterval = null;
-
-    const formatTime = (s) => {
-        const m = Math.floor(s / 60);
-        const sec = Math.floor(s % 60);
-        return m + ':' + (sec < 10 ? '0' : '') + sec;
+    const reveal = () => {
+        items.forEach((it, i) => {
+            setTimeout(() => it.classList.add('is-revealed'), 200 * i);
+        });
     };
 
-    songBtn?.addEventListener('click', () => {
-        if (!songAudio) {
-            songAudio = new Audio('/static/cancion-agente.mp3');
-            songAudio.addEventListener('ended', () => {
-                songBtn.innerHTML = '<i class="ph-fill ph-play"></i>';
-                songBtn.classList.remove('diapo5-song__play-btn--playing');
-                if (progressBar) progressBar.style.width = '0%';
-                if (timeDisplay) timeDisplay.textContent = '0:00';
-                clearInterval(progressInterval);
-            });
-        }
-        if (songAudio.paused) {
-            stopTTS();
-            songAudio.play();
-            songBtn.innerHTML = '<i class="ph-fill ph-pause"></i>';
-            songBtn.classList.add('diapo5-song__play-btn--playing');
-            progressInterval = setInterval(() => {
-                if (songAudio.duration) {
-                    const pct = (songAudio.currentTime / songAudio.duration) * 100;
-                    if (progressBar) progressBar.style.width = pct + '%';
-                    if (timeDisplay) timeDisplay.textContent = formatTime(songAudio.currentTime);
+    if ('IntersectionObserver' in window && items.length) {
+        const io = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    reveal();
+                    obs.disconnect();
                 }
-            }, 250);
-        } else {
-            songAudio.pause();
-            songBtn.innerHTML = '<i class="ph-fill ph-play"></i>';
-            songBtn.classList.remove('diapo5-song__play-btn--playing');
-            clearInterval(progressInterval);
-        }
-    });
-
-    // Animate
-    const header = container.querySelector('.diapo5-song__header');
-    const player = container.querySelector('.diapo5-song__player');
-    const verses = container.querySelectorAll('.diapo5-song__verse');
-    if (header) gsap.fromTo(header, { opacity: 0, y: -15 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' });
-    if (player) gsap.fromTo(player, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.4, delay: 0.2, ease: 'back.out(1.4)' });
-    verses.forEach((v, i) => {
-        gsap.fromTo(v, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.35, delay: 0.4 + i * 0.15, ease: 'power2.out' });
-    });
+            });
+        }, { threshold: 0.25 });
+        io.observe(items[0]);
+        // Fallback: si no entra al viewport en 1.5s, revelar igual
+        setTimeout(() => {
+            if (!items[0].classList.contains('is-revealed')) reveal();
+        }, 1500);
+    } else {
+        reveal();
+    }
 }
 
 // ---- End Diapo 5 ----
+
 
 async function startJuegoGame() {
     const cards = await fetchBlindaCards();
@@ -7561,54 +7151,17 @@ function init() {
         }
     });
 
-    // Diapo 5 — El Agente segun los Grandes Maestros
+    // Diapo 5 — Eres un profe ELITE (v23.16)
     document.getElementById('diapo5-nav-back')?.addEventListener('click', hideDiapo5Screen);
     document.getElementById('diapo5-nav-next')?.addEventListener('click', () => {
+        stopDiapo5ChipRotator();
+        stopTTS();
         elements.diapo5Screen?.classList.add('fade-out');
         setTimeout(() => {
             elements.diapo5Screen?.classList.add('hidden');
             elements.diapo5Screen?.classList.remove('fade-out');
             showDiapo6Screen();
         }, 300);
-    });
-    // Stepper dots
-    document.querySelectorAll('[data-diapo5-dot]').forEach(dot => {
-        dot.addEventListener('click', () => advanceDiapo5To(parseInt(dot.dataset.diapo5Dot)));
-    });
-    // Diapo5 chat — send text
-    document.getElementById('diapo5-chat-send')?.addEventListener('click', () => {
-        const input = document.getElementById('diapo5-chat-input');
-        const text = input?.value.trim();
-        if (!text) return;
-        input.value = '';
-        sendDiapo5Message(text);
-    });
-    document.getElementById('diapo5-chat-input')?.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            document.getElementById('diapo5-chat-send')?.click();
-        }
-    });
-    // Diapo5 chat — mic
-    // Al APAGAR el mic manualmente → descartar audio (evita que Whisper
-    // transcriba ruido residual: "gracias", "hola", etc.)
-    document.getElementById('diapo5-mic-btn')?.addEventListener('click', () => {
-        enableTTS();
-        state.voiceTriggered = true;
-        if (state.isRecording) {
-            state._discardRecording = true;
-            stopRecording();
-        } else {
-            startRecording();
-        }
-    });
-    // Diapo5 chat — voice toggle
-    document.getElementById('diapo5-voice-btn')?.addEventListener('click', () => {
-        if (state.ttsEnabled) {
-            disableTTS();
-        } else {
-            enableTTS();
-        }
     });
 
     // Diapo 6 — Elige tu agente
