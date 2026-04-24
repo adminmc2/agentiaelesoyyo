@@ -3036,27 +3036,36 @@ function updateVoiceButton(enabled) {
 /**
  * Envía texto al endpoint /api/tts y reproduce el audio streaming.
  * Si ya hay un audio reproduciéndose, lo detiene primero.
+ *
+ * Cancelación por TOKEN (state.ttsRequestId): cada llamada captura su propio
+ * id incremental. stopTTS (y cualquier llamada nueva) invalida las anteriores
+ * incrementando el contador. Evita el race donde un fetch lento "resucita"
+ * tras ser cancelado porque el flag global fue reseteado por otra petición.
  */
 async function playTTS(text, skipSummary = false, isActivity = false) {
-    // Detener audio previo si existe
+    // Detener audio previo si existe (esto también invalida peticiones en vuelo)
     stopTTS();
-    state.ttsCancelled = false;  // Reset flag para esta nueva reproducción
+    // Token único para ESTA petición: si otra playTTS o stopTTS se ejecuta
+    // después, incrementará el contador y este id quedará obsoleto.
+    if (state.ttsRequestId == null) state.ttsRequestId = 0;
+    const myId = ++state.ttsRequestId;
+    state.ttsCancelled = false;  // Mantener por compat con otros flujos
     // Pausar wake word para que no capte el audio del TTS
     stopWakeWordListening();
 
     if (!text || !text.trim()) return;
 
     try {
-        console.log(`[TTS] Requesting audio for ${text.length} chars (skip_summary=${skipSummary})...`);
+        console.log(`[TTS] req=${myId} requesting ${text.length} chars (skip_summary=${skipSummary})`);
         const response = await fetch('/api/tts', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ text, skip_summary: skipSummary, is_activity: isActivity })
         });
 
-        // Si el usuario navegó atrás mientras el fetch estaba en progreso, no reproducir
-        if (state.ttsCancelled) {
-            console.log('[TTS] Cancelled during fetch — not playing');
+        // Si llegó una petición más reciente o alguien llamó a stopTTS, abortar.
+        if (state.ttsRequestId !== myId) {
+            console.log(`[TTS] req=${myId} stale after fetch — aborted (current=${state.ttsRequestId})`);
             return;
         }
 
@@ -3069,8 +3078,8 @@ async function playTTS(text, skipSummary = false, isActivity = false) {
         const blob = await response.blob();
 
         // Revisar de nuevo después de leer el blob
-        if (state.ttsCancelled) {
-            console.log('[TTS] Cancelled during blob read — not playing');
+        if (state.ttsRequestId !== myId) {
+            console.log(`[TTS] req=${myId} stale after blob — aborted (current=${state.ttsRequestId})`);
             return;
         }
 
@@ -3160,11 +3169,17 @@ async function playTTS(text, skipSummary = false, isActivity = false) {
         // Amplificar volumen para altavoces externos
         boostAudioVolume(audio);
 
+        // Último check antes del play: si la petición ya no es la actual, no arrancar
+        if (state.ttsRequestId !== myId) {
+            console.log(`[TTS] req=${myId} stale before play — aborted`);
+            return;
+        }
+
         // Hook: notifica a componentes UI que el TTS empieza (botón MUTE pulsa, bocinas de burbuja)
         window.dispatchEvent(new CustomEvent('tts:start'));
 
         await audio.play();
-        console.log('[TTS] Playing audio');
+        console.log(`[TTS] req=${myId} playing`);
 
     } catch (err) {
         console.error('[TTS] Error:', err);
@@ -3267,7 +3282,11 @@ function playTTSAndWait(text) {
  */
 function stopTTS() {
     const wasPlaying = state.ttsPlaying;
-    state.ttsCancelled = true;  // Cancelar cualquier TTS en progreso (fetch pendiente)
+    state.ttsCancelled = true;  // Legacy flag (mantener por compat con otros flujos)
+    // Invalidar TODAS las peticiones en vuelo incrementando el token. Cualquier
+    // playTTS pendiente verá que state.ttsRequestId !== su myId y abortará.
+    if (state.ttsRequestId == null) state.ttsRequestId = 0;
+    state.ttsRequestId++;
     if (state.ttsAudio) {
         state.ttsAudio.pause();
         state.ttsAudio.currentTime = 0;
@@ -6688,6 +6707,7 @@ function renderJuego3() {
     if (juego3.currentCard < 0 || juego3.phase === 'idle') {
         idle.classList.remove('hidden');
         _juego3LastTTSCardIdx = -1; // Reset para que TTS arranque en carta 0 si se reinicia
+        _juego3TTSInFlight = false;  // Liberar lock por si quedó colgado
         if (_juego3CardTTSTimer) {
             clearTimeout(_juego3CardTTSTimer);
             _juego3CardTTSTimer = null;
@@ -6804,17 +6824,34 @@ function renderJuego3Card() {
 
 // TTS automático al abrir una carta nueva — es parte del juego, siempre suena
 // Lee SOLO el enunciado del frente. No intro, no pregunta, no opciones.
+//
+// Robustez (v23.13.12):
+//  - Guard por carta: _juego3LastTTSCardIdx evita re-disparo al re-render.
+//  - Token ttsRequestId de playTTS: evita carrera entre fetches lentos de cartas
+//    consecutivas (bug del reviser: carta 2 se cortaba/duplicaba 2/5 veces).
+//  - Lock _juego3TTSInFlight: si ya hay un playTTS en vuelo para esta carta
+//    (caso edge de doble click o state repetido), no relanzamos.
+//  - Logs con prefijo [tts_card_*] para diagnóstico en taller real.
 let _juego3LastTTSCardIdx = -1;
 let _juego3CardTTSTimer = null;
+let _juego3TTSInFlight = false;  // true entre setTimeout y playTTS efectivo
 function triggerJuego3CardTTS(card) {
     if (!card) return;
     if (juego3.phase !== 'voting') return; // Solo antes del reveal
-    if (_juego3LastTTSCardIdx === juego3.currentCard) return; // No repetir al re-render
+    if (_juego3LastTTSCardIdx === juego3.currentCard) {
+        console.log(`[tts_card_skip] card=${juego3.currentCard} reason=already_fired_for_this_card`);
+        return;
+    }
+    if (_juego3TTSInFlight) {
+        console.log(`[tts_card_skip] card=${juego3.currentCard} reason=in_flight`);
+        return;
+    }
 
     const text = card.enunciado_frente;
     if (!text) return;
 
     _juego3LastTTSCardIdx = juego3.currentCard;
+    _juego3TTSInFlight = true;
 
     if (_juego3CardTTSTimer) {
         clearTimeout(_juego3CardTTSTimer);
@@ -6822,11 +6859,24 @@ function triggerJuego3CardTTS(card) {
     }
 
     const scheduledIdx = juego3.currentCard;
+    console.log(`[tts_card_start] card=${scheduledIdx} req_pending=true`);
     // Pequeño delay para que la transición visual termine antes del audio
-    _juego3CardTTSTimer = setTimeout(() => {
+    _juego3CardTTSTimer = setTimeout(async () => {
         _juego3CardTTSTimer = null;
-        if (juego3.currentCard !== scheduledIdx || juego3.phase !== 'voting') return;
-        if (typeof playTTS === 'function') playTTS(text);
+        // Revalidar: la carta pudo haber cambiado durante los 400ms
+        if (juego3.currentCard !== scheduledIdx || juego3.phase !== 'voting') {
+            console.log(`[tts_card_abort_stale] card=${scheduledIdx} current=${juego3.currentCard} phase=${juego3.phase}`);
+            _juego3TTSInFlight = false;
+            return;
+        }
+        if (typeof playTTS === 'function') {
+            const reqAtStart = (state.ttsRequestId || 0) + 1; // predicción del siguiente id
+            console.log(`[tts_card_play] card=${scheduledIdx} req=${reqAtStart}`);
+            try {
+                await playTTS(text);
+            } catch (_) { /* playTTS ya logea */ }
+        }
+        _juego3TTSInFlight = false;
     }, 400);
 }
 

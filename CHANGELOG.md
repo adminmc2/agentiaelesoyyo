@@ -1,5 +1,30 @@
 # Changelog — AgentiaELE
 
+## v23.13.12 — 2026-04-24 — Fix race condition en TTS (carta 2 se cortaba/duplicaba)
+Bug reportado por el usuario: en la carta 2, la lectura TTS de Eliana a veces se corta, se queda colgada unos segundos, y luego se reproduce (o se duplica). Pasaba 2 de cada 5 veces.
+
+Diagnóstico del reviser (confirmado en código): `playTTS` usaba un flag global `state.ttsCancelled` que cualquier llamada podía resetear a `false`, permitiendo que peticiones "canceladas" resucitaran si eran más lentas que la siguiente.
+
+Escenario típico:
+1. Carta 1 llama `playTTS` → `fetch /api/tts` lento.
+2. Antes de que vuelva, carta 2 llama `playTTS`.
+3. Carta 2 hace `stopTTS` → `ttsCancelled=true`. Pero inmediatamente resetea a `false`.
+4. Fetch de carta 1 vuelve, ve `ttsCancelled=false`, reproduce audio ANTIGUO.
+5. Fetch de carta 2 vuelve, reproduce encima o tras el de carta 1.
+
+**Fixes aplicados**:
+
+- **Fix #1 — Token por petición** (propuesta del reviser): `state.ttsRequestId` incremental. Cada llamada captura `const myId = ++state.ttsRequestId`. En cada await (fetch, blob, play), verifica `state.ttsRequestId === myId`. Si no, aborta. `stopTTS()` incrementa el contador → invalida todas las peticiones en vuelo instantáneamente.
+- **Fix #2 — Lock por carta** en `triggerJuego3CardTTS`: flag `_juego3TTSInFlight` evita que si ya hay un TTS en vuelo para la carta actual, se dispare otro (caso edge de state WS repetido o doble click). Se libera automáticamente tras completar o al reset del juego.
+- **Fix #4 — Logs observables** con prefijos:
+  - `[tts_card_start] card=N` — se programa la lectura.
+  - `[tts_card_play] card=N req=X` — se dispara playTTS.
+  - `[tts_card_abort_stale] card=N current=M` — la carta cambió durante el delay.
+  - `[tts_card_skip] card=N reason=...` — doble-fire bloqueado.
+  - `[TTS] req=X stale after fetch — aborted` — petición obsoleta abortada.
+
+Versionado sincronizado en los 3 ficheros visibles → v23.13.12.
+
 ## v23.13.11 — 2026-04-24 — Donut acumulativo en el panel del proyector
 Dos gráficos ahora en el panel derecho durante `phase=revealed`:
 
