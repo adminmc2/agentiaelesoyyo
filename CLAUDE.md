@@ -69,24 +69,30 @@ Esto incluye:
 
 **Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
 
-### Diapositiva 5 (El Agente según los Grandes Maestros — Metáfora del Chef)
+### Diapositiva 5 (Eres un profe ELITE — v23.16+)
 **PROHIBIDO ABSOLUTAMENTE** modificar cualquier código relacionado con la diapositiva 5. No importa el contexto: refactor, limpieza, mejora, bug fix general, cambio de diseño — NADA justifica tocar la diapo 5 salvo que el usuario diga EXPLÍCITAMENTE "modifica la diapo 5" o "cambia esto de la diapo 5".
 
+Concepto: diapositiva estática autónoma con foco narrativo en el profesor. Hook "Eres un profe ELITE. Tus agentes lo serán también." + 4 zonas en grid 2×2 (chip rotator, focus cards, comunidad+QR, ELITE acrónimo). Eliana dice SOLO el hook+subtítulo al abrir; Román continúa en persona. No hay chat, no hay wake-word, no hay auto-avance.
+
 Esto incluye:
-- `showDiapo5Screen()`, `hideDiapo5Screen()` — mostrar/ocultar pantalla
-- `sendDiapo5Message()` — envío por WebSocket con `activity_mode: 'agentes'`
-- `addDiapo5ChatBubble()` — burbujas de chat
-- `checkDiapo5Advance()` — auto-avance por keywords de Eliana
-- `advanceDiapo5To()` — transiciones visuales entre pasos (0-9)
-- `DIAPO5_KEYWORD_MAP` — mapeo de palabras clave a pasos
-- `DIAPO5_CLOUD_WORDS` — palabras de la nube (step 1)
-- `DIAPO5_CAPABILITIES` — las 5 capacidades del agente
-- `renderDiapo5WordCloud()`, `renderDiapo5Intro()`, `renderDiapo5Capability()`, `renderDiapo5Closing()`, `renderDiapo5Song()` — renderizado de cada paso
-- Prompt "agentes" en `main.py` (ACTIVITY_PROMPTS["agentes"]) — fases 0-7, metáfora del chef
-- Todo el HTML de `#diapo5-screen` y sus hijos en `index.html`
-- Todo el CSS de `.diapo5-*` (layout, word cloud, capacidades, canción, stepper)
-- La lógica de `prior_context` para agentes en el WebSocket handler de `main.py`
-- El archivo `static/cancion-agente.mp3`
+- `showDiapo5Screen()`, `hideDiapo5Screen()`, `isOnDiapo5Screen()` — mostrar/ocultar/detectar pantalla
+- `initDiapo5ChipRotator()`, `rotateDiapo5Chip()`, `stopDiapo5ChipRotator()` — rotador de palabras (Pedagogía, Lingüística ELE, MCER, Errores por L1, Cultura, Empatía, Tu estilo)
+- `initDiapo5QR()` — generación dinámica del QR a la comunidad Hablandis
+- `initDiapo5ElianaOrb()` — orb decorativo 88px en zona C
+- `initDiapo5Reveals()` — highlighter del hook + slogan, stagger del acrónimo ELITE vía IntersectionObserver con fallback 1.5s
+- Constantes `DIAPO5_CHIP_WORDS`, `DIAPO5_CHIP_INTERVAL_MS`, `DIAPO5_COMMUNITY_URL`, `DIAPO5_TTS_TEXT`
+- Todo el HTML de `#diapo5-screen` y sus hijos en `index.html` (hook, 4 zonas, lista ELITE de 5 items: Empático, Leal, Intuitivo, Tenaz, Elegante)
+- Todo el CSS de `.diapo5-*` (hook con highlighter ELITE, zone base, zone-a chip rotator con keyframes `diapo5ChipIn/Out`, zone-b focus cards con hover-siblings-blur, zone-b slogan highlight, zone-c community+QR+orb, zone-d ELITE reveal, responsive 1280/1100/820h/720)
+- El texto TTS exacto: "Eres un profe ELITE. Tus agentes lo serán también. Lo que harán por ti, para ti, contigo."
+- La URL del QR: `https://forms.hablandis.com/hablandis/form/elencuentroeleMiln/formperma/RZKSb0WA04Szly2Z32iJ1i6yml9-5md5qPNbw2hCQ8A`
+- La dependencia `qrcode-generator@1.4.4` en `index.html`
+- Los event listeners de `diapo5-nav-back` y `diapo5-nav-next`
+- El bypass móvil: `showDiapo5Screen()` salta directo a `showDiapo6Screen()` si `isMobile()`
+- El spec en `docs/diapo5-spec.md`
+
+**Legacy no protegido** (restos de la metáfora del chef que se eliminarán cuando se confirme):
+- `ACTIVITY_PROMPTS["agentes"]` en `main.py` — prompt del chef huérfano, sin referencia desde el front.
+- `static/cancion-agente.mp3` — archivo huérfano en el repositorio.
 
 **Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
 

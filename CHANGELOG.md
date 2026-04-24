@@ -1,5 +1,16 @@
 # Changelog — AgentiaELE
 
+## v23.16.1 — 2026-04-25 — Diapo 5: 3 ajustes obligatorios del reviser
+Aplicados los 3 obligatorios del informe del reviser sobre v23.16.0:
+
+1. **CLAUDE.md sección diapo 5 reescrita** — la protección describía el diseño viejo del chef (DIAPO5_CAPABILITIES, renderDiapo5WordCloud, cancion-agente.mp3, ACTIVITY_PROMPTS["agentes"]), haciéndose auto-contradictoria al proteger código que ya no existe. Reescrita al diseño ELITE: enumera las funciones/constantes nuevas, el HTML/CSS actual, el texto TTS exacto, la URL del QR, la dependencia qrcode-generator, el bypass móvil y el spec. Un bloque final lista el legacy no protegido (el prompt "agentes" huérfano en main.py y cancion-agente.mp3) pendiente de eliminar.
+
+2. **Guarda anti-fuga en chip rotator** (`static/app.js`) — `rotateDiapo5Chip()` ahora comprueba `isOnDiapo5Screen()` al entrar y llama `stopDiapo5ChipRotator()` si el usuario ha navegado fuera por un path que solo oculte con `classList.add('hidden')` sin pasar por `hideDiapo5Screen()` ni `diapo5-nav-next`. Evita que un `setInterval` modifique un nodo oculto indefinidamente.
+
+3. **z-index del highlighter ELITE blindado** (`static/style.css`) — `.diapo5-hook__title` ahora declara `position: relative; z-index: 0` para crear stacking context explícito. El pseudo-elemento `::after` del highlighter (que usa `z-index: -1`) se queda dentro de ese contexto y no puede ser sepultado por un ancestro con stacking context accidental.
+
+Versionado sincronizado en los 3 ficheros visibles → v23.16.1.
+
 ## v23.16.0 — 2026-04-25 — Diapo 5 rewrite: "Eres un profe ELITE"
 Reescritura completa de la diapositiva 5. Se sustituye la metáfora del chef (10 pasos guiados por chat con Eliana + canción) por una diapositiva estática, densa y autónoma con foco narrativo en el profesor.
 

@@ -7833,6 +7833,8 @@ body[data-mood-active] .message.assistant {
     margin: 0;
     line-height: 1.12;
     letter-spacing: -0.5px;
+    position: relative;
+    z-index: 0;
 }
 .diapo5-hook__elite {
     position: relative;

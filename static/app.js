@@ -4784,6 +4784,7 @@ function initDiapo5ChipRotator() {
 }
 
 function rotateDiapo5Chip() {
+    if (!isOnDiapo5Screen()) { stopDiapo5ChipRotator(); return; }
     const span = document.getElementById('diapo5-chip-word');
     if (!span) return;
     span.classList.remove('is-in');
