@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.9.6">
+    <link rel="stylesheet" href="/static/style.css?v=23.11.8">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -146,7 +146,7 @@
                         <ol class="jintro-list">
                             <li class="jintro-list__item">
                                 <span class="jintro-list__num">1</span>
-                                <p class="jintro-list__text">Ver&aacute;s <strong>10 cartas</strong>, una detr&aacute;s de otra. Cada una te descubre algo que un agente sabe hacer y que tu ChatGPT habitual no.</p>
+                                <p class="jintro-list__text">Ver&aacute;s <strong>5 cartas</strong>, una detr&aacute;s de otra. Cada una te descubre algo que un agente sabe hacer y que tu ChatGPT habitual no.</p>
                             </li>
                             <li class="jintro-list__item">
                                 <span class="jintro-list__num">2</span>
@@ -158,7 +158,7 @@
                             </li>
                             <li class="jintro-list__item">
                                 <span class="jintro-list__num">4</span>
-                                <p class="jintro-list__text">Al terminar las 10 cartas ver&aacute;s <strong>tu puntuaci&oacute;n</strong> y qu&eacute; tan claro tienes ya qu&eacute; es un agente.</p>
+                                <p class="jintro-list__text">Al terminar las 5 cartas ver&aacute;s <strong>tu puntuaci&oacute;n</strong> y qu&eacute; tan claro tienes ya qu&eacute; es un agente.</p>
                             </li>
                             <li class="jintro-list__item">
                                 <span class="jintro-list__num">5</span>
@@ -332,29 +332,19 @@
 
                 <!-- Estado jugando: card-pair estilo Blindapalabras + panel -->
                 <section class="juego3-play hidden" id="juego3-play">
-                    <!-- Card-pair: frente coloreado + dorso blanco -->
-                    <div class="juego3-card" id="juego3-card">
-                        <div class="juego3-card__front" id="juego3-card-front">
-                            <i class="ph-fill ph-chats-circle juego3-card__front-icon" id="juego3-card-icon"></i>
-                            <div class="juego3-card__front-name" id="juego3-area">&Aacute;REA</div>
-                            <div class="juego3-card__front-num" id="juego3-card-num">1 / 10</div>
-                        </div>
-                        <div class="juego3-card__back" id="juego3-card-back">
-                            <p class="juego3-card__intro" id="juego3-intro"></p>
-                            <h2 class="juego3-card__question" id="juego3-question"></h2>
-                            <ol class="juego3-opts" id="juego3-opts"></ol>
-                            <div class="juego3-card__explain hidden" id="juego3-explain"></div>
-                        </div>
-                    </div>
-
-                    <!-- Columna derecha: gráfico de respuestas + controles ponente -->
-                    <aside class="juego3-panel">
-                        <div class="juego3-panel__head">
-                            <h3 class="juego3-panel__title">Respuestas del grupo</h3>
-                            <span class="juego3-panel__progress" id="juego3-progress">— / 10</span>
-                        </div>
-                        <div class="juego3-chart" id="juego3-chart">
-                            <!-- Barras dinámicas A/B/C -->
+                    <!-- Columna izquierda: tarjeta (frente arriba + dorso abajo) + controles -->
+                    <div class="juego3-left-col">
+                        <div class="juego3-card" id="juego3-card">
+                            <div class="juego3-card__front" id="juego3-card-front">
+                                <i class="ph-fill ph-chats-circle juego3-card__front-icon" id="juego3-card-icon"></i>
+                                <div class="juego3-card__front-name" id="juego3-area">&Aacute;REA</div>
+                                <div class="juego3-card__front-num" id="juego3-card-num">1 / 5</div>
+                            </div>
+                            <div class="juego3-card__back" id="juego3-card-back">
+                                <h2 class="juego3-card__question" id="juego3-question"></h2>
+                                <ol class="juego3-opts" id="juego3-opts"></ol>
+                                <div class="juego3-card__explain hidden" id="juego3-explain"></div>
+                            </div>
                         </div>
                         <div class="juego3-panel__ctrls">
                             <button class="juego3-ctrl-btn juego3-ctrl-btn--secondary" id="juego3-reveal-btn">
@@ -364,13 +354,24 @@
                                 Siguiente <i class="ph-bold ph-arrow-right"></i>
                             </button>
                         </div>
+                    </div>
+
+                    <!-- Columna derecha: gráfico de respuestas -->
+                    <aside class="juego3-panel">
+                        <div class="juego3-panel__head">
+                            <h3 class="juego3-panel__title">Respuestas del grupo</h3>
+                            <span class="juego3-panel__progress" id="juego3-progress">— / 5</span>
+                        </div>
+                        <div class="juego3-chart" id="juego3-chart">
+                            <!-- Barras dinámicas A/B/C -->
+                        </div>
                     </aside>
                 </section>
 
                 <!-- Estado terminado (antes de que Eliana hable) -->
                 <section class="juego3-ended hidden" id="juego3-ended">
                     <div class="juego3-ended__inner">
-                        <h2 class="juego3-ended__title">10 / 10 cartas completadas</h2>
+                        <h2 class="juego3-ended__title">5 / 5 cartas completadas</h2>
                         <p class="juego3-ended__desc">Ahora Eliana va a comentar cómo lo ha hecho el grupo. Pulsa el botón cuando estés listo.</p>
                         <button class="juego3-ctrl-btn juego3-ctrl-btn--primary" id="juego3-eliana-btn">
                             <i class="ph-fill ph-sparkle"></i> Ahora Eliana comenta los resultados
@@ -1479,6 +1480,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.9.6"></script>
+    <script src="/static/app.js?v=23.11.8"></script>
 </body>
 </html>

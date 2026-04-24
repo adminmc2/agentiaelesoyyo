@@ -1154,7 +1154,6 @@ def _build_vote_summary() -> dict:
 
 
 # ── Juego 3: Descubre al agente ──
-_juego3_cards_cache: Optional[dict] = None
 _juego3_state: dict = {
     "current_card": -1,   # -1 = no empezado; 0..N-1 = carta activa; N = terminado
     "phase": "idle",       # "idle" | "voting" | "revealed" | "ended"
@@ -1166,12 +1165,11 @@ _juego3_dashboard_ws: set[WebSocket] = set()
 
 
 def _load_juego3_cards() -> dict:
-    global _juego3_cards_cache
-    if _juego3_cards_cache is None:
-        path = os.path.join("static", "juego3_cards.json")
-        with open(path, "r", encoding="utf-8") as f:
-            _juego3_cards_cache = json.load(f)
-    return _juego3_cards_cache
+    """Lee el JSON de cartas desde disco en cada llamada para evitar cache staleness
+    durante desarrollo. El fichero es pequeño (~10 KB) y se llama pocas veces."""
+    path = os.path.join("static", "juego3_cards.json")
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
 def _juego3_total() -> int:

@@ -1,5 +1,24 @@
 # Changelog — AgentiaELE
 
+## v23.11.8 — 2026-04-24
+- Diapo 3 "Descubre al agente" — rediseño profundo del card-pair tras iteraciones con feedback del usuario:
+  - **10 cartas → 5**: seleccionadas las 5 más memorables (ids originales 1, 2, 5, 8, 10) — renumeradas 1-5. `total: 5` en `juego3_cards.json`
+  - **Nuevo campo `enunciado_frente`** en cada carta: frase corta con tono juguetón que sustituye al `area` (que era spoiler — describía la característica del agente, que ES la respuesta)
+  - **`area` se mueve al dorso** como chip "Concepto: X" con fondo violeta, visible solo tras el reveal
+  - **Layout vertical**: frente violeta ARRIBA (full-width), dorso blanco ABAJO (full-width). Antes era horizontal (frente izq / dorso der)
+  - **Sin passepartout frosted**: eliminado el marco crema estilo Blinda modal; solo la tarjeta directa. Contenedor con `align-self: stretch` para ocupar toda la altura del área de juego
+  - **Columna izquierda unificada** `.juego3-left-col`: tarjeta + botones Revelar/Siguiente juntos; panel de votos (aside) ocupa el resto del ancho
+  - **Color único `#6B2F6D` violeta** para las 5 cartas (era un gradiente distinto por formato)
+  - **Distribución de respuestas correctas balanceada**: A=2, B=1, C=2 (antes 3 de 5 eran B)
+  - **Cursiva eliminada** de opciones en formato casting
+  - **Jerarquía tipográfica coherente**: enunciado 22px Dosis bold / opciones 20px Source Sans (gap visual ~2px)
+- TTS automático al abrir carta: Eliana lee SOLO `enunciado_frente` (no intro, no pregunta, no opciones). `triggerJuego3CardTTS` ignora `state.ttsEnabled` (el enunciado es narrativa del juego, no TTS conversacional)
+- Fix reveal: quitado `transform: scale(1.03)` de `correctPulse` y `scale(1.01)` de `:hover` — la opción correcta ya no "se sale" visualmente al marcarse. Sustituido por bg + border-width: 2px
+- Safeguards anti-overflow: `.juego3-opt` con `flex: 0 0 auto` (altura natural, no se recorta), `min-width: 0`, `overflow-wrap: break-word`, `word-break: break-word`, `hyphens: auto` en el texto
+- Enunciados sin "Escuchadlas / Escuchad" → "Fijaos / Fijaos cómo" (evitar confusión: las opciones son texto, no audio)
+- Backend: caché en memoria `_juego3_cards_cache` eliminada de `_load_juego3_cards` — lee el JSON fresco del disco en cada request para evitar staleness durante desarrollo
+- Versionado: sync v23.11.8 en `index.html` y `encuesta.html`
+
 ## v23.8.6 — 2026-04-23
 - Fix crítico del enrutado STT del widget en diapo 3:
   - `isOnBlindaScreen()` relajado: basta con que `#juego3-screen` esté visible (antes exigía `juego3 + widget` y fallaba si el widget tenía estado transitorio), lo que disparaba `showChatScreen` legacy no-op

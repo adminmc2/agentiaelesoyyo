@@ -6566,9 +6566,7 @@ function sendJuego3Cmd(type) {
 
 async function showJuego3Screen() {
     stopTTS();
-    // Fix #1: TTS OFF por defecto al entrar al widget (ignora persistencia previa).
-    // Solo el micro (voiceTriggered) activará voz para esa respuesta concreta.
-    if (typeof disableTTS === 'function') disableTTS();
+    // Mantener la preferencia actual del usuario (MUTE/voz activa) en juego3.
     state.voiceTriggered = false;
     document.querySelectorAll('.main-content, #login-screen, #welcome-screen').forEach(el => el.classList.add('hidden'));
     const screen = document.getElementById('juego3-screen');
@@ -6599,6 +6597,10 @@ function hideJuego3Screen() {
     const screen = document.getElementById('juego3-screen');
     if (!screen) return;
     screen.classList.add('hidden');
+    if (_juego3CardTTSTimer) {
+        clearTimeout(_juego3CardTTSTimer);
+        _juego3CardTTSTimer = null;
+    }
     // Ocultar widget de Eliana al salir
     const widget = document.getElementById('eliana-widget');
     if (widget) widget.classList.add('hidden');
@@ -6616,6 +6618,11 @@ function renderJuego3() {
 
     if (juego3.currentCard < 0 || juego3.phase === 'idle') {
         idle.classList.remove('hidden');
+        _juego3LastTTSCardIdx = -1; // Reset para que TTS arranque en carta 0 si se reinicia
+        if (_juego3CardTTSTimer) {
+            clearTimeout(_juego3CardTTSTimer);
+            _juego3CardTTSTimer = null;
+        }
         return;
     }
 
@@ -6642,12 +6649,10 @@ function renderJuego3Card() {
     if (!card) return;
 
     const container = document.getElementById('juego3-card');
-    const frontEl = document.getElementById('juego3-card-front');
-    const backEl = document.getElementById('juego3-card-back');
     const areaEl = document.getElementById('juego3-area');
     const iconEl = document.getElementById('juego3-card-icon');
     const numEl = document.getElementById('juego3-card-num');
-    const introEl = document.getElementById('juego3-intro');
+    const backEl = document.getElementById('juego3-card-back');
     const questionEl = document.getElementById('juego3-question');
     const optsEl = document.getElementById('juego3-opts');
     const explainEl = document.getElementById('juego3-explain');
@@ -6656,18 +6661,32 @@ function renderJuego3Card() {
     const fmt = JUEGO3_FORMAT_META[card.formato] || { icon: 'ph-circle', label: card.formato };
     const color = '#6B2F6D'; // color único para todas las cartas (violeta oscuro Eliana)
 
-    areaEl.textContent = card.area;
+    // Frente: enunciado en lugar del area (que era spoiler)
+    if (areaEl) areaEl.textContent = card.enunciado_frente || card.pregunta || '';
     if (iconEl) iconEl.className = `ph-fill ${fmt.icon} juego3-card__front-icon`;
     if (numEl) numEl.textContent = `${juego3.currentCard + 1} / ${juego3.total}`;
-    introEl.textContent = card.intro;
     questionEl.textContent = card.pregunta;
     progressEl.textContent = `${juego3.currentCard + 1} / ${juego3.total}`;
 
-    // Colores inline estilo Blinda: frente gradiente + dorso borde superior
-    if (frontEl) frontEl.style.background = `linear-gradient(145deg, ${color}, ${color}bb)`;
-    if (backEl) backEl.style.borderTop = `5px solid ${color}`;
+    // Color dinámico por CSS variables
+    if (container) {
+        container.style.setProperty('--juego3-card-color', color);
+        container.style.setProperty('--juego3-card-color-soft', `${color}bb`);
+    }
 
     container.className = `juego3-card juego3-card--${card.formato}`;
+
+    // Chip del concepto (area) al inicio del dorso — solo tras el reveal
+    if (backEl) {
+        const existingChip = backEl.querySelector('.juego3-card__area-chip');
+        if (existingChip) existingChip.remove();
+        if (juego3.phase === 'revealed' && card.area) {
+            const chip = document.createElement('div');
+            chip.className = 'juego3-card__area-chip';
+            chip.innerHTML = `<i class="ph-fill ph-check-circle"></i><span>Concepto: ${card.area}</span>`;
+            backEl.insertBefore(chip, backEl.firstChild);
+        }
+    }
 
     // Opciones
     optsEl.innerHTML = card.opciones.map(op => {
@@ -6708,6 +6727,38 @@ function renderJuego3Card() {
         explainEl.classList.add('hidden');
         explainEl.innerHTML = '';
     }
+
+    // TTS automático: Eliana lee el enunciado + el intro al abrir cada carta
+    // Solo si el profesor no ha muteado (respeta state.ttsEnabled)
+    triggerJuego3CardTTS(card);
+}
+
+// TTS automático al abrir una carta nueva — es parte del juego, siempre suena
+// Lee SOLO el enunciado del frente. No intro, no pregunta, no opciones.
+let _juego3LastTTSCardIdx = -1;
+let _juego3CardTTSTimer = null;
+function triggerJuego3CardTTS(card) {
+    if (!card) return;
+    if (juego3.phase !== 'voting') return; // Solo antes del reveal
+    if (_juego3LastTTSCardIdx === juego3.currentCard) return; // No repetir al re-render
+
+    const text = card.enunciado_frente;
+    if (!text) return;
+
+    _juego3LastTTSCardIdx = juego3.currentCard;
+
+    if (_juego3CardTTSTimer) {
+        clearTimeout(_juego3CardTTSTimer);
+        _juego3CardTTSTimer = null;
+    }
+
+    const scheduledIdx = juego3.currentCard;
+    // Pequeño delay para que la transición visual termine antes del audio
+    _juego3CardTTSTimer = setTimeout(() => {
+        _juego3CardTTSTimer = null;
+        if (juego3.currentCard !== scheduledIdx || juego3.phase !== 'voting') return;
+        if (typeof playTTS === 'function') playTTS(text);
+    }, 400);
 }
 
 function renderJuego3Bars() {
@@ -6766,11 +6817,11 @@ async function startJuego3ElianaFinal() {
     try {
         const res = await fetch('/api/juego3/state');
         const data = await res.json();
-        summary = `El grupo ha terminado el juego de 10 cartas. Total de votos: ${data.history_count}.`;
+        summary = `El grupo ha terminado el juego de 5 cartas. Total de votos: ${data.history_count}.`;
     } catch (e) { /* fallback */ }
 
     // Placeholder streaming hasta que conectemos el LLM real
-    const mock = `¡Buff, menudo recorrido! Diez cartas, tres IAs disfrazadas en cada una, y vosotros intentando pillar al agente entre el lío. La verdad es que no es fácil: hay veces que el asistente se parece tanto al agente que hasta a mí me despistaría.
+    const mock = `¡Buff, menudo recorrido! Cinco cartas, tres IAs disfrazadas en cada una, y vosotros intentando pillar al agente entre el lío. La verdad es que no es fácil: hay veces que el asistente se parece tanto al agente que hasta a mí me despistaría.
 
 Lo importante de esto no es cuántas habéis acertado — es que ahora sabéis mirar con otros ojos. Porque cuando os sentéis el lunes delante de ChatGPT, ya no vais a ver «una IA»: vais a ver un chatbot que responde. Y cuando veáis algo que decide por vosotros, que abre apps, que os entrega el trabajo hecho — vais a saber que eso tiene nombre, y que ese nombre es AGENTE.
 
