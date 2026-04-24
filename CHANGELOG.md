@@ -1,5 +1,15 @@
 # Changelog — AgentiaELE
 
+## v23.13.10 — 2026-04-24 — Botón visible "Reiniciar juego" en el proyector
+No había forma de resetear el juego desde la UI sin recargar la página entera. Añadido botón discreto "Reiniciar juego" en la columna izquierda del proyector, debajo de Revelar/Siguiente.
+- Estilo terciario (dashed border violeta tenue) — no compite con los botones primarios.
+- `confirm()` antes de ejecutar para evitar reset accidental durante taller real.
+- Envía `{type:"reset"}` por el WS del dashboard. Backend limpia estado + `votes_by_participant`. Todos los móviles detectan `phase=idle` y limpian sus localStorage (v23.13.9).
+
+Caso de uso: tests repetidos durante desarrollo + repetir el juego con otro grupo sin recargar.
+
+Versionado sincronizado en los 3 ficheros visibles → v23.13.10.
+
 ## v23.13.9 — 2026-04-24 — Auto-clear de votos locales al reset del servidor + dev helpers móvil
 Problema para testing: el dedup server-side + localStorage impedía que el mismo móvil votara la misma carta dos veces — correcto en taller real pero bloqueaba pruebas repetidas.
 

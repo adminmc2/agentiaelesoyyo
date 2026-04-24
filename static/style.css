@@ -9661,6 +9661,31 @@ body[data-mood-active] .message.assistant {
 }
 
 /* Botones de control */
+/* Botón discreto "Reiniciar juego" — jerarquía tipo link/terciario, no compite con Revelar/Siguiente */
+.juego3-reset-btn {
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    padding: 6px 12px;
+    background: transparent;
+    border: 1.5px dashed rgba(107, 47, 109, 0.3);
+    border-radius: 999px;
+    color: rgba(107, 47, 109, 0.7);
+    font: 600 12px 'Source Sans 3', sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.juego3-reset-btn:hover {
+    color: #6B2F6D;
+    border-color: #6B2F6D;
+    background: rgba(107, 47, 109, 0.06);
+}
+.juego3-reset-btn i { font-size: 14px; }
+
 .juego3-ctrl-btn {
     display: inline-flex;
     align-items: center;

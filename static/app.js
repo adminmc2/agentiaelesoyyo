@@ -7801,6 +7801,14 @@ function init() {
     document.getElementById('juego3-start-btn')?.addEventListener('click', () => sendJuego3Cmd('advance'));
     document.getElementById('juego3-reveal-btn')?.addEventListener('click', () => sendJuego3Cmd('reveal'));
     document.getElementById('juego3-next-btn')?.addEventListener('click', () => sendJuego3Cmd('advance'));
+    // Reset del juego (con confirm para evitar pulsado accidental durante taller real).
+    // Limpia estado server + votes_by_participant. Los móviles detectan phase=idle y
+    // auto-limpian su localStorage (v23.13.9).
+    document.getElementById('juego3-reset-btn')?.addEventListener('click', () => {
+        if (confirm('¿Reiniciar el juego? Se borrarán todos los votos y volveremos al inicio.')) {
+            sendJuego3Cmd('reset');
+        }
+    });
     document.getElementById('juego3-eliana-btn')?.addEventListener('click', () => startJuego3ElianaFinal());
     document.getElementById('juego3-eliana-advance')?.addEventListener('click', () => {
         // Avanzar a diapo 4 — por ahora solo cerrar
