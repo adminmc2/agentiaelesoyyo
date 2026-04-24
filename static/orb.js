@@ -141,6 +141,7 @@
             this.centerX = size / 2;
             this.centerY = size / 2;
             this.radius = size * 0.36;
+            this.sizeScale = size / 140;  // reference size for particles
 
             // Crear partículas
             const numParticles = size > 100 ? 200 : 80;
@@ -258,7 +259,7 @@
                 // Tamaño según profundidad
                 const depthScale = 0.4 + pp.depth * 0.6;
                 const sizeMultiplier = isListening ? 1.3 : 1;
-                const dotSize = p.baseSize * depthScale * sizeMultiplier;
+                const dotSize = p.baseSize * depthScale * sizeMultiplier * this.sizeScale;
 
                 // Opacidad según profundidad
                 const alpha = p.baseAlpha * (0.3 + pp.depth * 0.7) * (isListening ? 1 : 0.85);
