@@ -6937,14 +6937,14 @@ function updateJuego3Controls() {
 // ── Eliana final ──
 /**
  * Arranca la pantalla final de Eliana:
- *  1. Obtiene el summary real del backend.
- *  2. Si cartas_jugadas === 0 → mensaje fallback amable sin LLM.
- *  3. Si hay datos → abre WS /ws/chat con activity_mode='juego3_final', el backend
- *     inyecta el summary JSON en el system prompt. Streamea tokens al DOM.
- *  4. Fallback condicional: si a los 2s no ha llegado ningún token, muestra strip
- *     de chips con pct_acierto por carta junto al texto (si luego llegan tokens,
- *     los chips se quedan debajo como complemento; si nunca llegan, son el único
- *     contenido visible).
+ *  1. Intenta obtener summary local del backend (para chips de fallback).
+ *  2. Solo si el summary confirma que nadie jugó → mensaje amable sin LLM.
+ *  3. En cualquier otro caso (datos OK o fetch HTTP fallido pero LLM accesible)
+ *     → abre WS /ws/chat con activity_mode='juego3_final'. El backend inyecta
+ *     el summary JSON server-side en el system prompt, no depende del fetch cliente.
+ *  4. Chips fallback condicional: aparecen SOLO si hay summary local Y pasan 2s
+ *     sin tokens (o el LLM erroró). Si no hay summary local y el LLM también falla,
+ *     mostramos un mensaje amable de último recurso.
  */
 async function startJuego3ElianaFinal() {
     juego3.elianaStreaming = true;
@@ -6961,18 +6961,24 @@ async function startJuego3ElianaFinal() {
     if (textEl) textEl.textContent = '';
     if (cta) cta.classList.add('hidden');
 
-    // 1. Obtener summary real del servidor
+    // 1. Intentar obtener summary del servidor (best-effort, para chips locales).
+    //    Si falla NO hacemos short-circuit — el backend igualmente inyectará el
+    //    summary server-side cuando llamemos al LLM con activity_mode=juego3_final.
     let summary = null;
+    let summaryFetchFailed = false;
     try {
         const res = await fetch('/api/juego3/summary');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         summary = await res.json();
         juego3.summary = summary;
     } catch (e) {
-        console.warn('[Juego3] summary fetch failed:', e);
+        console.warn('[Juego3] summary fetch failed — intentando LLM igualmente:', e);
+        summaryFetchFailed = true;
     }
 
-    // 2. Caso borde: nadie jugó — mensaje amable sin llamar al LLM
-    if (!summary || summary.cartas_jugadas === 0 || summary.global?.votos === 0) {
+    // 2. Short-circuit SOLO si tenemos summary confirmado con cero actividad.
+    //    (Si el fetch falló, no asumimos "nadie jugó" — el backend sabrá).
+    if (summary && (summary.cartas_jugadas === 0 || summary.global?.votos === 0)) {
         const msg = `Bueno, esta vez no ha habido tiempo de votar, pero os habéis llevado lo importante: la idea. Pasemos a lo siguiente, que viene lo chulo.`;
         await typeText(textEl, msg, 18);
         if (cta) cta.classList.remove('hidden');
@@ -6980,15 +6986,39 @@ async function startJuego3ElianaFinal() {
         return;
     }
 
-    // 3. LLM streaming vía /ws/chat con activity_mode='juego3_final'
-    //    El backend inyecta el summary JSON en el system prompt (no se construye aquí).
+    // 3. LLM streaming vía /ws/chat con activity_mode='juego3_final'.
+    //    El backend inyecta el summary JSON server-side (ver main.py).
+    //    Si también el WS falla, último recurso = mensaje amable.
     let anyTokenReceived = false;
     let fallbackTimer = null;
+    let handledClose = false; // evitar doble-manejo entre onerror/onclose/onend
+
+    // Último recurso: si no hay summary local Y el LLM no entregó nada.
+    const ultimoRecurso = async () => {
+        if (handledClose) return;
+        handledClose = true;
+        if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = null; }
+        if (anyTokenReceived) {
+            juego3.elianaStreaming = false;
+            return;
+        }
+        // Preferencia 1: si hay summary local, mostrar chips.
+        if (juego3.summary && juego3.summary.por_carta) {
+            renderJuego3ElianaFallback();
+        } else if (textEl && !textEl.textContent) {
+            // Preferencia 2: mensaje fijo cuando no hay datos locales ni LLM.
+            const msg = `Habéis terminado las cinco cartas. Ya tenéis la idea — un agente no es un chatbot, ni siquiera un asistente. Pasemos a lo siguiente.`;
+            await typeText(textEl, msg, 18);
+        }
+        if (cta) cta.classList.remove('hidden');
+        juego3.elianaStreaming = false;
+    };
 
     const armFallback = () => {
-        // Si en 2s no hemos recibido nada, mostrar strip de chips como complemento
+        // Solo disparamos chips en timeout si hay summary local. Si no hay,
+        // dejamos que onclose/onerror manejen el "último recurso".
         fallbackTimer = setTimeout(() => {
-            if (!anyTokenReceived) {
+            if (!anyTokenReceived && juego3.summary && juego3.summary.por_carta) {
                 renderJuego3ElianaFallback();
             }
         }, 2000);
@@ -7022,6 +7052,8 @@ async function startJuego3ElianaFinal() {
                 buffer += data.content;
                 if (textEl) textEl.textContent = buffer;
             } else if (data.type === 'end') {
+                handledClose = true;
+                if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = null; }
                 if (cta) cta.classList.remove('hidden');
                 juego3.elianaStreaming = false;
                 // TTS: que Eliana hable si el profesor tiene TTS activo o lo pidió por voz
@@ -7031,9 +7063,7 @@ async function startJuego3ElianaFinal() {
                 try { ws.close(); } catch (_) {}
             } else if (data.type === 'error') {
                 console.warn('[Juego3] eliana error:', data.message);
-                renderJuego3ElianaFallback();
-                if (cta) cta.classList.remove('hidden');
-                juego3.elianaStreaming = false;
+                ultimoRecurso();
                 try { ws.close(); } catch (_) {}
             }
         } catch (e) { /* ignore */ }
@@ -7041,20 +7071,18 @@ async function startJuego3ElianaFinal() {
 
     ws.onerror = () => {
         console.warn('[Juego3] eliana ws error');
-        renderJuego3ElianaFallback();
-        if (cta) cta.classList.remove('hidden');
-        juego3.elianaStreaming = false;
+        ultimoRecurso();
     };
 
     ws.onclose = () => {
-        if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = null; }
-        if (juego3.elianaStreaming && !anyTokenReceived) {
-            // Cerró sin enviar tokens
-            renderJuego3ElianaFallback();
-            if (cta) cta.classList.remove('hidden');
-            juego3.elianaStreaming = false;
-        }
+        // Si cerró sin haber emitido 'end' ni tokens, es cierre anómalo.
+        if (!handledClose) ultimoRecurso();
     };
+
+    // Log diagnóstico útil en taller real
+    if (summaryFetchFailed) {
+        console.info('[Juego3] summary HTTP fetch falló — LLM streaming depende del WS; si WS también falla, caerá al último recurso.');
+    }
 }
 
 /**

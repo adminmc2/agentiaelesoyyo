@@ -1,5 +1,18 @@
 # Changelog — AgentiaELE
 
+## v23.13.7 — 2026-04-24 — Eliana final: LLM ahora se intenta aunque falle el fetch HTTP
+Observación residual del reviser: si `fetch('/api/juego3/summary')` fallaba (red, endpoint caído transitoriamente), `startJuego3ElianaFinal` asumía "nadie jugó" y mostraba el mensaje fijo. Pero el backend tiene los datos server-side e inyecta el summary en el system prompt al activar `activity_mode=juego3_final` — la devolución del LLM es posible aunque el fetch del cliente no haya conseguido los chips locales.
+
+Cambios:
+- Separadas las dos ramas que antes se mezclaban:
+  - "Nadie jugó" → SOLO si el fetch devolvió summary válido con `cartas_jugadas === 0` o `votos === 0`. Mensaje amable sin LLM.
+  - "Fetch falló" → seguimos al LLM; el backend inyecta el summary desde su propio estado.
+- Flag `summaryFetchFailed` + log diagnóstico (`[Juego3] summary HTTP fetch falló — intentando LLM igualmente`).
+- Chips fallback (timeout de 2s) ahora solo aparecen si hay summary local. Sin summary y sin LLM, caemos a un **mensaje de último recurso** (nuevo `ultimoRecurso()`): "Habéis terminado las cinco cartas. Ya tenéis la idea — un agente no es un chatbot, ni siquiera un asistente. Pasemos a lo siguiente."
+- Deduplicación del manejo entre `onmessage['end']`, `onerror`, `onclose` con flag `handledClose` (evita mostrar "último recurso" dos veces).
+
+Versionado sincronizado en los 3 ficheros visibles → v23.13.7.
+
 ## v23.13.6 — 2026-04-24 — Fix: strip de chips no aparece prematuramente
 Bug señalado por el reviser: el handler de `summary` en el dashboard llamaba a `renderJuego3ElianaFallback()` sin condiciones, lo que insertaba los chips en el DOM oculto de la pantalla Eliana durante el juego normal (cada reveal emite un summary). Al abrir la pantalla final, el usuario podía ver chips antes de que el LLM fallara o terminara — violación del contrato "fallback solo si LLM timeout/error".
 
