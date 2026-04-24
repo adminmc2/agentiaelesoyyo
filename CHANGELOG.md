@@ -1,5 +1,16 @@
 # Changelog — AgentiaELE
 
+## v23.13.9 — 2026-04-24 — Auto-clear de votos locales al reset del servidor + dev helpers móvil
+Problema para testing: el dedup server-side + localStorage impedía que el mismo móvil votara la misma carta dos veces — correcto en taller real pero bloqueaba pruebas repetidas.
+
+Fix:
+- **Móvil — auto-clear**: cuando el servidor vuelve a `phase='idle'` (reset por el presentador), el cliente limpia automáticamente `state.votedCards` + `localStorage.juego3_votes`. Así, tras un reset del juego, cualquier móvil puede volver a votar sin fricciones.
+- **Dev helpers en móvil** (accesibles desde DevTools del navegador):
+  - `juego3DevClearMyVote()` — borra identidad (participant_id) + votos locales. Recargar después para generar UUID nuevo. Alternativa a modo incógnito.
+  - `juego3DevInfo()` — imprime identidad + storage level + votos + estado actual.
+
+Versionado sincronizado en los 3 ficheros visibles → v23.13.9.
+
 ## v23.13.8 — 2026-04-24 — Observabilidad: métricas de sesión + dev helpers para tests manuales
 Dos mejoras opcionales del reviser:
 

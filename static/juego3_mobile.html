@@ -271,7 +271,7 @@
 
         <main class="main" id="content"></main>
 
-        <p class="ver">v23.13.8</p>
+        <p class="ver">v23.13.9</p>
     </div>
 
     <script>
@@ -382,10 +382,21 @@
                 try {
                     const msg = JSON.parse(ev.data);
                     if (msg.type === 'state') {
+                        const previousPhase = state.phase;
                         state.currentCard = msg.current_card;
                         state.phase = msg.phase;
                         state.total = msg.total || state.total;
                         state.cardTotalVotos = (msg.card_total_votos != null) ? msg.card_total_votos : null;
+
+                        // Auto-clear: si el servidor volvió a 'idle' (reset del juego),
+                        // los votos locales están desfasados → limpiarlos.
+                        // Esto permite al mismo móvil volver a votar tras un reset del presentador.
+                        if (msg.phase === 'idle' && Object.keys(state.votedCards).length > 0) {
+                            console.info('[juego3] server reset detected → clearing local votes');
+                            state.votedCards = {};
+                            saveLocalVotes();
+                        }
+
                         state.selected = state.votedCards[state.currentCard] || null;
                         render();
                     } else if (msg.type === 'vote_rejected') {
@@ -658,6 +669,31 @@
             render();
             connect();
         })();
+
+        // ─── Dev helpers (accesibles desde DevTools de Safari/Chrome en móvil) ───
+        // Útiles durante testing para "resetear mi identidad" sin incógnito.
+        //
+        // juego3DevClearMyVote()     → borra votos locales y el participant_id.
+        //                              Recargar después (genera UUID nuevo).
+        // juego3DevInfo()            → muestra identidad + votos actuales.
+        window.juego3DevClearMyVote = function () {
+            try {
+                state.votedCards = {};
+                localStorage.removeItem('juego3_votes');
+                localStorage.removeItem('juego3_participant_id');
+                sessionStorage.removeItem('juego3_participant_id');
+                _inMemoryPid = null;
+            } catch (_) {}
+            console.info('[juego3][dev] identidad y votos locales borrados. RECARGA para generar UUID nuevo.');
+        };
+        window.juego3DevInfo = function () {
+            console.group('[juego3] mi identidad');
+            console.log('participant_id:', PARTICIPANT_ID);
+            console.log('storage level:', _storageLevel);
+            console.log('votedCards:', JSON.stringify(state.votedCards));
+            console.log('currentCard:', state.currentCard, 'phase:', state.phase);
+            console.groupEnd();
+        };
     </script>
 </body>
 </html>
