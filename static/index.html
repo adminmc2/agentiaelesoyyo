@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.13.12">
+    <link rel="stylesheet" href="/static/style.css?v=23.14.0">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -398,7 +398,7 @@
                     </div>
                 </section>
 
-                <!-- Pantalla Eliana: orb + texto en streaming -->
+                <!-- Pantalla Eliana: orb + texto en streaming + panel de resultados detallados -->
                 <section class="juego3-eliana hidden" id="juego3-eliana-screen">
                     <div class="juego3-eliana__orb" id="juego3-eliana-orb"></div>
                     <div class="juego3-eliana__body">
@@ -408,6 +408,8 @@
                             Avanzar a diapo 4 <i class="ph-bold ph-arrow-right"></i>
                         </button>
                     </div>
+                    <!-- Panel de resultados por pregunta (se inyecta dinámicamente si hay summary) -->
+                    <aside class="juego3-eliana__results hidden" id="juego3-eliana-results" aria-label="Resultados detallados por pregunta"></aside>
                 </section>
 
             </div>
@@ -1501,6 +1503,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.13.12"></script>
+    <script src="/static/app.js?v=23.14.0"></script>
 </body>
 </html>

@@ -9836,21 +9836,178 @@ body[data-mood-active] .message.assistant {
     box-shadow: none !important;
 }
 
-/* Pantalla Eliana final */
+/* Pantalla Eliana final — layout 3 columnas: orb + cuerpo (texto) + panel resultados */
 .juego3-eliana {
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 56px;
+    gap: 36px;
+    padding: 20px;
 }
 .juego3-eliana__orb {
-    width: 340px;
-    height: 340px;
+    width: 260px;
+    height: 260px;
     flex-shrink: 0;
 }
 .juego3-eliana__body {
-    max-width: 640px;
+    flex: 0 0 auto;
+    max-width: 520px;
+    min-width: 360px;
+}
+
+/* Panel derecho: resultados detallados por pregunta (semi-ligero, se revela con stagger) */
+.juego3-eliana__results {
+    flex: 0 0 auto;
+    width: clamp(360px, 32vw, 480px);
+    max-height: 90%;
+    overflow: auto;
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 20px 22px;
+    box-shadow: 0 14px 44px rgba(74, 45, 75, 0.1);
+    border: 1px solid rgba(107, 47, 109, 0.08);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.juego3-eliana__results.juego3-eliana__results--in {
+    opacity: 1;
+    transform: translateY(0);
+}
+.juego3-eliana__results.hidden { display: none; }
+
+.juego3-res__title {
+    font: 900 14px 'Source Sans 3', sans-serif;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #6B2F6D;
+    margin: 0 0 14px;
+}
+.juego3-res__list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0 0 16px;
+    padding: 0;
+    list-style: none;
+}
+.juego3-res__row {
+    display: grid;
+    grid-template-columns: 22px 1fr auto;
+    gap: 10px;
+    align-items: baseline;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.juego3-res__row--in {
+    opacity: 1;
+    transform: translateY(0);
+}
+.juego3-res__num {
+    font: 900 15px 'Dosis', sans-serif;
+    color: #6B2F6D;
+    text-align: right;
+}
+.juego3-res__main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+.juego3-res__concept {
+    font: 700 14px/1.3 'Source Sans 3', sans-serif;
+    color: #2c2c2c;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.juego3-res__track {
+    height: 8px;
+    background: rgba(107, 47, 109, 0.08);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+}
+.juego3-res__fill {
+    height: 100%;
+    background: linear-gradient(90deg, #A5D4C8 0%, #8CBEB2 100%);
+    border-radius: 999px;
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.juego3-res__fill--in { transform: scaleX(1); }
+.juego3-res__fill--empty {
+    background: rgba(107, 47, 109, 0.15);
+}
+.juego3-res__ratio {
+    font: 800 14px 'Source Sans 3', sans-serif;
+    color: #2c2c2c;
+    text-align: right;
+    min-width: 42px;
+    white-space: nowrap;
+}
+.juego3-res__badge {
+    display: inline-block;
+    margin-top: 3px;
+    font: 700 10px 'Source Sans 3', sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #7A3A22;
+    background: rgba(212, 130, 106, 0.14);
+    border: 1px solid rgba(212, 130, 106, 0.3);
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+.juego3-res__total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1.5px solid rgba(107, 47, 109, 0.1);
+    font: 800 13px 'Source Sans 3', sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #6B2F6D;
+}
+.juego3-res__total-value {
+    font: 900 22px 'Dosis', sans-serif;
+    color: #2A5F52;
+    letter-spacing: 0;
+    text-transform: none;
+}
+.juego3-res__total-value small {
+    font-size: 14px;
+    color: #8CBEB2;
+    margin-left: 6px;
+    font-weight: 700;
+}
+
+/* Responsive: pantallas <1200px → layout en columna */
+@media (max-width: 1200px) {
+    .juego3-eliana {
+        flex-direction: column;
+        gap: 18px;
+        padding: 16px;
+        align-items: center;
+        justify-content: flex-start;
+        overflow: auto;
+    }
+    .juego3-eliana__orb {
+        width: 180px;
+        height: 180px;
+    }
+    .juego3-eliana__body {
+        max-width: 100%;
+        min-width: 0;
+        text-align: center;
+    }
+    .juego3-eliana__results {
+        width: min(520px, 94%);
+        max-height: none;
+    }
 }
 .juego3-eliana__title {
     font: 900 40px 'Dosis', sans-serif;

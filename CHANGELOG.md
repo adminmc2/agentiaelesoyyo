@@ -1,5 +1,39 @@
 # Changelog — AgentiaELE
 
+## v23.14.0 — 2026-04-24 — Eliana final estructurada + panel de resultados detallados
+Propuesta del usuario aprobada por reviser (con ajustes). Implementada Opción A (extender pantalla Eliana), sin tocar diapo 4 legacy aunque el permiso estaba levantado.
+
+**Parte 1 — Prompt `juego3_final` semi-blindado** (main.py):
+Reescrito con estructura obligatoria en 3 bloques pero lenguaje libre dentro:
+- **Bloque A** (1-2 frases): resumen global.
+- **Bloque B** (5 líneas, 12-14 palabras c/u): repaso por cada carta, mencionando confusión si aplica.
+- **Bloque C** (1 frase): cierre-puente a la siguiente diapositiva.
+
+Límites estrictos: máximo 8 líneas, sin porcentajes crudos repetidos, tono jovial NO infantil. `max_tokens` subido a 360 (primera iteración conservadora; 400 queda para segunda si hace falta).
+
+Rama especial si `cartas_jugadas == 0` o `votos == 0`: Eliana rompe la estructura y da mensaje amable único.
+
+**Parte 2 — Panel de resultados detallados en `.juego3-eliana`**:
+- HTML: nuevo `<aside id="juego3-eliana-results">` dentro de la pantalla Eliana final.
+- Layout 3 columnas: orb | cuerpo (texto streaming) | tabla de resultados.
+- Contenido: 5 filas con número + concepto + barra horizontal de `pct_acierto` + ratio numérico (`aciertos/votos`). Badge "Confundieron con X" solo si `pct_acierto < 60` y `confusion_dominante` presente.
+- Total al pie: `aciertos/votos` + `pct` grande en verde.
+- Datos: `juego3.summary.por_carta[]` + `juego3.summary.global`. Sin nuevo endpoint.
+- **Si `cartas_jugadas == 0` o no hay `por_carta`**: panel completamente oculto, no placeholders vacíos (DoD del reviser).
+
+**Revelado progresivo** (propuesta reviser para evitar saturación):
+- Contenedor: fade-in + translateY 10px→0 tras 350ms del render.
+- Filas: aparición escalonada con stagger de 80ms entre filas.
+- Barras: `scaleX(0→1)` con `cubic-bezier(0.22,1,0.36,1)` en 600ms, delay extra de 200ms tras su fila.
+
+**Responsive <1200px**: layout en columna (orb arriba, cuerpo, tabla abajo), scroll vertical.
+
+**Spec técnica** `docs/juego3-spec.md` ampliada con sección 10-ter (estructura del prompt + diseño del panel + DoD completos).
+
+**No se tocó diapo 4** a pesar de que el usuario liberó la protección: la opción A (extender pantalla existente) fue mejor que tocar código legacy de Blinda.
+
+Versionado sincronizado en los 3 ficheros visibles → v23.14.0.
+
 ## v23.13.12 — 2026-04-24 — Fix race condition en TTS (carta 2 se cortaba/duplicaba)
 Bug reportado por el usuario: en la carta 2, la lectura TTS de Eliana a veces se corta, se queda colgada unos segundos, y luego se reproduce (o se duplica). Pasaba 2 de cada 5 veces.
 

@@ -7045,6 +7045,9 @@ async function startJuego3ElianaFinal() {
         juego3.metrics.summary_fetch_fail_count++;
     }
 
+    // Panel de resultados detallados (solo si hay datos; se oculta si no)
+    if (typeof renderJuego3Results === 'function') renderJuego3Results();
+
     // 2. Short-circuit SOLO si tenemos summary confirmado con cero actividad.
     //    (Si el fetch falló, no asumimos "nadie jugó" — el backend sabrá).
     if (summary && (summary.cartas_jugadas === 0 || summary.global?.votos === 0)) {
@@ -7233,6 +7236,104 @@ function renderJuego3Cumulative() {
             </div>
         </div>
     `;
+}
+
+/**
+ * Panel de resultados detallados en la pantalla Eliana final.
+ *
+ * Muestra 5 filas (una por carta) con: número, concepto, barra de pct_acierto,
+ * ratio numérico, badge de "confundidos con X" si aplica.
+ * Al final, TOTAL acumulado.
+ *
+ * Revelado progresivo (propuesta reviser):
+ *   1. El contenedor hace fade-in + traslado vertical (300ms).
+ *   2. Cada fila aparece con stagger de 80ms.
+ *   3. Las barras se animan de 0 a su pct (600ms cubic-bezier).
+ *
+ * Si no hay datos (summary ausente, cartas_jugadas=0, por_carta vacío) → oculto.
+ * No aparece nunca durante el juego — solo en la pantalla final.
+ */
+function renderJuego3Results() {
+    const host = document.getElementById('juego3-eliana-results');
+    if (!host) return;
+
+    const summary = juego3.summary;
+    // DoD: si cartas_jugadas=0 o no hay datos, NO mostrar panel.
+    if (!summary || !summary.por_carta || summary.cartas_jugadas === 0) {
+        host.classList.add('hidden');
+        host.classList.remove('juego3-eliana__results--in');
+        host.innerHTML = '';
+        return;
+    }
+
+    const rows = summary.por_carta.map((c, i) => {
+        const pct = c.pct_acierto;
+        const totalV = c.total_votos || 0;
+        const aciertos = c.aciertos || 0;
+        const sinDatos = (totalV === 0 || pct == null);
+        const fillWidth = sinDatos ? 0 : Math.max(0, Math.min(100, pct));
+        const ratio = sinDatos ? '— / 0' : `${aciertos}/${totalV}`;
+        const concept = (c.area || `Carta ${i + 1}`).trim();
+
+        // Badge "confundidos con X" solo si pct<60 y hay confusion_dominante
+        let badgeHTML = '';
+        if (!sinDatos && pct < 60 && c.confusion_dominante) {
+            badgeHTML = `<span class="juego3-res__badge">Confundieron con ${c.confusion_dominante}</span>`;
+        }
+
+        return `
+            <li class="juego3-res__row" data-row-idx="${i}">
+                <span class="juego3-res__num">${i + 1}</span>
+                <div class="juego3-res__main">
+                    <span class="juego3-res__concept" title="${concept}">${concept}</span>
+                    <div class="juego3-res__track">
+                        <div class="juego3-res__fill ${sinDatos ? 'juego3-res__fill--empty' : ''}" style="transform: scaleX(0); width: ${fillWidth}%"></div>
+                    </div>
+                    ${badgeHTML}
+                </div>
+                <span class="juego3-res__ratio">${ratio}</span>
+            </li>
+        `;
+    }).join('');
+
+    const g = summary.global || {};
+    const totalAciertos = g.aciertos || 0;
+    const totalVotos = g.votos || 0;
+    const totalPct = (totalVotos > 0 && g.pct != null) ? g.pct : null;
+
+    host.innerHTML = `
+        <h3 class="juego3-res__title">Resultados por pregunta</h3>
+        <ol class="juego3-res__list">${rows}</ol>
+        <div class="juego3-res__total">
+            <span>Total</span>
+            <span class="juego3-res__total-value">
+                ${totalAciertos} / ${totalVotos}
+                ${totalPct != null ? `<small>${totalPct}%</small>` : ''}
+            </span>
+        </div>
+    `;
+
+    host.classList.remove('hidden');
+    host.classList.remove('juego3-eliana__results--in'); // reset para re-animar si se vuelve a la pantalla
+
+    // Revelado progresivo: contenedor entra con ~200ms de delay tras el orb,
+    // filas con stagger de 80ms, barras animadas a 400ms del inicio de su fila.
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            host.classList.add('juego3-eliana__results--in');
+            const rowEls = host.querySelectorAll('.juego3-res__row');
+            rowEls.forEach((row, idx) => {
+                setTimeout(() => {
+                    row.classList.add('juego3-res__row--in');
+                    const fill = row.querySelector('.juego3-res__fill');
+                    if (fill) {
+                        // Pequeño delay extra para que la barra empiece DESPUÉS de la fila
+                        setTimeout(() => fill.classList.add('juego3-res__fill--in'), 200);
+                    }
+                }, idx * 80);
+            });
+        }, 350);
+    });
 }
 
 /**

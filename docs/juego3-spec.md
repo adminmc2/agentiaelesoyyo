@@ -166,6 +166,39 @@ Redundancia triple (color + icono Phosphor + texto) para accesibilidad.
 - max_tokens=350, temperature=0.75.
 - UI mientras streamea: orb animado + texto en progreso + strip compacto de pct por carta **si el texto no ha llegado a los 2s** (fallback condicional).
 
+## 10-ter. Pantalla final Eliana: estructura + panel de resultados (v23.14.0)
+
+### Estructura del mensaje de Eliana (prompt `juego3_final`)
+Semi-blindada en 3 bloques obligatorios:
+- **Bloque A — Resumen global** (1-2 frases): desempeño general.
+- **Bloque B — Repaso por las 5 cartas** (5 líneas, 12-14 palabras máx c/u): cómo fue cada una + confusión si aplica.
+- **Bloque C — Cierre** (1 frase): puente a siguiente diapositiva.
+
+Límites: 8 líneas totales, sin porcentajes crudos repetidos, tono jovial no infantil. Lenguaje libre dentro de cada bloque. `max_tokens=360`, `temperature=0.75`.
+
+### Panel de resultados detallados
+Layout 3 columnas en `.juego3-eliana`: orb | cuerpo (texto streaming) | `.juego3-eliana__results` (tabla).
+
+**Contenido del panel** (cuando hay `summary.por_carta`):
+- Título "Resultados por pregunta".
+- 5 filas: número + concepto (truncado a 1 línea) + barra con pct_acierto + ratio numérico + badge "Confundieron con X" solo si `pct_acierto < 60` y `confusion_dominante` no es null.
+- Total: `aciertos/votos` + pct grande verde.
+
+**Revelado progresivo**:
+- Contenedor: fade-in + translateY(10px→0) en 500ms, empezando a los 350ms del render.
+- Filas: fade-in + translateY con stagger de 80ms entre filas.
+- Barras: `scaleX(0→1)` con `cubic-bezier(0.22, 1, 0.36, 1)` 600ms, delay 200ms tras su fila.
+
+**Responsive <1200px**: layout en columna (orb arriba, cuerpo, tabla abajo). Altura natural con scroll.
+
+### Criterios de aceptación (DoD)
+- [ ] `cartas_jugadas === 0` o `por_carta` vacío → panel oculto (no placeholders). Solo mensaje amable + CTA.
+- [ ] Con summary válido → aparecen exactamente 5 filas, incluso si alguna carta tiene 0 votos (ratio "— / 0", sin barra).
+- [ ] Eliana cubre bloques A + B + C en un único mensaje. No excede 8 líneas en la práctica.
+- [ ] En <1200px layout sin solapes, scroll vertical si hace falta.
+- [ ] Fallback existente de Eliana (chips + último recurso) intacto — el panel de resultados es ortogonal a él.
+- [ ] Revelado progresivo visible: fade-in diferido + barras animadas.
+
 ## 10-bis. Observabilidad y tests manuales
 
 ### Métricas de sesión en cliente (inspeccionables en DevTools)
