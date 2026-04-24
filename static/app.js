@@ -6553,6 +6553,15 @@ const juego3 = {
     widgetOrb: null,     // three.js orb instance
     elianaOrb: null,     // three.js orb for final screen
     elianaStreaming: false,
+    // Métricas simples de sesión — útiles en taller real para saber si la pantalla
+    // final está cayendo al "último recurso" (fetch + LLM fallando). Inspeccionable
+    // desde DevTools: `juego3.metrics`
+    metrics: {
+        ultimo_recurso_count: 0,
+        ultimo_recurso_reasons: [],  // [{ts, fetch_failed, ws_error, no_tokens}]
+        summary_fetch_fail_count: 0,
+        llm_error_count: 0,
+    },
 };
 
 const JUEGO3_FORMAT_META = {
@@ -6974,6 +6983,7 @@ async function startJuego3ElianaFinal() {
     } catch (e) {
         console.warn('[Juego3] summary fetch failed — intentando LLM igualmente:', e);
         summaryFetchFailed = true;
+        juego3.metrics.summary_fetch_fail_count++;
     }
 
     // 2. Short-circuit SOLO si tenemos summary confirmado con cero actividad.
@@ -6994,7 +7004,7 @@ async function startJuego3ElianaFinal() {
     let handledClose = false; // evitar doble-manejo entre onerror/onclose/onend
 
     // Último recurso: si no hay summary local Y el LLM no entregó nada.
-    const ultimoRecurso = async () => {
+    const ultimoRecurso = async (reasonTag = 'close') => {
         if (handledClose) return;
         handledClose = true;
         if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = null; }
@@ -7002,6 +7012,17 @@ async function startJuego3ElianaFinal() {
             juego3.elianaStreaming = false;
             return;
         }
+        // Métrica: incrementar contador + registrar motivo para diagnóstico post-taller.
+        juego3.metrics.ultimo_recurso_count++;
+        juego3.metrics.ultimo_recurso_reasons.push({
+            ts: new Date().toISOString(),
+            reason: reasonTag,
+            fetch_failed: summaryFetchFailed,
+            no_tokens: !anyTokenReceived,
+            has_local_summary: !!(juego3.summary && juego3.summary.por_carta),
+        });
+        console.warn(`[juego3][metric] ultimo_recurso_fired count=${juego3.metrics.ultimo_recurso_count} reason=${reasonTag} fetch_failed=${summaryFetchFailed} local_summary=${!!juego3.summary}`);
+
         // Preferencia 1: si hay summary local, mostrar chips.
         if (juego3.summary && juego3.summary.por_carta) {
             renderJuego3ElianaFallback();
@@ -7063,7 +7084,8 @@ async function startJuego3ElianaFinal() {
                 try { ws.close(); } catch (_) {}
             } else if (data.type === 'error') {
                 console.warn('[Juego3] eliana error:', data.message);
-                ultimoRecurso();
+                juego3.metrics.llm_error_count++;
+                ultimoRecurso('llm_error');
                 try { ws.close(); } catch (_) {}
             }
         } catch (e) { /* ignore */ }
@@ -7071,12 +7093,13 @@ async function startJuego3ElianaFinal() {
 
     ws.onerror = () => {
         console.warn('[Juego3] eliana ws error');
-        ultimoRecurso();
+        juego3.metrics.llm_error_count++;
+        ultimoRecurso('ws_error');
     };
 
     ws.onclose = () => {
         // Si cerró sin haber emitido 'end' ni tokens, es cierre anómalo.
-        if (!handledClose) ultimoRecurso();
+        if (!handledClose) ultimoRecurso('ws_close_no_end');
     };
 
     // Log diagnóstico útil en taller real
@@ -7129,6 +7152,74 @@ async function typeText(el, text, delay = 20) {
         await new Promise(r => setTimeout(r, delay));
     }
 }
+
+/**
+ * DEV HELPERS — accesibles desde DevTools para probar casos difíciles sin tirar la red.
+ *
+ * Uso:
+ *   juego3DevSimulate('summary_fail')   → fuerza que el próximo fetch de summary falle
+ *   juego3DevSimulate('llm_fail')       → fuerza que el próximo WS al LLM falle al abrir
+ *   juego3DevSimulate('both_fail')      → combina los dos (último recurso sin datos)
+ *   juego3DevSimulate('reset')          → limpia los flags
+ *   juego3DevMetrics()                  → imprime tabla de métricas + razones
+ */
+window.juego3DevSimulate = function (mode) {
+    const originalFetch = window.__juego3OriginalFetch || window.fetch;
+    window.__juego3OriginalFetch = originalFetch;
+    const originalWS = window.__juego3OriginalWS || window.WebSocket;
+    window.__juego3OriginalWS = originalWS;
+
+    if (mode === 'reset') {
+        window.fetch = originalFetch;
+        window.WebSocket = originalWS;
+        console.info('[juego3][dev] simulación DESACTIVADA — fetch y WebSocket restaurados');
+        return;
+    }
+
+    if (mode === 'summary_fail' || mode === 'both_fail') {
+        window.fetch = function (url, ...rest) {
+            if (typeof url === 'string' && url.includes('/api/juego3/summary')) {
+                console.warn('[juego3][dev] interceptando fetch summary → reject');
+                return Promise.reject(new Error('DEV_SIMULATED_NETWORK_ERROR'));
+            }
+            return originalFetch.call(this, url, ...rest);
+        };
+    }
+
+    if (mode === 'llm_fail' || mode === 'both_fail') {
+        window.WebSocket = function (url, protocols) {
+            if (typeof url === 'string' && url.includes('/ws/chat')) {
+                console.warn('[juego3][dev] interceptando WS /ws/chat → error inmediato');
+                const fakeWs = {
+                    readyState: 0,
+                    send: () => {},
+                    close: () => {},
+                };
+                setTimeout(() => {
+                    if (typeof fakeWs.onerror === 'function') fakeWs.onerror(new Event('error'));
+                    if (typeof fakeWs.onclose === 'function') fakeWs.onclose(new CloseEvent('close'));
+                }, 50);
+                return fakeWs;
+            }
+            return new originalWS(url, protocols);
+        };
+    }
+
+    console.info(`[juego3][dev] simulación ACTIVA: mode=${mode}. Pulsa 'Eliana comenta resultados' para probar. Usa juego3DevSimulate('reset') para desactivar.`);
+};
+
+window.juego3DevMetrics = function () {
+    console.group('[juego3] métricas de sesión');
+    console.log('ultimo_recurso_count:', juego3.metrics.ultimo_recurso_count);
+    console.log('summary_fetch_fail_count:', juego3.metrics.summary_fetch_fail_count);
+    console.log('llm_error_count:', juego3.metrics.llm_error_count);
+    if (juego3.metrics.ultimo_recurso_reasons.length) {
+        console.table(juego3.metrics.ultimo_recurso_reasons);
+    } else {
+        console.log('(sin eventos ultimo_recurso — flujo normal)');
+    }
+    console.groupEnd();
+};
 
 // ============================================
 // Event Listeners

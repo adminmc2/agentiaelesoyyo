@@ -1,5 +1,28 @@
 # Changelog — AgentiaELE
 
+## v23.13.8 — 2026-04-24 — Observabilidad: métricas de sesión + dev helpers para tests manuales
+Dos mejoras opcionales del reviser:
+
+**Métricas simples de sesión** en `juego3.metrics` (inspeccionable desde DevTools):
+- `ultimo_recurso_count` — cuántas veces cayó al texto de último recurso.
+- `summary_fetch_fail_count` — fallos del GET `/api/juego3/summary`.
+- `llm_error_count` — errores del WS al LLM.
+- `ultimo_recurso_reasons[]` — historial con `ts`, `reason` (`llm_error` / `ws_error` / `ws_close_no_end`), `fetch_failed`, `has_local_summary`.
+
+Helper `juego3DevMetrics()` imprime tabla legible en consola.
+
+**Dev helpers para tests manuales** sin tirar red real:
+- `juego3DevSimulate('summary_fail')` — intercepta el fetch de summary.
+- `juego3DevSimulate('llm_fail')` — intercepta el WS `/ws/chat` y dispara error inmediato.
+- `juego3DevSimulate('both_fail')` — combina ambos (test del último recurso).
+- `juego3DevSimulate('reset')` — restaura fetch/WebSocket nativos.
+
+Cada call a `ultimoRecurso()` loggea con prefijo `[juego3][metric]` para poder hacer grep en el log del proyector durante taller real.
+
+Spec técnica `docs/juego3-spec.md` ampliada con sección **10-bis Observabilidad y tests manuales** con los comandos exactos.
+
+Versionado sincronizado en los 3 ficheros visibles → v23.13.8.
+
 ## v23.13.7 — 2026-04-24 — Eliana final: LLM ahora se intenta aunque falle el fetch HTTP
 Observación residual del reviser: si `fetch('/api/juego3/summary')` fallaba (red, endpoint caído transitoriamente), `startJuego3ElianaFinal` asumía "nadie jugó" y mostraba el mensaje fijo. Pero el backend tiene los datos server-side e inyecta el summary en el system prompt al activar `activity_mode=juego3_final` — la devolución del LLM es posible aunque el fetch del cliente no haya conseguido los chips locales.
 

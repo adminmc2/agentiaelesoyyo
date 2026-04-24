@@ -166,6 +166,50 @@ Redundancia triple (color + icono Phosphor + texto) para accesibilidad.
 - max_tokens=350, temperature=0.75.
 - UI mientras streamea: orb animado + texto en progreso + strip compacto de pct por carta **si el texto no ha llegado a los 2s** (fallback condicional).
 
+## 10-bis. Observabilidad y tests manuales
+
+### Métricas de sesión en cliente (inspeccionables en DevTools)
+El objeto `juego3.metrics` lleva contadores simples por sesión:
+- `ultimo_recurso_count` — cuántas veces la pantalla final cayó al texto de último recurso.
+- `summary_fetch_fail_count` — fallos del `GET /api/juego3/summary`.
+- `llm_error_count` — errores en el WS del LLM (`error`, `ws_error`, cierre anómalo).
+- `ultimo_recurso_reasons[]` — historial de fallos con timestamp y contexto.
+
+Inspección rápida en consola del proyector durante taller:
+```js
+juego3DevMetrics()       // imprime tabla
+juego3.metrics           // objeto completo
+```
+
+### Tests manuales rápidos (sin tirar la red)
+Desde la consola del proyector, dev helpers que inyectan fallos controlados:
+
+```js
+// Caso A: fetch HTTP falla, WS LLM funciona → debería streamear normal
+juego3DevSimulate('summary_fail')
+// Pulsar "Ahora Eliana comenta los resultados"
+// Esperado: texto streaming llega sin chips locales.
+
+// Caso B: fetch OK, WS LLM falla al abrir
+juego3DevSimulate('llm_fail')
+// Esperado: chips de fallback aparecen (o mensaje último recurso si no había summary).
+
+// Caso C: ambos fallan
+juego3DevSimulate('both_fail')
+// Esperado: mensaje "Habéis terminado las cinco cartas…" de último recurso.
+
+// Limpiar simulación
+juego3DevSimulate('reset')
+```
+
+### Tests manuales con red real
+Desde DevTools → pestaña **Network**:
+1. `Throttling: Offline` + pulsar "Eliana comenta…" → debe caer al último recurso en ~1-2s.
+2. `Throttling: Slow 3G` → debe aguantar el streaming normal (latencia > 2s puede disparar el strip de chips temporalmente; si luego llegan tokens, los chips se retiran).
+3. Cerrar el backend (Ctrl+C) → mismo comportamiento que Offline.
+
+Tras cada test, `juego3DevMetrics()` confirma que los contadores se incrementaron donde esperábamos.
+
 ## 11. Iconografía por tipo (consistente en móvil + proyector)
 
 | Tipo | Phosphor icon | Color |
