@@ -1,5 +1,13 @@
 # Changelog — AgentiaELE
 
+## v23.15.1 — 2026-04-25 — Fix doc consistency §10-ter tras cierre reviser
+Residuo documental señalado por el reviser:
+- **`docs/juego3-spec.md` §10-ter** aún decía "Layout 3 columnas en `.juego3-eliana`: orb | cuerpo | tabla", contradiciendo la §10 que ya reflejaba el nuevo layout de 2 columnas (v23.15.0). Corregido: §10-ter ahora dice "Layout 2 columnas (v23.15.0+)" con nota sobre la eliminación del orb central.
+
+**Verificación CSS residual** (reviser mencionó `style.css:10227`): comprobado — NO hay regla residual de `.juego3-eliana__orb` en el CSS. Solo queda la regla defensiva `.juego3-eliana__orb { display: none; }` en línea 9850, que es intencional para prevenir render accidental si un flujo legacy inyecta el nodo. Los otros "orb" en el archivo son `.eliana-widget__*` (widget flotante, debe seguir existiendo) y un comentario de diapo 4 legacy.
+
+Sin cambios de código. Versionado sincronizado en los 3 ficheros visibles → v23.15.1.
+
 ## v23.15.0 — 2026-04-25 — Pantalla final Eliana: sin orb central + prompt con agrupación
 Usuario reportó dos problemas visuales/narrativos en la pantalla final tras 5 cartas:
 1. **Orb central redundante**: el widget flotante ya representa a Eliana visualmente. Un orb basta.

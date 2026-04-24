@@ -178,7 +178,7 @@ Semi-blindada en 3 bloques obligatorios:
 Límites: 8 líneas totales, sin porcentajes crudos repetidos, tono jovial no infantil. Lenguaje libre dentro de cada bloque. `max_tokens=360`, `temperature=0.75`.
 
 ### Panel de resultados detallados
-Layout 3 columnas en `.juego3-eliana`: orb | cuerpo (texto streaming) | `.juego3-eliana__results` (tabla).
+Layout 2 columnas en `.juego3-eliana` (v23.15.0+): cuerpo (texto streaming) | `.juego3-eliana__results` (tabla). El orb central se eliminó — el widget flotante ya representa a Eliana.
 
 **Contenido del panel** (cuando hay `summary.por_carta`):
 - Título "Resultados por pregunta".
