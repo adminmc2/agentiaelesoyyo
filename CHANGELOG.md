@@ -1,5 +1,14 @@
 # Changelog — AgentiaELE
 
+## v23.14.2 — 2026-04-24 — Fix 2 inconsistencias doc residuales del spec
+Tras la revisión final del reviser sobre v23.14.1, quedaban 2 inconsistencias documentales menores pero reales:
+
+1. **§10 del spec describía a Eliana como "3-5 frases + highlights mejor/peor"** — regla antigua de v23.13.0 que contradice la nueva §10-ter (3 bloques A/B/C, 8 líneas máx). QA o futuro mantenedor podía leer reglas distintas según qué sección mirase. Resuelto: §10 ahora resume la estructura A/B/C con referencia cruzada a §10-ter como fuente detallada. §10-ter sigue siendo la fuente de verdad completa.
+
+2. **Dos referencias stale a v23.13.0**: header del spec (`Última actualización: v23.13.0`) y pie de sección "Archivos ejecutivos" (`CHANGELOG.md # entrada v23.13.0`). Cambiado el header a `v23.14.2` y el pie a descripción genérica (`historial de cambios por versión`) para evitar que envejezca.
+
+Sin cambios funcionales. Versionado sincronizado en los 3 ficheros visibles → v23.14.2.
+
 ## v23.14.1 — 2026-04-24 — Fix doc consistency + test manual panel resultados
 Dos correcciones menores tras revisión v23.14.0:
 - **Fix inconsistencia doc**: sección §10 del spec decía `max_tokens=350` mientras que la §10-ter nueva decía `360`. Unificado a 360 en ambas, con referencia cruzada a §10-ter como fuente de verdad.

@@ -1,6 +1,6 @@
 # Spec técnica — Juego 3 "Descubre al agente"
 
-Última actualización: v23.13.0
+Última actualización: v23.14.2 (ver CHANGELOG.md para historial completo)
 
 Este documento es la **fuente de verdad** sobre el contrato de datos, eventos WebSocket, y criterios de aceptación del juego 3. CLAUDE.md se mantiene intocable; los detalles de implementación viven aquí.
 
@@ -153,18 +153,18 @@ Banner visual + mensaje + explicaciones:
 
 Redundancia triple (color + icono Phosphor + texto) para accesibilidad.
 
-## 10. Eliana final
+## 10. Eliana final (resumen — detalle en §10-ter)
 
 - Activity mode: `juego3_final`.
 - Backend inyecta el `SummaryObject` completo (JSON) al final del system prompt en la sección `DATOS DEL GRUPO`.
-- El prompt instruye:
-  - 3-5 frases, jovial, con chispa.
-  - No recitar porcentajes crudos ("la mitad", "uno de cada tres").
-  - Highlights: concepto mejor + peor + confusion_top + pct global.
-  - Cierre puente a la siguiente diapositiva.
-  - Rama especial si `cartas_jugadas == 0`.
-- `max_tokens=360`, `temperature=0.75`. Ver detalle en sección 10-ter.
-- UI mientras streamea: orb animado + texto en progreso + strip compacto de pct por carta **si el texto no ha llegado a los 2s** (fallback condicional).
+- **Estructura del mensaje: semi-blindada en 3 bloques obligatorios** (ver §10-ter):
+  - Bloque A — Resumen global (1-2 frases).
+  - Bloque B — Repaso por las 5 cartas (5 líneas, 12-14 palabras máx c/u).
+  - Bloque C — Cierre puente a la siguiente diapositiva (1 frase).
+- Límites: máximo 8 líneas totales, tono jovial no infantil, sin porcentajes crudos repetidos.
+- Rama especial si `cartas_jugadas == 0` o `votos == 0`: olvida la estructura, mensaje amable único.
+- `max_tokens=360`, `temperature=0.75`.
+- UI mientras streamea: orb animado + texto en progreso + panel de resultados detallados (v23.14.0, §10-ter) + strip compacto de pct por carta **si el texto no ha llegado a los 2s** (fallback condicional).
 
 ## 10-ter. Pantalla final Eliana: estructura + panel de resultados (v23.14.0)
 
@@ -307,5 +307,5 @@ static/index.html               # panel derecho reescrito
 static/style.css                # nuevos estilos chart por tipo + responsive
 static/app.js                   # render chart, integración Eliana final, fallback
 docs/juego3-spec.md             # este documento
-CHANGELOG.md                    # entrada v23.13.0
+CHANGELOG.md                    # historial de cambios por versión
 ```
