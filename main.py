@@ -1204,6 +1204,19 @@ def _short_pid(pid: str) -> str:
     return hashlib.sha256(pid.encode("utf-8")).hexdigest()[:8]
 
 
+# UUID v4 canonical: 8-4-4-4-12 hex con 4 en la primera posición del 3er grupo
+# y [8,9,a,b] en la primera del 4to. El móvil genera EXACTAMENTE este formato.
+_JUEGO3_UUID_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+)
+
+
+def _is_valid_participant(pid: str) -> bool:
+    """Valida que el pid sea un UUID v4 canónico.
+    Rechaza strings arbitrarios (evita bypass del dedup con 'aaa', 'bbb', etc.)."""
+    return bool(pid and _JUEGO3_UUID_RE.match(pid.lower().strip()))
+
+
 def _load_juego3_cards() -> dict:
     """Lee el JSON de cartas desde disco en cada llamada para evitar cache staleness
     durante desarrollo. El fichero es pequeño (~10 KB) y se llama pocas veces."""
@@ -1428,12 +1441,15 @@ async def ws_juego3_mobile(websocket: WebSocket):
             pid_raw = str(data.get("participant", "")).strip()
 
             if kind == "hello":
-                # Cliente registra su participant_id (UUID generado en localStorage)
-                if pid_raw:
+                # Cliente registra su participant_id (UUID v4 generado en el móvil).
+                # Si el formato no es UUID v4, no lo registramos (el vote fallará después).
+                if _is_valid_participant(pid_raw):
                     _juego3_mobile_pid[websocket] = pid_raw
                     # Notificar cambio de N_vivo al dashboard
                     await _juego3_broadcast(_juego3_state_msg(), mobile=False)
                     print(f"[juego3] hello: participant={_short_pid(pid_raw)} n_vivo={_juego3_n_vivo()}")
+                elif pid_raw:
+                    print(f"[juego3] hello rejected: invalid participant_id format (len={len(pid_raw)})")
                 continue
 
             if kind == "vote":
@@ -1444,8 +1460,9 @@ async def ws_juego3_mobile(websocket: WebSocket):
                     _juego3_mobile_pid[websocket] = pid_raw
                 pid = pid_raw or _juego3_mobile_pid.get(websocket, "")
 
-                # Rechazo estricto: voto sin participant_id no se cuenta.
-                # Garantiza que summary + dedup son fiables al 100%.
+                # Rechazo estricto: voto sin participant_id VÁLIDO no se cuenta.
+                # Validamos formato UUID v4 (no solo "no vacío") para evitar que
+                # un cliente malicioso bypase el dedup rotando strings arbitrarios.
                 if not pid:
                     print(f"[juego3] vote rejected: no participant_id (card={card} letter={letter})")
                     try:
@@ -1453,6 +1470,17 @@ async def ws_juego3_mobile(websocket: WebSocket):
                             "type": "vote_rejected",
                             "reason": "no_participant",
                             "message": "Tu voto no se registró. Activa el almacenamiento del navegador y recarga."
+                        })
+                    except Exception:
+                        pass
+                    continue
+                if not _is_valid_participant(pid):
+                    print(f"[juego3] vote rejected: invalid participant format (card={card} letter={letter} pid_len={len(pid)})")
+                    try:
+                        await websocket.send_json({
+                            "type": "vote_rejected",
+                            "reason": "invalid_participant_format",
+                            "message": "Tu identificador no es válido. Recarga la página para generar uno nuevo."
                         })
                     except Exception:
                         pass

@@ -1,5 +1,39 @@
 # Changelog — AgentiaELE
 
+## v23.13.4 — 2026-04-24 — Validación UUID v4 del participant_id + trazabilidad CHANGELOG
+Refuerzo de seguridad + housekeeping tras propuesta del reviser:
+- **Backend**: nueva función `_is_valid_participant(pid)` valida formato UUID v4 canónico (`8-4-4-4-12` hex con dígito `4` en el tercer grupo y `[89ab]` en el cuarto). Usada en `hello` y en `vote`. Cierra el bypass trivial del dedup donde un cliente malicioso podía rotar strings arbitrarios (`"aaa"`, `"bbb"`) para votar múltiples veces.
+- Nuevo motivo de rechazo WS: `reason: "invalid_participant_format"` con mensaje al usuario "Tu identificador no es válido. Recarga la página…".
+- Logs backend: `[juego3] hello rejected: invalid participant_id format` + `[juego3] vote rejected: invalid participant format` con `pid_len` para diagnóstico sin exponer el pid.
+- **CHANGELOG**: añadidas entradas retroactivas para v23.13.1, v23.13.2 y v23.13.3 que se habían saltado (trazabilidad de release).
+- Versionado sincronizado en los 3 ficheros visibles (index, encuesta, juego3_mobile).
+
+## v23.13.3 — 2026-04-24 — Dedup server-side estricto + fallback 3 niveles + "yo vs nadie"
+Tras propuesta del reviser "Endurecer deduplicación server-side":
+- **Backend**: rechazo estricto de votos sin `participant_id`. Elimina el agujero donde `pid=""` saltaba el dedup — métricas del `summary` ahora fiables al 100%. Nuevo evento WS `{type:"vote_rejected", reason, message}`.
+- **Móvil — fallback de 3 niveles** para el participant_id:
+  1. `localStorage` (persistente entre sesiones, ideal)
+  2. `sessionStorage` (sobrevive solo mientras la pestaña esté abierta)
+  3. En memoria (dura hasta recargar)
+  `_storageLevel` se logea para diagnóstico. Si cae a memoria, aviso proactivo en UI antes de votar ("Almacenamiento limitado, tu voto podría no sobrevivir a una recarga").
+- Handler de `vote_rejected` en el móvil: revierte voto local + muestra banner ámbar con el mensaje del backend.
+- Nuevo campo `card_total_votos` en el mensaje `state` (solo en `phase=revealed`).
+- Feedback del móvil post-reveal ahora distingue:
+  - `cardTotalVotos === 0` → **"Nadie respondió esta vez"**
+  - `cardTotalVotos > 0` → **"No votaste esta vez"**
+  Más preciso emocionalmente: no culpa al jugador si nadie votó.
+
+## v23.13.2 — 2026-04-24 — Sync version footer en juego3_mobile.html
+El móvil `/juego3` mostraba `v23.13.0` mientras desktop + encuesta ya iban a `v23.13.1`. Sincronizados los 3 ficheros visibles a `v23.13.2`. Memoria actualizada con regla explícita: al bumpear versión hay que tocar SIEMPRE `index.html`, `encuesta.html` Y `juego3_mobile.html`.
+
+## v23.13.1 — 2026-04-24 — QR dinámico en diapo 2 apuntando a /juego3
+El QR hardcoded (SVG inline de 37×37) de la diapo 2 encodaba un deep link antiguo (`?screen=juego-intro`), cargando la misma diapo 2 en el móvil del jugador. Sin sentido.
+- Eliminado el SVG inline. Sustituido por `<div id="jintro-qr-svg">` que se rellena dinámicamente.
+- Añadida lib `qrcode-generator@1.4.4` via CDN (jsdelivr).
+- Nueva función `renderJintroQRCode()` en `app.js` genera el QR SVG al abrir la diapo 2, apuntando a `${location.origin}/juego3`. Funciona con cualquier deployment (ngrok, producción, local) sin hardcodear URL.
+- El destino (`juego3_mobile.html`) es una página standalone **sin navegación** a otras diapositivas — el jugador solo ve el interfaz de voto, no puede ver el resto de la presentación.
+- Autorizado puntualmente sobre la diapo 2 protegida (solo el QR).
+
 ## v23.13.0 — 2026-04-24 — Móvil rediseñado + chart por tipo + Eliana final con datos reales
 Tres cambios sincronizados en diapo 3 (spec técnica en `docs/juego3-spec.md`):
 
