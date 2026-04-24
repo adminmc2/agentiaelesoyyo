@@ -1442,14 +1442,35 @@ async def ws_juego3_mobile(websocket: WebSocket):
 
             if kind == "hello":
                 # Cliente registra su participant_id (UUID v4 generado en el móvil).
-                # Si el formato no es UUID v4, no lo registramos (el vote fallará después).
+                # Si el formato no es UUID v4, avisamos al cliente YA (no esperamos al vote).
                 if _is_valid_participant(pid_raw):
                     _juego3_mobile_pid[websocket] = pid_raw
                     # Notificar cambio de N_vivo al dashboard
                     await _juego3_broadcast(_juego3_state_msg(), mobile=False)
                     print(f"[juego3] hello: participant={_short_pid(pid_raw)} n_vivo={_juego3_n_vivo()}")
                 elif pid_raw:
+                    # pid presente pero no válido (manipulación manual o cliente malformado)
                     print(f"[juego3] hello rejected: invalid participant_id format (len={len(pid_raw)})")
+                    try:
+                        await websocket.send_json({
+                            "type": "participant_rejected",
+                            "reason": "invalid_participant_format",
+                            "message": "Tu identificador no es válido. Recarga la página para generar uno nuevo."
+                        })
+                    except Exception:
+                        pass
+                else:
+                    # pid ausente (storage bloqueado). El móvil ya muestra aviso local,
+                    # pero enviamos confirmación para que muestre un estado consistente.
+                    print(f"[juego3] hello: no participant_id (storage probably blocked)")
+                    try:
+                        await websocket.send_json({
+                            "type": "participant_rejected",
+                            "reason": "no_participant",
+                            "message": "Tu navegador no permite guardar tu identidad. Tu voto no se podrá registrar. Activa el almacenamiento y recarga."
+                        })
+                    except Exception:
+                        pass
                 continue
 
             if kind == "vote":

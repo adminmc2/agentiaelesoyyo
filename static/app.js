@@ -6905,7 +6905,9 @@ function renderJuego3Panel() {
     const countEl = document.getElementById('juego3-waiting-count');
     const fillEl = document.getElementById('juego3-waiting-fill');
     const labelEl = document.getElementById('juego3-waiting-label');
-    const denom = (nVivo && nVivo > 0) ? nVivo : (totalVotos > 0 ? totalVotos : '…');
+    // N explícito siempre: si no hay conectados ni votos, mostramos "0 de 0"
+    // en vez del ambiguo "…". Semántica completa de N_vivo.
+    const denom = (nVivo && nVivo > 0) ? nVivo : Math.max(totalVotos, 0);
     if (countEl) countEl.textContent = `${totalVotos} de ${denom} ${totalVotos === 1 ? 'ha' : 'han'} votado`;
     if (fillEl) {
         const pct = (nVivo > 0) ? Math.min(100, Math.round((totalVotos / nVivo) * 100)) : 0;

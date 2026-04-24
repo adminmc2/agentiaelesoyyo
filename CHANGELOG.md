@@ -1,5 +1,12 @@
 # Changelog — AgentiaELE
 
+## v23.13.5 — 2026-04-24 — Feedback WS en hello + "0 de 0" explícito
+Dos ajustes del reviser (opcionales, no bloqueantes):
+- **Backend**: en `hello`, si el `participant_id` es inválido o ausente, ahora enviamos al móvil un mensaje `{type:"participant_rejected", reason, message}` en el momento, en vez de esperar al intento de voto. Da feedback proactivo al usuario (aunque en la práctica el móvil nunca debería enviar un pid malformado, porque lo genera el propio código).
+- **Móvil**: handler para `participant_rejected` que activa `state.participantBlocked = true` y muestra un banner persistente arriba del todo hasta que el usuario recargue.
+- **Proyector**: el contador de participación ahora muestra `"0 de 0 han votado"` cuando no hay participantes conectados, en vez del ambiguo `"0 de …"`. Completa el requisito de "N explícito" que quedaba pendiente del Paso 4 original.
+- Versionado sincronizado en los 3 ficheros visibles → v23.13.5.
+
 ## v23.13.4 — 2026-04-24 — Validación UUID v4 del participant_id + trazabilidad CHANGELOG
 Refuerzo de seguridad + housekeeping tras propuesta del reviser:
 - **Backend**: nueva función `_is_valid_participant(pid)` valida formato UUID v4 canónico (`8-4-4-4-12` hex con dígito `4` en el tercer grupo y `[89ab]` en el cuarto). Usada en `hello` y en `vote`. Cierra el bypass trivial del dedup donde un cliente malicioso podía rotar strings arbitrarios (`"aaa"`, `"bbb"`) para votar múltiples veces.

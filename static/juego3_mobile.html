@@ -271,7 +271,7 @@
 
         <main class="main" id="content"></main>
 
-        <p class="ver">v23.13.4</p>
+        <p class="ver">v23.13.5</p>
     </div>
 
     <script>
@@ -333,12 +333,14 @@
             currentCard: -1,
             phase: 'idle',
             total: 5,
-            cardTotalVotos: null,  // en revealed: 0 si nadie votó, >0 si alguien votó
-            selected: null,        // letra votada esta carta (lo que ESTE jugador eligió)
-            votedCards: {},        // {cardIdx: letter} — caché local de votos
+            cardTotalVotos: null,       // en revealed: 0 si nadie votó, >0 si alguien votó
+            selected: null,             // letra votada esta carta (lo que ESTE jugador eligió)
+            votedCards: {},             // {cardIdx: letter} — caché local de votos
             ws: null,
             retryMs: 1500,
-            rejectedMsg: null,     // mensaje del backend si el voto fue rechazado
+            rejectedMsg: null,          // mensaje del backend si el voto fue rechazado (one-shot)
+            participantBlocked: false,  // true si el backend rechazó el participant_id en hello
+            participantBlockedMsg: '',  // mensaje persistente del rechazo
         };
 
         // Persistir votos en localStorage para sobrevivir recarga
@@ -387,7 +389,7 @@
                         state.selected = state.votedCards[state.currentCard] || null;
                         render();
                     } else if (msg.type === 'vote_rejected') {
-                        // Backend rechazó el voto (típicamente: participant_id vacío).
+                        // Backend rechazó el voto (participant_id vacío o inválido).
                         // Revertir el voto local y avisar al usuario.
                         console.warn('[juego3] vote rejected by server:', msg.reason, msg.message);
                         if (state.currentCard != null && state.votedCards[state.currentCard]) {
@@ -396,6 +398,13 @@
                         }
                         state.selected = null;
                         state.rejectedMsg = msg.message || 'Tu voto no se pudo registrar.';
+                        render();
+                    } else if (msg.type === 'participant_rejected') {
+                        // Backend rechazó el hello (pid inválido o ausente).
+                        // Mostramos aviso persistente para que el usuario actúe ANTES de votar.
+                        console.warn('[juego3] participant rejected by server:', msg.reason, msg.message);
+                        state.participantBlocked = true;
+                        state.participantBlockedMsg = msg.message || 'Tu identidad no es válida. Recarga la página.';
                         render();
                     }
                     // tally/summary se ignoran en móvil (son para dashboard)
@@ -580,10 +589,25 @@
                 `;
             }
 
+            // Aviso persistente: backend rechazó la identidad del participante.
+            // Mostrado ARRIBA del todo hasta que el usuario recargue (flag no se resetea).
+            let blockedHTML = '';
+            if (state.participantBlocked) {
+                blockedHTML = `
+                    <div class="banner banner--wrong" role="alert">
+                        <i class="ph-fill ph-warning-circle banner__icon"></i>
+                        <div class="banner__body">
+                            <p class="banner__title">Identidad no válida</p>
+                            <p class="banner__hint">${state.participantBlockedMsg}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
             // Aviso de storage bloqueado (memoria = voto no sobrevive recarga)
             // o aviso de rechazo reciente del backend.
             let storageWarnHTML = '';
-            if (_storageLevel === 'memory' || _storageLevel === 'none') {
+            if (!state.participantBlocked && (_storageLevel === 'memory' || _storageLevel === 'none')) {
                 storageWarnHTML = `
                     <div class="banner banner--wrong" role="alert" style="border-width:1.5px">
                         <i class="ph-fill ph-warning banner__icon"></i>
@@ -609,8 +633,9 @@
                 state.rejectedMsg = null;
             }
 
-            // Orden: aviso (si aplica) → pregunta → opciones → banner de fase → explicación
+            // Orden: aviso bloqueo (si aplica) → aviso storage → aviso rechazo → pregunta → opciones → banner fase → explicación
             content.innerHTML = `
+                ${blockedHTML}
                 ${storageWarnHTML}
                 ${rejectedHTML}
                 <h2 class="question">${card.pregunta}</h2>
