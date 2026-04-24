@@ -9836,24 +9836,22 @@ body[data-mood-active] .message.assistant {
     box-shadow: none !important;
 }
 
-/* Pantalla Eliana final — layout 3 columnas: orb + cuerpo (texto) + panel resultados */
+/* Pantalla Eliana final — layout 2 columnas: cuerpo (texto) + panel resultados.
+   Orb central eliminado en v23.15.0 — el widget flotante ya representa a Eliana. */
 .juego3-eliana {
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 36px;
+    gap: 48px;
     padding: 20px;
 }
-.juego3-eliana__orb {
-    width: 260px;
-    height: 260px;
-    flex-shrink: 0;
-}
+/* Defensa: si algún flujo legacy renderiza el orb, no ocupa espacio */
+.juego3-eliana__orb { display: none; }
 .juego3-eliana__body {
-    flex: 0 0 auto;
-    max-width: 520px;
-    min-width: 360px;
+    flex: 0 1 640px;
+    max-width: 640px;
+    min-width: 400px;
 }
 
 /* Panel derecho: resultados detallados por pregunta (semi-ligero, se revela con stagger) */
@@ -9995,10 +9993,7 @@ body[data-mood-active] .message.assistant {
         justify-content: flex-start;
         overflow: auto;
     }
-    .juego3-eliana__orb {
-        width: 180px;
-        height: 180px;
-    }
+    /* Orb eliminado en v23.15.0 — no se setea tamaño (defensa display:none ya aplicada) */
     .juego3-eliana__body {
         max-width: 100%;
         min-width: 0;
@@ -10224,7 +10219,6 @@ body[data-mood-active] .message.assistant {
     .juego3-idle__title, .juego3-ended__title { font-size: 32px; }
     .juego3-idle__desc, .juego3-ended__desc { font-size: 17px; }
     .juego3-eliana { gap: 36px; }
-    .juego3-eliana__orb { width: 240px; height: 240px; }
     .juego3-eliana__title { font-size: 32px; }
     .juego3-eliana__text { font-size: 19px; min-height: 140px; }
 }

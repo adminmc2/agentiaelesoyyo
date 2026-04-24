@@ -7018,9 +7018,14 @@ async function startJuego3ElianaFinal() {
     juego3.elianaStreaming = true;
     renderJuego3();
 
-    if (!juego3.elianaOrb && typeof window.orbCreateInElement === 'function') {
+    // Guard por host: el nodo #juego3-eliana-orb se eliminó en v23.15.0
+    // (el widget flotante ya representa a Eliana). Si alguien re-introduce el
+    // nodo en el futuro, este guard lo inicializará automáticamente. elianaOrb
+    // se mantiene en el state como defensive null (no se toca).
+    const _orbHost = document.getElementById('juego3-eliana-orb');
+    if (_orbHost && !juego3.elianaOrb && typeof window.orbCreateInElement === 'function') {
         try {
-            juego3.elianaOrb = window.orbCreateInElement(document.getElementById('juego3-eliana-orb'), 340);
+            juego3.elianaOrb = window.orbCreateInElement(_orbHost, 340);
         } catch (e) { console.warn('[Juego3] orb eliana init:', e); }
     }
 

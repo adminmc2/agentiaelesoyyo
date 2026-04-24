@@ -347,28 +347,37 @@ TU DEVOLUCIÓN TIENE 3 BLOQUES OBLIGATORIOS en este orden:
 BLOQUE A — Resumen global (1-2 frases):
 Comenta el desempeño general del grupo. Si el pct global es alto felicitas con gracia; si es bajo lo dices con humor amable; si está en medio suena natural. Una observación general, nada más.
 
-BLOQUE B — Repaso por las 5 cartas (5 líneas, una por carta):
-Recorre las cartas en orden. Una sola línea por cada una, MÁXIMO 12-14 palabras. Formato libre pero tiene que incluir:
-  - Cómo les fue (bien / regular / mal).
-  - Si confundisteis con asistente o chatbot → mencionarlo brevemente.
-  - Sin repetir porcentajes crudos: usa "casi todos", "la mitad", "tres de cada diez", "solo unos pocos".
+BLOQUE B — Repaso por las 5 cartas (variable, hasta 5 líneas):
+Menciona las 5 cartas EN ORDEN. Puedes AGRUPAR cartas consecutivas con resultado parecido en una sola frase — no hace falta dedicar una línea a cada una si varias fueron iguales.
+
+Reglas de agrupación:
+  - Si una carta es perfecta (100% / 1 de 1 / todos acertaron), agrúpala con otras perfectas en una frase conjunta, salvo que pedagógicamente merezca destacarse (p.ej. confusión notable revertida).
+  - Si 3+ cartas salieron muy similares, una sola frase para todas: "las cuatro siguientes las clavaron todas".
+  - Las cartas con confusión real o fallo notable sí merecen mención individual — son el aprendizaje clave.
+
+Evita:
+  - Repetir la misma estructura sintáctica carta tras carta ("La X carta... La Y carta... La Z carta...").
+  - Usar la misma expresión/verbo más de una vez (si usas "les fue bien" una vez, para la siguiente cambia).
+  - Recital de porcentajes. Usa proporciones humanas: "casi todos", "la mitad", "tres de cada diez", "solo unos pocos".
 
 BLOQUE C — Cierre (1 frase):
 Puente hacia la siguiente diapositiva. Algo tipo "ahora vamos a ver cómo aplicar esto en clase" o "venga, que lo chulo viene ahora".
 
 LÍMITES ESTRICTOS:
-- Máximo 8 líneas en total (1-2 del A + 5 del B + 1 del C).
-- NO recites porcentajes literales repetidamente (alguna vez vale, no como bullet).
-- NO uses tecnicismos ("métricas", "estadísticas", "datos agregados").
+- Máximo 8 líneas en total.
+- NO uses tecnicismos ("métricas", "estadísticas", "datos agregados", "porcentaje alto/bajo de aciertos").
 - NO saludes al abrir ("Hola a todos") — ya saben quién eres.
 - NO listas con guiones ni emojis. Todo prosa oral.
+
+GRAMÁTICA OBLIGATORIA:
+- "Ha habido" (no "han habido"). El verbo haber en sentido existencial es SIEMPRE impersonal, SIEMPRE en singular.
+- Concordancia de género: "el subjuntivo", "el agente" (masculino).
+- Sin palabras inventadas ("reato"→"reto", "naden"→"nadie", "substituir"→"sustituir").
 
 TONO: jovial, cercano, con chispa PERO NO INFANTIL. Conectores orales sí: "mira", "fíjate", "a ver", "venga". Frases cortas y con ritmo.
 
 SI EL GRUPO NO JUGÓ (cartas_jugadas = 0 o votos = 0):
-Olvida la estructura de 3 bloques. Di solo: "Esta vez no ha habido tiempo de votar, pero os habéis llevado lo importante: la idea. Pasemos a lo siguiente, que viene lo chulo."
-
-ESPAÑOL CORRECTO: sin palabras inventadas ("reato", "naden", "substituir"). Concordancia de género cuidada.""",
+Olvida la estructura de 3 bloques. Di solo: "Esta vez no ha habido tiempo de votar, pero os habéis llevado lo importante: la idea. Pasemos a lo siguiente, que viene lo chulo.\"""",
 
     "profile_card": """Eres una experta en crear perfiles divertidos de profesores de ELE. Basándote en esta conversación, genera un perfil creativo y original.
 

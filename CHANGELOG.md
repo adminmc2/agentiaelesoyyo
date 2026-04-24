@@ -1,5 +1,26 @@
 # Changelog — AgentiaELE
 
+## v23.15.0 — 2026-04-25 — Pantalla final Eliana: sin orb central + prompt con agrupación
+Usuario reportó dos problemas visuales/narrativos en la pantalla final tras 5 cartas:
+1. **Orb central redundante**: el widget flotante ya representa a Eliana visualmente. Un orb basta.
+2. **Texto repetitivo**: 4 frases seguidas "les salió bien / les fue bien" cuando 4 cartas fueron idénticas. Sonaba robótico. El prompt forzaba "5 líneas, una por carta" sin permitir agrupar resultados similares.
+
+Revisión aplicada con ajustes del reviser (aprobado con cambios):
+
+**UI (2 columnas, sin orb central)**:
+- HTML: quitado `<div class="juego3-eliana__orb">` de `#juego3-eliana-screen`.
+- CSS: `.juego3-eliana` pasa de 3 cols a 2 cols (`body` + `results`). `__body` ancho 520→640px, `gap` 36→48px, `min-width` 360→400px. Regla defensiva `.juego3-eliana__orb { display: none }` por si algún flujo legacy renderiza el nodo. Responsive <1200px y <720h sin referencias al orb.
+- JS: la inicialización del orb en `startJuego3ElianaFinal` se condiciona al `document.getElementById('juego3-eliana-orb')` — si el host no existe, no se crea. **El campo `juego3.elianaOrb` del state se mantiene** como null defensivo (recomendación del reviser: no tocar si no es necesario).
+
+**Prompt (Bloque B permite agrupar)**:
+- Reescrito el Bloque B en `juego3_final`. Ya no fuerza "5 líneas, una por carta". Nueva regla: "Menciona las 5 cartas EN ORDEN pero AGRUPA cartas consecutivas con resultado parecido en una sola frase".
+- Reglas específicas: cartas perfectas (100%) se agrupan salvo matiz pedagógico; 3+ cartas similares en una sola frase; las cartas con confusión real merecen mención individual.
+- Anti-repetición por principio (reviser): "no repetir estructura sintáctica / verbos / plantillas" en lugar de listas cerradas de vocabulario permitido/prohibido (más estable con el LLM).
+- **Regla gramatical específica**: "Ha habido" (nunca "han habido") — corrige el error observado en el test de v23.14.0.
+- Prohibición explícita de "porcentaje alto/bajo de aciertos" — usar proporciones humanas.
+
+**Spec + CHANGELOG**: §10 y §10-ter actualizados con la nueva regla de agrupación. Versionado sincronizado en los 3 ficheros visibles → v23.15.0.
+
 ## v23.14.2 — 2026-04-24 — Fix 2 inconsistencias doc residuales del spec
 Tras la revisión final del reviser sobre v23.14.1, quedaban 2 inconsistencias documentales menores pero reales:
 

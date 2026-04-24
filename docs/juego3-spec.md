@@ -159,19 +159,20 @@ Redundancia triple (color + icono Phosphor + texto) para accesibilidad.
 - Backend inyecta el `SummaryObject` completo (JSON) al final del system prompt en la sección `DATOS DEL GRUPO`.
 - **Estructura del mensaje: semi-blindada en 3 bloques obligatorios** (ver §10-ter):
   - Bloque A — Resumen global (1-2 frases).
-  - Bloque B — Repaso por las 5 cartas (5 líneas, 12-14 palabras máx c/u).
+  - Bloque B — Repaso de las 5 cartas EN ORDEN, **con agrupación permitida**: cartas consecutivas con resultado parecido van en una sola frase; las perfectas se agrupan salvo que haya matiz pedagógico.
   - Bloque C — Cierre puente a la siguiente diapositiva (1 frase).
-- Límites: máximo 8 líneas totales, tono jovial no infantil, sin porcentajes crudos repetidos.
+- Límites: máximo 8 líneas totales, tono jovial no infantil, sin porcentajes crudos repetidos, sin repetir estructura sintáctica ni verbos.
+- Corrección gramatical explícita: "ha habido" (nunca "han habido"); concordancia de género.
 - Rama especial si `cartas_jugadas == 0` o `votos == 0`: olvida la estructura, mensaje amable único.
 - `max_tokens=360`, `temperature=0.75`.
-- UI mientras streamea: orb animado + texto en progreso + panel de resultados detallados (v23.14.0, §10-ter) + strip compacto de pct por carta **si el texto no ha llegado a los 2s** (fallback condicional).
+- UI mientras streamea: texto + panel de resultados detallados (v23.14.0, §10-ter) + strip compacto de pct por carta **si el texto no ha llegado a los 2s** (fallback condicional). Orb central eliminado en v23.15.0 (widget flotante = presencia visual suficiente).
 
 ## 10-ter. Pantalla final Eliana: estructura + panel de resultados (v23.14.0)
 
 ### Estructura del mensaje de Eliana (prompt `juego3_final`)
 Semi-blindada en 3 bloques obligatorios:
 - **Bloque A — Resumen global** (1-2 frases): desempeño general.
-- **Bloque B — Repaso por las 5 cartas** (5 líneas, 12-14 palabras máx c/u): cómo fue cada una + confusión si aplica.
+- **Bloque B — Repaso de las 5 cartas** (variable, hasta 5 líneas): menciona las cartas EN ORDEN. **Agrupación permitida**: cartas consecutivas con resultado parecido comparten una frase; las perfectas se agrupan salvo que haya matiz pedagógico. Las cartas con confusión real merecen mención individual — son el aprendizaje clave. Prohibido repetir misma estructura sintáctica / verbo / plantilla.
 - **Bloque C — Cierre** (1 frase): puente a siguiente diapositiva.
 
 Límites: 8 líneas totales, sin porcentajes crudos repetidos, tono jovial no infantil. Lenguaje libre dentro de cada bloque. `max_tokens=360`, `temperature=0.75`.
