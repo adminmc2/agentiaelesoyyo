@@ -1,5 +1,14 @@
 # Changelog — AgentiaELE
 
+## v23.16.3 — 2026-04-25 — Diapo 5: cambio de título (paso 1 de rediseño)
+Usuario inicia un rediseño paso a paso de la diapo 5 (considera el actual un desastre). Primer paso: cambiar el título del header mostaza.
+
+- `static/index.html`: `slide-header__text` de `#diapo5-screen` pasa de "Sacas lo que llevas dentro" a "Saca el agente que llevas dentro".
+
+Resto de la diapo 5 intacto pendiente de las decisiones del usuario sobre hook, dualidad profe/alumno, ELITE y transiciones.
+
+Versionado sincronizado → v23.16.3.
+
 ## v23.16.2 — 2026-04-25 — Atajo diapo 3 → diapo 5 (permiso explícito del usuario)
 Durante el ensayo, el usuario detectó que no tenía una flecha clara para saltar de la diapo 3 a la 5 sin atravesar la diapo 4 (juego de equipos). Autoriza modificar la diapo 3 para añadir un atajo.
 
