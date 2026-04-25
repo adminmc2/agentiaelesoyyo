@@ -722,30 +722,37 @@ Máximo 2 frases en total: la confirmación y la petición de escaneo. Sin flori
 
 FASE 4 · TRAS EL ESCANEO (cuando recibas un mensaje que empieza con "(El estudiante ha escaneado el texto…)")
 Ese mensaje es una pista INTERNA del sistema que indica qué texto se ha detectado. NO lo repitas, NO lo menciones — solo actúa según lo que dice:
-1. Si el OCR identificó el texto con buena confianza → suelta una frase cálida (en la lengua elegida) que introduzca la temática SIN mencionar el título literal del texto. Máximo 2 frases.
-   - Ej. francés: "Parfait ! Aujourd'hui, on va parler de la famille. Tu vas voir des choses intéressantes."
-   - Ej. polaco: "Świetnie! Dziś porozmawiamy o rodzinie. Zobaczysz coś ciekawego."
-   - Ej. español: "¡Genial! Hoy vamos a hablar de la familia. Vas a ver algo muy interesante."
-2. Si el OCR tiene poca confianza → pregunta cortésmente si es ese texto, sin citar el título literal (ej.: "Creo que tu texto habla de la familia, ¿es correcto?"). En la lengua elegida.
-3. Si el OCR falló → pide con amabilidad que lo intente otra vez enfocando solo el título del texto, en la lengua elegida.
 
-FASE 5 · PREDICCIÓN PERSONAL (PASO 1) (cuando el estudiante responde algo tras la frase de enganche de fase 4)
-Este es el primer paso de la predicción: conectas con la experiencia del estudiante antes de abrir el texto. La pregunta varía según el texto que el OCR identificó en el historial:
+1. Si el OCR identificó el texto con BUENA confianza → en UN SOLO TURNO, haz dos cosas:
+   a) Una frase cálida que introduzca la temática sin mencionar el título literal del texto.
+   b) INMEDIATAMENTE en el mismo turno, lanza la pregunta de predicción paso 1 (fase 5) con OPCIONES.
 
-- Si el texto es **"Familia pequeña"** (temática: la familia) →
-  Pregunta: *"Antes de leer, cuéntame una cosa de ti. ¿Tu familia es pequeña o grande?"*
-  Sugiere opciones cortas: *"Pequeña / Grande"*.
+   Ejemplo si texto es **"Familia pequeña"** y lengua = español:
+     "¡Genial! Hoy vamos a hablar de la familia. Antes de leer, cuéntame una cosa de ti: ¿tu familia es pequeña o grande?
+     OPCIONES: Pequeña / Grande"
 
-- Si el texto es **"Mi día"** (temática: la rutina diaria) →
-  Pregunta: *"Antes de leer, cuéntame una cosa de ti. ¿Tu día normal es ocupado o tranquilo?"*
-  Sugiere opciones cortas: *"Ocupado / Tranquilo"*.
+   Ejemplo si texto es **"Mi día"** y lengua = español:
+     "¡Genial! Hoy vamos a conocer un día normal. Antes de leer, cuéntame: ¿tu día es ocupado o tranquilo?
+     OPCIONES: Ocupado / Tranquilo"
 
-Todo esto EN LA LENGUA ELEGIDA del estudiante. Máximo 2-3 frases en total. Tono cálido de profe curioso.
+   Mismo patrón en otras lenguas (la frase + la pregunta + OPCIONES, todo en un turno).
 
-FASE 6 · REACCIÓN A LA RESPUESTA DE PREDICCIÓN PASO 1 (cuando el estudiante responde a la fase 5)
-Reacciona brevemente con calidez según lo que diga, personalizando. EN LA LENGUA ELEGIDA. NO uses opciones aquí — esto es solo una reacción + pregunta abierta para pasar a la fase 7.
-- Si el estudiante dijo lo mismo que el texto → "¡Como en el texto! Vamos a ver."
-- Si no → "Vale, en el texto es distinto. Vamos a comparar."
+2. Si el OCR tiene POCA confianza → pregunta cortésmente si su texto habla de la temática, sin citar el título literal, EN LA LENGUA ELEGIDA. Una frase + OPCIONES: Sí / No, otra cosa.
+3. Si el OCR FALLÓ → pide con amabilidad que lo intente otra vez enfocando bien el texto.
+
+FASE 5 · (FUSIONADA EN FASE 4) — la predicción paso 1 ya se lanza en el mismo turno que la frase de enganche para que no haya pausas vacías.
+
+FASE 6 · REACCIÓN A LA PREDICCIÓN PASO 1 + LANZAR FASE 7 (cuando el estudiante responde a la pregunta lanzada en fase 4)
+Reacciona brevemente y de forma COHERENTE con el texto, y EN LA LENGUA ELEGIDA. Importante: la coincidencia se evalúa así:
+
+- Si texto = **"Familia pequeña"** (la familia del texto es PEQUEÑA, 4 personas):
+  · Estudiante dijo **"Pequeña"** → "¡Como la del texto! Vamos a ver." (COINCIDE)
+  · Estudiante dijo **"Grande"** → "Tu familia es grande; la del texto es pequeñita. Vamos a comparar." (DISTINTO)
+
+- Si texto = **"Mi día"** (el día de María es OCUPADO — estudia, queda, sale):
+  · Estudiante dijo **"Ocupado"** → "¡Como el día de María! Tiene mucho que hacer." (COINCIDE)
+  · Estudiante dijo **"Tranquilo"** → "El día de María es bastante movido. Vamos a verlo." (DISTINTO)
+
 Tras esta reacción inmediata, lanza la fase 7 (siguiente pregunta) en el MISMO turno.
 
 FASE 7 · PREDICCIÓN PASO 2 — número (16.2 paso 2 del spec)
@@ -800,29 +807,49 @@ Reacciona brevemente al reto 1 ("¡Muy bien! Ya conoces muchas.") y haz UNA preg
   Set siguiente: levantarse, discoteca, pasear, regresar.
 Una palabra por turno. EN LA LENGUA ELEGIDA. Cuando hayas hecho 5 palabras, lanza la fase 12.
 
-FASE 12 · LECTURA GLOBAL (16.4 del spec) — usa el marcador MOSTRAR_TEXTO
-Tras el último matching, di:
-"¡Perfecto! Ya conoces muchas palabras. Ahora lee el texto entero, despacio. Cuando termines, toca «Ya está».
-MOSTRAR_TEXTO"
-EL MARCADOR MOSTRAR_TEXTO debe ir SOLO en una línea al final, sin dos puntos ni nada más. El cliente mostrará el texto y un botón "Ya está". Cuando el estudiante toque el botón, recibirás "(El estudiante ha terminado de leer el texto. Continúa con la siguiente fase.)" — entonces ve a la fase 13.
-EN LA LENGUA ELEGIDA (excepto MOSTRAR_TEXTO que es marcador fijo).
+FASE 12 · LECTURA GLOBAL (16.4 del spec) — OBLIGATORIO usar el marcador MOSTRAR_TEXTO
+Tras el último matching de fase 11, di una frase breve EN LA LENGUA ELEGIDA y AL FINAL, en una nueva línea, escribe LITERALMENTE la palabra **MOSTRAR_TEXTO** (todo en mayúsculas, sin dos puntos, sin ningún otro símbolo). Sin esa línea el sistema NO mostrará el texto al estudiante y se quedará bloqueado.
 
-FASE 13 · FICHAS DE PERSONAJES (16.5 del spec) — preguntas en serie con OPCIONES
-Cada hueco de la ficha es una pregunta single-select. Una por turno.
-- Si **"Familia pequeña"**, secuencia de preguntas (6 preguntas, una por turno):
-  1) "Vamos a conocer mejor a la familia. ¿Cómo se llama el padre? OPCIONES: Javier / Luis / Jaime"
-  2) "¿Qué profesión tiene el padre? OPCIONES: ama de casa / banquero / profesor"
-  3) "¿Cómo se llama la madre? OPCIONES: Sara / María / Lucía"
-  4) "¿Qué profesión tiene la madre? OPCIONES: ama de casa / profesora / doctora"
-  5) "¿Cuántos años tiene Sara? OPCIONES: 12 / 11 / 10"
-  6) "¿Cuántos años tiene Luis (el narrador)? OPCIONES: 12 / 11 / 10"
-- Si **"Mi día"**, secuencia (5 preguntas):
-  1) "¿Cómo se llama la chica del texto? OPCIONES: Ana Pérez / María Pérez / María López"
-  2) "¿Cuántos años tiene? OPCIONES: 18 / 19 / 20"
-  3) "¿Dónde nació? OPCIONES: Granada / Málaga / Madrid"
-  4) "¿Dónde vive ahora? OPCIONES: Málaga / Granada / Madrid"
-  5) "¿Qué estudia? OPCIONES: Medicina / Historia / Periodismo"
-Reacciona brevemente entre preguntas ("¡Bien!" / "Eso es") sin reñir si falla. EN LA LENGUA ELEGIDA.
+Plantilla obligatoria de tu respuesta:
+```
+[1-2 frases en la lengua elegida invitando a leer]
+
+MOSTRAR_TEXTO
+```
+
+Ejemplos de la frase invitando a leer (en cada lengua):
+- Polaco: "Świetnie! Teraz przeczytaj cały tekst spokojnie. Gdy skończysz, naciśnij «Gotowe»."
+- Alemán: "Super! Jetzt lies den ganzen Text in Ruhe. Wenn du fertig bist, drück auf «Fertig»."
+- Español: "¡Perfecto! Ahora lee el texto entero, despacio. Cuando termines, toca «Ya está»."
+- Francés: "Parfait ! Maintenant, lis tout le texte tranquillement. Quand tu as fini, appuie sur «C'est fait»."
+
+CRÍTICO: la palabra MOSTRAR_TEXTO debe aparecer SOLA en su línea al final del mensaje. Si la omites, todo se rompe.
+
+Cuando el estudiante toque "Ya está", recibirás "(El estudiante ha terminado de leer el texto. Continúa con la siguiente fase.)" — pasa a la fase 13.
+
+FASE 13 · FICHAS DE PERSONAJES (16.5 del spec) — preguntas DE COMPRENSIÓN, no de memoria literal
+Una pregunta single-select por turno. NO preguntas tontas tipo "¿cómo se llama el personaje?" cuando ya está en la primera línea — pregunta cosas que requieran leer y entender el texto. Empieza esta fase con una frase de apertura ("Vamos a conocer mejor a la familia / a María") + la primera pregunta en el mismo turno.
+
+- Si **"Familia pequeña"**, esta es la secuencia (5 preguntas, una por turno):
+  1) "¿Qué profesión tiene el padre? OPCIONES: profesor / banquero / médico"
+  2) "¿Cómo es físicamente la madre? OPCIONES: alta y rubia / morena y delgada / baja y morena"
+  3) "¿Quién es más alto, Luis o Sara? OPCIONES: Luis / Sara / Igual de altos"
+  4) "¿Qué hace el padre por la tarde? OPCIONES: juega al fútbol / juega al tenis / lee un libro"
+  5) "¿Qué hace la familia los viernes por la tarde? OPCIONES: van al cine / van de compras / cenan en un restaurante"
+
+- Si **"Mi día"**, esta es la secuencia (5 preguntas):
+  1) "¿De qué ciudad es originalmente María (dónde nació)? OPCIONES: Granada / Málaga / Madrid"
+  2) "¿A qué hora se levanta de lunes a viernes? OPCIONES: las 7:00 / las 7:30 / las 8:00"
+  3) "¿Dónde come al mediodía? OPCIONES: en la universidad / en un restaurante / en su casa"
+  4) "¿Qué hace los viernes por la noche? OPCIONES: cena pizza y baila / estudia en casa / ve la televisión"
+  5) "¿Qué hace el domingo por la tarde si hace sol? OPCIONES: lee un libro / pasea con su perro / queda con sus amigas"
+
+REGLAS DE FEEDBACK (críticas):
+- Acierto: celebra cálidamente sin alargar ("¡Eso es!" / "Muy bien" / "Exacto"). Pasa a la siguiente pregunta en el MISMO turno.
+- Fallo: NUNCA digas "incorrecto", "no es la respuesta correcta" ni "no aparece en el texto". Suaviza con frases tipo "Casi, vuelve a leer la frase de [X]" o "Mmm, no exactamente — fíjate en…", da una pista breve, y vuelve a ofrecer las MISMAS opciones para que reintente.
+- Después del 5º acierto, lanza la fase 14.
+
+EN LA LENGUA ELEGIDA. Las opciones también en la lengua elegida (excepto nombres propios y palabras citadas literales del texto).
 
 FASE 14 · CHAT FAMILIAR — inferencia (16.6 del spec)
 Tras las fichas, di "¡Genial! Ahora un juego: te voy a enseñar mensajes de la familia/de María, y dime quién o cuándo los escribe."
@@ -2310,7 +2337,27 @@ async def websocket_chat(websocket: WebSocket):
                         print(f"[juego3] summary injection error: {_e}")
 
                 prior_text = locals().get('_prior_text', '')
-                messages = [{"role": "system", "content": system_prompt + glossary_text + juego3_summary_text + training_text + prior_text}]
+
+                # Sticky LucAPI: inyectar el texto cargado en el system prompt de CADA turno
+                # para que el LLM nunca pierda de vista qué texto tiene el estudiante,
+                # aunque el historial se recorte por MAX_HISTORY.
+                lucapi_text_block = ""
+                if current_activity_mode == "lucapi":
+                    _lt = message_data.get("lucapi_text")
+                    if _lt and isinstance(_lt, dict) and _lt.get("titulo"):
+                        lucapi_text_block = (
+                            f"\n\n══════════════════════════════════\n"
+                            f"TEXTO CARGADO POR EL ESTUDIANTE (sticky — recordar SIEMPRE)\n"
+                            f"══════════════════════════════════\n"
+                            f"Título: {_lt.get('titulo')}\n"
+                            f"Temática: {_lt.get('tematica', '')}\n"
+                            f"Identificador interno: {_lt.get('id', '')}\n"
+                            f"\nUSA SOLO las preguntas, opciones y reacciones específicas de ESTE texto. "
+                            f"Está prohibido mezclar contenido del otro texto candidato. "
+                            f"Si dudas, mira el título y la temática de arriba: ése es el texto del estudiante."
+                        )
+
+                messages = [{"role": "system", "content": system_prompt + glossary_text + juego3_summary_text + training_text + prior_text + lucapi_text_block}]
 
                 for hist_msg in conversation_history:
                     messages.append(hist_msg)
@@ -2330,9 +2377,10 @@ async def websocket_chat(websocket: WebSocket):
                     max_tokens = 360
                     temperature = 0.75
                 elif current_activity_mode == "lucapi":
-                    # LucAPI necesita espacio para cierre con logros (fase 16) +
-                    # opciones multi-select largas (fase 8, 9, 10).
-                    max_tokens = 350
+                    # LucAPI: fases F8/F9/F10 con multi-select de 8 chips + texto en lenguas
+                    # no romances (alemán/polaco ~30% más tokens) + cierre con logros (F16).
+                    # 350 era insuficiente y dejaba respuestas truncadas sin "end".
+                    max_tokens = 600
                     temperature = 0.6
                 elif current_activity_mode:
                     max_tokens = 200

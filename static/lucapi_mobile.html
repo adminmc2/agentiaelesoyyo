@@ -996,12 +996,22 @@
             }
             addTyping();
 
-            ws.send(JSON.stringify({
+            const payload = {
                 type: 'chat',
                 message: text,
                 activity_mode: 'lucapi',
                 response_mode: 'short'
-            }));
+            };
+            // Sticky: si ya hemos identificado el texto, lo enviamos en cada turno
+            // para que el backend lo reinyecte al system prompt aunque el historial se recorte.
+            if (loadedText) {
+                payload.lucapi_text = {
+                    id: loadedText.id,
+                    titulo: loadedText.titulo,
+                    tematica: loadedText.tematica
+                };
+            }
+            ws.send(JSON.stringify(payload));
         }
 
         // --- Form handler ---
@@ -1271,11 +1281,11 @@ El domingo por la tarde regreso a Granada y, si hace sol, salgo con mi perro a d
                 addBubble('user', '[Imagen enviada — no reconocida]');
             } else if (hits === 1) {
                 loadedText = best;
-                cue = `(El estudiante ha escaneado el texto. La identificación tiene poca confianza pero la mejor hipótesis es el texto titulado "${best.titulo}" (temática: ${best.tematica}). Pregúntale cortésmente y EN LA LENGUA ELEGIDA si su texto habla de ${best.tematica}, sin mostrar el título literal — por ejemplo: "Creo que tu texto habla de ${best.tematica}, ¿es correcto?")`;
+                cue = `(El estudiante ha escaneado el texto. Identificación con baja confianza — texto candidato: "${best.titulo}" (temática: ${best.tematica}). Procede según FASE 4 punto 2 del prompt: pregunta cortésmente si habla de ${best.tematica}, en la lengua elegida.)`;
                 addBubble('user', '[Imagen enviada]');
             } else {
                 loadedText = best;
-                cue = `(El estudiante ha escaneado el texto. Se ha identificado con alta confianza que su texto es el titulado "${best.titulo}" (temática: ${best.tematica}). Suelta una frase cálida EN LA LENGUA ELEGIDA que introduzca la temática SIN mencionar el título literal, por ejemplo en español: "¡Genial! Hoy vamos a hablar de ${best.tematica}. Vas a ver algo muy interesante.")`;
+                cue = `(El estudiante ha escaneado el texto. Identificación con alta confianza — texto: "${best.titulo}" (temática: ${best.tematica}). Procede según FASE 4 punto 1 del prompt: en UN SOLO TURNO, frase cálida que introduzca la temática + pregunta de predicción paso 1 con OPCIONES, en la lengua elegida.)`;
                 addBubble('user', '[Imagen enviada]');
             }
             sendToLLM(cue, { hidden: true });
