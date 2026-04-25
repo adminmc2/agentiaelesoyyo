@@ -106,24 +106,32 @@ Esto incluye:
 **Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
 
 
-### Diapositiva 6 (IA para estudiantes — Strategos — v23.18.0 · EN CONSTRUCCIÓN)
-La antigua diapo 6 "Agentes MIAU" se eliminó en v23.17.1 (ver histórico CHANGELOG). En v23.18.0 se ha creado desde cero la nueva diapo 6 **"IA para estudiantes"** (producto Strategos) con la arquitectura vacía — scaffolding de 4 pasos clonado del patrón de la diapo 5. Los pasos aún no tienen contenido implementado.
+### Diapositiva 6 (IA para estudiantes — Strategos — v23.19.6)
+**PROHIBIDO ABSOLUTAMENTE** modificar cualquier código relacionado con la diapositiva 6. No importa el contexto: refactor, limpieza, mejora, bug fix general, cambio de diseño — NADA justifica tocar la diapo 6 salvo que el usuario diga EXPLÍCITAMENTE "modifica la diapo 6" o "cambia esto de la diapo 6".
 
-**Estado actual (arquitectura vacía, no protegida todavía)**:
-- HTML: `#diapo6-screen` en `static/index.html` con header fijo, `.diapo6-stage`, `.diapo6-rays`, flechas laterales overlay, 4 `.diapo6-step` con `data-step="1..4"` que solo contienen el hook permanente y un placeholder provisional.
-- CSS: sección `/* DIAPO 6 — IA para estudiantes */` en `static/style.css` con `.diapo6-*` (screen, stage, rays, side-arrow, step con transición slide horizontal, hook__key, placeholder, responsive).
-- JS: `showDiapo6Screen`, `hideDiapo6Screen`, `isOnDiapo6Screen`, `diapo6NextStep`, `diapo6PrevStep`, `_diapo6GoToStep`, `_diapo6RunStep` (no-op), `_diapo6StopStep` (no-op), `_diapo6StopAll` (no-op), `_diapo6SyncStep`. Widget Eliana global activado al entrar. Bypass móvil.
-- Deep-link: `?screen=strategos` (con sub-param `&step=N` para snap directo sin transición).
-- Listeners: `diapo6-nav-back/next`, `diapo6-side-prev/next`.
+Concepto: presentación del producto **Strategos** (tarjetas pedagógicas con agentes de IA para estudiantes). 3 pasos secuenciales con transiciones slide horizontal, clonando la arquitectura de la diapo 5. El paso 4 inicialmente planeado se canceló en v23.19.5; en su lugar el CTA a Strategos vive al final del paso 2.
 
-**Próximos pasos planeados** (implementación de contenido):
-- Paso 1 — Hook + Qué es Strategos → `layout-text-flip` (alternando TARJETA ↔ AGENTE ↔ ESTRATEGIA).
-- Paso 2 — Cómo funciona en clase → `focus-cards` (3 cards con hover-desenfoca-otras).
-- Paso 3 — Tarjeta + LucAPI → `3d-card` volteable (Cara A/B) + `animated-circular-progress-bar` para los 4 pasos LucAPI.
-- Paso 4 — Filosofía + CTA → `comic-text` ("El profesor no desaparece. Se multiplica.") + `AnimatedButton` + QR `https://strategos.up.railway.app/`.
-- Eliana: prompt `"strategos"` en `main.py` (pendiente) y `activity_mode` dinámico en `sendBlindaMessage` para que Eliana hable del contenido de Strategos.
+Pasos:
+1. **Paso 1 — Hook + Qué es Strategos** (`layout-text-flip`). Hook permanente "Una tarjeta · Un agente · Una estrategia." + layout: "Strategos es" con pill que alterna cada 3s "una TARJETA" / "un AGENTE" / "una ESTRATEGIA". Transición 500ms (exit slide-down+blur, enter slide-up+blur). Descripción debajo: "Una colección de tarjetas pedagógicas con agentes de IA dentro." + "La tarjeta enseña la estrategia. El agente la practica contigo."
+2. **Paso 2 — Cómo funciona en clase** (`focus-cards`). 3 cards neobrutalism en grid: (a) Atención diferenciada — icon `ph-users-three` mostaza; (b) Del papel a la pantalla — icon `ph-qr-code` lavanda; (c) El agente es opcional — icon `ph-sparkle` verde menta. Hover desenfoca las otras 2. Debajo: **CTA "Entra en Strategos"** (botón AnimatedButton mostaza con rotación -2°, hover crema +1° +scale 1.05) con link externo a `https://strategos.up.railway.app/`.
+3. **Paso 3 — La tarjeta + LucAPI** (`3d-card` + circular-progress). Izquierda: tarjeta física volteable en 3D (rotateY 180deg al hover). Cara A "Lee en Cuatro Pasos" (ol numerada). Cara B "Los trucos del experto" (ul con iconos lightbulb/target/magnifying-glass/link). Derecha: card con avatar "LucAPI · el agente estrella · Comprensión Lectora" + ring SVG (--progress CSS variable) que avanza por los 4 pasos cada 2.8s con swap de label/desc. Cita inferior en pill violeta: "LucAPI nunca da la respuesta. Te ayuda a descubrirla."
 
-**Esta diapo NO está protegida hasta que se termine la implementación de contenido.** Cuando lo esté, se reescribirá esta sección como bloque PROHIBIDO ABSOLUTAMENTE.
+Esto incluye:
+- `showDiapo6Screen()`, `hideDiapo6Screen()`, `isOnDiapo6Screen()`, `diapo6NextStep()`, `diapo6PrevStep()`, `_diapo6GoToStep()`, `_diapo6RunStep()`, `_diapo6StopStep()`, `_diapo6StopAll()`, `_diapo6SyncStep()`.
+- `_diapo6StartFlipLayout`/`_diapo6StopFlipLayout` para el paso 1 (cycling cada 3s de `DIAPO6_FLIP_WORDS`).
+- `_diapo6StartLucapi`/`_diapo6ApplyLucapiStep`/`_diapo6StopLucapi` para el paso 3 (cycling cada 2.8s de `DIAPO6_LUCAPI_STEPS`).
+- Constantes `DIAPO6_TOTAL_STEPS = 3`, `DIAPO6_FLIP_WORDS`, `DIAPO6_FLIP_INTERVAL_MS = 3000`, `DIAPO6_LUCAPI_STEPS` (4 pasos), `DIAPO6_LUCAPI_INTERVAL_MS = 2800`.
+- State module-level `_diapo6Step`, `_diapo6ElianaInit`, `_diapo6FlipTimer`, `_diapo6FlipIndex`, `_diapo6LucapiTimer`, `_diapo6LucapiIndex`.
+- Todo el HTML de `#diapo6-screen` (header, stage, rays, flechas laterales, 3 `.diapo6-step`).
+- Todo el CSS `.diapo6-*` (screen, stage, rays drift 18s, side-arrow, step slide horizontal, hook__key, flip-layout, flip-word animations, step1-desc, focus-grid/card con siblings-blur hover, cta-btn neobrutalism, 3d-container/card/face, lucapi progress con --progress var, step3-quote).
+- Prompt `"strategos"` en `main.py` (`_DEFAULT_PROMPTS` + `ACTIVITY_PROMPTS`). Describe Strategos, las 3 ideas de clase, LucAPI y sus 4 pasos, filosofía "preguntas no respuestas", la frase "LucAPI nunca da la respuesta. Te ayuda a descubrirla.", URL https://strategos.up.railway.app/. Bloque NO-HABLAR explícito.
+- `sendBlindaMessage` en `app.js` — `activity_mode` dinámico: `isOnDiapo6Screen() → 'strategos'`.
+- Mensaje inicial del widget al entrar: "Hola, soy Eliana. Esta diapo es sobre Strategos: tarjetas pedagógicas con agentes de IA dentro, para tus estudiantes. Pregúntame por LucAPI, por cómo se reparten las tarjetas en clase, o por la filosofía 'preguntas, no respuestas'."
+- Deep-link `?screen=strategos` con sub-param `&step=N` (rango 2-3, snap directo sin transición).
+- Listeners: `diapo6-nav-back/next` (saltan DIAPO entera — diapo 5 ← / pantalla final →), `diapo6-side-prev/next` (navegan PASOS internos).
+- URL externa del CTA: `https://strategos.up.railway.app/` (abre en nueva pestaña con `target="_blank" rel="noopener"`).
+
+**Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
 
 ---
 

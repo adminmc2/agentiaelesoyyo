@@ -4085,9 +4085,13 @@ function sendBlindaMessage(message) {
     let assistantBubble = null;
 
     const doSend = () => {
-        // En diapo 5 usamos el prompt 'diapo5' (habla del contenido de esa diapo).
-        // En el resto (diapo 3 con widget abierto) usamos 'juego3_chat'.
-        const activity = isOnDiapo5Screen() ? 'diapo5' : 'juego3_chat';
+        // Elegir activity_mode según la pantalla visible.
+        // - Diapo 6 (Strategos) → 'strategos' (habla de tarjetas, LucAPI, filosofía).
+        // - Diapo 5 (ELITE)     → 'diapo5'    (habla del contenido de esa diapo).
+        // - Resto (diapo 3 con widget abierto) → 'juego3_chat'.
+        let activity = 'juego3_chat';
+        if (typeof isOnDiapo6Screen === 'function' && isOnDiapo6Screen()) activity = 'strategos';
+        else if (isOnDiapo5Screen()) activity = 'diapo5';
         const payload = { message, response_mode: 'full', activity_mode: activity };
         state._blindaWs.send(JSON.stringify(payload));
     };
@@ -5508,6 +5512,12 @@ function showDiapo6Screen() {
         if (!_diapo6ElianaInit && typeof initWidgetListeners === 'function') {
             initWidgetListeners();
             _diapo6ElianaInit = true;
+        }
+        // Reset del chat con mensaje inicial específico de la diapo 6 (Strategos)
+        const messagesEl = document.getElementById('blinda-chat-messages');
+        if (messagesEl && typeof addBlindaChatBubble === 'function') {
+            messagesEl.innerHTML = '';
+            addBlindaChatBubble('Hola, soy Eliana. Esta diapo es sobre Strategos: tarjetas pedagógicas con agentes de IA dentro, para tus estudiantes. Pregúntame por LucAPI, por cómo se reparten las tarjetas en clase, o por la filosofía "preguntas, no respuestas".', 'assistant');
         }
     }
 

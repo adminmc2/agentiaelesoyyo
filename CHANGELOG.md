@@ -1,5 +1,20 @@
 # Changelog — AgentiaELE
 
+## v23.19.6 — 2026-04-25 — Diapo 6: Eliana habla de Strategos (prompt + chat contextual)
+Fase 6/6 — la diapo 6 "IA para estudiantes" (Strategos) cierra con Eliana contextualizada para que hable solo del contenido de esta diapo cuando el usuario abra el widget flotante.
+
+**Backend — `main.py`**:
+- Nuevo prompt `"strategos"` en `_DEFAULT_PROMPTS`. Describe: qué es Strategos (tarjetas pedagógicas con agentes), las 3 ideas de cómo funciona en clase (atención diferenciada, del papel a la pantalla, agente opcional), LucAPI y sus 4 pasos (Prepárate, Lee con una misión, Busca las pruebas, Conecta), la frase identitaria ("LucAPI nunca da la respuesta. Te ayuda a descubrirla."), la filosofía (estrategia no ejercicio · preguntas no respuestas · analógico+digital · "el profe se multiplica"), los otros usos, y la URL https://strategos.up.railway.app/. Bloque "DE QUÉ NO HABLAR" prohíbe mencionar juego, chef, MIAU, Hablandis, o inventar otros agentes estrella.
+- Añadido `"strategos"` al filtro `ACTIVITY_PROMPTS`.
+
+**Frontend — `app.js`**:
+- `sendBlindaMessage` (función del widget): `activity_mode` dinámico por cascada — `isOnDiapo6Screen() → 'strategos'`, `isOnDiapo5Screen() → 'diapo5'`, fallback `'juego3_chat'`.
+- `showDiapo6Screen`: reset del chat del widget con mensaje inicial específico: "Hola, soy Eliana. Esta diapo es sobre Strategos: tarjetas pedagógicas con agentes de IA dentro, para tus estudiantes. Pregúntame por LucAPI, por cómo se reparten las tarjetas en clase, o por la filosofía 'preguntas, no respuestas'."
+
+**Resultado**: al abrir la diapo 6 y clicar el widget flotante, Eliana saluda contextualizada y sus respuestas usan el prompt `strategos` (no el de `juego3_chat` ni el de `diapo5`).
+
+Versionado sync → v23.19.6. Requiere reinicio del servidor FastAPI para que recoja el nuevo prompt.
+
 ## v23.19.5 — 2026-04-25 — Diapo 6: CTA Strategos en paso 2 + reducción a 3 pasos (paso 4 cancelado)
 El usuario decide que la fase 5 (paso 4 con comic-text + AnimatedButton + QR + filosofía) NO se implementa. En su lugar, añade un **CTA directo a Strategos** al final del paso 2 (focus-cards) para que al hacer click lleve a la comunidad fuera de la presentación.
 
