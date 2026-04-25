@@ -41,8 +41,8 @@
       "id": 2,
       "area": "Usa tus herramientas",
       "formato": "misma-orden",
-      "enunciado_frente": "Misma orden para las tres: «Organiza las notas de 3ºB». Solo una lo hace de verdad.",
-      "intro": "A las tres les das la misma instrucción: «Organiza las notas del trimestre de 3ºB».",
+      "enunciado_frente": "Misma orden para las tres: «Organiza las notas del trimestre». Solo una lo hace de verdad.",
+      "intro": "A las tres les das la misma instrucción: «Organiza las notas del trimestre».",
       "pregunta": "¿Cuál respuesta es la de un agente?",
       "opciones": [
         {
