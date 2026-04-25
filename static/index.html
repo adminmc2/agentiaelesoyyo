@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.22.4">
+    <link rel="stylesheet" href="/static/style.css?v=23.23.0">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -406,7 +406,7 @@
                         <h2 class="juego3-eliana__title">Eliana</h2>
                         <div class="juego3-eliana__text" id="juego3-eliana-text"></div>
                         <button class="juego3-ctrl-btn juego3-ctrl-btn--primary juego3-eliana__cta hidden" id="juego3-eliana-advance">
-                            Avanzar a diapo 4 <i class="ph-bold ph-arrow-right"></i>
+                            Continuar <i class="ph-bold ph-arrow-right"></i>
                         </button>
                     </div>
                     <!-- Panel de resultados por pregunta (se inyecta dinámicamente si hay summary) -->
@@ -963,6 +963,185 @@
         </main>
 
         <!-- ============================================
+             PANTALLA 08 — Píldoras formativas (v23.23.0)
+             Clon estructural de diapo 6 (Strategos): 3 pasos secuenciales
+             con transiciones slide horizontal, hook permanente, flechas
+             laterales. Contenido: dos equipos de agentes + reutilización.
+             ============================================ -->
+        <main class="main-content diapo8-screen hidden" id="diapo8-screen">
+            <header class="slide-header">
+                <button class="slide-nav-btn slide-nav-btn--back" id="diapo8-nav-back" title="Volver">
+                    <i class="ph-bold ph-arrow-left"></i>
+                </button>
+                <div class="slide-header__title">
+                    <span class="slide-header__num">08</span>
+                    <h1 class="slide-header__text">Píldoras formativas</h1>
+                </div>
+                <button class="slide-nav-btn slide-nav-btn--next" id="diapo8-nav-next" title="Siguiente">
+                    <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </header>
+
+            <div class="diapo8-stage" id="diapo8-stage">
+                <div class="diapo8-rays" aria-hidden="true"></div>
+
+                <button class="diapo8-side-arrow diapo8-side-arrow--prev" id="diapo8-side-prev" title="Paso anterior" aria-label="Paso anterior">
+                    <i class="ph-bold ph-caret-left"></i>
+                </button>
+                <button class="diapo8-side-arrow diapo8-side-arrow--next" id="diapo8-side-next" title="Siguiente paso" aria-label="Siguiente paso">
+                    <i class="ph-bold ph-caret-right"></i>
+                </button>
+
+                <!-- ============ PASO 1 — Qué es una píldora formativa (layout-text-flip) ============ -->
+                <section class="diapo8-step is-active" data-step="1" id="diapo8-step-1">
+                    <h2 class="diapo8-hook">Crean · Actúan · Se <span class="diapo8-hook__key">reutilizan</span>.</h2>
+
+                    <p class="diapo8-step__pre">Un microcontenido pedagógico: pocas diapositivas, una idea clara, mucha interacción.</p>
+
+                    <div class="diapo8-flip-layout">
+                        <span class="diapo8-flip-layout__pre">Dos equipos que</span>
+                        <span class="diapo8-flip-layout__pill" id="diapo8-flip-pill">
+                            <span class="diapo8-flip-layout__word" id="diapo8-flip-word">CREAN</span>
+                        </span>
+                    </div>
+
+                    <p class="diapo8-step1-desc">
+                        Uno la <strong>construye</strong>. Otro <strong>vive dentro</strong> de ella. El alumno <strong>descubre</strong> la regla — nunca le llega dada.
+                    </p>
+                </section>
+
+                <!-- ============ PASO 2 — Los dos equipos en paralelo ============ -->
+                <section class="diapo8-step" data-step="2" id="diapo8-step-2">
+                    <h2 class="diapo8-hook">Crean · Actúan · Se <span class="diapo8-hook__key">reutilizan</span>.</h2>
+
+                    <div class="diapo8-teams">
+                        <!-- Equipo 1: LOS QUE CREAN -->
+                        <aside class="diapo8-team diapo8-team--creators">
+                            <h3 class="diapo8-team__title">
+                                <span class="diapo8-team__num">01</span>
+                                Los que <span class="diapo8-team__key">CREAN</span>
+                            </h3>
+                            <p class="diapo8-team__sub">Pipeline de 5 agentes de producción.</p>
+                            <ul class="diapo8-team__list">
+                                <li class="diapo8-team-card">
+                                    <span class="diapo8-team-card__icon"><i class="ph-fill ph-compass"></i></span>
+                                    <div class="diapo8-team-card__body">
+                                        <strong>Contenido</strong>
+                                        <span>diseña la secuencia pedagógica.</span>
+                                    </div>
+                                </li>
+                                <li class="diapo8-team-card">
+                                    <span class="diapo8-team-card__icon"><i class="ph-fill ph-stack"></i></span>
+                                    <div class="diapo8-team-card__body">
+                                        <strong>Scaffold</strong>
+                                        <span>monta la arquitectura de la píldora.</span>
+                                    </div>
+                                </li>
+                                <li class="diapo8-team-card">
+                                    <span class="diapo8-team-card__icon"><i class="ph-fill ph-cards"></i></span>
+                                    <div class="diapo8-team-card__body">
+                                        <strong>Slides</strong>
+                                        <span>implementa las mecánicas interactivas.</span>
+                                    </div>
+                                </li>
+                                <li class="diapo8-team-card">
+                                    <span class="diapo8-team-card__icon"><i class="ph-fill ph-chats-circle"></i></span>
+                                    <div class="diapo8-team-card__body">
+                                        <strong>Diálogos</strong>
+                                        <span>escribe las burbujas de cada personaje.</span>
+                                    </div>
+                                </li>
+                                <li class="diapo8-team-card">
+                                    <span class="diapo8-team-card__icon"><i class="ph-fill ph-shield-check"></i></span>
+                                    <div class="diapo8-team-card__body">
+                                        <strong>QA</strong>
+                                        <span>valida coherencia pedagógica y técnica.</span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </aside>
+
+                        <!-- Divisor central -->
+                        <div class="diapo8-teams__divider" aria-hidden="true">
+                            <div class="diapo8-teams__divider-line"></div>
+                            <span class="diapo8-teams__divider-label">Uno construye<br>Otro acompaña</span>
+                            <div class="diapo8-teams__divider-line"></div>
+                        </div>
+
+                        <!-- Equipo 2: LOS QUE ACTÚAN -->
+                        <aside class="diapo8-team diapo8-team--actors">
+                            <h3 class="diapo8-team__title">
+                                <span class="diapo8-team__num">02</span>
+                                Los que <span class="diapo8-team__key">ACTÚAN</span>
+                            </h3>
+                            <p class="diapo8-team__sub">5 personajes-agente dentro de la píldora.</p>
+                            <ul class="diapo8-team__list">
+                                <li class="diapo8-team-card diapo8-team-card--char">
+                                    <img src="/static/imagenes/pildoras/pili.png" alt="PILI" class="diapo8-team-card__img">
+                                    <div class="diapo8-team-card__body">
+                                        <strong>PILI</strong> · <em>Anfitriona</em>
+                                        <span>Abre y cierra.</span>
+                                    </div>
+                                </li>
+                                <li class="diapo8-team-card diapo8-team-card--char">
+                                    <img src="/static/imagenes/pildoras/flora.png" alt="FLORA" class="diapo8-team-card__img">
+                                    <div class="diapo8-team-card__body">
+                                        <strong>FLORA</strong> · <em>Observadora</em>
+                                        <span>Pregunta, nunca da la respuesta.</span>
+                                    </div>
+                                </li>
+                                <li class="diapo8-team-card diapo8-team-card--char">
+                                    <img src="/static/imagenes/pildoras/vito.png" alt="VITO" class="diapo8-team-card__img">
+                                    <div class="diapo8-team-card__body">
+                                        <strong>VITO</strong> · <em>Método</em>
+                                        <span>Razona paso a paso.</span>
+                                    </div>
+                                </li>
+                                <li class="diapo8-team-card diapo8-team-card--char">
+                                    <img src="/static/imagenes/pildoras/luna.png" alt="LUNA" class="diapo8-team-card__img">
+                                    <div class="diapo8-team-card__body">
+                                        <strong>LUNA</strong> · <em>Verificadora</em>
+                                        <span>Comprueba con quiz, no enseña.</span>
+                                    </div>
+                                </li>
+                                <li class="diapo8-team-card diapo8-team-card--char">
+                                    <img src="/static/imagenes/pildoras/chipi.png" alt="CHIPI" class="diapo8-team-card__img">
+                                    <div class="diapo8-team-card__body">
+                                        <strong>CHIPI</strong> · <em>Desafío</em>
+                                        <span>Gamifica el cierre.</span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </aside>
+                    </div>
+                </section>
+
+                <!-- ============ PASO 3 — Reutilización + CTA ============ -->
+                <section class="diapo8-step" data-step="3" id="diapo8-step-3">
+                    <h2 class="diapo8-hook">Crean · Actúan · Se <span class="diapo8-hook__key">reutilizan</span>.</h2>
+
+                    <p class="diapo8-step3__headline">Mismos agentes, mismas funciones, <strong>infinitos contenidos</strong>.</p>
+
+                    <div class="diapo8-reuse-tags">
+                        <span class="diapo8-reuse-tag"><i class="ph-fill ph-pencil-ruler"></i>Gramática</span>
+                        <span class="diapo8-reuse-tag"><i class="ph-fill ph-book-open-text"></i>Estrategias</span>
+                        <span class="diapo8-reuse-tag"><i class="ph-fill ph-chats-circle"></i>Funciones comunicativas</span>
+                        <span class="diapo8-reuse-tag"><i class="ph-fill ph-lightbulb"></i>Cualquier contenido inductivo</span>
+                    </div>
+
+                    <p class="diapo8-step3__closing">
+                        Un equipo <strong>construye</strong>. Otro <strong>acompaña</strong>. Tú decides <strong>cuándo</strong> y <strong>dónde</strong>.
+                    </p>
+
+                    <a href="https://pildormaformativa.netlify.app/pildoras-formativas/3-1" target="_blank" rel="noopener" class="diapo8-cta-btn">
+                        <span class="diapo8-cta-btn__label">Probar una píldora</span>
+                        <i class="ph-bold ph-arrow-right diapo8-cta-btn__icon"></i>
+                    </a>
+                </section>
+            </div>
+        </main>
+
+        <!-- ============================================
              DIAPOSITIVA FINAL — Gracias / Ačiū
              ============================================ -->
         <main class="main-content final-screen hidden" id="final-screen">
@@ -1478,6 +1657,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.22.4"></script>
+    <script src="/static/app.js?v=23.23.0"></script>
 </body>
 </html>

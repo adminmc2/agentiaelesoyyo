@@ -155,6 +155,35 @@ Esto incluye:
 
 **Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
 
+### Diapositiva 8 (Píldoras formativas — v23.23.0)
+**PROHIBIDO ABSOLUTAMENTE** modificar cualquier código relacionado con la diapositiva 8. No importa el contexto: refactor, limpieza, mejora, bug fix general, cambio de diseño — NADA justifica tocar la diapo 8 salvo que el usuario diga EXPLÍCITAMENTE "modifica la diapo 8" o "cambia esto de la diapo 8".
+
+Concepto: presenta el producto **Píldoras Formativas** (microcontenido pedagógico con dos equipos de agentes de IA). Eje conceptual: un equipo construye la píldora, otro vive dentro. 3 pasos secuenciales clonando la arquitectura de la diapo 6.
+
+Pasos:
+1. **Paso 1 — Qué es una píldora** (`layout-text-flip`). Hook permanente "Crean · Actúan · Se **reutilizan**." + pre-text + pill rotando cada 2.8s: CREAN / ACTÚAN / SE REUTILIZAN + descripción con bolds.
+2. **Paso 2 — Los dos equipos** (layout grid 3 cols con divisor central). Izquierda: "01 · Los que CREAN" — 5 cards con iconos Phosphor (compass, stack, cards, chats-circle, shield-check) correspondiendo a Contenido/Scaffold/Slides/Diálogos/QA. Derecha: "02 · Los que ACTÚAN" — 5 cards con PNGs reales en `/static/imagenes/pildoras/` (pili.png, flora.png, vito.png, luna.png, chipi.png) correspondiendo a PILI/FLORA/VITO/LUNA/CHIPI con rol (Anfitriona/Observadora/Método/Verificadora/Desafío). Divisor vertical con label "Uno construye · Otro acompaña".
+3. **Paso 3 — Reutilización + CTA**. Headline "Mismos agentes, mismas funciones, infinitos contenidos." + 4 tags (Gramática / Estrategias / Funciones comunicativas / Cualquier contenido inductivo) + cierre "Un equipo construye. Otro acompaña. Tú decides cuándo y dónde." + CTA `AnimatedButton` neobrutalism rotado -2° con link externo a `https://pildormaformativa.netlify.app/pildoras-formativas/3-1`.
+
+Esto incluye:
+- `showDiapo8Screen`, `hideDiapo8Screen`, `isOnDiapo8Screen`, `diapo8NextStep`, `diapo8PrevStep`, `_diapo8GoToStep`, `_diapo8RunStep`, `_diapo8StopStep`, `_diapo8StopAll`, `_diapo8SyncStep`.
+- `_diapo8StartFlipLayout`/`_diapo8StopFlipLayout` para el paso 1 (cycling cada 2.8s).
+- Constantes `DIAPO8_TOTAL_STEPS = 3`, `DIAPO8_FLIP_WORDS`, `DIAPO8_FLIP_INTERVAL_MS`.
+- State module-level `_diapo8Step`, `_diapo8ElianaInit`, `_diapo8FlipTimer`, `_diapo8FlipIndex`.
+- `elements.diapo8Screen` en el mapping.
+- HTML completo de `#diapo8-screen` (header, stage, rays, flechas laterales, 3 steps con contenido).
+- CSS `.diapo8-*` (clonado de patrón diapo 6: screen, stage, rays, side-arrow, step slide horizontal, hook__key con highlighter; específicos: flip-layout, teams con grid 3 cols, team-cards, team__num pill, divider, reuse-tags, cta-btn).
+- Imágenes PNG en `/static/imagenes/pildoras/` (pili, flora, vito, luna, chipi) copiadas del repo `pildoraformativa` (github.com/adminmc2/pildoraformativa).
+- Prompt `"pildoras"` en `main.py` (`_DEFAULT_PROMPTS` + `ACTIVITY_PROMPTS`). Describe los 2 equipos, los 5 personajes con sus roles, la reutilización, filosofía, URL. Bloque NO-HABLAR explícito.
+- `sendBlindaMessage` en `app.js` — cascada `isOnDiapo8Screen() → 'pildoras'` (con prioridad sobre diapo 6 y 5).
+- Mensaje inicial del widget al entrar: "Hola, soy Eliana. Esta diapo trata de las Píldoras Formativas: un microcontenido pedagógico con dos equipos de agentes…"
+- Deep-link `?screen=pildoras` con sub-param `&step=N` (rango 2-3, snap directo sin transición).
+- Listeners: `diapo8-nav-back` (→ `showDiapo7Screen`), `diapo8-nav-next` (→ `showFinalScreen`), `diapo8-side-prev/next` (navegan pasos).
+- Navegación entrante: la flecha superior-derecha de la diapo 7 salta a `showDiapo8Screen()`.
+- URL externa del CTA: `https://pildormaformativa.netlify.app/pildoras-formativas/3-1` (`target="_blank" rel="noopener"`).
+
+**Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
+
 ---
 
 ## Sistema de diseño v23 — Paleta pastel (Combo 3)

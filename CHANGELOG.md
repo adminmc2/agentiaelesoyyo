@@ -1,5 +1,43 @@
 # Changelog — AgentiaELE
 
+## v23.23.0 — 2026-04-25 — Nueva diapo 8 "Píldoras formativas" + fix diapo 3 "Continuar"
+Dos cambios en paralelo:
+
+### 1. Nueva diapo 8 "Píldoras formativas"
+Presenta el producto con 3 pasos secuenciales clonando arquitectura de diapo 6. El usuario cancela idea previa de 2 equipos/5 personajes en un solo paso — se distribuyen en 3 pasos.
+
+**Pasos**:
+1. **Qué es una píldora** — `layout-text-flip` con pill rotando CREAN / ACTÚAN / SE REUTILIZAN cada 2.8s. Hook permanente "Crean · Actúan · Se **reutilizan**." + pre-text y descripción.
+2. **Los dos equipos** — grid 3 columnas: Izq 5 cards con iconos Phosphor (compass/stack/cards/chats-circle/shield-check) para Equipo 1 (Contenido/Scaffold/Slides/Diálogos/QA). Divisor central vertical mostaza con label "Uno construye · Otro acompaña". Der 5 cards con PNGs reales de los personajes (PILI/FLORA/VITO/LUNA/CHIPI) con rol del brief (Anfitriona/Observadora/Método/Verificadora/Desafío) y función breve.
+3. **Reutilización + CTA** — headline "Mismos agentes, mismas funciones, infinitos contenidos" + 4 tags neobrutalism (Gramática / Estrategias / Funciones comunicativas / Cualquier contenido inductivo) + cierre conceptual + CTA `AnimatedButton` con link externo a `https://pildormaformativa.netlify.app/pildoras-formativas/3-1`.
+
+**Imágenes**: 5 PNGs reales copiados del repo `pildoraformativa` a `static/imagenes/pildoras/` (pilar.png → pili.png, flora, vito, luna, chipi).
+
+**Backend**: nuevo prompt `"pildoras"` en `main.py` describiendo los dos equipos, los 5 personajes, la reutilización y la filosofía. Añadido al filtro `ACTIVITY_PROMPTS`.
+
+**Navegación**: diapo 7 nav-next → `showDiapo8Screen` (antes iba a `showFinalScreen`). Diapo 8 nav-back → diapo 7. Diapo 8 nav-next → final. Laterales navegan pasos.
+
+**Eliana**: widget global activado al entrar con mensaje inicial específico. Cascada `activity_mode`: `isOnDiapo8Screen() → 'pildoras'` (prioridad sobre diapo 6 y 5).
+
+**Deep-link**: `?screen=pildoras` con sub-param `&step=N` (rango 2-3).
+
+### 2. Fix diapo 3 — botón "Avanzar a diapo 4" renombrado + salto a diapo 5
+Bug: el botón `#juego3-eliana-advance` en la pantalla final de Eliana de la diapo 3 decía "Avanzar a diapo 4" pero solo cerraba sin navegar (la diapo 4 de Blinda tu Prompt está legacy). El usuario señala la inconsistencia: si Eliana cierra el análisis en la diapo 3, la flecha debe ir a la **diapo 5** (saltándose la 4).
+
+**Cambios**:
+- `static/index.html`: texto "Avanzar a diapo 4" → **"Continuar"** (más neutro).
+- `static/app.js`: listener ahora llama `hideJuego3Screen()` + `setTimeout(() => showDiapo5Screen(), 300)`.
+
+### Ficheros tocados
+- `static/index.html`: bloque `<main id="diapo8-screen">` nuevo, texto del botón de diapo 3.
+- `static/style.css`: sección completa `.diapo8-*` con 450+ líneas.
+- `static/app.js`: bloque DIAPO 8 completo (showScreen/hide/sync/navigate/flip), `elements.diapo8Screen`, cascada activity_mode, deep-link `?screen=pildoras`, listeners nav+side, navegación diapo 7 → diapo 8, fix listener diapo 3 advance.
+- `main.py`: prompt `"pildoras"` + `ACTIVITY_PROMPTS`.
+- `static/imagenes/pildoras/`: 5 PNGs copiados del repo externo.
+- `CLAUDE.md`: nueva sección PROHIBIDO ABSOLUTAMENTE para diapo 8.
+
+Versionado sync → v23.23.0.
+
 ## v23.22.4 — 2026-04-25 — Diapo 7: QR apunta a URL absoluta de producción
 El usuario pide que el QR de la diapo 7 enlace directamente a la URL absoluta del chat LucAPI en producción, no a la ruta relativa del host actual.
 

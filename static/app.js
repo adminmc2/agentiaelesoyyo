@@ -177,6 +177,9 @@ const elements = {
     // Diapo 7 screen
     diapo7Screen: document.getElementById('diapo7-screen'),
 
+    // Diapo 8 screen (Píldoras formativas) — v23.23.0
+    diapo8Screen: document.getElementById('diapo8-screen'),
+
     // Plan screen
     planScreen: document.getElementById('plan-screen'),
     planBackBtn: document.getElementById('plan-back-btn'),
@@ -4059,12 +4062,14 @@ function sendBlindaMessage(message) {
     let assistantBubble = null;
 
     const doSend = () => {
-        // Elegir activity_mode según la pantalla visible.
-        // - Diapo 6 (Strategos) → 'strategos' (habla de tarjetas, LucAPI, filosofía).
-        // - Diapo 5 (ELITE)     → 'diapo5'    (habla del contenido de esa diapo).
-        // - Resto (diapo 3 con widget abierto) → 'juego3_chat'.
+        // Elegir activity_mode según la pantalla visible (cascada por orden de prioridad).
+        // - Diapo 8 (Píldoras)  → 'pildoras'  (dos equipos de agentes, reutilización).
+        // - Diapo 6 (Strategos) → 'strategos' (tarjetas pedagógicas, LucAPI, filosofía).
+        // - Diapo 5 (ELITE)     → 'diapo5'    (contenido de esa diapo).
+        // - Resto                → 'juego3_chat'.
         let activity = 'juego3_chat';
-        if (typeof isOnDiapo6Screen === 'function' && isOnDiapo6Screen()) activity = 'strategos';
+        if (typeof isOnDiapo8Screen === 'function' && isOnDiapo8Screen()) activity = 'pildoras';
+        else if (typeof isOnDiapo6Screen === 'function' && isOnDiapo6Screen()) activity = 'strategos';
         else if (isOnDiapo5Screen()) activity = 'diapo5';
         const payload = { message, response_mode: 'full', activity_mode: activity };
         state._blindaWs.send(JSON.stringify(payload));
@@ -5682,6 +5687,197 @@ function _diapo6SyncStep(n) {
 }
 
 // ============================================
+// DIAPO 8 — Píldoras formativas (v23.23.0)
+// 3 pasos secuenciales con transiciones slide horizontal.
+// Clonada de la arquitectura de diapo 6.
+// ============================================
+
+const DIAPO8_TOTAL_STEPS = 3;
+const DIAPO8_FLIP_WORDS = ['CREAN', 'ACTÚAN', 'SE REUTILIZAN'];
+const DIAPO8_FLIP_INTERVAL_MS = 2800;
+
+let _diapo8Step = 1;
+let _diapo8ElianaInit = false;
+let _diapo8FlipTimer = null;
+let _diapo8FlipIndex = 0;
+
+function showDiapo8Screen() {
+    if (isMobile()) {
+        console.warn('[Diapo8] Solo escritorio — bypass en móvil');
+        return;
+    }
+    stopTTS();
+    elements.loginScreen?.classList.add('hidden');
+    elements.conoceScreen?.classList.add('hidden');
+    elements.chatScreen?.classList.add('hidden');
+    elements.welcomeScreen?.classList.add('hidden');
+    elements.planScreen?.classList.add('hidden');
+    elements.profileScreen?.classList.add('hidden');
+    elements.blindaScreen?.classList.add('hidden');
+    elements.juegoScreen?.classList.add('hidden');
+    elements.diapo5Screen?.classList.add('hidden');
+    document.getElementById('diapo6-screen')?.classList.add('hidden');
+    document.getElementById('diapo7-screen')?.classList.add('hidden');
+
+    const screen = document.getElementById('diapo8-screen');
+    if (!screen) return;
+    screen.classList.remove('hidden');
+    screen.classList.remove('fade-out');
+
+    _diapo8Step = 1;
+    document.querySelectorAll('#diapo8-stage .diapo8-step').forEach(el => {
+        el.classList.remove('is-active', 'is-leaving');
+    });
+    document.querySelector('#diapo8-stage .diapo8-step[data-step="1"]')?.classList.add('is-active');
+
+    const elianaWidget = document.getElementById('eliana-widget');
+    if (elianaWidget) {
+        elianaWidget.classList.remove('hidden');
+        if (typeof setWidgetState === 'function') setWidgetState('fab');
+        if (!_diapo8ElianaInit && typeof initWidgetListeners === 'function') {
+            initWidgetListeners();
+            _diapo8ElianaInit = true;
+        }
+        const messagesEl = document.getElementById('blinda-chat-messages');
+        if (messagesEl && typeof addBlindaChatBubble === 'function') {
+            messagesEl.innerHTML = '';
+            addBlindaChatBubble('Hola, soy Eliana. Esta diapo trata de las Píldoras Formativas: un microcontenido pedagógico con dos equipos de agentes, uno que las construye y otro que vive dentro. Pregúntame por los 5 personajes (PILI, FLORA, VITO, LUNA, CHIPI) o por cómo se reutilizan.', 'assistant');
+        }
+    }
+
+    _diapo8RunStep(1);
+}
+
+function hideDiapo8Screen() {
+    _diapo8StopAll();
+    stopTTS();
+    const screen = document.getElementById('diapo8-screen');
+    if (!screen) return;
+    screen.classList.add('fade-out');
+    setTimeout(() => {
+        screen.classList.add('hidden');
+        screen.classList.remove('fade-out');
+        if (typeof showDiapo7Screen === 'function') showDiapo7Screen();
+    }, 300);
+}
+
+function isOnDiapo8Screen() {
+    const screen = document.getElementById('diapo8-screen');
+    return !!screen && !screen.classList.contains('hidden');
+}
+
+function diapo8NextStep() {
+    if (_diapo8Step >= DIAPO8_TOTAL_STEPS) {
+        _diapo8StopAll();
+        const screen = document.getElementById('diapo8-screen');
+        screen?.classList.add('fade-out');
+        setTimeout(() => {
+            screen?.classList.add('hidden');
+            screen?.classList.remove('fade-out');
+            if (typeof showFinalScreen === 'function') showFinalScreen();
+        }, 300);
+        return;
+    }
+    _diapo8GoToStep(_diapo8Step + 1);
+}
+
+function diapo8PrevStep() {
+    if (_diapo8Step <= 1) {
+        hideDiapo8Screen();
+        return;
+    }
+    _diapo8GoToStep(_diapo8Step - 1);
+}
+
+function _diapo8GoToStep(target) {
+    if (!isOnDiapo8Screen()) return;
+    if (target < 1 || target > DIAPO8_TOTAL_STEPS) return;
+    if (target === _diapo8Step) return;
+
+    const stage = document.getElementById('diapo8-stage');
+    if (!stage) return;
+
+    _diapo8StopStep(_diapo8Step);
+
+    const outgoing = stage.querySelector(`.diapo8-step[data-step="${_diapo8Step}"]`);
+    const incoming = stage.querySelector(`.diapo8-step[data-step="${target}"]`);
+
+    outgoing?.classList.remove('is-active');
+    outgoing?.classList.add('is-leaving');
+    incoming?.classList.remove('is-leaving');
+    void incoming?.offsetWidth;
+    incoming?.classList.add('is-active');
+
+    setTimeout(() => outgoing?.classList.remove('is-leaving'), 700);
+
+    _diapo8Step = target;
+    setTimeout(() => _diapo8RunStep(target), 120);
+}
+
+function _diapo8RunStep(step) {
+    if (step === 1) _diapo8StartFlipLayout();
+    // pasos 2 y 3 son estáticos
+}
+
+function _diapo8StopStep(step) {
+    if (step === 1) _diapo8StopFlipLayout();
+}
+
+function _diapo8StopAll() {
+    _diapo8StopFlipLayout();
+}
+
+function _diapo8SyncStep(n) {
+    if (typeof n === 'number' && n >= 1 && n <= DIAPO8_TOTAL_STEPS) {
+        _diapo8Step = n;
+    }
+}
+
+// ──────────── PASO 1 — Layout text flip ────────────
+function _diapo8StartFlipLayout() {
+    _diapo8StopFlipLayout();
+    const pill = document.getElementById('diapo8-flip-pill');
+    if (!pill) return;
+
+    _diapo8FlipIndex = 0;
+    let current = pill.querySelector('.diapo8-flip-layout__word');
+    if (current) {
+        current.textContent = DIAPO8_FLIP_WORDS[0];
+        current.classList.remove('is-entering', 'is-exiting');
+    }
+
+    _diapo8FlipTimer = setInterval(() => {
+        if (!isOnDiapo8Screen() || _diapo8Step !== 1) {
+            _diapo8StopFlipLayout();
+            return;
+        }
+        const pillEl = document.getElementById('diapo8-flip-pill');
+        if (!pillEl) return;
+        const outgoing = pillEl.querySelector('.diapo8-flip-layout__word:not(.is-exiting)');
+        if (!outgoing) return;
+
+        _diapo8FlipIndex = (_diapo8FlipIndex + 1) % DIAPO8_FLIP_WORDS.length;
+        const nextText = DIAPO8_FLIP_WORDS[_diapo8FlipIndex];
+
+        outgoing.classList.add('is-exiting');
+        setTimeout(() => outgoing.remove(), 520);
+
+        const incoming = document.createElement('span');
+        incoming.className = 'diapo8-flip-layout__word is-entering';
+        incoming.textContent = nextText;
+        pillEl.appendChild(incoming);
+        setTimeout(() => incoming.classList.remove('is-entering'), 520);
+    }, DIAPO8_FLIP_INTERVAL_MS);
+}
+
+function _diapo8StopFlipLayout() {
+    if (_diapo8FlipTimer) {
+        clearInterval(_diapo8FlipTimer);
+        _diapo8FlipTimer = null;
+    }
+}
+
+// ============================================
 // DIAPO 7 — LucAPI · Comprensión lectora (v23.20.0)
 // Proyector estático: QR a /lucapi + 2 cards de los textos con tilt 3D.
 // No hay pasos internos ni interactividad compleja. Todo en una única pantalla.
@@ -7005,9 +7201,38 @@ function init() {
         setTimeout(() => { if (typeof showDiapo6Screen === 'function') showDiapo6Screen(); }, 300);
     });
     document.getElementById('diapo7-nav-next')?.addEventListener('click', () => {
+        // v23.23.0 — ahora avanza a diapo 8 (Píldoras formativas)
         hideDiapo7Screen();
-        setTimeout(() => { if (typeof showFinalScreen === 'function') showFinalScreen(); }, 300);
+        setTimeout(() => { if (typeof showDiapo8Screen === 'function') showDiapo8Screen(); else if (typeof showFinalScreen === 'function') showFinalScreen(); }, 300);
     });
+
+    // Diapo 8 — Píldoras formativas (v23.23.0)
+    // Flechas del header: saltan diapo entera (back → diapo 7, next → final).
+    // Flechas laterales: navegan los 3 pasos internos.
+    document.getElementById('diapo8-nav-back')?.addEventListener('click', () => {
+        _diapo8StopAll();
+        stopTTS();
+        const screen = document.getElementById('diapo8-screen');
+        screen?.classList.add('fade-out');
+        setTimeout(() => {
+            screen?.classList.add('hidden');
+            screen?.classList.remove('fade-out');
+            if (typeof showDiapo7Screen === 'function') showDiapo7Screen();
+        }, 300);
+    });
+    document.getElementById('diapo8-nav-next')?.addEventListener('click', () => {
+        _diapo8StopAll();
+        stopTTS();
+        const screen = document.getElementById('diapo8-screen');
+        screen?.classList.add('fade-out');
+        setTimeout(() => {
+            screen?.classList.add('hidden');
+            screen?.classList.remove('fade-out');
+            if (typeof showFinalScreen === 'function') showFinalScreen();
+        }, 300);
+    });
+    document.getElementById('diapo8-side-prev')?.addEventListener('click', diapo8PrevStep);
+    document.getElementById('diapo8-side-next')?.addEventListener('click', diapo8NextStep);
 
     // Conoce screen — back/next/logout
     document.getElementById('conoce-back-btn')?.addEventListener('click', showLoginScreen);
@@ -7374,6 +7599,31 @@ function init() {
                 }
             }
             else if (screenParam === 'juego-intro') showJuegoIntroScreen();
+            else if (screenParam === 'pildoras' && typeof showDiapo8Screen === 'function') {
+                showDiapo8Screen();
+                if (!isOnDiapo8Screen()) return;
+                const stepParam = parseInt(urlParams.get('step') || '1', 10);
+                if (stepParam >= 2 && stepParam <= 3) {
+                    if (typeof _diapo8StopAll === 'function') _diapo8StopAll();
+                    const stage = document.getElementById('diapo8-stage');
+                    if (stage) {
+                        stage.classList.add('diapo8-stage--no-transition');
+                        document.querySelectorAll('#diapo8-stage .diapo8-step').forEach(el => {
+                            el.classList.remove('is-active', 'is-leaving');
+                        });
+                        const target = document.querySelector(`#diapo8-stage .diapo8-step[data-step="${stepParam}"]`);
+                        target?.classList.add('is-active');
+                        void stage.offsetHeight;
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                stage.classList.remove('diapo8-stage--no-transition');
+                            });
+                        });
+                    }
+                    if (typeof _diapo8SyncStep === 'function') _diapo8SyncStep(stepParam);
+                    if (typeof _diapo8RunStep === 'function') _diapo8RunStep(stepParam);
+                }
+            }
             else if (screenParam === 'diapo5' && typeof showDiapo5Screen === 'function') {
                 showDiapo5Screen();
                 // Guarda: en móvil showDiapo5Screen bypass a showDiapo6Screen().
@@ -7448,8 +7698,10 @@ function init() {
     });
     document.getElementById('juego3-eliana-btn')?.addEventListener('click', () => startJuego3ElianaFinal());
     document.getElementById('juego3-eliana-advance')?.addEventListener('click', () => {
-        // Avanzar a diapo 4 — por ahora solo cerrar
+        // v23.23.0 — el botón saltaba indefinidamente; ahora avanza directo a la diapo 5
+        // (la diapo 4 de Blinda tu Prompt queda como legacy opcional, no forma parte del flujo).
         hideJuego3Screen();
+        setTimeout(() => { if (typeof showDiapo5Screen === 'function') showDiapo5Screen(); }, 300);
     });
     // Atajo: saltar de diapo 3 → diapo 5 sin pasar por la 4
     document.getElementById('juego3-skip-to-5-btn')?.addEventListener('click', () => {
