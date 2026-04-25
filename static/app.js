@@ -5524,14 +5524,14 @@ function isOnDiapo6Screen() {
 // ──────────── Navegación entre pasos ────────────
 function diapo6NextStep() {
     if (_diapo6Step >= DIAPO6_TOTAL_STEPS) {
-        // Último paso: salir a pantalla final (diapo 7 ya no existe)
+        // v23.19.0 — último paso de diapo 6 ahora salta a diapo 7 (LucAPI)
         _diapo6StopAll();
         const screen = document.getElementById('diapo6-screen');
         screen?.classList.add('fade-out');
         setTimeout(() => {
             screen?.classList.add('hidden');
             screen?.classList.remove('fade-out');
-            if (typeof showFinalScreen === 'function') showFinalScreen();
+            if (typeof showDiapo7Screen === 'function') showDiapo7Screen();
         }, 300);
         return;
     }
@@ -5672,8 +5672,11 @@ const DIAPO7_TOTAL_STEPS = 5;
 let diapo7Step = 0;
 
 function showDiapo7Screen() {
-    // Diapo 7 eliminada: redirección segura a pantalla final.
-    showFinalScreen();
+    // v23.19.0 — Diapo 7 · LucAPI Comprensión lectora (esqueleto — fase A)
+    if (typeof hideAllScreens === 'function') hideAllScreens();
+    elements.diapo7Screen = document.getElementById('diapo7-screen');
+    elements.diapo7Screen?.classList.remove('hidden', 'fade-out');
+    elements.diapo7Screen?.scrollTo?.(0, 0);
 }
 
 function hideDiapo7Screen() {
@@ -7101,20 +7104,55 @@ function init() {
         }
     });
 
-    // Diapo 5 — Saca el agente que llevas dentro (v23.16.4)
-    // Las flechas avanzan/retroceden PASOS dentro de la diapo.
-    // En el paso 1 ← sale a diapo 3. En el paso 4 → entra en diapo 6.
-    document.getElementById('diapo5-nav-back')?.addEventListener('click', diapo5PrevStep);
-    document.getElementById('diapo5-nav-next')?.addEventListener('click', diapo5NextStep);
-    // Flechas laterales overlay (v23.16.7) — más visibles que las del header
+    // Diapo 5 — Saca el agente que llevas dentro
+    // FLECHAS DEL HEADER: saltan DIAPOSITIVA entera (izq → diapo 3, der → diapo 6).
+    // FLECHAS LATERALES: navegan PASOS internos (1 → 2 → 3 → 4 o al revés).
+    document.getElementById('diapo5-nav-back')?.addEventListener('click', () => {
+        // Salta entera de diapo 5 → diapo 3 (hideDiapo5Screen ya hace ese return)
+        hideDiapo5Screen();
+    });
+    document.getElementById('diapo5-nav-next')?.addEventListener('click', () => {
+        // Salta entera de diapo 5 → diapo 6
+        _diapo5StopAll();
+        stopTTS();
+        elements.diapo5Screen?.classList.add('fade-out');
+        setTimeout(() => {
+            elements.diapo5Screen?.classList.add('hidden');
+            elements.diapo5Screen?.classList.remove('fade-out');
+            if (typeof showDiapo6Screen === 'function') showDiapo6Screen();
+            else if (typeof showFinalScreen === 'function') showFinalScreen();
+        }, 300);
+    });
     document.getElementById('diapo5-side-prev')?.addEventListener('click', diapo5PrevStep);
     document.getElementById('diapo5-side-next')?.addEventListener('click', diapo5NextStep);
 
-    // Diapo 6 — IA para estudiantes (Strategos) — v23.18.0
-    // Flechas del header y flechas laterales navegan entre los 4 pasos.
-    // En el paso 1 ← sale a diapo 5. En el paso 4 → va a pantalla final.
-    document.getElementById('diapo6-nav-back')?.addEventListener('click', diapo6PrevStep);
-    document.getElementById('diapo6-nav-next')?.addEventListener('click', diapo6NextStep);
+    // Diapo 6 — IA para estudiantes (Strategos)
+    // FLECHAS DEL HEADER: saltan DIAPOSITIVA entera (izq → diapo 5, der → pantalla final).
+    // FLECHAS LATERALES: navegan PASOS internos (1 → 2 → 3 → 4 o al revés).
+    document.getElementById('diapo6-nav-back')?.addEventListener('click', () => {
+        // Salta entera de diapo 6 → diapo 5
+        _diapo6StopAll();
+        stopTTS();
+        const screen = document.getElementById('diapo6-screen');
+        screen?.classList.add('fade-out');
+        setTimeout(() => {
+            screen?.classList.add('hidden');
+            screen?.classList.remove('fade-out');
+            if (typeof showDiapo5Screen === 'function') showDiapo5Screen();
+        }, 300);
+    });
+    document.getElementById('diapo6-nav-next')?.addEventListener('click', () => {
+        // Salta entera de diapo 6 → pantalla final (próxima diapo cuando exista)
+        _diapo6StopAll();
+        stopTTS();
+        const screen = document.getElementById('diapo6-screen');
+        screen?.classList.add('fade-out');
+        setTimeout(() => {
+            screen?.classList.add('hidden');
+            screen?.classList.remove('fade-out');
+            if (typeof showFinalScreen === 'function') showFinalScreen();
+        }, 300);
+    });
     document.getElementById('diapo6-side-prev')?.addEventListener('click', diapo6PrevStep);
     document.getElementById('diapo6-side-next')?.addEventListener('click', diapo6NextStep);
 

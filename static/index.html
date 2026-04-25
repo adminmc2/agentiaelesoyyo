@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.18.2">
+    <link rel="stylesheet" href="/static/style.css?v=23.19.1">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -786,7 +786,31 @@
             </div>
         </main>
 
-        <!-- v23.17.2: bloque #diapo7-screen eliminado. -->
+        <!-- ============================================
+             PANTALLA 07 — LucAPI · Comprensión Lectora (esqueleto · v23.19.0)
+             ============================================ -->
+        <main class="main-content diapo7-screen hidden" id="diapo7-screen">
+            <header class="slide-header">
+                <button class="slide-nav-btn slide-nav-btn--back" id="diapo7-nav-back" title="Volver a la diapo 6">
+                    <i class="ph-bold ph-arrow-left"></i>
+                </button>
+                <div class="slide-header__title">
+                    <span class="slide-header__num">07</span>
+                    <h1 class="slide-header__text">LucAPI &middot; Comprensi&oacute;n lectora</h1>
+                </div>
+                <button class="slide-nav-btn slide-nav-btn--next" id="diapo7-nav-next" title="Siguiente">
+                    <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </header>
+
+            <div class="diapo7-stage">
+                <div class="diapo7-placeholder">
+                    <h2 class="diapo7-placeholder__title">En construcci&oacute;n</h2>
+                    <p class="diapo7-placeholder__text">Aqu&iacute; ir&aacute;n las 8 fases del acompa&ntilde;amiento de comprensi&oacute;n lectora con LucAPI.</p>
+                    <p class="diapo7-placeholder__hint">Ver <code>docs/diapo7-lucapi-comprension-spec.md</code> para el spec completo.</p>
+                </div>
+            </div>
+        </main>
 
         <!-- ============================================
              DIAPOSITIVA FINAL — Gracias / Ačiū
@@ -1304,6 +1328,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.18.2"></script>
+    <script src="/static/app.js?v=23.19.1"></script>
 </body>
 </html>

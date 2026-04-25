@@ -10155,3 +10155,75 @@ body[data-mood-active] .message.assistant {
     .juego3-card__front-num { margin-top: 0; margin-left: auto; }
     .juego3-card__back { flex: 1 1 auto; width: auto; }
 }
+
+/* ============================================
+   DIAPO 7 — LucAPI · Comprensión Lectora (esqueleto fase A · v23.19.0)
+   Overrides del CSS legacy .diapo7-* (que era para "Construye tu Agente").
+   ============================================ */
+.diapo7-screen {
+    padding: 78px 0 0 0 !important;
+    overflow: auto;
+    background: transparent;
+    transition: opacity 300ms var(--md-sys-motion-easing-emphasized-accelerate);
+}
+.diapo7-screen.fade-out { opacity: 0; }
+
+/* Reset del grid 45/55 legacy: la fase A es single-column limpio */
+.diapo7-page {
+    display: block;
+    grid-template-columns: none;
+    background: transparent;
+    min-height: auto;
+    padding: 32px 40px;
+    overflow: visible;
+}
+
+.diapo7-body {
+    max-width: 900px;
+    margin: 48px auto 0;
+    padding: 48px 32px;
+    background: var(--color-cream, #FFE7C1);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(138, 106, 28, 0.15);
+    text-align: center;
+}
+
+.diapo7-placeholder__title {
+    font-family: 'Dosis', sans-serif;
+    font-weight: 900;
+    font-size: 36px;
+    color: #2c2c2c;
+    margin: 0 0 16px;
+    letter-spacing: 0.02em;
+}
+
+.diapo7-placeholder__text {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 20px;
+    color: #2c2c2c;
+    margin: 0 0 24px;
+    line-height: 1.5;
+}
+
+.diapo7-placeholder__hint {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 15px;
+    color: #6b5a20;
+    margin: 0;
+    opacity: 0.8;
+}
+
+.diapo7-placeholder__hint code {
+    background: rgba(201, 166, 50, 0.15);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-family: 'Inconsolata', monospace;
+    font-size: 14px;
+}
+
+@media (max-width: 900px) {
+    .diapo7-page { padding: 24px 16px; }
+    .diapo7-body { padding: 32px 20px; margin-top: 24px; }
+    .diapo7-placeholder__title { font-size: 28px; }
+    .diapo7-placeholder__text { font-size: 17px; }
+}

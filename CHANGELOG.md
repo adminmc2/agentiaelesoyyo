@@ -1,5 +1,32 @@
 # Changelog — AgentiaELE
 
+## v23.19.1 — 2026-04-25 — Separación semántica de flechas (header vs laterales) en diapo 5 y 6
+Bug de UX reportado por el usuario: al pulsar la flecha del header (superior-derecha) en la diapo 5 se avanzaba paso a paso en vez de saltar a la diapo 6. Las flechas del header y las laterales hacían exactamente lo mismo. Ahora se separan semánticamente:
+
+- **Flechas del header (slide-header)**: saltan **diapositiva entera**.
+  - Diapo 5 ← → vuelve a diapo 3.
+  - Diapo 5 → → diapo 6 directo (sin importar el paso actual).
+  - Diapo 6 ← → diapo 5.
+  - Diapo 6 → → pantalla final.
+- **Flechas laterales overlay (caret)**: navegan **pasos internos** (1 → 2 → 3 → 4 o al revés).
+
+Cambios en `static/app.js`: listeners de `diapo5-nav-back/next` y `diapo6-nav-back/next` reescritos como callbacks que hacen fade-out + navegación a la diapo contigua. Los `diapo5-side-prev/next` y `diapo6-side-prev/next` mantienen `diapoXPrevStep/NextStep`.
+
+Versionado sync → v23.19.1.
+
+## v23.19.0 — 2026-04-25 — Esqueleto diapo 7 (LucAPI · Comprensión lectora)
+Se añade el cascarón visual de la nueva diapo 7 clonando la estructura v23 (header mostaza sagrado, botones back/next, transición fade 300ms, paleta lavanda/crema/menta). La diapo 7 es accesible desde la flecha `→` del último paso de la diapo 6. Back vuelve a la diapo 6 (listener existente). Only fase A: esqueleto sin lógica — las 8 fases del spec (`docs/diapo7-lucapi-comprension-spec.md`) se integran en sesiones siguientes.
+
+**Cambios**:
+- `index.html`: nuevo `<main id="diapo7-screen">` con header v23 y placeholder "En construcción".
+- `style.css`: bloque `.diapo7-*` nuevo al final del archivo, override del CSS legacy (que era de una diapo 7 anterior eliminada en v23.17.2).
+- `app.js`: `showDiapo7Screen()` reescrita para mostrar realmente la pantalla (antes redirigía a final). `diapo6NextStep()` en el último paso llama a `showDiapo7Screen()` en lugar de `showFinalScreen()`.
+- Los listeners de `diapo7-nav-back` y `diapo7-nav-next` ya existían (back → diapo 6, next → final) — no se tocan.
+
+**Modificación autorizada explícita** de `diapo6NextStep` (diapo 6 protegida en CLAUDE.md): solo cambia el destino del último paso, nada más.
+
+Versionado sync → v23.19.0 (`index.html`, `juego3_mobile.html`).
+
 ## v23.18.2 — 2026-04-25 — Fix navegación diapo 5 → diapo 6
 Bug: en v23.17.2 la diapo 7 se eliminó y al mismo tiempo la diapo 6 todavía no existía (solo había un stub), por lo que `diapo5NextStep` en el último paso se cableó directamente a `showFinalScreen()`. Ahora que la nueva diapo 6 "IA para estudiantes" (Strategos) ya está implementada desde v23.18.0, la flecha superior derecha de la diapo 5 debe avanzar a la diapo 6, no saltar a la pantalla final.
 
