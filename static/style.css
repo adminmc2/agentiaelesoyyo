@@ -7869,6 +7869,10 @@ body[data-mood-active] .message.assistant {
     pointer-events: none;
     z-index: 1;
 }
+/* Snap directo sin animación (usado por el deep-link ?step=N) */
+.diapo5-stage--no-transition .diapo5-step {
+    transition: none !important;
+}
 
 /* Hook ELITE — frase fija arriba de cada paso (grande) */
 .diapo5-hook {

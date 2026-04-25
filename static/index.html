@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.16.8">
+    <link rel="stylesheet" href="/static/style.css?v=23.16.9">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -421,48 +421,11 @@
             </div>
         </main>
 
-        <!-- ============================================
-             PANTALLA BLINDA TU PROMPT (LEGACY — sustituida por juego3, oculta)
-             ============================================ -->
-        <main class="main-content blinda-screen hidden" id="blinda-screen" data-legacy="true" aria-hidden="true" style="display:none;">
-            <div class="blinda-page blinda-page--fullscreen">
-                <!-- Slide header -->
-                <header class="slide-header">
-                    <button class="slide-nav-btn slide-nav-btn--back" id="blinda-nav-back" title="Volver">
-                        <i class="ph ph-arrow-left"></i>
-                    </button>
-                    <div class="slide-header__title">
-                        <span class="slide-header__num">03</span>
-                        <h1 class="slide-header__text">Blinda tu Prompt</h1>
-                        <span class="slide-header__sub">Demo en plenaria</span>
-                    </div>
-                    <button class="slide-nav-btn slide-nav-btn--next" id="blinda-nav-next" title="Siguiente escena">
-                        <i class="ph ph-arrow-right"></i>
-                    </button>
-                </header>
-
-                <!-- Demo visual — ahora ocupa toda la pantalla -->
-                <div class="blinda-right blinda-right--full">
-                    <div class="blinda-demo" id="blinda-demo">
-                        <div class="blinda-demo__step blinda-demo__step--active" data-demo-step="0">
-                            <img src="/static/imagenes/logo_juego.png" alt="Blindapalabras" class="blinda-intro__logo">
-                            <p class="blinda-subtitle">Demo interactiva</p>
-                        </div>
-                        <div class="blinda-demo__step" data-demo-step="1" id="demo-step-1"></div>
-                        <div class="blinda-demo__step" data-demo-step="2" id="demo-step-2"></div>
-                        <div class="blinda-demo__step" data-demo-step="3" id="demo-step-3"></div>
-                    </div>
-                    <div class="blinda-demo__stepper" id="demo-stepper">
-                        <button class="demo-stepper__dot demo-stepper__dot--active" data-step="0"></button>
-                        <button class="demo-stepper__dot" data-step="1"></button>
-                        <button class="demo-stepper__dot" data-step="2"></button>
-                        <button class="demo-stepper__dot" data-step="3"></button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Eliana Floating Widget: movido al top-level, ver antes de #juego3-screen -->
-        </main>
+        <!-- v23.16.9: bloque legacy #blinda-screen ELIMINADO del DOM.
+             Antes era una pantalla "Blinda tu Prompt" con demo en plenaria que
+             quedó oculta tras el rediseño de la diapo 3 (juego3). El JS sigue
+             defensivo (`elements.blindaScreen?.` y `&&` checks), por lo que
+             sus refs no rompen al ser null. -->
 
         <!-- ============================================
              PANTALLA JUEGO BLINDA (diapo 4 — individual en móvil)
@@ -1519,6 +1482,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.16.8"></script>
+    <script src="/static/app.js?v=23.16.9"></script>
 </body>
 </html>

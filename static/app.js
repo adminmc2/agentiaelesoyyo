@@ -4890,6 +4890,14 @@ function _diapo5StopAll() {
     _diapo5StopTerminal();
 }
 
+// Sincroniza el contador interno de paso (usado por el deep-link snap directo
+// para que diapo5NextStep / diapo5PrevStep partan del paso correcto tras el salto).
+function _diapo5SyncStep(n) {
+    if (typeof n === 'number' && n >= 1 && n <= DIAPO5_TOTAL_STEPS) {
+        _diapo5Step = n;
+    }
+}
+
 // ──────────── PASO 1 — Morphing text ────────────
 function _diapo5StartMorph() {
     _diapo5StopMorph();
@@ -7783,17 +7791,32 @@ function init() {
                 // ?screen=diapo5&step=N salta al paso N (snap directo, sin transición)
                 const stepParam = parseInt(urlParams.get('step') || '1', 10);
                 if (stepParam >= 2 && stepParam <= 4) {
-                    setTimeout(() => {
+                    // Snap síncrono sin animación: añadir clase no-transition,
+                    // mover clases, forzar reflow, quitar la clase. Así el paso
+                    // destino aparece YA en pantalla, sin la animación slide.
+                    if (typeof _diapo5StopAll === 'function') _diapo5StopAll();
+                    const stage = document.getElementById('diapo5-stage');
+                    if (stage) {
+                        stage.classList.add('diapo5-stage--no-transition');
                         document.querySelectorAll('#diapo5-stage .diapo5-step').forEach(el => {
                             el.classList.remove('is-active', 'is-leaving');
                         });
                         const target = document.querySelector(`#diapo5-stage .diapo5-step[data-step="${stepParam}"]`);
                         target?.classList.add('is-active');
-                        // sync state interno y arrancar la animación del paso destino
-                        if (typeof _diapo5StopAll === 'function') _diapo5StopAll();
-                        window._diapo5StepOverride = stepParam;
-                        if (typeof _diapo5RunStep === 'function') _diapo5RunStep(stepParam);
-                    }, 250);
+                        // Forzar reflow para que el cambio se aplique sin animar
+                        void stage.offsetHeight;
+                        // Limpiar la clase no-transition tras un tick para que las
+                        // flechas posteriores SÍ animen.
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                stage.classList.remove('diapo5-stage--no-transition');
+                            });
+                        });
+                    }
+                    // CRÍTICO: sincronizar el estado interno
+                    if (typeof _diapo5SyncStep === 'function') _diapo5SyncStep(stepParam);
+                    // Arrancar animaciones internas del paso destino
+                    if (typeof _diapo5RunStep === 'function') _diapo5RunStep(stepParam);
                 }
             }
         }, 500);

@@ -1,5 +1,29 @@
 # Changelog — AgentiaELE
 
+## v23.16.9 — 2026-04-25 — Cierre 4 observaciones del reviser
+Atiende las 4 observaciones pendientes del reviser sobre v23.16.8:
+
+**1) Deep-link `?screen=diapo5&step=N` sincroniza estado interno**
+- Problema: se guardaba `window._diapo5StepOverride` pero nunca se usaba para alinear `_diapo5Step`. Resultado: visualmente saltabas al paso N pero las flechas creían estar en paso 1.
+- Fix: nueva función `_diapo5SyncStep(n)` que actualiza directamente la variable module-level `_diapo5Step`. El deep-link ahora llama `_diapo5SyncStep(stepParam)` en el snap. `diapo5NextStep`/`diapo5PrevStep` parten del paso correcto.
+
+**2) Snap del deep-link instantáneo (sin animación slide)**
+- Problema: al aplicar `is-active` al paso destino, se disparaba la transición CSS de 700ms. Si el headless capturaba antes, veías contenido del paso anterior.
+- Fix: nueva clase `.diapo5-stage--no-transition` que aplica `transition: none !important` a todos los steps. El deep-link la añade, hace el swap de clases, fuerza reflow con `void stage.offsetHeight`, y la quita en 2 `requestAnimationFrame` para restaurar animaciones en flechas posteriores.
+
+**3) Legacy `#blinda-screen` eliminado del DOM**
+- Problema: bloque de 40 líneas quedaba oculto en el HTML con `display:none` + `data-legacy="true"`. Clutter en el DOM.
+- Fix: eliminado completo el `<main id="blinda-screen">` con toda su estructura interna (header legacy, blinda-demo, blinda-demo__stepper, demo-step-1/2/3). Sustituido por un comentario explicativo.
+- Refs JS: `elements.blindaScreen?.` y `elements.blindaScreen && ...` siguen funcionando (defensivos con null).
+
+**4) Criterio de cierre a nivel código verificado**
+- `?screen=diapo5` → `showDiapo5Screen()` → `_diapo5Step = 1`, paso 1 con `is-active`, morph arrancado.
+- `?screen=diapo5&step=N` → snap inmediato al paso N, `_diapo5Step = N`, animación interna del paso destino.
+- Flechas ← / → tras deep-link: usan `_diapo5Step` sincronizado, navegación coherente.
+- Header: regla `#diapo5-screen > .slide-header { position: fixed !important; z-index: 9999 !important; }` garantiza visibilidad independientemente de stacking contexts internos.
+
+Versionado sync → v23.16.9 (index.html CSS+JS, encuesta.html, juego3_mobile.html).
+
 ## v23.16.8 — 2026-04-25 — Diapo 5: refactor estético completo + Eliana contextualizada
 Consolida los cambios v23.16.6, v23.16.7 y v23.16.8 (estos dos últimos no se habían commiteado individualmente). Tras varias rondas de feedback del usuario rehaciendo decisiones de UX:
 
