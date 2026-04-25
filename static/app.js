@@ -7601,6 +7601,11 @@ function init() {
         // Avanzar a diapo 4 — por ahora solo cerrar
         hideJuego3Screen();
     });
+    // Atajo: saltar de diapo 3 → diapo 5 sin pasar por la 4
+    document.getElementById('juego3-skip-to-5-btn')?.addEventListener('click', () => {
+        hideJuego3Screen();
+        setTimeout(() => showDiapo5Screen(), 300);
+    });
 
     // Deep link adicional para diapo 3
     if (screenParam === 'juego3') {

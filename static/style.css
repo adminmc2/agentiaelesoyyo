@@ -9657,6 +9657,40 @@ body[data-mood-active] .message.assistant {
 }
 .juego3-reset-btn i { font-size: 14px; }
 
+/* Atajo para saltar de diapo 3 → diapo 5 sin pasar por la 4 */
+.juego3-skip-btn {
+    position: absolute;
+    bottom: 18px;
+    right: 22px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1.5px solid rgba(138, 106, 28, 0.35);
+    border-radius: 999px;
+    color: #8A6A1C;
+    font: 700 13px 'Source Sans 3', sans-serif;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    z-index: 20;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 14px -8px rgba(138, 106, 28, 0.35);
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.juego3-skip-btn:hover {
+    background: #C9A632;
+    border-color: #C9A632;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 22px -10px rgba(201, 166, 50, 0.55);
+}
+.juego3-skip-btn i { font-size: 14px; }
+@media (max-width: 720px) {
+    .juego3-skip-btn { bottom: 12px; right: 12px; padding: 6px 12px; font-size: 12px; }
+}
+
 .juego3-ctrl-btn {
     display: inline-flex;
     align-items: center;

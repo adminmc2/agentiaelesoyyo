@@ -46,6 +46,7 @@ Esto incluye:
 - Iconos exclusivamente Phosphor (sin emojis)
 - Widget Eliana flotante con orb reutilizado de `static/orb.js` (paleta clara, arrastrable)
 - Pantalla final con Eliana comentando resultados (prompt con tono jocoso/jovial)
+- Atajo "Saltar a diapo 5" (`#juego3-skip-to-5-btn`, v23.16.2): botón flotante en la esquina inferior derecha de `.juego3-page` que salta directamente a `showDiapo5Screen()` sin pasar por la diapo 4. Estilo discreto con paleta mostaza (`.juego3-skip-btn`). El listener vive en `app.js` junto al resto de listeners de juego3.
 
 El antiguo `#blinda-screen` (Blinda tu Prompt, demo en plenaria) queda como LEGACY oculto con `display:none`, `data-legacy="true"`. Su código HTML/CSS/JS sigue en el repositorio pero no forma parte del flujo activo.
 

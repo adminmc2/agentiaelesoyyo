@@ -1,5 +1,19 @@
 # Changelog — AgentiaELE
 
+## v23.16.2 — 2026-04-25 — Atajo diapo 3 → diapo 5 (permiso explícito del usuario)
+Durante el ensayo, el usuario detectó que no tenía una flecha clara para saltar de la diapo 3 a la 5 sin atravesar la diapo 4 (juego de equipos). Autoriza modificar la diapo 3 para añadir un atajo.
+
+**Cambio**
+- `static/index.html`: nuevo botón `#juego3-skip-to-5-btn` al final de `.juego3-page`, fuera de las secciones internas (idle/play/ended/eliana). Texto "Saltar a diapo 5 →".
+- `static/style.css`: nueva clase `.juego3-skip-btn` — pill flotante `position: absolute; bottom: 18px; right: 22px;` con fondo blanco translúcido + borde mostaza + hover sólido mostaza. Responsive reducido en ≤720px.
+- `static/app.js`: listener en el bloque de juego3 que hace `hideJuego3Screen()` + `setTimeout(() => showDiapo5Screen(), 300)`.
+- `CLAUDE.md`: ampliada la sección de protección de diapo 3 incluyendo el nuevo botón como parte del scope protegido.
+
+**Por qué no modifica la diapo 4**
+El usuario quería un atajo visible y explícito en la diapo 3 (punto de decisión natural), no arreglar flechas dentro de la diapo 4 — que sigue protegida y funcional para el flujo completo cuando se juegue en equipos.
+
+Versionado sincronizado → v23.16.2.
+
 ## v23.16.1 — 2026-04-25 — Diapo 5: 3 ajustes obligatorios del reviser
 Aplicados los 3 obligatorios del informe del reviser sobre v23.16.0:
 
