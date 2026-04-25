@@ -9526,8 +9526,9 @@ body[data-mood-active] .message.assistant {
     .diapo8-teams { max-width: 2400px; }
 }
 
+
 /* ======================================================
-   DIAPOSITIVA FINAL — Gracias (v23.23.6 · canción + QR comunidad)
+   DIAPOSITIVA FINAL — Gracias (v23.24.1 · minimal)
    ====================================================== */
 .final-screen {
     background: transparent;
@@ -9535,8 +9536,11 @@ body[data-mood-active] .message.assistant {
     position: relative;
     overflow: hidden;
     display: flex;
+    flex-direction: column;
     align-items: stretch;
-    justify-content: center;
+    padding: clamp(70px, 7vh, 100px) clamp(40px, 4vw, 80px) clamp(30px, 4vh, 60px);
+    gap: clamp(24px, 4vh, 48px);
+    box-sizing: border-box;
 }
 .final-screen::before {
     content: '';
@@ -9546,109 +9550,57 @@ body[data-mood-active] .message.assistant {
         radial-gradient(ellipse 60% 50% at 18% 24%, rgba(201, 166, 50, 0.22), transparent 60%),
         radial-gradient(ellipse 55% 45% at 82% 72%, rgba(208, 170, 209, 0.22), transparent 60%),
         radial-gradient(ellipse 70% 50% at 50% 92%, rgba(208, 232, 233, 0.30), transparent 60%);
-    animation: finalRaysDrift 18s ease-in-out infinite alternate;
     z-index: 0;
     pointer-events: none;
 }
-@keyframes finalRaysDrift {
-    0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(2%, -2%) scale(1.06); }
-}
-.final-nav-btn {
-    position: absolute;
-    top: clamp(16px, 1.6vw, 28px);
-    width: clamp(44px, 3.4vw, 52px);
-    height: clamp(44px, 3.4vw, 52px);
-    border-radius: 50%;
-    background: #FFF;
-    color: #2c2c2c;
-    border: 3px solid #2c2c2c;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: clamp(18px, 1.6vw, 22px);
-    cursor: pointer;
-    z-index: 10;
-    box-shadow: 4px 4px 0 #2c2c2c;
-    transition: transform .15s, box-shadow .15s, background .15s;
-}
-.final-nav-btn:hover {
-    background: #C9A632;
-    color: #FFF;
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 #2c2c2c;
-}
-.final-nav-btn:active {
-    transform: translate(2px, 2px);
-    box-shadow: 0 0 0 #2c2c2c;
-}
-.final-nav-btn--back { left: clamp(16px, 1.6vw, 28px); }
-.final-nav-btn--home { right: clamp(16px, 1.6vw, 28px); }
-
-.final-page {
+.final-title__gracias {
     position: relative;
     z-index: 1;
-    width: 100%;
-    max-width: 1700px;
-    padding: clamp(60px, 5vh, 90px) clamp(20px, 3vw, 56px) clamp(20px, 2vh, 40px);
-    display: flex;
-    flex-direction: column;
-    gap: clamp(16px, 2.2vh, 32px);
-    align-items: center;
-    justify-content: flex-start;
-    min-height: 100vh;
-    box-sizing: border-box;
-}
-
-.final-title {
-    display: flex;
-    justify-content: center;
+    font: 900 clamp(56px, 7vw, 120px)/1 'Dosis', sans-serif;
+    letter-spacing: 0.08em;
+    color: #8A6A1C;
     margin: 0;
-}
-.final-title__gracias {
-    font: 900 clamp(36px, 4.4vw, 64px)/1 'Dosis', sans-serif;
-    color: #2c2c2c;
-    background: #C9A632;
-    padding: 8px 32px;
-    border: 4px solid #2c2c2c;
-    border-radius: 16px;
-    box-shadow: 8px 8px 0 #2c2c2c;
-    transform: rotate(-2deg);
-    letter-spacing: -0.5px;
+    text-align: center;
+    text-transform: uppercase;
+    align-self: center;
 }
 
-.final-grid {
-    width: 100%;
+/* Cuerpo: izquierda canción + contactos / derecha QR */
+.final-body {
+    position: relative;
+    z-index: 1;
     flex: 1;
     display: grid;
     grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-    gap: clamp(20px, 2vw, 36px);
-    align-items: stretch;
+    gap: clamp(40px, 5vw, 100px);
+    align-items: center;
 }
-
-.final-card {
-    background: #FFF;
-    border: 4px solid #2c2c2c;
-    border-radius: 22px;
-    box-shadow: 10px 10px 0 #2c2c2c;
-    padding: clamp(18px, 1.8vw, 28px) clamp(20px, 2vw, 32px);
+.final-left {
     display: flex;
     flex-direction: column;
+    gap: clamp(24px, 3vh, 44px);
+    max-width: 720px;
+    justify-self: end;
+    width: 100%;
 }
 
-/* Song card */
-.final-card--song { gap: clamp(12px, 1.2vw, 18px); }
-.final-song__header {
+/* Canción — estilo simple sin caja */
+.final-song {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(12px, 1.4vh, 22px);
+    width: 100%;
+}
+.final-song__head {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 10px;
-    font: 900 clamp(13px, 1vw, 16px) 'Dosis', sans-serif;
+    font: 800 clamp(13px, 1vw, 16px) 'Dosis', sans-serif;
     text-transform: uppercase;
     letter-spacing: 2px;
     color: #2c2c2c;
 }
-.final-song__header i { font-size: clamp(20px, 1.8vw, 26px); color: #C9A632; }
+.final-song__head i { font-size: clamp(20px, 1.8vw, 26px); color: #C9A632; }
 .final-song__player {
     display: flex;
     align-items: center;
@@ -9660,24 +9612,21 @@ body[data-mood-active] .message.assistant {
     border-radius: 50%;
     background: #D0AAD1;
     color: #2c2c2c;
-    border: 3px solid #2c2c2c;
+    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: clamp(18px, 1.8vw, 24px);
     cursor: pointer;
     flex-shrink: 0;
-    transition: transform .15s, box-shadow .15s;
-    box-shadow: 4px 4px 0 #2c2c2c;
+    transition: transform .15s, background .15s;
 }
-.final-song__play-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #2c2c2c; }
-.final-song__play-btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 #2c2c2c; }
-.final-song__play-btn--playing { background: #C9A632; }
+.final-song__play-btn:hover { transform: scale(1.06); }
+.final-song__play-btn--playing { background: #C9A632; color: #FFF; }
 .final-song__progress {
     flex: 1;
-    height: 10px;
-    background: #F4F0E5;
-    border: 2px solid #2c2c2c;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.08);
     border-radius: 999px;
     overflow: hidden;
 }
@@ -9688,35 +9637,31 @@ body[data-mood-active] .message.assistant {
     transition: width 0.3s linear;
 }
 .final-song__time {
-    font: 700 13px 'Inconsolata', monospace;
-    color: #2c2c2c;
-    min-width: 38px;
+    font: 600 13px 'Inconsolata', monospace;
+    color: #555;
+    min-width: 36px;
 }
-
 .final-song__lyrics {
     display: flex;
     flex-direction: column;
-    gap: clamp(2px, 0.3vw, 6px);
-    border-top: 2px dashed rgba(44, 44, 44, 0.18);
-    padding-top: clamp(10px, 1vw, 16px);
-    margin-top: clamp(2px, 0.4vw, 6px);
+    gap: clamp(2px, 0.5vh, 8px);
+    text-align: center;
 }
 .final-song__line {
-    font: 600 clamp(14px, 1.15vw, 18px)/1.45 'Dosis', sans-serif;
+    font: 600 clamp(17px, 1.5vw, 24px)/1.4 'Dosis', sans-serif;
     color: #2c2c2c;
     margin: 0;
-    text-align: center;
 }
 .final-song__line--intro {
     font-weight: 800;
     color: #8A6A1C;
     text-transform: uppercase;
-    font-size: clamp(13px, 1vw, 16px);
-    letter-spacing: 1.2px;
-    margin-bottom: 4px;
+    font-size: clamp(13px, 1.1vw, 17px);
+    letter-spacing: 1.5px;
+    margin-bottom: 6px;
 }
 .final-song__line--chorus { font-weight: 700; }
-.final-song__line--chorus:first-of-type { margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(44, 44, 44, 0.12); }
+.final-song__line--chorus:first-of-type { margin-top: 8px; }
 
 .lyric-k { font-weight: 900; padding: 0 4px; border-radius: 4px; }
 .lyric-k.k1 { background: rgba(126, 200, 227, 0.32); color: #1F6B86; }
@@ -9725,130 +9670,126 @@ body[data-mood-active] .message.assistant {
 .lyric-k.k4 { background: rgba(179, 157, 219, 0.32); color: #4A2D7A; }
 .lyric-k.k5 { background: rgba(255, 183, 77, 0.36); color: #8A4A0A; }
 
-/* Side column */
-.final-side {
+/* Contactos: reutilizan .credit-box del login con persona debajo */
+.final-contacts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(20px, 2vw, 36px);
+    width: 100%;
+}
+.credit-box--final {
+    align-items: center;
+    gap: 12px;
+    padding: clamp(16px, 1.4vw, 22px) clamp(18px, 1.6vw, 28px);
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+.credit-box__person {
     display: flex;
     flex-direction: column;
-    gap: clamp(16px, 1.6vw, 24px);
-    height: 100%;
-}
-.final-card--song { justify-content: flex-start; }
-
-/* Logos en su versión original (sin filtros que cambien colores) */
-.final-card__logo {
-    width: auto;
-    object-fit: contain;
-    display: block;
-}
-.final-card__logo--hablandis { height: clamp(36px, 3.4vw, 56px); }
-.final-card__logo--prisma { height: clamp(32px, 3vw, 48px); }
-
-/* QR card — protagonista */
-.final-card--qr {
     align-items: center;
+    gap: 2px;
     text-align: center;
-    gap: clamp(10px, 1.2vh, 18px);
-    flex: 1.6;
-    justify-content: space-between;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    padding-top: 10px;
+    width: 100%;
+}
+.credit-box__person strong {
+    font: 800 clamp(14px, 1.1vw, 18px) 'Dosis', sans-serif;
+    color: var(--md-sys-color-on-surface);
+    letter-spacing: 0.2px;
+}
+.credit-box__person span {
+    font: 600 clamp(12px, 0.95vw, 15px) 'Source Sans 3', sans-serif;
+    color: var(--md-sys-color-on-surface-variant);
+    letter-spacing: 0.3px;
+}
+
+/* QR a la derecha — protagonista, centrado en su columna */
+.final-qr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(12px, 1.8vh, 26px);
+    justify-self: center;
+    margin-left: clamp(20px, 4vw, 80px);
 }
 .final-qr__label {
-    font: 700 clamp(11px, 0.95vw, 14px) 'Source Sans 3', sans-serif;
+    font: 800 clamp(14px, 1.2vw, 20px) 'Dosis', sans-serif;
     color: #8A6A1C;
     text-transform: uppercase;
     letter-spacing: 2.5px;
 }
 .final-qr__code {
-    width: clamp(260px, 22vw, 380px);
-    height: clamp(260px, 22vw, 380px);
+    width: clamp(360px, 30vw, 520px);
+    height: clamp(360px, 30vw, 520px);
     background: #FFF;
-    border: 4px solid #2c2c2c;
-    border-radius: 14px;
-    padding: 14px;
+    border-radius: 16px;
+    padding: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 8px 8px 0 #C9A632;
+    box-shadow: 0 10px 40px rgba(138, 106, 28, 0.14);
 }
 .final-qr__code svg { width: 100%; height: 100%; display: block; }
-.final-qr__contact {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    align-items: center;
-}
-.final-qr__contact strong {
-    font: 800 clamp(16px, 1.3vw, 20px) 'Dosis', sans-serif;
-    color: #2c2c2c;
-    letter-spacing: 0.2px;
-}
-.final-qr__contact span {
-    font: 600 clamp(13px, 1vw, 15px) 'Source Sans 3', sans-serif;
-    color: #555;
-    letter-spacing: 0.4px;
-}
 
-/* Card de contacto Prisma — blanca, armónica con la del QR */
-.final-card--contact {
-    align-items: center;
-    text-align: center;
-    gap: clamp(8px, 1vh, 14px);
-    flex: 0.7;
-    justify-content: center;
-    padding: clamp(16px, 1.8vh, 28px) clamp(20px, 2vw, 32px);
-}
-.final-contact__info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    align-items: center;
-}
-.final-contact__info strong {
-    font: 800 clamp(15px, 1.2vw, 18px) 'Dosis', sans-serif;
-    color: #2c2c2c;
-    letter-spacing: 0.2px;
-}
-.final-contact__info span {
-    font: 600 clamp(12px, 0.95vw, 14px) 'Source Sans 3', sans-serif;
-    color: #555;
-    letter-spacing: 0.4px;
-}
-
-/* Responsive */
-@media (max-width: 1100px) {
-    .final-grid { grid-template-columns: 1fr; }
-    .final-side { flex-direction: row; align-items: stretch; height: auto; }
-    .final-card--qr { flex: 1.4; }
-    .final-card--contact { flex: 1; justify-content: center; }
-}
-@media (max-width: 768px) {
-    .final-page { padding: 70px 16px 16px; gap: 16px; min-height: auto; }
-    .final-title__gracias { padding: 8px 22px; box-shadow: 6px 6px 0 #2c2c2c; }
-    .final-card { box-shadow: 6px 6px 0 #2c2c2c; padding: 16px 18px; }
-    .final-side { flex-direction: column; }
-    .final-song__line { font-size: 14px; }
-    .final-qr__code { width: 220px; height: 220px; }
-}
-/* Laptop FHD 1920×1080 — encajar sin scroll */
+/* Laptop FHD 1920×1080 */
 @media (min-width: 1280px) and (max-height: 1120px) {
-    .final-page { padding: clamp(70px, 7vh, 90px) clamp(28px, 3vw, 48px) 16px; gap: 14px; }
-    .final-title__gracias { font-size: clamp(38px, 3.6vw, 52px); padding: 6px 28px; }
-    .final-card { padding: 18px 22px; }
-    .final-song__lyrics { gap: 2px; padding-top: 10px; }
-    .final-song__line { font-size: clamp(13px, 1vw, 15px); line-height: 1.35; }
-    .final-qr__code { width: clamp(240px, 17vw, 300px); height: clamp(240px, 17vw, 300px); }
-    .final-card__logo--hablandis { height: clamp(34px, 2.4vw, 44px); }
-    .final-card__logo--prisma { height: clamp(30px, 2.2vw, 40px); }
+    .final-title__gracias { font-size: clamp(64px, 6vw, 96px); }
+    .final-left { max-width: 680px; }
+    .final-song__line { font-size: clamp(16px, 1.2vw, 19px); }
+    .final-qr__code { width: clamp(340px, 23vw, 420px); height: clamp(340px, 23vw, 420px); }
 }
-/* TV grande / proyector */
+/* Mac / portátiles más altos */
+@media (min-width: 1280px) and (min-height: 1121px) and (max-height: 1500px) {
+    .final-title__gracias { font-size: clamp(80px, 7vw, 120px); }
+    .final-left { max-width: 760px; }
+    .final-song__line { font-size: clamp(18px, 1.4vw, 22px); }
+    .final-qr__code { width: clamp(400px, 26vw, 500px); height: clamp(400px, 26vw, 500px); }
+}
+/* TV grande / proyector ≥1920×1200 */
 @media (min-width: 1920px) and (min-height: 1200px) {
-    .final-page { max-width: 1900px; }
-    .final-song__line { font-size: clamp(16px, 1.1vw, 20px); }
-    .final-qr__code { width: 400px; height: 400px; }
+    .final-title__gracias { font-size: clamp(110px, 8vw, 160px); }
+    .final-left { max-width: 880px; }
+    .final-song__line { font-size: clamp(20px, 1.5vw, 26px); }
+    .final-song__head { font-size: clamp(15px, 1.1vw, 18px); }
+    .final-song__play-btn { width: 64px; height: 64px; font-size: 28px; }
+    .final-qr__code { width: 580px; height: 580px; }
 }
+/* 4K / pantallas muy grandes */
 @media (min-width: 2560px) {
-    .final-page { max-width: 2200px; }
-    .final-qr__code { width: 460px; height: 460px; }
+    .final-title__gracias { font-size: clamp(140px, 9vw, 200px); }
+    .final-left { max-width: 1100px; }
+    .final-song__line { font-size: clamp(24px, 1.6vw, 32px); }
+    .final-qr__code { width: 680px; height: 680px; }
 }
+
+/* Botones flotantes back / home */
+.final-nav-btn {
+    position: absolute;
+    top: clamp(16px, 1.6vw, 28px);
+    width: clamp(44px, 3.4vw, 52px);
+    height: clamp(44px, 3.4vw, 52px);
+    border-radius: 50%;
+    background: #FFF;
+    color: #2c2c2c;
+    border: 2px solid #2c2c2c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(18px, 1.6vw, 22px);
+    cursor: pointer;
+    z-index: 10;
+    transition: background .15s, color .15s;
+}
+.final-nav-btn:hover {
+    background: #C9A632;
+    color: #FFF;
+    border-color: #C9A632;
+}
+.final-nav-btn--back { left: clamp(16px, 1.6vw, 28px); }
+.final-nav-btn--home { right: clamp(16px, 1.6vw, 28px); }
 
 /* Responsive diapo7 */
 @media (max-width: 1200px) {

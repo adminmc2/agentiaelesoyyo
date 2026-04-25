@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.23.9">
+    <link rel="stylesheet" href="/static/style.css?v=23.25.0">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -1151,15 +1151,12 @@
             <button class="final-nav-btn final-nav-btn--home" id="final-nav-home" title="Inicio" aria-label="Ir al inicio">
                 <i class="ph-bold ph-house"></i>
             </button>
-            <div class="final-page">
-                <h1 class="final-title">
-                    <span class="final-title__gracias">Muchas gracias</span>
-                </h1>
+            <h1 class="final-title__gracias">Muchas gracias</h1>
 
-                <div class="final-grid">
-                    <!-- Columna izquierda: canción -->
-                    <section class="final-card final-card--song">
-                        <div class="final-song__header">
+            <div class="final-body">
+                <div class="final-left">
+                    <div class="final-song">
+                        <div class="final-song__head">
                             <i class="ph-fill ph-music-notes"></i>
                             <span>La canción del agente</span>
                         </div>
@@ -1184,28 +1181,35 @@
                             <p class="final-song__line final-song__line--chorus">Y si vuelves mañana yo me acuerdo de todo</p>
                             <p class="final-song__line final-song__line--chorus">¡<strong class="lyric-k k5">Memoria</strong> de profe, pero sin el cansancio!</p>
                         </div>
-                    </section>
+                    </div>
 
-                    <!-- Columna derecha: QR comunidad + contactos con logos originales -->
-                    <aside class="final-side">
-                        <section class="final-card final-card--qr">
-                            <img src="/static/hablandis-logo.svg" alt="Hablandis" class="final-card__logo final-card__logo--hablandis">
-                            <span class="final-qr__label">Únete a la comunidad</span>
-                            <div class="final-qr__code" id="final-qr-code"></div>
-                            <div class="final-qr__contact">
+                    <div class="final-contacts">
+                        <div class="credit-box credit-box--final">
+                            <span class="credit-box__body">
+                                <img src="/static/hablandis-logo.svg" alt="Hablandis" class="credit-box__logo credit-box__logo--hablandis">
+                                <strong class="credit-box__name">Hablandis</strong>
+                            </span>
+                            <span class="credit-box__person">
                                 <strong>Román Navarro</strong>
                                 <span>info@hablandis.com</span>
-                            </div>
-                        </section>
-
-                        <section class="final-card final-card--contact">
-                            <img src="/static/prisma-logo.svg" alt="Prisma Consul" class="final-card__logo final-card__logo--prisma">
-                            <div class="final-contact__info">
+                            </span>
+                        </div>
+                        <div class="credit-box credit-box--final">
+                            <span class="credit-box__body">
+                                <img src="/static/prisma-logo.svg" alt="Prisma Consul" class="credit-box__logo credit-box__logo--prisma">
+                                <strong class="credit-box__name">Prisma Consul</strong>
+                            </span>
+                            <span class="credit-box__person">
                                 <strong>Armando Cruz</strong>
                                 <span>info@prismaconsul.com</span>
-                            </div>
-                        </section>
-                    </aside>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="final-qr">
+                    <span class="final-qr__label">Únete a la comunidad</span>
+                    <div class="final-qr__code" id="final-qr-code"></div>
                 </div>
             </div>
         </main>
@@ -1680,6 +1684,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.23.9"></script>
+    <script src="/static/app.js?v=23.25.0"></script>
 </body>
 </html>
