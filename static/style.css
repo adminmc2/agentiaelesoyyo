@@ -7673,6 +7673,46 @@ body[data-mood-active] .message.assistant {
     box-shadow: 14px 14px 0 rgba(44, 44, 44, 0.9);
 }
 
+/* CTA Strategos — neobrutalism AnimatedButton (v23.19.5) */
+.diapo6-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    padding: clamp(18px, 1.8vw, 26px) clamp(36px, 4vw, 60px);
+    background: #C9A632;
+    color: #FFFFFF;
+    border: 5px solid #2c2c2c;
+    border-radius: 18px;
+    font: 900 clamp(22px, 2.2vw, 34px) 'Dosis', sans-serif;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    box-shadow: 8px 8px 0 rgba(44, 44, 44, 0.9);
+    transform: rotate(-2deg);
+    transition:
+        transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+        background 0.25s ease,
+        color 0.25s ease,
+        box-shadow 0.25s ease;
+    cursor: pointer;
+    align-self: center;
+    margin-top: clamp(12px, 1.4vw, 22px);
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.12);
+}
+.diapo6-cta-btn:hover {
+    background: #FFE7C1;
+    color: #2c2c2c;
+    transform: rotate(1deg) scale(1.05);
+    box-shadow: 12px 12px 0 rgba(44, 44, 44, 0.9);
+}
+.diapo6-cta-btn:active {
+    transform: rotate(0deg) scale(0.97);
+    box-shadow: 4px 4px 0 rgba(44, 44, 44, 0.9);
+}
+.diapo6-cta-btn__icon {
+    font-size: clamp(22px, 2.2vw, 32px);
+}
+
 @media (max-width: 1000px) {
     .diapo6-focus-grid { grid-template-columns: 1fr; gap: 16px; }
     .diapo6-focus-card { min-height: auto; }

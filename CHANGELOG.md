@@ -1,5 +1,22 @@
 # Changelog — AgentiaELE
 
+## v23.19.5 — 2026-04-25 — Diapo 6: CTA Strategos en paso 2 + reducción a 3 pasos (paso 4 cancelado)
+El usuario decide que la fase 5 (paso 4 con comic-text + AnimatedButton + QR + filosofía) NO se implementa. En su lugar, añade un **CTA directo a Strategos** al final del paso 2 (focus-cards) para que al hacer click lleve a la comunidad fuera de la presentación.
+
+**Cambios**:
+- `static/index.html`: eliminado el `<section data-step="4">` por completo (era solo placeholder). Añadido al final del paso 2, debajo del `.diapo6-focus-grid`, un `<a class="diapo6-cta-btn" href="https://strategos.up.railway.app/" target="_blank" rel="noopener">` con texto "Entra en Strategos" + icono arrow-right.
+- `static/style.css`: nueva clase `.diapo6-cta-btn` — estilo AnimatedButton neobrutalism adaptado de sgel: fondo mostaza, borde negro 5px, shadow duro `8×8`, rotación inicial `-2deg`, hover `bg crema + rotate(1deg) + scale(1.05) + shadow 12×12`, active `scale(0.97) + shadow 4×4`. Tamaños grandes (font 22-34, padding 18/36).
+- `static/app.js`:
+  - `DIAPO6_TOTAL_STEPS = 3` (antes 4). `diapo6NextStep` en el paso 3 ya va a pantalla final automáticamente por la comprobación `_diapo6Step >= DIAPO6_TOTAL_STEPS`.
+  - Deep-link `?screen=strategos&step=N` ahora acepta rango 2-3 (antes 2-4).
+
+**Resultado**:
+- Diapo 6 tiene 3 pasos: (1) layout-text-flip "Strategos es…" + descripción; (2) focus-cards con 3 cards + **CTA a Strategos**; (3) 3D card volteable + LucAPI circular progress + cita.
+- La flecha lateral → desde el paso 3 termina la diapo 6 (va a pantalla final).
+- La flecha superior-derecha del header también termina la diapo (sin importar el paso).
+
+Versionado sync → v23.19.5.
+
 ## v23.19.4 — 2026-04-25 — Diapo 6 paso 3 (3d-card volteable + LucAPI circular progress)
 Fase 4/6 de la diapo 6 "IA para estudiantes". Paso 3 con dos UIs en paralelo adaptados de sgel:
 

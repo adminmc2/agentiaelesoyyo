@@ -5448,7 +5448,7 @@ function replayJuego() {
 // Arquitectura clonada de DIAPO 5. Contenido de los pasos pendiente.
 // ============================================
 
-const DIAPO6_TOTAL_STEPS = 4;
+const DIAPO6_TOTAL_STEPS = 3;  // v23.19.5: reducido de 4 a 3 (el CTA vive ahora en paso 2).
 
 // Paso 1 — layout-text-flip
 const DIAPO6_FLIP_WORDS = ['una TARJETA', 'un AGENTE', 'una ESTRATEGIA'];
@@ -7634,7 +7634,7 @@ function init() {
                 // Si bypass móvil, no tocar nada más
                 if (!isOnDiapo6Screen()) return;
                 const stepParam = parseInt(urlParams.get('step') || '1', 10);
-                if (stepParam >= 2 && stepParam <= 4) {
+                if (stepParam >= 2 && stepParam <= 3) {
                     if (typeof _diapo6StopAll === 'function') _diapo6StopAll();
                     const stage = document.getElementById('diapo6-stage');
                     if (stage) {
