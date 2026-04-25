@@ -9554,6 +9554,37 @@ body[data-mood-active] .message.assistant {
     0% { transform: translate(0, 0) scale(1); }
     100% { transform: translate(2%, -2%) scale(1.06); }
 }
+.final-nav-btn {
+    position: absolute;
+    top: clamp(16px, 1.6vw, 28px);
+    width: clamp(44px, 3.4vw, 52px);
+    height: clamp(44px, 3.4vw, 52px);
+    border-radius: 50%;
+    background: #FFF;
+    color: #2c2c2c;
+    border: 3px solid #2c2c2c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(18px, 1.6vw, 22px);
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 4px 4px 0 #2c2c2c;
+    transition: transform .15s, box-shadow .15s, background .15s;
+}
+.final-nav-btn:hover {
+    background: #C9A632;
+    color: #FFF;
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 #2c2c2c;
+}
+.final-nav-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0 #2c2c2c;
+}
+.final-nav-btn--back { left: clamp(16px, 1.6vw, 28px); }
+.final-nav-btn--home { right: clamp(16px, 1.6vw, 28px); }
+
 .final-page {
     position: relative;
     z-index: 1;

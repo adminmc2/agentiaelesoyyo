@@ -6066,6 +6066,35 @@ function closeDiapo7Modal() {
 // ============================================
 const FINAL_COMMUNITY_URL = 'https://forms.hablandis.com/hablandis/form/elencuentroeleMiln/formperma/RZKSb0WA04Szly2Z32iJ1i6yml9-5md5qPNbw2hCQ8A';
 
+function _finalGoTo(targetFn) {
+    stopTTS();
+    const el = document.getElementById('final-screen');
+    if (!el) { targetFn?.(); return; }
+    el.classList.add('fade-out');
+    setTimeout(() => {
+        el.classList.add('hidden');
+        el.classList.remove('fade-out');
+        targetFn?.();
+    }, 300);
+}
+
+let _finalNavInited = false;
+function initFinalNav() {
+    if (_finalNavInited) return;
+    _finalNavInited = true;
+    document.getElementById('final-nav-back')?.addEventListener('click', () => {
+        _finalGoTo(() => {
+            if (typeof showDiapo8Screen === 'function') showDiapo8Screen();
+            else if (typeof showDiapo7Screen === 'function') showDiapo7Screen();
+        });
+    });
+    document.getElementById('final-nav-home')?.addEventListener('click', () => {
+        _finalGoTo(() => {
+            if (typeof showLoginScreen === 'function') showLoginScreen();
+        });
+    });
+}
+
 function initFinalQR() {
     const host = document.getElementById('final-qr-code');
     if (!host || host.dataset.rendered === 'true') return;
@@ -6091,6 +6120,7 @@ function showFinalScreen() {
     }
     initFinalSongPlayer();
     initFinalQR();
+    initFinalNav();
 }
 
 function hideFinalScreen() {
