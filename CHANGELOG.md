@@ -1,5 +1,16 @@
 # Changelog — AgentiaELE
 
+## v23.16.5 — 2026-04-25 — Diapo 5 fix: header tapado por el stage
+Bug del rediseño v23.16.4: el `.slide-header` (franja mostaza con título y flechas) no se veía en la diapo 5. Causa: el `.diapo5-screen` con `overflow: hidden` + `transition: transform` estaba creando un containing block para el header `position: fixed` (comportamiento de algunos navegadores al promover capas), recortándolo.
+
+**Fix**:
+- `.diapo5-screen`: quitado `overflow: hidden` (innecesario), eliminado `transition: transform` (solo opacity), añadido `padding: 78px 0 0 0 !important` (igual que `.blinda-page--fullscreen` con su 72px) y `display: flex; flex-direction: column;`. La `.fade-out` ahora solo afecta a `opacity`, no a `transform`.
+- `.diapo5-stage`: pasa de `min-height: 100vh + padding-top: 78px` a `flex: 1` dentro del flex column del screen. `overflow: hidden` se queda en el stage para recortar los steps absolutos.
+- `.diapo5-step`: `inset: 78px 0 0 0` → `inset: 0`. Ahora el stage ya está offsetted desde el padding del screen.
+- Media query `@media (max-height: 760px)`: actualizada para mover el padding-top al screen (no al stage).
+
+Versionado sync → v23.16.5.
+
 ## v23.16.4 — 2026-04-25 — Diapo 5: rediseño completo en 4 pasos secuenciales
 Tras el feedback duro del usuario sobre v23.16.0-3 ("una diapo 2×2 apretada con cuatro recuadros pegados rompe el estilo de la presentación, no usa los UIs de sgel que te pasé"), se rehace toda la diapo 5 como una **secuencia de 4 pasos full-screen** con transiciones fade-blur entre uno y otro, avance manual con flechas, sin indicador de progreso. Cada paso usa un UI diferente de sgel adaptado a vanilla JS.
 
