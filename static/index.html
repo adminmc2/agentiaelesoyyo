@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.23.7">
+    <link rel="stylesheet" href="/static/style.css?v=23.23.8">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -1186,18 +1186,25 @@
                         </div>
                     </section>
 
-                    <!-- Columna derecha: QR comunidad + Prisma -->
+                    <!-- Columna derecha: QR comunidad + contactos -->
                     <aside class="final-side">
                         <section class="final-card final-card--qr">
+                            <span class="final-qr__brand">Hablandis</span>
                             <span class="final-qr__label">Únete a la comunidad</span>
                             <div class="final-qr__code" id="final-qr-code"></div>
-                            <span class="final-qr__sub">Hablandis · Encuentro ELE</span>
+                            <div class="final-qr__contact">
+                                <strong>Román Navarro</strong>
+                                <span>info@hablandis.com</span>
+                            </div>
                         </section>
 
-                        <div class="final-prisma">
-                            <img src="/static/prisma-logo.svg" alt="Prisma Consul" class="final-prisma__logo">
-                            <p class="final-prisma__contact">Armando Cruz · info@prismaconsul.com</p>
-                        </div>
+                        <section class="final-card final-card--contact">
+                            <span class="final-contact__brand">Prisma Consul</span>
+                            <div class="final-contact__info">
+                                <strong>Armando Cruz</strong>
+                                <span>info@prismaconsul.com</span>
+                            </div>
+                        </section>
                     </aside>
                 </div>
             </div>
@@ -1673,6 +1680,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.23.7"></script>
+    <script src="/static/app.js?v=23.23.8"></script>
 </body>
 </html>
