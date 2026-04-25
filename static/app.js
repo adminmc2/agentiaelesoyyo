@@ -4121,10 +4121,10 @@ function sendBlindaMessage(message) {
     let assistantBubble = null;
 
     const doSend = () => {
-        // activity_mode: 'juego3_chat' → prompt del juego "Descubre al agente".
-        // prior_context eliminado: la narrativa antigua ("tarjetas", "FASE 1", "ojo crítico")
-        // contaminaba el contexto del LLM aunque el system prompt fuera el nuevo.
-        const payload = { message, response_mode: 'full', activity_mode: 'juego3_chat' };
+        // En diapo 5 usamos el prompt 'diapo5' (habla del contenido de esa diapo).
+        // En el resto (diapo 3 con widget abierto) usamos 'juego3_chat'.
+        const activity = isOnDiapo5Screen() ? 'diapo5' : 'juego3_chat';
+        const payload = { message, response_mode: 'full', activity_mode: activity };
         state._blindaWs.send(JSON.stringify(payload));
     };
 
@@ -4740,27 +4740,20 @@ const DIAPO5_MORPH_WORDS = [
 const DIAPO5_MORPH_TIME = 1.6;       // tiempo de transición entre palabras (s)
 const DIAPO5_MORPH_COOLDOWN = 0.7;   // tiempo de "lectura" entre transiciones (s)
 
-// Paso 2 — Container text flip
-const DIAPO5_FLIP_PAIRS = [
-    { face: 'EN CLASE',       example: 'Corrige 27 redacciones con tu rúbrica en 1 minuto.' },
-    { face: 'CON TU ALUMNO',  example: 'Practica fuera de clase con tus ejemplos, a las 23:00.' }
-];
-const DIAPO5_FLIP_INTERVAL_MS = 3500;
+// Paso 2 — Split central (estático, sin animación JS necesaria)
 
-// Paso 3 — Terminal manifiesto
+// Paso 3 — Terminal manifiesto (con 2 sublíneas profe/agente por letra)
 const DIAPO5_ELITE_LINES = [
-    { letter: 'E', word: 'Empático',  gloss: 'Escucha al alumno.' },
-    { letter: 'L', word: 'Leal',      gloss: 'Fiel a tu rúbrica.' },
-    { letter: 'I', word: 'Intuitivo', gloss: 'Sabe qué pasa.' },
-    { letter: 'T', word: 'Tenaz',     gloss: 'No abandona.' },
-    { letter: 'E', word: 'Elegante',  gloss: 'Explica con gracia.' }
+    { letter: 'E', word: 'Empático',  profe: 'escuchas al alumno',          agente: 'lee el contexto del aula' },
+    { letter: 'L', word: 'Leal',      profe: 'fiel a tu rúbrica',           agente: 'respeta tus criterios' },
+    { letter: 'I', word: 'Intuitivo', profe: 'sabes qué pasa en clase',     agente: 'anticipa al alumno' },
+    { letter: 'T', word: 'Tenaz',     profe: 'terminas lo empezado',        agente: 'no desiste con el error' },
+    { letter: 'E', word: 'Elegante',  profe: 'explicas con gracia',         agente: 'entrega siempre' }
 ];
 
 // State (no toca al state global — variables module-level)
 let _diapo5Step = 1;
 let _diapo5MorphRAF = null;
-let _diapo5FlipTimer = null;
-let _diapo5FlipIndex = 0;
 let _diapo5TerminalTimer = null;
 
 function showDiapo5Screen() {
@@ -4787,11 +4780,28 @@ function showDiapo5Screen() {
 
     // Init estáticos (idempotentes)
     initDiapo5QR();
-    initDiapo5ElianaOrb();
+
+    // Mostrar el widget Eliana flotante global (mismo orb que en diapo 3 y 4)
+    const elianaWidget = document.getElementById('eliana-widget');
+    if (elianaWidget) {
+        elianaWidget.classList.remove('hidden');
+        if (typeof setWidgetState === 'function') setWidgetState('fab');
+        if (!_diapo5ElianaInit && typeof initWidgetListeners === 'function') {
+            initWidgetListeners();
+            _diapo5ElianaInit = true;
+        }
+        // Reset del chat con mensaje inicial específico de la diapo 5
+        const messagesEl = document.getElementById('blinda-chat-messages');
+        if (messagesEl) {
+            messagesEl.innerHTML = '';
+            addBlindaChatBubble('Hola, soy Eliana. Esta diapo trata de algo concreto: tú ya tienes lo que un agente necesita — pedagogía, MCER, tu estilo. Un mismo agente sirve para ti como profe y para tu alumno. Pregúntame por la dualidad, por ELITE o por la comunidad.', 'assistant');
+        }
+    }
 
     // Arranca la animación del paso 1
     _diapo5RunStep(1);
 }
+let _diapo5ElianaInit = false;
 
 function hideDiapo5Screen() {
     _diapo5StopAll();
@@ -4800,6 +4810,7 @@ function hideDiapo5Screen() {
     setTimeout(() => {
         elements.diapo5Screen?.classList.add('hidden');
         elements.diapo5Screen?.classList.remove('fade-out');
+        // El widget Eliana lo deja showJuego3Screen() / la diapo siguiente.
         // Volver a diapo 3 para no pasar por la diapo 4 legacy.
         showJuego3Screen();
     }, 300);
@@ -4864,20 +4875,18 @@ function _diapo5GoToStep(target) {
 
 function _diapo5RunStep(step) {
     if (step === 1) _diapo5StartMorph();
-    else if (step === 2) _diapo5StartFlip();
     else if (step === 3) _diapo5StartTerminal();
-    // step 4 es estático (card neón con QR + orb), nada que arrancar.
+    // step 2 es estático (split central con agente unificador).
+    // step 4 es estático (card neón con QR).
 }
 
 function _diapo5StopStep(step) {
     if (step === 1) _diapo5StopMorph();
-    else if (step === 2) _diapo5StopFlip();
     else if (step === 3) _diapo5StopTerminal();
 }
 
 function _diapo5StopAll() {
     _diapo5StopMorph();
-    _diapo5StopFlip();
     _diapo5StopTerminal();
 }
 
@@ -4949,125 +4958,110 @@ function _diapo5StopMorph() {
     }
 }
 
-// ──────────── PASO 2 — Container text flip ────────────
-function _diapo5StartFlip() {
-    _diapo5StopFlip();
-    const flip = document.getElementById('diapo5-flip');
-    const example = document.getElementById('diapo5-flip-example');
-    if (!flip || !example) return;
+// (v23.16.8) Paso 2 ya no tiene flip — se sustituyó por split central estático.
 
-    _diapo5FlipIndex = 0;
-    flip.classList.remove('is-flipped');
-    flip.querySelector('.is-front').textContent = DIAPO5_FLIP_PAIRS[0].face;
-    flip.querySelector('.is-back').textContent  = DIAPO5_FLIP_PAIRS[1].face;
-    example.textContent = DIAPO5_FLIP_PAIRS[0].example;
+// ──────────── PASO 3 — Terminal manifiesto (2 columnas PROFE/AGENTE) ────────────
+const _diapo5EscapeHtml = (s) => s.replace(/[&<>]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[c]));
 
-    _diapo5FlipTimer = setInterval(() => {
-        if (!isOnDiapo5Screen() || _diapo5Step !== 2) {
-            _diapo5StopFlip();
-            return;
-        }
-        _diapo5FlipIndex = (_diapo5FlipIndex + 1) % DIAPO5_FLIP_PAIRS.length;
-        flip.classList.toggle('is-flipped', _diapo5FlipIndex === 1);
-        // Swap de la frase debajo a mitad del flip (350ms) para sincronizar
-        example.classList.add('is-swapping');
-        setTimeout(() => {
-            example.textContent = DIAPO5_FLIP_PAIRS[_diapo5FlipIndex].example;
-            example.classList.remove('is-swapping');
-        }, 350);
-    }, DIAPO5_FLIP_INTERVAL_MS);
-}
-
-function _diapo5StopFlip() {
-    if (_diapo5FlipTimer) {
-        clearInterval(_diapo5FlipTimer);
-        _diapo5FlipTimer = null;
-    }
-}
-
-// ──────────── PASO 3 — Terminal manifiesto ────────────
 function _diapo5StartTerminal() {
     _diapo5StopTerminal();
     const body = document.getElementById('diapo5-terminal-body');
     if (!body) return;
     body.innerHTML = '';
 
-    const lineEls = DIAPO5_ELITE_LINES.map(() => {
-        const el = document.createElement('div');
-        el.className = 'diapo5-terminal__line';
-        body.appendChild(el);
-        return el;
+    // Pre-creamos un bloque por letra: header (E.  Empático) + 2 sublíneas (profe / agente)
+    const blocks = DIAPO5_ELITE_LINES.map(() => {
+        const block = document.createElement('div');
+        block.className = 'diapo5-terminal__line';
+        const head  = document.createElement('div'); head.className  = 'diapo5-terminal__head';
+        const sub1  = document.createElement('div'); sub1.className  = 'diapo5-terminal__sub diapo5-terminal__sub--profe';
+        const sub2  = document.createElement('div'); sub2.className  = 'diapo5-terminal__sub diapo5-terminal__sub--agente';
+        block.append(head, sub1, sub2);
+        body.appendChild(block);
+        return { head, sub1, sub2 };
     });
-    // Cursor fijo al final
+
+    // Cursor fijo al final del body
     const cursor = document.createElement('span');
     cursor.className = 'diapo5-terminal__cursor';
     cursor.innerHTML = '&nbsp;';
     body.appendChild(cursor);
 
+    // Por cada letra hay 3 fases de tecleo: head, sub-profe, sub-agente
     let lineIdx = 0;
+    let phase = 0;     // 0 = head, 1 = sub-profe, 2 = sub-agente
     let charIdx = 0;
-    const charsPerLine = DIAPO5_ELITE_LINES.map(l =>
-        `> ${l.letter}.  ${l.word}.  ${l.gloss}`
-    );
 
-    const renderPartial = () => {
-        const full = charsPerLine[lineIdx];
-        const partial = full.slice(0, charIdx);
-        // Render con spans coloreados según la posición actual
-        // Estructura: "> {letter}.  {word}.  {gloss}"
+    const headTextOf = (l) => `> ${l.letter}.  ${l.word}.`;
+    const subProfeOf  = (l) => l.profe;
+    const subAgenteOf = (l) => l.agente;
+
+    const renderHead = (full, partial) => {
         const data = DIAPO5_ELITE_LINES[lineIdx];
         const promptStr = '> ';
         const letterStr = `${data.letter}.`;
         const wordStr   = `  ${data.word}.`;
-        const glossStr  = `  ${data.gloss}`;
-
         const totalPrompt = promptStr.length;
         const totalLetter = totalPrompt + letterStr.length;
-        const totalWord   = totalLetter + wordStr.length;
-
         let html = '';
         if (charIdx <= totalPrompt) {
-            html = `<span class="prompt">${escapeHtml(partial)}</span>`;
+            html = `<span class="prompt">${_diapo5EscapeHtml(partial)}</span>`;
         } else if (charIdx <= totalLetter) {
-            html = `<span class="prompt">${escapeHtml(promptStr)}</span>`
-                + `<span class="letter">${escapeHtml(partial.slice(totalPrompt))}</span>`;
-        } else if (charIdx <= totalWord) {
-            html = `<span class="prompt">${escapeHtml(promptStr)}</span>`
-                + `<span class="letter">${escapeHtml(letterStr)}</span>`
-                + `<span class="word">${escapeHtml(partial.slice(totalLetter))}</span>`;
+            html = `<span class="prompt">${_diapo5EscapeHtml(promptStr)}</span>`
+                 + `<span class="letter">${_diapo5EscapeHtml(partial.slice(totalPrompt))}</span>`;
         } else {
-            html = `<span class="prompt">${escapeHtml(promptStr)}</span>`
-                + `<span class="letter">${escapeHtml(letterStr)}</span>`
-                + `<span class="word">${escapeHtml(wordStr)}</span>`
-                + `<span class="gloss">${escapeHtml(partial.slice(totalWord))}</span>`;
+            html = `<span class="prompt">${_diapo5EscapeHtml(promptStr)}</span>`
+                 + `<span class="letter">${_diapo5EscapeHtml(letterStr)}</span>`
+                 + `<span class="word">${_diapo5EscapeHtml(partial.slice(totalLetter))}</span>`;
         }
-        lineEls[lineIdx].innerHTML = html;
+        blocks[lineIdx].head.innerHTML = html;
     };
 
-    const escapeHtml = (s) => s.replace(/[&<>]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[c]));
+    const renderSub = (kind, full, partial) => {
+        // El "partial" ahora ya NO tiene la etiqueta — el label es estático en el DOM
+        // y solo se teclea el texto. Pintamos label fijo + text parcial.
+        const label = kind === 'profe' ? 'PROFE' : 'AGENTE';
+        const html =
+            `<span class="diapo5-terminal__sub-label">${label}</span>`
+            + `<span class="diapo5-terminal__sub-text">${_diapo5EscapeHtml(partial)}</span>`;
+        const targetEl = kind === 'profe' ? blocks[lineIdx].sub1 : blocks[lineIdx].sub2;
+        targetEl.innerHTML = html;
+    };
 
     const typeStep = () => {
         if (!isOnDiapo5Screen() || _diapo5Step !== 3) {
             _diapo5StopTerminal();
             return;
         }
-        if (lineIdx >= charsPerLine.length) {
-            // Terminado: se queda con el cursor parpadeando
-            return;
-        }
+        if (lineIdx >= DIAPO5_ELITE_LINES.length) return; // terminado
+
+        const data = DIAPO5_ELITE_LINES[lineIdx];
+        let full;
+        if (phase === 0)      full = headTextOf(data);
+        else if (phase === 1) full = subProfeOf(data);
+        else                  full = subAgenteOf(data);
+
         charIdx++;
-        renderPartial();
-        if (charIdx >= charsPerLine[lineIdx].length) {
-            lineIdx++;
+        const partial = full.slice(0, charIdx);
+        if (phase === 0) renderHead(full, partial);
+        else if (phase === 1) renderSub('profe', full, partial);
+        else renderSub('agente', full, partial);
+
+        if (charIdx >= full.length) {
+            phase++;
             charIdx = 0;
-            // Pausa más larga entre líneas
-            _diapo5TerminalTimer = setTimeout(typeStep, 280);
+            if (phase > 2) {
+                phase = 0;
+                lineIdx++;
+            }
+            // Pausa más larga entre fases / líneas
+            _diapo5TerminalTimer = setTimeout(typeStep, phase === 0 ? 320 : 180);
         } else {
-            _diapo5TerminalTimer = setTimeout(typeStep, 28 + Math.random() * 22);
+            _diapo5TerminalTimer = setTimeout(typeStep, 18 + Math.random() * 18);
         }
     };
-    // Pequeño delay inicial para que el fade-blur entre antes de empezar a teclear
-    _diapo5TerminalTimer = setTimeout(typeStep, 350);
+    // Pequeño delay inicial para que la transición entre antes de empezar a teclear
+    _diapo5TerminalTimer = setTimeout(typeStep, 400);
 }
 
 function _diapo5StopTerminal() {
@@ -5096,15 +5090,9 @@ function initDiapo5QR() {
     }
 }
 
-// ──────────── Eliana orb (paso 4, decorativo) ────────────
-function initDiapo5ElianaOrb() {
-    const host = document.getElementById('diapo5-eliana-orb');
-    if (!host || host.dataset.rendered === 'true') return;
-    if (window.orbCreateInElement) {
-        window.orbCreateInElement(host, 120);
-        host.dataset.rendered = 'true';
-    }
-}
+// (v23.16.7) initDiapo5ElianaOrb eliminado: el orb del paso 4 se sustituye
+// por el widget global .eliana-widget que aparece en TODOS los pasos
+// (mismo widget que ya se usa en diapo 3 y 4).
 
 // ---- End Diapo 5 ----
 
@@ -7390,6 +7378,9 @@ function init() {
     // En el paso 1 ← sale a diapo 3. En el paso 4 → entra en diapo 6.
     document.getElementById('diapo5-nav-back')?.addEventListener('click', diapo5PrevStep);
     document.getElementById('diapo5-nav-next')?.addEventListener('click', diapo5NextStep);
+    // Flechas laterales overlay (v23.16.7) — más visibles que las del header
+    document.getElementById('diapo5-side-prev')?.addEventListener('click', diapo5PrevStep);
+    document.getElementById('diapo5-side-next')?.addEventListener('click', diapo5NextStep);
 
     // Diapo 6 — Elige tu agente
     document.getElementById('diapo6-nav-back')?.addEventListener('click', () => {
@@ -7787,6 +7778,24 @@ function init() {
             if (screenParam === 'juego') showJuegoScreen();
             else if (screenParam === 'miau' && typeof showDiapo6Screen === 'function') showDiapo6Screen();
             else if (screenParam === 'juego-intro') showJuegoIntroScreen();
+            else if (screenParam === 'diapo5' && typeof showDiapo5Screen === 'function') {
+                showDiapo5Screen();
+                // ?screen=diapo5&step=N salta al paso N (snap directo, sin transición)
+                const stepParam = parseInt(urlParams.get('step') || '1', 10);
+                if (stepParam >= 2 && stepParam <= 4) {
+                    setTimeout(() => {
+                        document.querySelectorAll('#diapo5-stage .diapo5-step').forEach(el => {
+                            el.classList.remove('is-active', 'is-leaving');
+                        });
+                        const target = document.querySelector(`#diapo5-stage .diapo5-step[data-step="${stepParam}"]`);
+                        target?.classList.add('is-active');
+                        // sync state interno y arrancar la animación del paso destino
+                        if (typeof _diapo5StopAll === 'function') _diapo5StopAll();
+                        window._diapo5StepOverride = stepParam;
+                        if (typeof _diapo5RunStep === 'function') _diapo5RunStep(stepParam);
+                    }, 250);
+                }
+            }
         }, 500);
     }
 

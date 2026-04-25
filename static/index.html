@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.16.5">
+    <link rel="stylesheet" href="/static/style.css?v=23.16.8">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -663,8 +663,17 @@
                 <!-- Light rays decorativos de fondo -->
                 <div class="diapo5-rays" aria-hidden="true"></div>
 
+                <!-- Flechas laterales overlay (para que se vean grandes y obvias) -->
+                <button class="diapo5-side-arrow diapo5-side-arrow--prev" id="diapo5-side-prev" title="Paso anterior" aria-label="Paso anterior">
+                    <i class="ph-bold ph-caret-left"></i>
+                </button>
+                <button class="diapo5-side-arrow diapo5-side-arrow--next" id="diapo5-side-next" title="Siguiente paso" aria-label="Siguiente paso">
+                    <i class="ph-bold ph-caret-right"></i>
+                </button>
+
                 <!-- ============ PASO 1 — Ingredientes (morphing-text) ============ -->
                 <section class="diapo5-step is-active" data-step="1" id="diapo5-step-1">
+                    <h2 class="diapo5-hook">Eres un profe <span class="diapo5-hook__elite">ELITE</span>. Tus agentes lo serán también.</h2>
                     <p class="diapo5-step__pre">Tú ya tienes lo que un agente necesita.</p>
                     <div class="diapo5-morph" id="diapo5-morph" aria-live="polite">
                         <span class="diapo5-morph__text diapo5-morph__text--a"></span>
@@ -673,21 +682,46 @@
                     <p class="diapo5-step__post">Pedagogía · Lingüística ELE · MCER · Errores por L1 · Cultura · Empatía · Tu estilo</p>
                 </section>
 
-                <!-- ============ PASO 2 — Dualidad (container-text-flip) ============ -->
+                <!-- ============ PASO 2 — Dualidad (split central, agente unificador) ============ -->
                 <section class="diapo5-step" data-step="2" id="diapo5-step-2">
-                    <p class="diapo5-step__pre">El mismo agente, dos vidas.</p>
-                    <div class="diapo5-flip-row">
-                        <span class="diapo5-flip__prefix">Contigo,</span>
-                        <span class="diapo5-flip" id="diapo5-flip">
-                            <span class="diapo5-flip__face is-front">EN CLASE</span>
-                            <span class="diapo5-flip__face is-back">CON TU ALUMNO</span>
-                        </span>
+                    <h2 class="diapo5-hook">Eres un profe <span class="diapo5-hook__elite">ELITE</span>. Tus agentes lo serán también.</h2>
+                    <p class="diapo5-step__pre">Lo construyes <strong>una vez</strong>. Sirve <strong>dos veces</strong>.</p>
+                    <div class="diapo5-split">
+                        <!-- Lado izquierdo: profesor -->
+                        <div class="diapo5-split__side diapo5-split__side--profe">
+                            <i class="ph-fill ph-chalkboard-teacher diapo5-split__side-icon"></i>
+                            <h3 class="diapo5-split__side-label">Profesor</h3>
+                            <ul class="diapo5-split__list">
+                                <li>Corrige 27 redacciones con tu rúbrica, tu nivel, tu glosario.</li>
+                                <li>Genera el quiz del texto que subiste, en tu formato preferido.</li>
+                                <li>Redacta correos a 25 familias en 1 minuto, en tu tono.</li>
+                                <li>Detecta el error grupal del día y propone remedio.</li>
+                            </ul>
+                        </div>
+                        <!-- Centro: el AGENTE unificador -->
+                        <div class="diapo5-split__center">
+                            <div class="diapo5-split__agent">
+                                <i class="ph-fill ph-robot"></i>
+                            </div>
+                            <span class="diapo5-split__agent-label">UN MISMO AGENTE</span>
+                        </div>
+                        <!-- Lado derecho: alumno -->
+                        <div class="diapo5-split__side diapo5-split__side--alumno">
+                            <i class="ph-fill ph-graduation-cap diapo5-split__side-icon"></i>
+                            <h3 class="diapo5-split__side-label">Alumno</h3>
+                            <ul class="diapo5-split__list">
+                                <li>Practica conversación a las 23:00, con paciencia infinita.</li>
+                                <li>Explica con tus ejemplos, al nivel exacto que necesita.</li>
+                                <li>Corrige sus errores como tú lo harías, sin juicio.</li>
+                                <li>Repite cien veces el subjuntivo sin perder la calma.</li>
+                            </ul>
+                        </div>
                     </div>
-                    <p class="diapo5-flip__example" id="diapo5-flip-example">Corrige 27 redacciones con tu rúbrica en 1 minuto.</p>
                 </section>
 
                 <!-- ============ PASO 3 — ELITE (terminal manifest) ============ -->
                 <section class="diapo5-step" data-step="3" id="diapo5-step-3">
+                    <h2 class="diapo5-hook">Eres un profe <span class="diapo5-hook__elite">ELITE</span>. Tus agentes lo serán también.</h2>
                     <div class="diapo5-terminal" id="diapo5-terminal">
                         <div class="diapo5-terminal__bar">
                             <span class="diapo5-terminal__dot diapo5-terminal__dot--r"></span>
@@ -701,15 +735,15 @@
 
                 <!-- ============ PASO 4 — Comunidad + QR (neon-gradient-card) ============ -->
                 <section class="diapo5-step" data-step="4" id="diapo5-step-4">
+                    <h2 class="diapo5-hook">Eres un profe <span class="diapo5-hook__elite">ELITE</span>. Tus agentes lo serán también.</h2>
                     <div class="diapo5-neon-card">
                         <div class="diapo5-neon-card__inner">
                             <h2 class="diapo5-neon-card__title">¿Por qué no sacas ese agente que llevas dentro?</h2>
                             <p class="diapo5-neon-card__sub">Únete a la comunidad ELE — sin código, solo tu expertise.</p>
                             <div class="diapo5-neon-card__cta">
                                 <div class="diapo5-qr" id="diapo5-qr" aria-label="QR del formulario para unirte a la comunidad"></div>
-                                <div class="diapo5-eliana-orb" id="diapo5-eliana-orb" aria-hidden="true"></div>
+                                <span class="diapo5-qr__hint">Escanea para unirte</span>
                             </div>
-                            <span class="diapo5-qr__hint">Escanea para unirte</span>
                         </div>
                     </div>
                 </section>
@@ -1485,6 +1519,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.16.5"></script>
+    <script src="/static/app.js?v=23.16.8"></script>
 </body>
 </html>

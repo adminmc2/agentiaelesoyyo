@@ -1,5 +1,71 @@
 # Changelog — AgentiaELE
 
+## v23.16.8 — 2026-04-25 — Diapo 5: refactor estético completo + Eliana contextualizada
+Consolida los cambios v23.16.6, v23.16.7 y v23.16.8 (estos dos últimos no se habían commiteado individualmente). Tras varias rondas de feedback del usuario rehaciendo decisiones de UX:
+
+**1) Header DEFINITIVAMENTE visible** (era v23.16.6)
+- `static/style.css`: regla defensiva `#diapo5-screen > .slide-header { position: fixed !important; z-index: 9999 !important; display: flex !important; }`. El reviser confirmó que tras v23.16.5 el header seguía invisible (algún descendiente creaba stacking context). Verificado headless con `Google Chrome --headless=new "http://localhost:9000/?screen=diapo5"`.
+- `static/app.js`: deep-link `?screen=diapo5` (con sub-param `&step=N` para saltar a paso N en debug, snap directo sin transición).
+
+**2) Layout más grande y aireado** (era v23.16.7)
+- Hook ELITE: 32px → `clamp(32px, 3.6vw, 56px)`, max-width 1280, highlighter mostaza al 42% más visible.
+- Pre-text: 26px → `clamp(24px, 2.2vw, 38px)` violeta `#6B2F6D`.
+- Post-text: 16px → `clamp(16px, 1.3vw, 22px)`.
+- Morphing-text "Pedagogía": 132px → `clamp(72px, 11vw, 180px)`, height aumentada, text-shadow más profundo.
+- Flechas laterales overlay grandes (caret-left/right en círculos blancos translúcidos sobre los lados, hover sólido mostaza). Más visibles que las del header. Listeners separados (`diapo5-side-prev`/`next`).
+- Light-rays de fondo más visibles: opacidad mostaza 0.10→0.22, lavanda 0.12→0.28, menta 0.30→0.55. Animación drift 18s.
+
+**3) Transiciones SLIDE HORIZONTAL** (en vez de fade-blur)
+- `.diapo5-step` default: `translateX(100%) opacity:0 blur(8px)`. Active: `translateX(0)`. Leaving: `translateX(-100%)`. Total 700ms cubic-bezier(.22,1,.36,1).
+- Padding de cada paso: 32px 80px (más aire), gap 36px.
+
+**4) Paso 2 — SPLIT CENTRAL (propuesta B aprobada por el usuario)** (era v23.16.8)
+- Eliminado el container-text-flip 3D ("absurdo, no explica nada" — feedback del usuario).
+- Nueva estructura: grid 3 columnas con línea mostaza horizontal conectando.
+  - Izq: card "Profesor" (icon `ph-chalkboard-teacher`, lista con 4 frases concretas con tu rúbrica/glosario/nivel).
+  - Centro: agente unificador en círculo mostaza pulsante (3s ease-in-out) con label "UN MISMO AGENTE".
+  - Der: card "Alumno" (icon `ph-graduation-cap`, lista con 4 frases — practica a las 23h, repite el subjuntivo sin perder la calma, etc.).
+- JS: eliminadas constantes `DIAPO5_FLIP_PAIRS`, `DIAPO5_FLIP_INTERVAL_MS` y funciones `_diapo5StartFlip`/`_diapo5StopFlip`. Paso 2 es estático ahora.
+
+**5) Paso 3 — Terminal con 2 columnas paralelas PROFE | AGENTE**
+- Cada letra ELITE ocupa un bloque grid (head full-width arriba; sub-profe izq + sub-agente der debajo).
+- PROFE en lavanda `#D0AAD1`, AGENTE en mostaza `#C9A632`. Border-left de 3px del color correspondiente.
+- Typing por fases: head → sub-profe → sub-agente, ~30ms/char + 320ms entre líneas.
+- Texto de "Elegante" agente corregido: "entrega siempre pulido" → "entrega siempre" (feedback usuario).
+
+**6) Paso 4 — QR mucho más grande**
+- 240px → `clamp(320px, 36vw, 440px)` (similar al QR de la diapo 2 que llega a 460px).
+- Card neón `padding: 56px 64px 48px`, título `clamp(30px, 3.4vw, 52px)`, sub `clamp(20px, 1.6vw, 26px)`.
+
+**7) Eliana global flotante + Hook permanente arriba**
+- En CADA paso de la diapo 5 aparece arriba el hook "Eres un profe ELITE. Tus agentes lo serán también." con highlighter sobre ELITE.
+- Eliminado el orb decorativo del paso 4 (`.diapo5-eliana-orb { display: none !important; }`).
+- En su lugar, `showDiapo5Screen()` activa el widget global `.eliana-widget` (mismo orb arrastrable de las otras diapos).
+- Patrón copiado de `juego3`: `setWidgetState('fab')` + `initWidgetListeners()`.
+
+**8) Eliana habla del CONTENIDO de la diapo 5, no del juego**
+- Nuevo prompt `diapo5` en `main.py` (`_DEFAULT_PROMPTS["diapo5"]` y añadido al filtro `ACTIVITY_PROMPTS`). Define: la diapo NO es un juego, los 4 pasos (ingredientes / dualidad / ELITE / comunidad), de qué hablar (mensaje, dualidad, acrónimo, comunidad Hablandis), de qué NO hablar (chef, 8 agentes, MIAU, juego), tono y reglas de español correcto.
+- `sendBlindaMessage` (función del widget) ahora elige `activity_mode` dinámico: `'diapo5'` si `isOnDiapo5Screen()`, sino `'juego3_chat'`.
+- Mensaje inicial del chat al entrar a la diapo 5: "Hola, soy Eliana. Esta diapo trata de algo concreto: tú ya tienes lo que un agente necesita — pedagogía, MCER, tu estilo. Un mismo agente sirve para ti como profe y para tu alumno. Pregúntame por la dualidad, por ELITE o por la comunidad." Reset del chat al entrar para que no quede el saludo de juego3.
+
+**Pendiente / consciente**
+- `docs/diapo5-spec.md` queda muy stale (describe la versión 4 zonas 2×2 anterior). Reescribir cuando el diseño se congele.
+- `docs/diapo-ia-para-estudiantes.md`, `docs/diapo-ia-para-profes.md`, `docs/diapo-pildoras-formativas.md` quedan como untracked, no se incluyen en este commit.
+- Versionado sincronizado en los 3 ficheros visibles → v23.16.8.
+
+## v23.16.6 — 2026-04-25 — Diapo 5: fix DEFINITIVO del header + deep-link
+El reviser confirmó que tras v23.16.5 el header seguía sin verse en runtime, aunque el código declaraba el fix. Causa real: algún ancestro del header `.slide-header` (probablemente el `.diapo5-stage` por las animaciones internas con filter/transform) creaba stacking context que dejaba al fixed header invisible o detrás.
+
+**Fix con verificación headless**:
+- `static/style.css`: nueva regla defensiva `#diapo5-screen > .slide-header { position: fixed !important; top: 0 !important; ...; z-index: 9999 !important; display: flex !important; }`. Garantiza que, sin importar lo que hagan los descendientes del `.diapo5-screen`, el header queda anclado al viewport con z-index máximo.
+- `static/app.js`: añadido `else if (screenParam === 'diapo5') showDiapo5Screen()` al deep-link handler para poder abrir directamente con `?screen=diapo5`. Esto permitió tomar screenshots headless con Chrome y validar el fix antes de pedir confirmación al usuario.
+
+**Verificación**:
+- Comando: `Google Chrome --headless=new --window-size=1600,900 --screenshot=/tmp/diapo5_step1.png "http://localhost:9000/?screen=diapo5"`.
+- Resultado: header mostaza visible con número 05, título "Saca el agente que llevas dentro", flechas back/next. Paso 1 con morphing-text "Pedagogía" centrado. Caption inferior con la lista de ingredientes. Layout coherente.
+
+Versionado sync → v23.16.6.
+
 ## v23.16.5 — 2026-04-25 — Diapo 5 fix: header tapado por el stage
 Bug del rediseño v23.16.4: el `.slide-header` (franja mostaza con título y flechas) no se veía en la diapo 5. Causa: el `.diapo5-screen` con `overflow: hidden` + `transition: transform` estaba creando un containing block para el header `position: fixed` (comportamiento de algunos navegadores al promover capas), recortándolo.
 
