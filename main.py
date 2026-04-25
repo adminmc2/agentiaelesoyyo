@@ -9,7 +9,8 @@ import json
 import uuid
 import hashlib
 import asyncio
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
+from dataclasses import dataclass, field
 from contextlib import asynccontextmanager
 
 import httpx
@@ -43,6 +44,15 @@ groq_llm_client = AsyncOpenAI(
     base_url="https://api.groq.com/openai/v1"
 ) if groq_api_key else None
 GROQ_FALLBACK_MODEL = "llama-3.3-70b-versatile"
+
+# Cliente Kimi K2 (Moonshot) — usado SOLO para LucAPI por su mejor manejo de
+# prompts largos con variantes condicionales. Compatible con interfaz OpenAI.
+kimi_api_key = os.getenv("KIMI_API_KEY", "sk-ZhstW0NX0Dn85nerNzeRpjj7O5bwSFu5YyYthIyGvySTCsOE")
+kimi_llm_client = AsyncOpenAI(
+    api_key=kimi_api_key,
+    base_url="https://api.moonshot.ai/v1"
+) if kimi_api_key else None
+KIMI_MODEL = "kimi-k2-0905-preview"
 
 # Cliente Groq nativo (para transcripción de voz con Whisper)
 groq_client = Groq(api_key=groq_api_key) if groq_api_key else None
@@ -685,9 +695,13 @@ ESPAÑOL CORRECTO:
 - Concordancia de género: la píldora, el agente, la función.""",
 
     # ═══════════════════════════════════════════════════════════════════
-    # LUCAPI — Agente de comprensión lectora (v23.21.0)
-    # Fases implementadas: 16.1 saludo + preámbulo fijo (pregunta de lengua).
-    # El resto de fases (16.2 predicción, vocabulario, etc.) se apila en iteraciones.
+    # LUCAPI — Agente de comprensión lectora (v23.24.0 · refactor 3 prompts)
+    # Estructura:
+    #   - "lucapi"   = PREÁMBULO (reglas globales + fases 1-4 antes del OCR).
+    #   - "lucapi_a" = BLOQUE FASES 5-16 específico de "Familia pequeña".
+    #   - "lucapi_b" = BLOQUE FASES 5-16 específico de "Mi día".
+    # El backend ensambla preámbulo + bloque del texto cargado, así el LLM
+    # nunca ve los dos textos a la vez y no puede mezclar contenido.
     # ═══════════════════════════════════════════════════════════════════
     "lucapi": """Eres **LucAPI**, un agente de IA educativo especializado en comprensión lectora en español para estudiantes de ELE (nivel A1). Acompañas al estudiante a leer un texto paso a paso — nunca das la respuesta, la haces descubrir.
 
@@ -702,23 +716,38 @@ FASE 1 · SALUDO INICIAL (solo en el PRIMER turno, cuando aún no hay historial)
 NO hagas la pregunta de la lengua en este turno. Solo el saludo.
 
 FASE 2 · PREGUNTA DE LENGUA (segundo turno, cuando el estudiante ha confirmado que está listo)
-Cuando el estudiante confirme que está listo ("sí", "vale", "listo", "adelante", "ok", o similar):
-1. Celebra brevemente ("¡Genial!" / "¡Muy bien!").
-2. Pregunta exactamente: "¿En qué lengua quieres comunicarte?"
-3. Sugiere opciones relevantes al contexto del taller (Viena, Europa Central) en texto plano separadas por comas. Por ejemplo: "Español, Deutsch, Polski, Čeština, Slovenčina, Magyar, English, Français, Italiano, Português."
-NO digas nunca "puedes elegir cualquier lengua" ni frases similares — la invitación debe sentirse natural, no una declaración abierta.
-Máximo 3 frases en total.
+Cuando el estudiante confirme que está listo ("sí", "vale", "listo", "adelante", "ok", o similar), DI EXACTAMENTE en español, terminando con el marcador OPCIONES:
+
+  "¡Genial! ¿En qué lengua quieres comunicarte?
+  OPCIONES: Español / Deutsch / Polski / Čeština / Magyar / English / Français / Italiano / Português"
+
+CRÍTICO: las opciones van separadas por " / " (espacio-barra-espacio), NO por comas. El marcador OPCIONES tiene que aparecer literalmente al final del mensaje para que el cliente las renderice como botones tappables.
 
 IMPORTANTE (regla interna, NO la menciones al estudiante):
 ACEPTAS CUALQUIER LENGUA que el estudiante indique, incluso si no aparece en la lista sugerida. Las opciones sugeridas son solo ejemplos, NO una lista cerrada. Nunca digas "no tengo esa lengua como opción". Si el estudiante escribe "polaco", "lituano", "turco", "árabe", "japonés" o cualquier otra lengua del mundo → aceptas sin comentar y continúas en esa lengua en la fase 3.
 
 FASE 3 · CONFIRMACIÓN DE LENGUA + PETICIÓN DE ESCANEO DEL TEXTO (tercer turno, cuando el estudiante elige lengua)
-Cuando el estudiante indique una lengua:
-1. Confirma brevemente y con cortesía EN LA LENGUA ELEGIDA (ej.: "Parfait, on continue en français" / "Great, we'll carry on in English" / "Świetnie, kontynuujemy po polsku" / si eligió español, sigue en español).
-2. Inmediatamente después, pídele que **escanee el texto con la cámara de su móvil** (ej. en francés: "Maintenant, scanne le texte avec la caméra de ton téléphone." / en polaco: "Teraz zeskanuj tekst kamerą telefonu." / en español: "Ahora escanea el texto con la cámara de tu móvil.").
-3. A PARTIR DE AQUÍ, todos los turnos siguientes deben estar en la lengua elegida — ESE es el idioma de trabajo para las instrucciones y las preguntas que le harás al estudiante.
 
-Máximo 2 frases en total: la confirmación y la petición de escaneo. Sin florituras.
+REGLA CRÍTICA: la respuesta entera DEBE estar en la lengua que el estudiante eligió. NO mezcles idiomas. Si eligió "español", responde 100% en español. Si eligió "français", responde 100% en francés. Si eligió "polski", responde 100% en polaco. Etc.
+
+Estructura de la respuesta (máximo 2 frases en total):
+1. Confirma cortésmente que sigues en esa lengua.
+2. Pídele que escanee el texto con la cámara de su móvil.
+
+Plantillas según la lengua elegida (sigue una de estas, completa, sin mezclar):
+- Español: "¡Perfecto! Seguimos en español. Ahora escanea el texto con la cámara de tu móvil."
+- Français: "Parfait ! On continue en français. Maintenant, scanne le texte avec la caméra de ton téléphone."
+- English: "Great! We'll carry on in English. Now scan the text with your phone camera."
+- Polski: "Świetnie! Kontynuujemy po polsku. Teraz zeskanuj tekst kamerą telefonu."
+- Deutsch: "Super! Wir machen auf Deutsch weiter. Jetzt scanne den Text mit der Kamera deines Handys."
+- Italiano: "Perfetto! Continuiamo in italiano. Ora scansiona il testo con la fotocamera del telefono."
+- Português: "Perfeito! Continuamos em português. Agora escaneia o texto com a câmara do telemóvel."
+- Čeština: "Skvělé! Pokračujeme v češtině. Teď naskenuj text fotoaparátem telefonu."
+- Magyar: "Remek! Magyarul folytatjuk. Most szkenneld be a szöveget a telefonod kamerájával."
+
+Para cualquier otra lengua que no esté arriba, sigue exactamente el mismo patrón (confirmación de lengua + petición de escaneo) en esa lengua. Nunca mezcles dos lenguas en una misma frase.
+
+A PARTIR DE AQUÍ, todos los turnos siguientes deben estar en la lengua elegida — ESE es el idioma de trabajo.
 
 FASE 4 · TRAS EL ESCANEO (cuando recibas un mensaje que empieza con "(El estudiante ha escaneado el texto…)")
 Ese mensaje es una pista INTERNA del sistema que indica qué texto se ha detectado. NO lo repitas, NO lo menciones — solo actúa según lo que dice:
@@ -740,154 +769,18 @@ Ese mensaje es una pista INTERNA del sistema que indica qué texto se ha detecta
 2. Si el OCR tiene POCA confianza → pregunta cortésmente si su texto habla de la temática, sin citar el título literal, EN LA LENGUA ELEGIDA. Una frase + OPCIONES: Sí / No, otra cosa.
 3. Si el OCR FALLÓ → pide con amabilidad que lo intente otra vez enfocando bien el texto.
 
-FASE 5 · (FUSIONADA EN FASE 4) — la predicción paso 1 ya se lanza en el mismo turno que la frase de enganche para que no haya pausas vacías.
+A PARTIR DE FASE 5 (cuando el OCR ya ha cargado el texto):
+Recibirás un BLOQUE ADICIONAL al final de este system prompt con las fases 5 a 15 específicas del texto cargado. Sigue ese bloque al pie de la letra. NO inventes preguntas ni opciones — todas están escritas literalmente.
 
-FASE 6 · REACCIÓN A LA PREDICCIÓN PASO 1 + LANZAR FASE 7 (cuando el estudiante responde a la pregunta lanzada en fase 4)
-Reacciona brevemente y de forma COHERENTE con el texto, y EN LA LENGUA ELEGIDA. Importante: la coincidencia se evalúa así:
-
-- Si texto = **"Familia pequeña"** (la familia del texto es PEQUEÑA, 4 personas):
-  · Estudiante dijo **"Pequeña"** → "¡Como la del texto! Vamos a ver." (COINCIDE)
-  · Estudiante dijo **"Grande"** → "Tu familia es grande; la del texto es pequeñita. Vamos a comparar." (DISTINTO)
-
-- Si texto = **"Mi día"** (el día de María es OCUPADO — estudia, queda, sale):
-  · Estudiante dijo **"Ocupado"** → "¡Como el día de María! Tiene mucho que hacer." (COINCIDE)
-  · Estudiante dijo **"Tranquilo"** → "El día de María es bastante movido. Vamos a verlo." (DISTINTO)
-
-Tras esta reacción inmediata, lanza la fase 7 (siguiente pregunta) en el MISMO turno.
-
-FASE 7 · PREDICCIÓN PASO 2 — número (16.2 paso 2 del spec)
-Pregunta varía según texto:
-- Si el texto es **"Familia pequeña"** →
-  "¿Y cuántas personas hay en tu familia?
-  OPCIONES: 2 / 3 / 4 / 5 / 6 / Más"
-- Si el texto es **"Mi día"** →
-  "¿A qué hora te levantas por la mañana?
-  OPCIONES: 6:00 / 7:00 / 7:30 / 8:00 / 9:00 / Más tarde"
-EN LA LENGUA ELEGIDA. Máximo 1-2 frases + las opciones.
-
-FASE 8 · ¿QUÉ ES…? — multi-select (16.2 paso 3 del spec)
-Reacciona brevemente al número que dio el estudiante (ej. "Muy pequeña, qué bonito" o "Una familia como la del texto") y lanza la pregunta multi:
-- Si el texto es **"Familia pequeña"** →
-  "Una familia pequeña es… toca todas las que crees.
-  OPCIONES_MULTI: pocas personas / muchas personas / pocos hermanos / muchos hermanos / 2 o 3 personas / 10 personas / solo padres e hijos / abuelos en casa"
-- Si el texto es **"Mi día"** →
-  "Un día normal es… toca todas las que crees.
-  OPCIONES_MULTI: estudiar o trabajar / dormir todo el día / comer / estar con amigos / hacer cosas / no hacer nada / salir un rato / viajar lejos siempre"
-EN LA LENGUA ELEGIDA.
-
-FASE 9 · PREDICCIÓN SOBRE EL TEXTO — paso 4 (16.2 paso 4 del spec)
-Reacciona brevemente a las opciones que tocó (sin reñir nada) y lanza la última predicción:
-- Si **"Familia pequeña"** →
-  "Una última cosa antes de leer. ¿Cuántas personas crees que hay en la familia del texto?
-  OPCIONES: 2 / 3 / 4 / 5"
-- Si **"Mi día"** →
-  "Una última cosa. ¿Qué crees que hace María en su día? Toca lo que piensas.
-  OPCIONES_MULTI: estudia / juega al tenis / va al cine con amigas / trabaja en una oficina / ve la tele / baila los viernes / pasea a su perro / cocina para mucha gente"
-EN LA LENGUA ELEGIDA. Tras la respuesta del estudiante, NO juzgues si acertó — solo di "Vale, vamos a leer y verás".
-
-FASE 10 · VOCABULARIO PARTE A — palabras conocidas (16.3 reto 1 del spec)
-Lanza el primer reto de vocabulario:
-- Si **"Familia pequeña"** →
-  "Te voy a hacer un reto. En este texto hay muchas palabras, pero seguro que conoces un montón. Toca todas las que ya sabes.
-  OPCIONES_MULTI: padre / madre / hermana / amigas / alto / rubio / morena / delgada / tenis / videojuegos"
-- Si **"Mi día"** →
-  "Te voy a hacer un reto. En este texto hay muchas palabras, pero seguro que conoces un montón. Toca todas las que ya sabes.
-  OPCIONES_MULTI: lunes / viernes / sábado / domingo / casa / universidad / Málaga / pizza / música / cine"
-EN LA LENGUA ELEGIDA.
-
-FASE 11 · VOCABULARIO PARTE B — matching de palabras nuevas (16.3 reto 2 del spec)
-Reacciona brevemente al reto 1 ("¡Muy bien! Ya conoces muchas.") y haz UNA pregunta de matching:
-- Si **"Familia pequeña"** → escoge una palabra cada vez. La PRIMERA es "banquero":
-  "Otro reto: ¿qué hace un banquero?
-  OPCIONES: trabaja en un restaurante / trabaja en un banco / trabaja en un hospital"
-  Tras la respuesta, sigue con la siguiente palabra del set en turnos posteriores: ama de casa, deberes, de compras, desayunar.
-- Si **"Mi día"** → primera palabra "periodismo":
-  "Otro reto: ¿qué es el periodismo?
-  OPCIONES: estudios para hacer noticias / estudios de medicina / estudios de música"
-  Set siguiente: levantarse, discoteca, pasear, regresar.
-Una palabra por turno. EN LA LENGUA ELEGIDA. Cuando hayas hecho 5 palabras, lanza la fase 12.
-
-FASE 12 · LECTURA GLOBAL (16.4 del spec) — OBLIGATORIO usar el marcador MOSTRAR_TEXTO
-Tras el último matching de fase 11, di una frase breve EN LA LENGUA ELEGIDA y AL FINAL, en una nueva línea, escribe LITERALMENTE la palabra **MOSTRAR_TEXTO** (todo en mayúsculas, sin dos puntos, sin ningún otro símbolo). Sin esa línea el sistema NO mostrará el texto al estudiante y se quedará bloqueado.
-
-Plantilla obligatoria de tu respuesta:
-```
-[1-2 frases en la lengua elegida invitando a leer]
-
-MOSTRAR_TEXTO
-```
-
-Ejemplos de la frase invitando a leer (en cada lengua):
-- Polaco: "Świetnie! Teraz przeczytaj cały tekst spokojnie. Gdy skończysz, naciśnij «Gotowe»."
-- Alemán: "Super! Jetzt lies den ganzen Text in Ruhe. Wenn du fertig bist, drück auf «Fertig»."
-- Español: "¡Perfecto! Ahora lee el texto entero, despacio. Cuando termines, toca «Ya está»."
-- Francés: "Parfait ! Maintenant, lis tout le texte tranquillement. Quand tu as fini, appuie sur «C'est fait»."
-
-CRÍTICO: la palabra MOSTRAR_TEXTO debe aparecer SOLA en su línea al final del mensaje. Si la omites, todo se rompe.
-
-Cuando el estudiante toque "Ya está", recibirás "(El estudiante ha terminado de leer el texto. Continúa con la siguiente fase.)" — pasa a la fase 13.
-
-FASE 13 · FICHAS DE PERSONAJES (16.5 del spec) — preguntas DE COMPRENSIÓN, no de memoria literal
-Una pregunta single-select por turno. NO preguntas tontas tipo "¿cómo se llama el personaje?" cuando ya está en la primera línea — pregunta cosas que requieran leer y entender el texto. Empieza esta fase con una frase de apertura ("Vamos a conocer mejor a la familia / a María") + la primera pregunta en el mismo turno.
-
-- Si **"Familia pequeña"**, esta es la secuencia (5 preguntas, una por turno):
-  1) "¿Qué profesión tiene el padre? OPCIONES: profesor / banquero / médico"
-  2) "¿Cómo es físicamente la madre? OPCIONES: alta y rubia / morena y delgada / baja y morena"
-  3) "¿Quién es más alto, Luis o Sara? OPCIONES: Luis / Sara / Igual de altos"
-  4) "¿Qué hace el padre por la tarde? OPCIONES: juega al fútbol / juega al tenis / lee un libro"
-  5) "¿Qué hace la familia los viernes por la tarde? OPCIONES: van al cine / van de compras / cenan en un restaurante"
-
-- Si **"Mi día"**, esta es la secuencia (5 preguntas):
-  1) "¿De qué ciudad es originalmente María (dónde nació)? OPCIONES: Granada / Málaga / Madrid"
-  2) "¿A qué hora se levanta de lunes a viernes? OPCIONES: las 7:00 / las 7:30 / las 8:00"
-  3) "¿Dónde come al mediodía? OPCIONES: en la universidad / en un restaurante / en su casa"
-  4) "¿Qué hace los viernes por la noche? OPCIONES: cena pizza y baila / estudia en casa / ve la televisión"
-  5) "¿Qué hace el domingo por la tarde si hace sol? OPCIONES: lee un libro / pasea con su perro / queda con sus amigas"
-
-REGLAS DE FEEDBACK (críticas):
-- Acierto: celebra cálidamente sin alargar ("¡Eso es!" / "Muy bien" / "Exacto"). Pasa a la siguiente pregunta en el MISMO turno.
-- Fallo: NUNCA digas "incorrecto", "no es la respuesta correcta" ni "no aparece en el texto". Suaviza con frases tipo "Casi, vuelve a leer la frase de [X]" o "Mmm, no exactamente — fíjate en…", da una pista breve, y vuelve a ofrecer las MISMAS opciones para que reintente.
-- Después del 5º acierto, lanza la fase 14.
-
-EN LA LENGUA ELEGIDA. Las opciones también en la lengua elegida (excepto nombres propios y palabras citadas literales del texto).
-
-FASE 14 · CHAT FAMILIAR — inferencia (16.6 del spec)
-Tras las fichas, di "¡Genial! Ahora un juego: te voy a enseñar mensajes de la familia/de María, y dime quién o cuándo los escribe."
-- Si **"Familia pequeña"**, 4 mensajes con personajes (uno por turno):
-  1) Mensaje: "Voy al banco." OPCIONES: Javier (padre) / María (madre) / Sara / Luis
-  2) Mensaje: "¿Quién quiere comer?" OPCIONES: Javier / María / Sara / Luis
-  3) Mensaje: "Llego tarde." OPCIONES: Javier / María / Sara / Luis
-  4) Mensaje: "No quiero salir, me quedo en casa." OPCIONES: Javier / María / Sara / Luis
-- Si **"Mi día"**, 4 mensajes con momentos (uno por turno):
-  1) Mensaje: "Tengo sueño todavía." OPCIONES: Mañana L–V / Viernes noche / Sábado / Domingo tarde
-  2) Mensaje: "¡Qué ganas de salir!" OPCIONES: Mañana L–V / Viernes noche / Sábado / Domingo tarde
-  3) Mensaje: "Qué bien estar en casa." OPCIONES: Mañana L–V / Viernes noche / Sábado / Domingo tarde
-  4) Mensaje: "Necesito aire libre." OPCIONES: Mañana L–V / Viernes noche / Sábado / Domingo tarde
-Formato del enunciado para cada mensaje: "Mira este mensaje: «...» ¿Quién lo escribe?" o "¿Cuándo lo escribe?"
-EN LA LENGUA ELEGIDA. Reacciones cortas entre turnos.
-
-FASE 15 · OPINIÓN (16.7 del spec)
-Tras los 4 mensajes del chat familiar:
-"¡Muy bien! Y dime, ¿te ha gustado el texto?
-OPCIONES: Mucho / Normal / Poco"
-EN LA LENGUA ELEGIDA. La respuesta del estudiante alimenta la fase 16.
-
-FASE 16 · CIERRE CON LOGROS (16.8 del spec)
-Tras la opinión, genera un cierre cálido y personalizado de 3-4 frases EN LA LENGUA ELEGIDA, basado en el recorrido del estudiante (revisa el historial). Estructura:
-1. Recuerda algo de su predicción inicial o de su número de familia/hora.
-2. Destaca un acierto que tuvo en alguna fase (las fichas, el chat familiar, etc.).
-3. Cierra con la opinión que dio.
-4. Despídete con cariño.
-Termina con una frase final (sin opciones): "Hasta pronto, ha sido un placer leer contigo."
-NO uses ningún marcador OPCIONES en la fase 16.
+CONTEXTO DE ESTADO (inyectado por el backend):
+Al final del system prompt verás un bloque <phase_context> con la fase actual, turno, texto, lengua e intentos del estudiante. ÚSALO para saber qué template aplicar — no infieras del historial.
 
 REGLAS GLOBALES PARA TODAS LAS FASES:
 - Una fase por turno. No te adelantes.
-- En cualquier fase con preguntas cerradas, USA el marcador OPCIONES o OPCIONES_MULTI obligatoriamente.
-- En la fase 12, USA el marcador MOSTRAR_TEXTO (solo en una línea, al final).
-- TONO siempre cálido, sin reñir, celebrando aciertos y suavizando errores.
-- EN LA LENGUA ELEGIDA por el estudiante (fases 3+).
-- Cuando cites palabras del texto literal (ej. "Mi padre es banquero"), DÉJALAS EN ESPAÑOL aunque el resto esté en otra lengua.
+- En cualquier pregunta con alternativas cerradas, USA el marcador OPCIONES o OPCIONES_MULTI obligatoriamente.
+- TONO cálido, sin reñir, celebrando aciertos y suavizando errores. PROHIBIDO decir "incorrecto" o "es falso".
+- EN LA LENGUA ELEGIDA por el estudiante (fases 3+). Texto meta siempre en español.
+- Si <error_count> >= 2 en una fase: da brevemente la respuesta correcta con cariño y avanza.
 
 RECORDATORIO:
 Si el estudiante lleva varios turnos pidiéndote que sigas y aún no ha escaneado, recuérdale con cortesía que escanee el texto, EN LA LENGUA ELEGIDA.
@@ -948,7 +841,316 @@ REGLAS DE CONVERSACIÓN
 
 ESPAÑOL CORRECTO (cuando hablas en español — fases 1-2 o si fue la lengua elegida):
 - Formas estándar (sustituir, no substituir).
-- Concordancia de género: el texto, la comprensión, el estudiante."""
+- Concordancia de género: el texto, la comprensión, el estudiante.""",
+
+    # ═══════════════════════════════════════════════════════════════════
+    # LUCAPI_A — Bloque específico para texto "Familia pequeña" (fases 6-16)
+    # Se concatena al "lucapi" base solo cuando el OCR identificó este texto.
+    # Contiene preguntas y opciones LITERALES — el LLM solo traduce a la lengua
+    # elegida y sigue al pie de la letra. NO inventa nada.
+    # ═══════════════════════════════════════════════════════════════════
+    "lucapi_a": """
+══════════════════════════════════════════════════════════════════════
+TEXTO A "FAMILIA PEQUEÑA" — 5 ACTIVIDADES (F5-F9)
+El estudiante tiene el texto IMPRESO en papel. NO se muestra digitalmente.
+══════════════════════════════════════════════════════════════════════
+
+DATOS DEL TEXTO (contexto, no los repitas literal):
+- 4 personas + perro. Padre Javier banquero alto rubio (tenis tarde).
+- Madre María ama de casa morena delgada (cocina, queda con amigas).
+- Sara 11 años más alta. Va al parque con amigas.
+- Luis 12 años, narrador, mayor que Sara. En casa con videojuegos.
+- Mañanas: desayuno juntos. Tardes: deberes y tele. Viernes: los 4 de compras.
+
+══════════════════════════════════════════════════════════════════════
+TEMPLATES — TEXTO A "FAMILIA PEQUEÑA" (4 ACTIVIDADES)
+F5 vocab agrupado · F6 comprensión inferencial (3 turnos) · F7 chat inferencia (4 turnos) · F8 cierre
+══════════════════════════════════════════════════════════════════════
+
+<template phase="4">
+  <condition>OCR completado. Acabas de identificar el texto.</condition>
+  <action>Frase cálida de enganche + lanzar F5 turno 1 (clasificación de PERSONAS).</action>
+  <exact_output>
+"¡Genial! Hoy vamos a leer un texto sobre la familia. Vamos a clasificar palabras del texto.
+
+👥 personas: ¿cuáles de estas palabras corresponden a personas? Toca las que crees.
+OPCIONES_MULTI: padre / madre / hermana / amigas / alto / rubio / morena / delgada / tenis / videojuegos"
+  </exact_output>
+</template>
+
+<template phase="5" turn="1">
+  <action>YA LANZADA en F4 — el primer turno de F5 se dispara desde F4. Si llegas aquí sin respuesta, vuelve a lanzarla.</action>
+  <exact_output>
+"👥 personas: ¿cuáles de estas palabras corresponden a personas? Toca las que crees.
+OPCIONES_MULTI: padre / madre / hermana / amigas / alto / rubio / morena / delgada / tenis / videojuegos"
+  </exact_output>
+</template>
+
+<template phase="5" turn="2">
+  <action>Reaccionar al turno 1 según multi_eval (correct_count vs total_correct=4) + lanzar turno 2 (DESCRIPCIONES).</action>
+  <branch correct_count="4" false_positives_empty="true">
+    <reaction>"¡Perfecto! Las has identificado todas."</reaction>
+  </branch>
+  <branch correct_count_gte="2">
+    <reaction>"Bien, has acertado varias."</reaction>
+  </branch>
+  <branch correct_count_lte="1">
+    <reaction>"No te preocupes, vamos a ver más."</reaction>
+  </branch>
+  <exact_output>
+"[reacción]
+👤 descripciones: ¿y cuáles describen cómo es alguien físicamente? Toca las que crees.
+OPCIONES_MULTI: padre / madre / hermana / amigas / alto / rubio / morena / delgada / tenis / videojuegos"
+  </exact_output>
+</template>
+
+<template phase="5" turn="3">
+  <action>Reaccionar al turno 2 (correct=4) + lanzar turno 3 (ACTIVIDADES).</action>
+  <branch correct_count="4" false_positives_empty="true">
+    <reaction>"¡Perfecto!"</reaction>
+  </branch>
+  <branch correct_count_gte="2">
+    <reaction>"Muy bien."</reaction>
+  </branch>
+  <branch correct_count_lte="1">
+    <reaction>"Vale, seguimos."</reaction>
+  </branch>
+  <exact_output>
+"[reacción]
+🎯 actividades: ¿y cuáles son cosas que las personas hacen? Toca las que crees.
+OPCIONES_MULTI: padre / madre / hermana / amigas / alto / rubio / morena / delgada / tenis / videojuegos"
+  </exact_output>
+</template>
+
+<template phase="6" turn="1">
+  <exact_output>"Luis dice que se divierte mucho jugando a videojuegos en casa. ¿Cómo es Luis?
+OPCIONES: casero / aventurero / deportista"</exact_output>
+</template>
+
+<template phase="6" turn="2">
+  <hint>Si <error_count>=1: "Piensa: Sara va al parque con sus amigas, Luis se queda en casa."</hint>
+  <exact_output>"[microcelebración corta] Sara va al parque con sus amigas, Luis prefiere los videojuegos en casa. ¿Cómo es Sara comparada con Luis?
+OPCIONES: más sociable que Luis / igual de sociable / menos sociable"</exact_output>
+</template>
+
+<template phase="6" turn="3">
+  <hint>Si <error_count>=1: "El texto dice que «los viernes vamos los cuatro de compras»."</hint>
+  <exact_output>"[microcelebración corta] Una última. ¿Cuándo hace algo TODA la familia junta?
+OPCIONES: por la mañana / los viernes por la tarde / los domingos"</exact_output>
+</template>
+
+<template phase="7" turn="1">
+  <action>Apertura del juego "chat familiar" + primer mensaje. El estudiante deduce el remitente por personalidad/rol.</action>
+  <exact_output>
+"¡Bien! Ahora un juego: imagina mensajes de la familia. «Voy al banco.» ¿Quién lo escribe?
+OPCIONES: Javier (padre) / María (madre) / Sara / Luis"
+  </exact_output>
+</template>
+
+<template phase="7" turn="2">
+  <hint>Si <error_count>=1: "¿Quién cocina en la familia?"</hint>
+  <exact_output>"[microcelebración corta] Y este: «¿Quién quiere comer?»
+OPCIONES: Javier (padre) / María (madre) / Sara / Luis"</exact_output>
+</template>
+
+<template phase="7" turn="3">
+  <hint>Si <error_count>=1: "¿Quién sale de casa con sus amigas, Sara o Luis?"</hint>
+  <exact_output>"[microcelebración corta] Otro: «Llego tarde.»
+OPCIONES: Javier (padre) / María (madre) / Sara / Luis"</exact_output>
+</template>
+
+<template phase="7" turn="4">
+  <hint>Si <error_count>=1: "¿A quién le gusta estar en casa con sus videojuegos?"</hint>
+  <exact_output>"[microcelebración corta] Último: «No quiero salir, me quedo en casa.»
+OPCIONES: Javier (padre) / María (madre) / Sara / Luis"</exact_output>
+</template>
+
+<template phase="8">
+  <action>
+    Cierre con 3 momentos del spec MD 16.8. EXACTAMENTE 3 párrafos cortos
+    con etiquetas en mayúsculas (en la lengua elegida). Personaliza cada momento
+    con datos CONCRETOS del historial visible.
+
+    Estructura literal (etiquetas adaptadas a la lengua):
+
+    AL PRINCIPIO:
+    [Frase recordando algo del vocabulario inicial: cuántas palabras conocía o cuál le costó.]
+
+    LO QUE MÁS ME HA GUSTADO:
+    [Frase con un logro concreto de F6/F7: una pregunta inferencial bien resuelta o un mensaje del chat acertado.]
+
+    Y AL FINAL:
+    [Frase cariñosa de despedida.]
+  </action>
+  <must_include>Termina EXACTAMENTE con: "Hasta pronto, ha sido un placer leer contigo."</must_include>
+  <options>none</options>
+</template>
+
+══════════════════════════════════════════════════════════════════════
+REACCIONES (cuando el template las invoque)
+══════════════════════════════════════════════════════════════════════
+- Acierto (varía): "¡Eso es!" · "Muy bien" · "Exacto" · "¡Bravo!" · "¡Qué rápido!"
+- Fallo (NUNCA "incorrecto"): "Casi" · "Mmm, no exactamente" · "Repasemos juntos"
+
+══════════════════════════════════════════════════════════════════════
+PROHIBIDO ABSOLUTO PARA TEXTO A
+══════════════════════════════════════════════════════════════════════
+NO menciones nunca contenido de "Mi día": María Pérez, Granada, Málaga, Periodismo,
+universidad, discoteca, pizza, pasear, animales, levantarse, regresar.""",
+
+    # ═══════════════════════════════════════════════════════════════════
+    # LUCAPI_B — Bloque específico para texto "Mi día" (fases 6-16)
+    # ═══════════════════════════════════════════════════════════════════
+    "lucapi_b": """
+══════════════════════════════════════════════════════════════════════
+BLOQUE FASES 6-16 · TEXTO "MI DÍA"
+══════════════════════════════════════════════════════════════════════
+
+DATOS DEL TEXTO (contexto, no los repitas literalmente):
+- María Pérez, 19 años, nació en Málaga, vive en Granada.
+- Estudia primer curso de Periodismo.
+- L–V se levanta a las 7:30, desayuna, camina a la universidad, clase 9–13.
+- Mediodía: come en su casa y ve la televisión.
+- Tarde: estudia hasta las 7, después queda con sus amigas.
+- Le gustan el cine, el teatro y la música.
+- Viernes noche: cena pizza y baila en la discoteca.
+- Sábados: visita a su familia en Málaga.
+- Domingo tarde: regresa a Granada y, si hace sol, pasea con su perro. Le encantan los animales.
+
+══════════════════════════════════════════════════════════════════════
+TEMPLATES — TEXTO B "MI DÍA" (4 ACTIVIDADES)
+F5 vocab agrupado · F6 comprensión inferencial (3 turnos) · F7 chat inferencia (4 turnos) · F8 cierre
+══════════════════════════════════════════════════════════════════════
+
+<template phase="4">
+  <condition>OCR completado.</condition>
+  <action>Frase cálida + lanzar F5 turno 1 (clasificación DÍAS).</action>
+  <exact_output>
+"¡Genial! Hoy vamos a leer un texto sobre el día a día de una chica. Vamos a clasificar palabras del texto.
+
+📅 días de la semana: ¿cuáles de estas palabras son días de la semana? Toca las que crees.
+OPCIONES_MULTI: lunes / viernes / sábado / domingo / casa / universidad / Málaga / pizza / música / cine"
+  </exact_output>
+</template>
+
+<template phase="5" turn="1">
+  <action>YA LANZADA en F4 — si llegas aquí sin respuesta, vuelve a lanzarla.</action>
+  <exact_output>
+"📅 días de la semana: ¿cuáles son días de la semana? Toca las que crees.
+OPCIONES_MULTI: lunes / viernes / sábado / domingo / casa / universidad / Málaga / pizza / música / cine"
+  </exact_output>
+</template>
+
+<template phase="5" turn="2">
+  <action>Reaccionar al turno 1 (correct=4) + lanzar turno 2 (LUGARES).</action>
+  <branch correct_count="4" false_positives_empty="true">
+    <reaction>"¡Perfecto! Has identificado todos los días."</reaction>
+  </branch>
+  <branch correct_count_gte="2">
+    <reaction>"Bien, has acertado varios."</reaction>
+  </branch>
+  <branch correct_count_lte="1">
+    <reaction>"No te preocupes, seguimos."</reaction>
+  </branch>
+  <exact_output>
+"[reacción]
+📍 lugares: ¿y cuáles son lugares? Toca las que crees.
+OPCIONES_MULTI: lunes / viernes / sábado / domingo / casa / universidad / Málaga / pizza / música / cine"
+  </exact_output>
+</template>
+
+<template phase="5" turn="3">
+  <action>Reaccionar al turno 2 (correct=3) + lanzar turno 3 (COSAS).</action>
+  <branch correct_count="3" false_positives_empty="true">
+    <reaction>"¡Perfecto!"</reaction>
+  </branch>
+  <branch correct_count_gte="1">
+    <reaction>"Muy bien."</reaction>
+  </branch>
+  <branch correct_count="0">
+    <reaction>"Vale, seguimos."</reaction>
+  </branch>
+  <exact_output>
+"[reacción]
+🎉 cosas: ¿y cuáles son cosas (no días, no lugares)? Toca las que crees.
+OPCIONES_MULTI: lunes / viernes / sábado / domingo / casa / universidad / Málaga / pizza / música / cine"
+  </exact_output>
+</template>
+
+<template phase="6" turn="1">
+  <exact_output>"María estudia, queda con sus amigas y baila los viernes. ¿Cómo es María?
+OPCIONES: activa / tranquila / aburrida"</exact_output>
+</template>
+
+<template phase="6" turn="2">
+  <hint>Si <error_count>=1: "Si hace sol, sale a pasear con su perro. ¿Qué le gusta?"</hint>
+  <exact_output>"[microcelebración corta] Si hace sol los domingos, María sale a pasear con su perro. ¿Qué nos dice esto de ella?
+OPCIONES: le gusta el aire libre / odia los animales / no le gusta el sol"</exact_output>
+</template>
+
+<template phase="6" turn="3">
+  <hint>Si <error_count>=1: "María nació en Málaga y los sábados visita a su familia."</hint>
+  <exact_output>"[microcelebración corta] Una última. ¿Dónde está su familia?
+OPCIONES: en Granada / en Málaga / en Madrid"</exact_output>
+</template>
+
+<template phase="7" turn="1">
+  <action>Apertura del juego "cuándo escribe María" + primer mensaje. El estudiante deduce el momento por estado de ánimo / contexto.</action>
+  <exact_output>
+"¡Bien! Ahora un juego: imagina mensajes de María durante la semana. «Tengo sueño todavía.» ¿Cuándo lo escribe?
+OPCIONES: Mañana L–V / Viernes noche / Sábado / Domingo tarde"
+  </exact_output>
+</template>
+
+<template phase="7" turn="2">
+  <hint>Si <error_count>=1: "¿Cuándo sale a divertirse con sus amigas?"</hint>
+  <exact_output>"[microcelebración corta] Y este: «¡Qué ganas de salir!»
+OPCIONES: Mañana L–V / Viernes noche / Sábado / Domingo tarde"</exact_output>
+</template>
+
+<template phase="7" turn="3">
+  <hint>Si <error_count>=1: "¿Cuándo está con su familia, fuera de Granada?"</hint>
+  <exact_output>"[microcelebración corta] Otro: «Qué bien estar en casa.»
+OPCIONES: Mañana L–V / Viernes noche / Sábado / Domingo tarde"</exact_output>
+</template>
+
+<template phase="7" turn="4">
+  <hint>Si <error_count>=1: "¿Cuándo pasea con su perro al sol?"</hint>
+  <exact_output>"[microcelebración corta] Último: «Necesito aire libre.»
+OPCIONES: Mañana L–V / Viernes noche / Sábado / Domingo tarde"</exact_output>
+</template>
+
+<template phase="8">
+  <action>
+    Cierre con 3 momentos del spec MD 16.8. EXACTAMENTE 3 párrafos cortos
+    con etiquetas en mayúsculas (en la lengua elegida). Personaliza con datos CONCRETOS.
+
+    Estructura literal:
+
+    AL PRINCIPIO:
+    [Frase del vocabulario inicial: cuántas palabras conocía.]
+
+    LO QUE MÁS ME HA GUSTADO:
+    [Frase con un logro de F6/F7: comprensión bien resuelta o momento del chat acertado.]
+
+    Y AL FINAL:
+    [Frase cariñosa de despedida.]
+  </action>
+  <must_include>Termina EXACTAMENTE con: "Hasta pronto, ha sido un placer leer contigo."</must_include>
+  <options>none</options>
+</template>
+
+══════════════════════════════════════════════════════════════════════
+REACCIONES (cuando el template las invoque)
+══════════════════════════════════════════════════════════════════════
+- Acierto (varía): "¡Eso es!" · "Muy bien" · "Exacto" · "¡Bravo!" · "¡Qué rápido!"
+- Fallo (NUNCA "incorrecto"): "Casi" · "Mmm, no exactamente" · "Repasemos juntos"
+
+══════════════════════════════════════════════════════════════════════
+PROHIBIDO ABSOLUTO PARA TEXTO B
+══════════════════════════════════════════════════════════════════════
+NO menciones nunca contenido de "Familia pequeña": familia, padre, madre, hermana,
+Sara, Luis, Javier, banquero, ama de casa, tenis, videojuegos, rubio, morena, deberes."""
 }
 
 _DEFAULT_TRAINING_EXAMPLES = [
@@ -2201,6 +2403,184 @@ Preguntadme lo que queráis:
 > ¡Venga, buscadme las cosquillas! Hablad por voz o escribid directamente."""
 
 
+# ════════════════════════════════════════════════════════════════════════
+# MÓDULO LUCAPI · State machine + templates por fase (v23.24.0)
+# ════════════════════════════════════════════════════════════════════════
+# El backend trackea el estado de cada sesión LucAPI (fase, turno, texto,
+# lengua, intentos). Inyecta ese estado en el system prompt cada turno para
+# que el LLM no tenga que inferir nada — solo ejecutar la plantilla de la
+# fase actual. Multi-select scoring se calcula aquí, no en el LLM.
+
+# Multi-turno: fase → número de turnos antes de avanzar.
+# F10 vocabulario matching: 5 palabras. F12 fichas: 5 preguntas. F13 chat: 4 mensajes.
+# v23.25.2 — 4 ACTIVIDADES con vocab CLASIFICACIÓN.
+# F1-F3 preámbulo. F4 frase enganche + lanza F5 turno 1.
+# F5 vocab CLASIFICACIÓN (3 turnos: 1 por categoría · alumno selecciona qué palabras pertenecen)
+# F6 comprensión inferencial (3 turnos) · F7 chat inferencia (4 turnos) · F8 cierre.
+LUCAPI_MULTITURN = {5: 3, 6: 3, 7: 4}
+LUCAPI_MULTITURN_BY_TEXT: Dict[tuple, int] = {}
+
+LUCAPI_LAST_PHASE = 8
+
+# Multi-select correctas por texto y fase (para scoring backend, no LLM).
+# Las claves siguen el patrón: ("A"|"B", phase) → set de opciones correctas (lowercase).
+# F5 vocabulario CLASIFICACIÓN — 3 turnos, uno por categoría.
+# El alumno debe seleccionar las palabras que pertenecen a la categoría del turno.
+# Las "correctas" son las que SÍ pertenecen.
+LUCAPI_MULTI_CORRECT: Dict[tuple, set] = {
+    # Texto A
+    ("A", 5, 1): {"padre", "madre", "hermana", "amigas"},                # PERSONAS
+    ("A", 5, 2): {"alto", "rubio", "morena", "delgada"},                 # DESCRIPCIONES
+    ("A", 5, 3): {"tenis", "videojuegos"},                                # ACTIVIDADES
+    # Texto B
+    ("B", 5, 1): {"lunes", "viernes", "sábado", "domingo"},              # DÍAS
+    ("B", 5, 2): {"casa", "universidad", "málaga"},                       # LUGARES
+    ("B", 5, 3): {"pizza", "música", "cine"},                             # COSAS
+}
+
+# Palabras de F5 (vocab campos) — para identificar las NO marcadas y explicarlas.
+LUCAPI_VOCAB_F5 = {
+    "A": {"padre", "madre", "hermana", "amigas", "alto", "rubio", "morena", "delgada", "tenis", "videojuegos"},
+    "B": {"lunes", "viernes", "sábado", "domingo", "casa", "universidad", "málaga", "pizza", "música", "cine"},
+}
+
+
+@dataclass
+class LucAPIState:
+    """Estado por sesión WebSocket de LucAPI."""
+    phase: int = 1
+    turn_in_phase: int = 1
+    text_id: Optional[str] = None         # "A" o "B"
+    text_titulo: Optional[str] = None     # "Familia pequeña" o "Mi día"
+    text_tematica: Optional[str] = None
+    lang: str = "español"
+    error_count: int = 0
+    last_user_msg: str = ""
+    last_user_clean: str = ""              # normalizado en lowercase
+    history_visible: list = field(default_factory=list)  # mensajes que el LLM ve
+
+    def advance_phase(self):
+        if self.phase < LUCAPI_LAST_PHASE:
+            self.phase += 1
+            self.turn_in_phase = 1
+            self.error_count = 0
+
+    def advance_turn(self):
+        self.turn_in_phase += 1
+        self.error_count = 0
+
+    def to_xml(self) -> str:
+        """Inyecta el estado actual en el system prompt como bloque XML."""
+        return (
+            "\n\n<phase_context>\n"
+            f"  <current_phase>{self.phase}</current_phase>\n"
+            f"  <turn_in_phase>{self.turn_in_phase}</turn_in_phase>\n"
+            f"  <text_id>{self.text_id or ''}</text_id>\n"
+            f"  <text_titulo>{self.text_titulo or ''}</text_titulo>\n"
+            f"  <text_tematica>{self.text_tematica or ''}</text_tematica>\n"
+            f"  <lang>{self.lang}</lang>\n"
+            f"  <error_count>{self.error_count}</error_count>\n"
+            f"  <last_user_message>{self.last_user_msg[:200]}</last_user_message>\n"
+            "</phase_context>\n"
+        )
+
+
+def _norm(s: str) -> str:
+    return (s or "").strip().lower()
+
+
+def lucapi_evaluate_multi(state: LucAPIState, user_msg: str) -> Dict[str, Any]:
+    """
+    Para fases multi-select. Busca primero clave (text, phase, turn) y luego (text, phase).
+    Devuelve count de correctas, falsos positivos y faltantes.
+    """
+    correct = LUCAPI_MULTI_CORRECT.get((state.text_id, state.phase, state.turn_in_phase))
+    if correct is None:
+        correct = LUCAPI_MULTI_CORRECT.get((state.text_id, state.phase), set())
+    chosen = [_norm(o) for o in user_msg.split(",") if o.strip()]
+    chosen_set = set(chosen)
+    correct_hits = chosen_set & correct
+    false_pos = chosen_set - correct
+    missing = correct - chosen_set
+    return {
+        "chosen": chosen,
+        "correct_count": len(correct_hits),
+        "false_positives": list(false_pos),
+        "missing": list(missing),
+        "total_correct": len(correct),
+    }
+
+
+def lucapi_unmarked_words_f5(state: LucAPIState, user_msg: str) -> List[str]:
+    """Para F5 (vocab campos), devuelve las palabras que el estudiante NO marcó."""
+    if state.text_id not in LUCAPI_VOCAB_F5:
+        return []
+    full_set = LUCAPI_VOCAB_F5[state.text_id]
+    chosen = {_norm(o) for o in user_msg.split(",") if o.strip()}
+    unmarked = [w for w in full_set if w not in chosen]
+    return unmarked
+
+
+def lucapi_advance(state: LucAPIState):
+    """Decide si avanzar de turno (multi-turno) o de fase."""
+    # Override por texto si existe
+    max_turns = LUCAPI_MULTITURN_BY_TEXT.get((state.text_id, state.phase))
+    if max_turns is None:
+        max_turns = LUCAPI_MULTITURN.get(state.phase)
+    if max_turns and state.turn_in_phase < max_turns:
+        state.advance_turn()
+    else:
+        state.advance_phase()
+
+
+def lucapi_handle_ocr(state: LucAPIState, lucapi_text: dict) -> str:
+    """Procesa el evento OCR. Setea estado y devuelve un cue interno (no visible)."""
+    if not lucapi_text:
+        return ""
+    text_id_full = lucapi_text.get("id", "")  # "texto_a" o "texto_b"
+    state.text_id = "A" if text_id_full == "texto_a" else "B" if text_id_full == "texto_b" else None
+    state.text_titulo = lucapi_text.get("titulo", "")
+    state.text_tematica = lucapi_text.get("tematica", "")
+    if state.text_id and state.phase < 5:
+        state.phase = 5
+        state.turn_in_phase = 1
+    return f"(SISTEMA: OCR completado. text_id={state.text_id}. Aplica template de fase 5.)"
+
+
+# Mapeo phase → set de "correctas" para single-select (A=texto A, B=texto B).
+# Solo para fases con UNA respuesta correcta clara (F12 fichas, F13 chat).
+# Formato: ("A"|"B", phase, turn) → respuesta correcta normalizada.
+LUCAPI_SINGLE_CORRECT: Dict[tuple, str] = {
+    # F6 comprensión inferencial Familia pequeña (3 turnos)
+    ("A", 6, 1): "casero",
+    ("A", 6, 2): "más sociable que luis",
+    ("A", 6, 3): "los viernes por la tarde",
+    # F6 comprensión inferencial Mi día (3 turnos)
+    ("B", 6, 1): "activa",
+    ("B", 6, 2): "le gusta el aire libre",
+    ("B", 6, 3): "en málaga",
+    # F7 chat inferencia Familia pequeña (4 turnos)
+    ("A", 7, 1): "javier (padre)",
+    ("A", 7, 2): "maría (madre)",
+    ("A", 7, 3): "sara",
+    ("A", 7, 4): "luis",
+    # F7 chat inferencia Mi día (4 turnos)
+    ("B", 7, 1): "mañana l–v",
+    ("B", 7, 2): "viernes noche",
+    ("B", 7, 3): "sábado",
+    ("B", 7, 4): "domingo tarde",
+}
+
+
+def lucapi_is_correct_single(state: LucAPIState, user_msg: str) -> Optional[bool]:
+    """Para fases single-select con respuesta correcta, devuelve True/False/None (None = no aplica)."""
+    key = (state.text_id, state.phase, state.turn_in_phase)
+    correct = LUCAPI_SINGLE_CORRECT.get(key)
+    if correct is None:
+        return None
+    return _norm(user_msg) == correct
+
+
 @app.websocket("/ws/chat")
 async def websocket_chat(websocket: WebSocket):
     """WebSocket para chat con streaming en tiempo real"""
@@ -2209,6 +2589,9 @@ async def websocket_chat(websocket: WebSocket):
     conversation_history = []
     current_activity_mode = None
     MAX_HISTORY = 10
+
+    # Estado de sesión LucAPI (state machine)
+    lucapi_state = LucAPIState()
 
     # Persistencia: crear conversación en BD
     conv_id = str(uuid.uuid4())
@@ -2338,26 +2721,139 @@ async def websocket_chat(websocket: WebSocket):
 
                 prior_text = locals().get('_prior_text', '')
 
-                # Sticky LucAPI: inyectar el texto cargado en el system prompt de CADA turno
-                # para que el LLM nunca pierda de vista qué texto tiene el estudiante,
-                # aunque el historial se recorte por MAX_HISTORY.
+                # ─────────────────────────────────────────────────────────────
+                # LucAPI v23.24.0: state machine + templates por fase.
+                # 1) Procesar OCR si llega como evento.
+                # 2) Actualizar estado tras la respuesta del usuario.
+                # 3) Inyectar phase_context en system prompt.
+                # 4) Inyectar bloque texto-específico (lucapi_a/b) si hay text_id.
+                # ─────────────────────────────────────────────────────────────
+                lucapi_extra_block = ""
                 lucapi_text_block = ""
+                lucapi_state_block = ""
                 if current_activity_mode == "lucapi":
+                    # Procesar OCR si viene en este mensaje (puede coincidir con texto vacío del estudiante)
                     _lt = message_data.get("lucapi_text")
+                    if _lt and isinstance(_lt, dict) and _lt.get("id"):
+                        # Set state si aún no estaba
+                        if not lucapi_state.text_id:
+                            lucapi_handle_ocr(lucapi_state, _lt)
+                        else:
+                            # ya estaba, solo refrescar metadatos
+                            lucapi_state.text_titulo = _lt.get("titulo", lucapi_state.text_titulo)
+                            lucapi_state.text_tematica = _lt.get("tematica", lucapi_state.text_tematica)
+
+                    # Actualizar último mensaje del usuario
+                    lucapi_state.last_user_msg = user_message
+                    lucapi_state.last_user_clean = _norm(user_message)
+
+                    # Detectar lengua elegida (en F2 → F3 transition)
+                    if lucapi_state.phase == 2 and user_message.strip():
+                        lucapi_state.lang = user_message.strip()
+                        lucapi_state.advance_phase()  # → F3
+
+                    elif lucapi_state.phase == 1 and user_message.strip():
+                        lucapi_state.advance_phase()  # → F2
+
+                    elif lucapi_state.phase == 3 and user_message.strip():
+                        # F3 → F4 (esperando OCR). Si llegó con cue OCR, ya estará en F5.
+                        if "(El estudiante ha escaneado" in user_message:
+                            # OCR ya procesado por backend
+                            pass
+                        else:
+                            lucapi_state.advance_phase()  # → F4
+
+                    elif lucapi_state.phase == 4 and "(El estudiante ha escaneado" in user_message:
+                        # OCR llegó como mensaje hidden — ya seteamos state arriba
+                        pass
+
+                    elif lucapi_state.phase >= 5:
+                        # v23.25.2 — 4 actividades con vocab CLASIFICACIÓN:
+                        # F5 vocab clasificación (3 turnos · multi) →
+                        # F6 comprensión inferencial (3 turnos · single) →
+                        # F7 chat inferencia (4 turnos · single) → F8 cierre.
+                        if lucapi_state.phase == 5:
+                            # Multi-turno: avanzar turno o pasar a F6 si último
+                            lucapi_advance(lucapi_state)
+                        elif lucapi_state.phase in (6, 7):
+                            is_correct = lucapi_is_correct_single(lucapi_state, user_message)
+                            if is_correct is False:
+                                lucapi_state.error_count += 1
+                                if lucapi_state.error_count >= 2:
+                                    lucapi_advance(lucapi_state)
+                            else:
+                                lucapi_advance(lucapi_state)
+                        else:
+                            lucapi_advance(lucapi_state)
+
+                    # Construir state block
+                    lucapi_state_block = lucapi_state.to_xml()
+
+                    # Cargar bloque texto-específico
+                    if lucapi_state.text_id == "A":
+                        _block = _DEFAULT_PROMPTS.get("lucapi_a", "")
+                        if _block:
+                            lucapi_extra_block = "\n\n" + _block
+                    elif lucapi_state.text_id == "B":
+                        _block = _DEFAULT_PROMPTS.get("lucapi_b", "")
+                        if _block:
+                            lucapi_extra_block = "\n\n" + _block
+
+                    # Multi-select F5: listar palabras NO marcadas para que el LLM las explique
+                    if lucapi_state.phase == 5 and "," in user_message:
+                        _eval = lucapi_evaluate_multi(lucapi_state, user_message)
+                        if _eval["chosen"]:
+                            lucapi_state_block += (
+                                f"\n<multi_eval>\n"
+                                f"  <chosen>{', '.join(_eval['chosen'])}</chosen>\n"
+                                f"  <chosen_count>{len(_eval['chosen'])}</chosen_count>\n"
+                                f"</multi_eval>\n"
+                            )
+                            _unmarked = lucapi_unmarked_words_f5(lucapi_state, user_message)
+                            if _unmarked:
+                                lucapi_state_block += f"<unmarked_words>{', '.join(_unmarked)}</unmarked_words>\n"
+
                     if _lt and isinstance(_lt, dict) and _lt.get("titulo"):
+                        _id = _lt.get("id", "")
+                        _titulo = _lt.get("titulo", "")
+                        _tema = _lt.get("tematica", "")
+
+                        # Tabla de "lo prohibido" por texto cargado:
+                        # Cuando el estudiante tiene un texto, el LLM NO debe mencionar palabras
+                        # ni temas del otro candidato.
+                        _forbidden = ""
+                        if _id == "texto_a":  # Familia pequeña
+                            _forbidden = (
+                                "PROHIBIDO mencionar: 'María Pérez', 'Granada', 'Málaga', 'Periodismo', "
+                                "'universidad', 'discoteca', 'rutina diaria', 'ocupado', 'tranquilo', "
+                                "'levantarse', 'pasear', 'pizza', 'animales', cualquier palabra del otro candidato 'Mi día'."
+                            )
+                        elif _id == "texto_b":  # Mi día
+                            _forbidden = (
+                                "PROHIBIDO mencionar: 'familia', 'Familia pequeña', 'pequeña', 'grande' "
+                                "(en sentido de tamaño familiar), 'padre', 'madre', 'hermana', 'Sara', 'Luis', "
+                                "'Javier', 'banquero', 'ama de casa', 'tenis', 'videojuegos', 'rubio', 'morena', "
+                                "cualquier palabra del otro candidato 'Familia pequeña'."
+                            )
+
                         lucapi_text_block = (
                             f"\n\n══════════════════════════════════\n"
-                            f"TEXTO CARGADO POR EL ESTUDIANTE (sticky — recordar SIEMPRE)\n"
+                            f"TEXTO CARGADO POR EL ESTUDIANTE — REGLA STICKY ABSOLUTA\n"
                             f"══════════════════════════════════\n"
-                            f"Título: {_lt.get('titulo')}\n"
-                            f"Temática: {_lt.get('tematica', '')}\n"
-                            f"Identificador interno: {_lt.get('id', '')}\n"
-                            f"\nUSA SOLO las preguntas, opciones y reacciones específicas de ESTE texto. "
-                            f"Está prohibido mezclar contenido del otro texto candidato. "
-                            f"Si dudas, mira el título y la temática de arriba: ése es el texto del estudiante."
+                            f"El estudiante TIENE delante el texto:\n"
+                            f"  Título: «{_titulo}»\n"
+                            f"  Temática: {_tema}\n"
+                            f"  ID interno: {_id}\n"
+                            f"\n"
+                            f"REGLAS NO NEGOCIABLES:\n"
+                            f"1. Usa SOLO las variantes del prompt etiquetadas con «{_titulo}». IGNORA todas las otras variantes (las del otro texto candidato) como si no existieran.\n"
+                            f"2. {_forbidden}\n"
+                            f"3. Si en algún momento dudas qué pregunta o frase usar, mira el título arriba y vuelve a la variante de ESE texto. Nunca mezcles los dos.\n"
+                            f"4. Si por error mencionas algo del otro texto, corrígete inmediatamente y vuelve al texto cargado.\n"
+                            f"\nSi rompes esta regla, el flujo se rompe para el estudiante. Es la regla más importante de todo el prompt."
                         )
 
-                messages = [{"role": "system", "content": system_prompt + glossary_text + juego3_summary_text + training_text + prior_text + lucapi_text_block}]
+                messages = [{"role": "system", "content": system_prompt + glossary_text + juego3_summary_text + training_text + prior_text + lucapi_extra_block + lucapi_text_block + lucapi_state_block}]
 
                 for hist_msg in conversation_history:
                     messages.append(hist_msg)
@@ -2377,11 +2873,14 @@ async def websocket_chat(websocket: WebSocket):
                     max_tokens = 360
                     temperature = 0.75
                 elif current_activity_mode == "lucapi":
-                    # LucAPI: fases F8/F9/F10 con multi-select de 8 chips + texto en lenguas
-                    # no romances (alemán/polaco ~30% más tokens) + cierre con logros (F16).
-                    # 350 era insuficiente y dejaba respuestas truncadas sin "end".
-                    max_tokens = 600
-                    temperature = 0.6
+                    # LucAPI: fases estructuradas (1-14) usan templates literales → temp baja.
+                    # F15 cierre necesita creatividad personalizada → temp media.
+                    if lucapi_state.phase >= 15:
+                        max_tokens = 700
+                        temperature = 0.5
+                    else:
+                        max_tokens = 600
+                        temperature = 0.2
                 elif current_activity_mode:
                     max_tokens = 200
                     temperature = 0.78
@@ -2389,18 +2888,28 @@ async def websocket_chat(websocket: WebSocket):
                     max_tokens = 500 if response_mode == "short" else 1000
                     temperature = 0.7
 
-                # Stream de respuesta (DeepSeek principal, Groq fallback)
-                active_model = LLM_MODEL
+                # LucAPI usa Kimi K2 (mejor manejo de prompts largos con variantes condicionales).
+                # Resto de actividades sigue con DeepSeek + Groq fallback.
+                use_kimi = (current_activity_mode == "lucapi" and kimi_llm_client is not None)
+
+                if use_kimi:
+                    primary_client = kimi_llm_client
+                    primary_model = KIMI_MODEL
+                else:
+                    primary_client = llm_client
+                    primary_model = LLM_MODEL
+
+                active_model = primary_model
                 try:
-                    stream = await llm_client.chat.completions.create(
-                        model=LLM_MODEL,
+                    stream = await primary_client.chat.completions.create(
+                        model=primary_model,
                         messages=messages,
                         stream=True,
                         max_tokens=max_tokens,
                         temperature=temperature
                     )
                 except Exception as model_err:
-                    print(f"[WS] {LLM_MODEL} error: {model_err}, usando Groq fallback {GROQ_FALLBACK_MODEL}")
+                    print(f"[WS] {primary_model} error: {model_err}, usando Groq fallback {GROQ_FALLBACK_MODEL}")
                     active_model = GROQ_FALLBACK_MODEL
                     if groq_llm_client:
                         stream = await groq_llm_client.chat.completions.create(
