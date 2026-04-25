@@ -1,5 +1,19 @@
 # Changelog — AgentiaELE
 
+## v23.19.2 — 2026-04-25 — Diapo 6: agrandar componentes al nivel de diapo 5
+El usuario reporta que los componentes de la diapo 6 se ven pequeños comparados con la diapo 5. Se aplica la misma escala tipográfica aprobada para diapo 5 (y que se mantendrá en los próximos pasos 2, 3, 4 pendientes).
+
+**Cambios** en `static/style.css` sección diapo 6:
+- `.diapo6-hook`: clamp(28, 3.2vw, 48px) → **clamp(32, 3.6vw, 56px)** (igual que diapo 5). letter-spacing -0.4 → -0.6. line-height 1.15 → 1.12.
+- `.diapo6-flip-layout__pre`: clamp(30, 3.4vw, 52px) → **clamp(40, 4.5vw, 72px)**.
+- `.diapo6-flip-layout__pill`: font clamp(30, 3.4vw, 52px) → **clamp(40, 4.5vw, 72px)**. Border 4px → 5px. Border-radius 22 → 26. Padding 10/28 → 14/36. Shadow 8/8/0 → 10/10/0. min-width 260-440 → **340-600**. min-height 58-84 → **74-116**.
+- `.diapo6-step1-desc__main`: clamp(18, 1.55vw, 26px) → **clamp(22, 2vw, 34px)**.
+- `.diapo6-step1-desc__duo`: clamp(16, 1.35vw, 22px) font-weight 500 → **clamp(20, 1.7vw, 28px) font-weight 600**.
+
+**Criterio aplicable a las fases 3-5** (cuando se implementen paso 2 focus-cards, paso 3 3d-card + progress-bar y paso 4 comic-text + button + QR): mantener la misma escala grande que diapo 5, no repetir el error de quedarse corto.
+
+Versionado sync → v23.19.2.
+
 ## v23.19.1 — 2026-04-25 — Separación semántica de flechas (header vs laterales) en diapo 5 y 6
 Bug de UX reportado por el usuario: al pulsar la flecha del header (superior-derecha) en la diapo 5 se avanzaba paso a paso en vez de saltar a la diapo 6. Las flechas del header y las laterales hacían exactamente lo mismo. Ahora se separan semánticamente:
 

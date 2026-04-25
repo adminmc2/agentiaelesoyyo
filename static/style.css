@@ -7475,11 +7475,11 @@ body[data-mood-active] .message.assistant {
 }
 
 .diapo6-hook {
-    font: 800 clamp(28px, 3.2vw, 48px) 'Dosis', sans-serif;
+    font: 800 clamp(32px, 3.6vw, 56px) 'Dosis', sans-serif;
     color: #2c2c2c;
     margin: 0 0 8px;
-    letter-spacing: -0.4px;
-    line-height: 1.15;
+    letter-spacing: -0.6px;
+    line-height: 1.12;
     max-width: 1280px;
 }
 .diapo6-hook__key {
@@ -7511,9 +7511,9 @@ body[data-mood-active] .message.assistant {
     justify-content: center;
 }
 .diapo6-flip-layout__pre {
-    font: 700 clamp(30px, 3.4vw, 52px) 'Dosis', sans-serif;
+    font: 700 clamp(40px, 4.5vw, 72px) 'Dosis', sans-serif;
     color: #2c2c2c;
-    letter-spacing: -0.3px;
+    letter-spacing: -0.5px;
     line-height: 1;
 }
 .diapo6-flip-layout__pill {
@@ -7522,16 +7522,16 @@ body[data-mood-active] .message.assistant {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    border: 4px solid #2c2c2c;
-    border-radius: 22px;
+    border: 5px solid #2c2c2c;
+    border-radius: 26px;
     background: #FFFFFF;
-    padding: 10px 28px;
-    box-shadow: 8px 8px 0 rgba(44, 44, 44, 0.9);
-    font: 900 clamp(30px, 3.4vw, 52px) 'Dosis', sans-serif;
+    padding: 14px 36px;
+    box-shadow: 10px 10px 0 rgba(44, 44, 44, 0.9);
+    font: 900 clamp(40px, 4.5vw, 72px) 'Dosis', sans-serif;
     color: #2c2c2c;
-    min-width: clamp(260px, 28vw, 440px);
-    min-height: clamp(58px, 6vw, 84px);
-    letter-spacing: -0.3px;
+    min-width: clamp(340px, 36vw, 600px);
+    min-height: clamp(74px, 7.5vw, 116px);
+    letter-spacing: -0.5px;
     line-height: 1;
 }
 .diapo6-flip-layout__word {
@@ -7565,10 +7565,10 @@ body[data-mood-active] .message.assistant {
     margin-top: clamp(8px, 1vw, 16px);
 }
 .diapo6-step1-desc__main {
-    font: 600 clamp(18px, 1.55vw, 26px) 'Source Sans 3', sans-serif;
+    font: 600 clamp(22px, 2vw, 34px) 'Source Sans 3', sans-serif;
     color: #3a3a3a;
     margin: 0;
-    line-height: 1.45;
+    line-height: 1.35;
 }
 .diapo6-step1-desc__main strong {
     color: #6B2F6D;
@@ -7577,12 +7577,12 @@ body[data-mood-active] .message.assistant {
 .diapo6-step1-desc__duo {
     display: flex;
     flex-wrap: wrap;
-    gap: clamp(14px, 1.4vw, 24px) clamp(24px, 2.8vw, 48px);
+    gap: clamp(18px, 1.6vw, 28px) clamp(28px, 3vw, 56px);
     justify-content: center;
     margin: 0;
-    font: 500 clamp(16px, 1.35vw, 22px) 'Source Sans 3', sans-serif;
+    font: 600 clamp(20px, 1.7vw, 28px) 'Source Sans 3', sans-serif;
     color: #2c2c2c;
-    line-height: 1.4;
+    line-height: 1.35;
 }
 .diapo6-step1-desc__duo strong {
     color: #8A6A1C;
@@ -10158,72 +10158,74 @@ body[data-mood-active] .message.assistant {
 
 /* ============================================
    DIAPO 7 — LucAPI · Comprensión Lectora (esqueleto fase A · v23.19.0)
-   Overrides del CSS legacy .diapo7-* (que era para "Construye tu Agente").
+   Paralela a diapo 5 y 6: header fijo + stage transparente sobre fondo menta del body.
+   Overrides neutralizan el CSS legacy .diapo7-* (era de "Construye tu Agente" eliminada).
    ============================================ */
 .diapo7-screen {
     padding: 78px 0 0 0 !important;
     overflow: auto;
     background: transparent;
-    transition: opacity 300ms var(--md-sys-motion-easing-emphasized-accelerate);
+    display: flex;
+    flex-direction: column;
+    transition: opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate);
 }
 .diapo7-screen.fade-out { opacity: 0; }
 
-/* Reset del grid 45/55 legacy: la fase A es single-column limpio */
-.diapo7-page {
-    display: block;
-    grid-template-columns: none;
-    background: transparent;
-    min-height: auto;
+/* Neutralizar reglas legacy .diapo7-page (aunque ya no hay wrapper .diapo7-page,
+   el selector podría colarse si vuelve) */
+.diapo7-page { all: unset; }
+
+.diapo7-stage {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 32px 40px;
-    overflow: visible;
+    background: transparent;
 }
 
-.diapo7-body {
-    max-width: 900px;
-    margin: 48px auto 0;
-    padding: 48px 32px;
-    background: var(--color-cream, #FFE7C1);
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(138, 106, 28, 0.15);
+.diapo7-placeholder {
+    max-width: 720px;
     text-align: center;
+    padding: 48px 32px;
 }
 
 .diapo7-placeholder__title {
     font-family: 'Dosis', sans-serif;
     font-weight: 900;
-    font-size: 36px;
+    font-size: clamp(32px, 4vw, 48px);
     color: #2c2c2c;
-    margin: 0 0 16px;
+    margin: 0 0 20px;
     letter-spacing: 0.02em;
 }
 
 .diapo7-placeholder__text {
     font-family: 'Source Sans 3', sans-serif;
-    font-size: 20px;
+    font-size: clamp(18px, 1.6vw, 22px);
     color: #2c2c2c;
     margin: 0 0 24px;
-    line-height: 1.5;
+    line-height: 1.55;
+    opacity: 0.85;
 }
 
 .diapo7-placeholder__hint {
     font-family: 'Source Sans 3', sans-serif;
-    font-size: 15px;
+    font-size: 14px;
     color: #6b5a20;
     margin: 0;
-    opacity: 0.8;
+    opacity: 0.7;
 }
 
 .diapo7-placeholder__hint code {
-    background: rgba(201, 166, 50, 0.15);
+    background: rgba(201, 166, 50, 0.18);
     padding: 2px 8px;
     border-radius: 6px;
     font-family: 'Inconsolata', monospace;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 @media (max-width: 900px) {
-    .diapo7-page { padding: 24px 16px; }
-    .diapo7-body { padding: 32px 20px; margin-top: 24px; }
-    .diapo7-placeholder__title { font-size: 28px; }
-    .diapo7-placeholder__text { font-size: 17px; }
+    .diapo7-screen { padding-top: 70px !important; }
+    .diapo7-stage { padding: 24px 16px; }
+    .diapo7-placeholder { padding: 32px 12px; }
 }
