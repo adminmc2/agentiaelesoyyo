@@ -1,5 +1,16 @@
 # Changelog — AgentiaELE
 
+## v23.22.4 — 2026-04-25 — Diapo 7: QR apunta a URL absoluta de producción
+El usuario pide que el QR de la diapo 7 enlace directamente a la URL absoluta del chat LucAPI en producción, no a la ruta relativa del host actual.
+
+**Cambio** en `static/app.js`:
+- `DIAPO7_LUCAPI_URL`: `/lucapi` → `https://agentiaelesoyyo.up.railway.app/lucapi`.
+- `initDiapo7QR()`: ya no concatena `window.location.origin`, usa la constante tal cual.
+
+Antes: el QR generaba una URL dependiente del host donde se abría la presentación (localhost:9000/lucapi en desarrollo, *.railway.app/lucapi en producción). Ahora siempre apunta al despliegue de Railway.
+
+Versionado sync → v23.22.4.
+
 ## v23.22.3 — 2026-04-25 — Chat móvil LucAPI · OCR · opciones tappables (fases 1-6 + escaneo)
 Primera versión funcional del chat de LucAPI accesible vía `/lucapi`. Es la experiencia que verán los alumnos al escanear el QR de la diapo 7 desde su móvil. Funciona también en desktop.
 

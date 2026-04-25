@@ -5687,7 +5687,7 @@ function _diapo6SyncStep(n) {
 // No hay pasos internos ni interactividad compleja. Todo en una única pantalla.
 // ============================================
 
-const DIAPO7_LUCAPI_URL = '/lucapi';  // el chat móvil se sirve en esta ruta (otro scope)
+const DIAPO7_LUCAPI_URL = 'https://agentiaelesoyyo.up.railway.app/lucapi';  // URL absoluta del chat móvil en producción
 
 // Textos completos para el modal (v23.20.2). Nivel A1, texto placeholder
 // mientras el usuario/otro scope no provee los definitivos.
@@ -5780,10 +5780,9 @@ function initDiapo7QR() {
         return;
     }
     try {
-        // URL absoluta con el host actual → funciona desde el móvil del público
-        const url = `${window.location.origin}${DIAPO7_LUCAPI_URL}`;
+        // URL absoluta fija al despliegue en producción (Railway)
         const qr = window.qrcode(0, 'M');
-        qr.addData(url);
+        qr.addData(DIAPO7_LUCAPI_URL);
         qr.make();
         container.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
         container.dataset.rendered = 'true';
