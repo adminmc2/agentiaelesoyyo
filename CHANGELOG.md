@@ -1,5 +1,40 @@
 # Changelog — AgentiaELE
 
+## v23.23.3 — 2026-04-25 — Responsive sistémico diapos 6/7/8 + fix excerpt diapo 7
+Análisis del problema reportado por el usuario:
+- En diapo 7, el texto del fragmento (`.diapo7-card__excerpt`) se rompía palabra por línea en pantallas FHD por culpa del `padding-right: 140px` que dejaba sitio al hint "Ver texto completo →" en esquina-derecha.
+- La regla `min-width: 1600px + max-height: 960px` aplicaba `-webkit-line-clamp: 4` que mezclado con el padding-right rompía el layout.
+- Cada diapositiva (6, 7, 8) tenía su propio set de breakpoints inconsistentes (720, 1000, 1100, 1200, 1600, 1920, 2560) sin armonización para alturas pequeñas.
+
+**Fix aplicado**:
+
+`.diapo7-card__excerpt`:
+- Eliminado `padding-right: 140px`. En su lugar `margin-bottom: clamp(28px, 2.4vw, 40px)` para reservar el espacio inferior donde se reposiciona el hint.
+
+`.diapo7-card::after` (hint "Ver texto completo →"):
+- De esquina inferior-derecha a **fila completa centrada** abajo: `left:0; right:0; text-align:center; bottom:10-16px`. Visible siempre, sin invadir el ancho del texto.
+
+`.diapo7-layout` (grid principal):
+- `minmax(360px, 0.85fr) minmax(480px, 1.25fr)` → **`minmax(320px, 0.75fr) minmax(620px, 1.4fr)`**. Da más ancho a la columna de cards (right) que es donde está el contenido grueso.
+
+`.diapo7-card__excerpt` regla en min-width 2560:
+- Eliminado `padding-right: 180px` (mismo problema en TV 4K).
+
+Eliminada regla `min-width: 1600 + max-height: 960` con line-clamp:4 (era contradictoria con padding-right y rompía pantallas FHD).
+
+**Diapo 6 — armonización responsive**:
+- `.diapo6-duo-layout`: `min-width: 340 → 360`. Max-width 1500 → 1700. Gap clamp ajustado.
+- Breakpoint `max-height: 760` → `max-height: 820` (cubre laptops 1366×768 y 1440×900).
+- Bloque completo de compactación añadido para max-height 820: hook, flip, focus-card, cta, 3d-container aspect-ratio 4/5, lucapi progress.
+- Nuevo `min-width: 1920 + min-height: 960` → max-width 1900, gap más generoso.
+- Nuevo `min-width: 2560` (TV 4K/QHD) → max-width 2400, gap 60-120.
+
+**Diapo 8 — armonización responsive**:
+- Mismo patrón que diapo 6: `max-height: 760 → 820` con bloque de compactación completo (hook, flip, teams, team-cards con icon/img reducidos, reuse-tags, cta).
+- Nuevos `min-width: 1920` y `min-width: 2560` para TV.
+
+Versionado sync → v23.23.3.
+
 ## v23.23.2 — 2026-04-25 — Diapo 7: responsive reforzado (laptop FHD, Mac, TV grande, proyector)
 El usuario reporta que la diapo 7 no se ve bien en todas las pantallas. Se añaden media queries específicos por rango de resolución.
 

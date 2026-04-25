@@ -7881,12 +7881,12 @@ body[data-mood-active] .message.assistant {
 /* ──────────── PASO 3 — 3D card + LucAPI (v23.19.4) ──────────── */
 .diapo6-duo-layout {
     display: grid;
-    grid-template-columns: minmax(340px, 1fr) minmax(340px, 1fr);
-    gap: clamp(28px, 3vw, 56px);
+    grid-template-columns: minmax(360px, 1fr) minmax(360px, 1fr);
+    gap: clamp(24px, 2.6vw, 56px);
     align-items: center;
     justify-items: center;
     width: 100%;
-    max-width: 1500px;
+    max-width: 1700px;
     margin: 0 auto;
 }
 
@@ -8159,9 +8159,30 @@ body[data-mood-active] .message.assistant {
     .diapo6-side-arrow--prev { left: 12px; }
     .diapo6-side-arrow--next { right: 12px; }
 }
-@media (max-height: 760px) {
+@media (max-height: 820px) {
     .diapo6-screen { padding-top: 70px !important; }
-    .diapo6-step { padding: 16px 24px; gap: 16px; }
+    .diapo6-step { padding: 14px 24px; gap: 14px; }
+    .diapo6-hook { font-size: clamp(24px, 2.6vw, 38px); margin-bottom: 4px; }
+    .diapo6-flip-layout__pre { font-size: clamp(28px, 3.2vw, 48px); }
+    .diapo6-flip-layout__pill { font-size: clamp(28px, 3.2vw, 48px); min-height: clamp(56px, 5.5vw, 84px); padding: 8px 24px; }
+    .diapo6-step1-desc__main { font-size: clamp(18px, 1.5vw, 24px); }
+    .diapo6-focus-card { min-height: clamp(220px, 24vw, 360px); padding: clamp(16px, 1.6vw, 28px); gap: 10px; }
+    .diapo6-focus-card__title { font-size: clamp(20px, 1.9vw, 28px); }
+    .diapo6-focus-card__desc { font-size: clamp(14px, 1.2vw, 18px); }
+    .diapo6-focus-card__icon-wrap { width: clamp(54px, 4.8vw, 76px); height: clamp(54px, 4.8vw, 76px); }
+    .diapo6-cta-btn { padding: 12px 28px; font-size: clamp(18px, 1.7vw, 26px); margin-top: 8px; }
+    .diapo6-3d-container { aspect-ratio: 4 / 5; }
+    .diapo6-lucapi__progress { width: clamp(180px, 18vw, 240px); height: clamp(180px, 18vw, 240px); }
+    .diapo6-step3-quote { font-size: clamp(16px, 1.5vw, 24px); padding: 10px 20px; }
+}
+/* TV grande / proyector FHD+ — escala generosa */
+@media (min-width: 1920px) and (min-height: 960px) {
+    .diapo6-duo-layout { max-width: 1900px; gap: clamp(36px, 3vw, 72px); }
+    .diapo6-focus-grid { max-width: 1700px; }
+}
+@media (min-width: 2560px) {
+    .diapo6-duo-layout { max-width: 2400px; gap: clamp(60px, 3.5vw, 120px); }
+    .diapo6-focus-grid { max-width: 2100px; }
 }
 
 /* ============================================
@@ -8795,8 +8816,8 @@ body[data-mood-active] .message.assistant {
     position: relative;
     z-index: 1;
     display: grid;
-    grid-template-columns: minmax(360px, 0.85fr) minmax(480px, 1.25fr);
-    gap: clamp(28px, 3.5vw, 80px);
+    grid-template-columns: minmax(320px, 0.75fr) minmax(620px, 1.4fr);
+    gap: clamp(24px, 3vw, 64px);
     align-items: center;
     width: 100%;
     max-width: 1800px;
@@ -8899,14 +8920,17 @@ body[data-mood-active] .message.assistant {
 .diapo7-card::after {
     content: 'Ver texto completo →';
     position: absolute;
-    bottom: clamp(14px, 1.4vw, 22px);
-    right: clamp(20px, 2vw, 30px);
-    font: 800 clamp(12px, 1vw, 14px) 'Source Sans 3', sans-serif;
+    bottom: clamp(10px, 1vw, 16px);
+    left: 0;
+    right: 0;
+    text-align: center;
+    font: 800 clamp(11px, 0.95vw, 14px) 'Source Sans 3', sans-serif;
     color: #8A6A1C;
-    letter-spacing: 1px;
+    letter-spacing: 1.2px;
     text-transform: uppercase;
-    opacity: 0.7;
+    opacity: 0.65;
     transition: opacity 0.25s ease;
+    pointer-events: none;
 }
 .diapo7-card:hover::after { opacity: 1; }
 .diapo7-card--a {
@@ -8974,10 +8998,9 @@ body[data-mood-active] .message.assistant {
 .diapo7-card__excerpt {
     font: 500 clamp(18px, 1.6vw, 24px) 'Source Sans 3', sans-serif;
     color: #3a3a3a;
-    margin: auto 0 0;
+    margin: auto 0 clamp(28px, 2.4vw, 40px);  /* deja hueco abajo para el hint en ::after, no padding-right */
     line-height: 1.5;
     font-style: italic;
-    padding-right: 140px;
 }
 
 /* ── Modal con texto completo (v23.20.2) ── */
@@ -9136,15 +9159,11 @@ body[data-mood-active] .message.assistant {
     .diapo7-qr-side__sub { font-size: clamp(22px, 1.2vw, 30px); }
     .diapo7-card { min-height: clamp(520px, 28vw, 620px); padding: clamp(40px, 2.2vw, 60px); }
     .diapo7-card__title { font-size: clamp(40px, 2vw, 54px); }
-    .diapo7-card__excerpt { font-size: clamp(24px, 1.2vw, 32px); padding-right: 180px; }
+    .diapo7-card__excerpt { font-size: clamp(24px, 1.2vw, 32px); }
     .diapo7-card__icon { width: clamp(100px, 5.5vw, 140px); height: clamp(100px, 5.5vw, 140px); font-size: clamp(50px, 2.8vw, 72px); }
 }
-/* Ultrawide/pantalla grande baja (≥1600 anchura, <960 altura) — evitar scroll vertical */
-@media (min-width: 1600px) and (max-height: 960px) {
-    .diapo7-stage { align-items: center; padding-top: clamp(10px, 1vw, 20px); padding-bottom: clamp(10px, 1vw, 20px); }
-    .diapo7-card { min-height: clamp(320px, 26vw, 440px); }
-    .diapo7-card__excerpt { -webkit-line-clamp: 4; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
-}
+/* (v23.23.3) Eliminada la regla `min-width:1600 + max-height:960` con line-clamp:4
+   — generaba conflictos visuales con padding-right:140 y rompía el texto en pantallas FHD. */
 /* Tablet / laptop pequeño (<1100) — apila en 1 columna */
 @media (max-width: 1100px) {
     .diapo7-layout { grid-template-columns: 1fr; gap: 28px; }
@@ -9618,9 +9637,33 @@ body[data-mood-active] .message.assistant {
     .diapo8-side-arrow--prev { left: 12px; }
     .diapo8-side-arrow--next { right: 12px; }
 }
-@media (max-height: 760px) {
+@media (max-height: 820px) {
     .diapo8-screen { padding-top: 70px !important; }
-    .diapo8-step { padding: 16px 24px; gap: 16px; }
+    .diapo8-step { padding: 14px 24px; gap: 14px; }
+    .diapo8-hook { font-size: clamp(24px, 2.6vw, 38px); margin-bottom: 4px; }
+    .diapo8-flip-layout__pre { font-size: clamp(28px, 3.2vw, 48px); }
+    .diapo8-flip-layout__pill { font-size: clamp(28px, 3.2vw, 48px); min-height: clamp(56px, 5.5vw, 80px); padding: 8px 24px; }
+    .diapo8-step__pre { font-size: clamp(18px, 1.6vw, 26px); }
+    .diapo8-step1-desc { font-size: clamp(15px, 1.3vw, 20px); }
+    .diapo8-team { padding: clamp(14px, 1.4vw, 24px); gap: 8px; }
+    .diapo8-team__title { font-size: clamp(18px, 1.5vw, 24px); }
+    .diapo8-team__sub { font-size: clamp(13px, 1.05vw, 16px); }
+    .diapo8-team-card { padding: 6px 10px; gap: 10px; }
+    .diapo8-team-card__icon { width: clamp(34px, 2.8vw, 44px); height: clamp(34px, 2.8vw, 44px); font-size: clamp(18px, 1.5vw, 24px); }
+    .diapo8-team-card__img { width: clamp(48px, 4vw, 64px); height: clamp(48px, 4vw, 64px); }
+    .diapo8-team-card__body strong { font-size: clamp(14px, 1.15vw, 17px); }
+    .diapo8-team-card__body span { font-size: clamp(12px, 1vw, 14px); }
+    .diapo8-step3__headline { font-size: clamp(20px, 2vw, 30px); }
+    .diapo8-reuse-tag { padding: 8px 14px; font-size: clamp(14px, 1.15vw, 18px); }
+    .diapo8-step3__closing { font-size: clamp(15px, 1.3vw, 20px); }
+    .diapo8-cta-btn { padding: 12px 28px; font-size: clamp(18px, 1.7vw, 26px); margin-top: 8px; }
+}
+/* TV grande / proyector FHD+ — escala generosa */
+@media (min-width: 1920px) and (min-height: 960px) {
+    .diapo8-teams { max-width: 1900px; }
+}
+@media (min-width: 2560px) {
+    .diapo8-teams { max-width: 2400px; }
 }
 
 /* ======================================================
