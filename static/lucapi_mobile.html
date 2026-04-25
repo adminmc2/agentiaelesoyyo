@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LucAPI · Comprensión lectora</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Dosis:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/fill/style.css">
+    <!-- Tesseract.js para OCR local en el navegador (v23.22.0) -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body {
+            margin: 0; padding: 0;
+            font-family: 'Source Sans 3', -apple-system, sans-serif;
+            background: #E8F2F3;
+            color: #2c2c2c;
+            min-height: 100vh;
+            min-height: 100dvh;
+            overscroll-behavior: none;
+        }
+        .app {
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            /* En escritorio: limita el ancho para simular móvil */
+            max-width: 480px;
+            margin: 0 auto;
+            background: #E8F2F3;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Header mostaza v23 */
+        .hdr {
+            background: #C9A632;
+            color: #2c2c2c;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 2px 10px rgba(138, 106, 28, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .hdr__title {
+            font: 900 16px 'Dosis', sans-serif;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin: 0;
+        }
+        .hdr__pill {
+            font: 900 13px 'Source Sans 3', sans-serif;
+            background: #FFE7C1;
+            padding: 4px 12px;
+            border-radius: 999px;
+            letter-spacing: 0.1em;
+        }
+
+        /* Chat area */
+        .chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding: 20px 16px 24px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Bubble rows (LucAPI bubbles with avatar, student bubbles sin avatar) */
+        .row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            animation: rowIn 300ms ease;
+            max-width: 100%;
+        }
+        .row--luca {
+            align-self: flex-start;
+            max-width: calc(100% - 20px);
+        }
+        .row--user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+            max-width: 85%;
+            padding-left: 40px; /* equivalente al hueco del avatar para alinear */
+        }
+        .row .bubble {
+            min-width: 0;
+            max-width: 100%;
+            flex: 0 1 auto;
+        }
+
+        @keyframes rowIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Avatar LC — círculo mostaza con iniciales */
+        .avatar {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            border-radius: 50%;
+            background: #C9A632;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font: 900 14px 'Dosis', sans-serif;
+            letter-spacing: 0.04em;
+            box-shadow: 0 2px 8px rgba(138, 106, 28, 0.35);
+            flex-shrink: 0;
+        }
+
+        /* Bubbles */
+        .bubble {
+            padding: 12px 16px;
+            border-radius: 18px;
+            font: 500 15.5px/1.5 'Source Sans 3', sans-serif;
+            color: #2c2c2c;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            white-space: pre-wrap;
+            hyphens: auto;
+        }
+        .bubble--luca {
+            background: #FFFFFF;
+            border: 1px solid rgba(201, 166, 50, 0.18);
+            border-bottom-left-radius: 6px;
+            box-shadow: 0 3px 10px rgba(138, 106, 28, 0.08);
+        }
+        .bubble--user {
+            background: #D0AAD1;
+            color: #2c2c2c;
+            border-bottom-right-radius: 6px;
+            box-shadow: 0 3px 10px rgba(107, 47, 109, 0.15);
+        }
+
+        /* ──────────────────────────────────────────────
+           Opciones tappables (OPCIONES: A / B / C en el LLM)
+           ────────────────────────────────────────────── */
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 4px 0 6px 50px; /* alineado bajo la burbuja de LucAPI (con avatar) */
+            animation: optionsIn 360ms ease 80ms both;
+        }
+        .options--user {
+            margin-left: 0;
+            margin-right: 0;
+            justify-content: flex-end;
+        }
+        @keyframes optionsIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .option-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 18px;
+            background: #FFFFFF;
+            color: #2c2c2c;
+            border: 2px solid #D0AAD1;
+            border-radius: 999px;
+            font: 700 15px 'Source Sans 3', sans-serif;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 2px 8px rgba(107, 47, 109, 0.08);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .option-btn:hover {
+            background: #D0AAD1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(107, 47, 109, 0.22);
+        }
+        .option-btn:active {
+            transform: translateY(0) scale(0.96);
+        }
+        .option-btn.is-disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none;
+        }
+        .option-btn.is-selected {
+            background: #C9A632;
+            border-color: #C9A632;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(138, 106, 28, 0.4);
+        }
+
+        /* Typing indicator */
+        .typing {
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+            padding: 4px 0;
+        }
+        .typing span {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: #8A6A1C;
+            animation: typingBounce 1s ease-in-out infinite;
+        }
+        .typing span:nth-child(2) { animation-delay: 0.15s; }
+        .typing span:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-6px); opacity: 1; }
+        }
+
+        /* Input bar */
+        .input {
+            display: flex;
+            gap: 10px;
+            padding: 12px 14px calc(14px + env(safe-area-inset-bottom));
+            background: #FFFFFF;
+            border-top: 1px solid rgba(44, 44, 44, 0.08);
+            position: sticky;
+            bottom: 0;
+        }
+        .input__field {
+            flex: 1;
+            padding: 12px 16px;
+            background: #F5F0E8;
+            border: 1.5px solid transparent;
+            border-radius: 14px;
+            font: 500 16px 'Source Sans 3', sans-serif;
+            color: #2c2c2c;
+            outline: none;
+            transition: border-color 0.2s ease, background 0.2s ease;
+        }
+        .input__field:focus {
+            border-color: #C9A632;
+            background: #fff;
+        }
+        .input__field:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .input__scan,
+        .input__send {
+            width: 48px;
+            height: 48px;
+            min-width: 48px;
+            border-radius: 50%;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s ease, background 0.2s ease, opacity 0.2s ease;
+        }
+        .input__send {
+            background: #C9A632;
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(138, 106, 28, 0.35);
+        }
+        .input__send:hover:not(:disabled) {
+            background: #8A6A1C;
+            transform: scale(1.05);
+        }
+        .input__send:active:not(:disabled) { transform: scale(0.95); }
+        .input__send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Botón de escaneo — acento lavanda para distinguirlo del envío */
+        .input__scan {
+            background: #D0AAD1;
+            color: #2c2c2c;
+            box-shadow: 0 3px 10px rgba(107, 47, 109, 0.25);
+        }
+        .input__scan:hover {
+            background: #BA90BB;
+            transform: scale(1.05);
+        }
+        .input__scan:active { transform: scale(0.95); }
+
+        /* Pulse suave para invitar a pulsar cuando toque escanear */
+        .input__scan.is-pulsing {
+            animation: scanPulse 1.6s ease-in-out infinite;
+        }
+        @keyframes scanPulse {
+            0%, 100% { box-shadow: 0 3px 10px rgba(107, 47, 109, 0.25); }
+            50% { box-shadow: 0 3px 18px rgba(107, 47, 109, 0.55), 0 0 0 6px rgba(208, 170, 209, 0.3); }
+        }
+
+        /* ======================================================
+           Modal de escaneo (cámara full-screen)
+           ====================================================== */
+        .scan-modal {
+            position: fixed;
+            inset: 0;
+            background: #0c0c0c;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .scan-modal[hidden] { display: none; }
+
+        .scan-modal__close {
+            position: absolute;
+            top: calc(12px + env(safe-area-inset-top));
+            right: 12px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            backdrop-filter: blur(8px);
+        }
+
+        .scan-viewport {
+            position: relative;
+            flex: 1;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+        .scan-viewport video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Frame de guías sobre el viewfinder */
+        .scan-frame {
+            position: absolute;
+            inset: 20% 12%;
+            pointer-events: none;
+        }
+        .scan-frame__corner {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            border: 3px solid #C9A632;
+        }
+        .scan-frame__corner--tl { top: 0; left: 0; border-right: none; border-bottom: none; border-top-left-radius: 8px; }
+        .scan-frame__corner--tr { top: 0; right: 0; border-left: none; border-bottom: none; border-top-right-radius: 8px; }
+        .scan-frame__corner--bl { bottom: 0; left: 0; border-right: none; border-top: none; border-bottom-left-radius: 8px; }
+        .scan-frame__corner--br { bottom: 0; right: 0; border-left: none; border-top: none; border-bottom-right-radius: 8px; }
+        .scan-frame__line {
+            position: absolute;
+            left: 4px;
+            right: 4px;
+            top: 50%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #C9A632, transparent);
+            box-shadow: 0 0 12px rgba(201, 166, 50, 0.6);
+            animation: scanLine 2.4s ease-in-out infinite;
+        }
+        @keyframes scanLine {
+            0%, 100% { transform: translateY(-70%); opacity: 0.4; }
+            50% { transform: translateY(70%); opacity: 1; }
+        }
+
+        .scan-hint {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            margin: 0;
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            font: 600 14px 'Source Sans 3', sans-serif;
+            border-radius: 999px;
+            backdrop-filter: blur(8px);
+        }
+
+        .scan-capture {
+            position: absolute;
+            bottom: calc(32px + env(safe-area-inset-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            background: transparent;
+            border: 4px solid #fff;
+            padding: 4px;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+            transition: transform 0.12s ease;
+        }
+        .scan-capture:active { transform: translateX(-50%) scale(0.92); }
+        .scan-capture__inner {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #fff;
+            transition: background 0.15s ease;
+        }
+        .scan-capture:active .scan-capture__inner { background: #C9A632; }
+
+        /* Preview tras capturar */
+        .scan-preview {
+            position: absolute;
+            inset: 0;
+            background: #0c0c0c;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            z-index: 5;
+        }
+        .scan-preview[hidden] { display: none; }
+        .scan-preview img {
+            max-width: 100%;
+            max-height: 60vh;
+            border-radius: 12px;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.6);
+        }
+        .scan-preview__actions {
+            display: flex;
+            gap: 12px;
+        }
+        .scan-preview__btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 22px;
+            border-radius: 999px;
+            font: 700 15px 'Source Sans 3', sans-serif;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.12s ease, background 0.2s ease;
+        }
+        .scan-preview__btn:active { transform: scale(0.95); }
+        .scan-preview__btn--retry {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .scan-preview__btn--ok {
+            background: #C9A632;
+            color: #fff;
+        }
+        .scan-preview__btn--ok:hover { background: #8A6A1C; }
+
+        /* Overlay OCR */
+        .scan-ocr {
+            position: absolute;
+            inset: 0;
+            background: rgba(12, 12, 12, 0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            backdrop-filter: blur(6px);
+        }
+        .scan-ocr[hidden] { display: none; }
+        .scan-ocr__spinner {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.15);
+            border-top-color: #C9A632;
+            animation: scanSpin 1s linear infinite;
+        }
+        @keyframes scanSpin {
+            to { transform: rotate(360deg); }
+        }
+        .scan-ocr__text {
+            margin: 0;
+            color: #fff;
+            font: 600 15px 'Source Sans 3', sans-serif;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        /* Error box */
+        .scan-error {
+            padding: 20px 24px;
+            background: rgba(212, 130, 106, 0.15);
+            color: #fff;
+            border: 1px solid rgba(212, 130, 106, 0.5);
+            border-radius: 12px;
+            text-align: center;
+            max-width: 85%;
+            font: 500 15px/1.5 'Source Sans 3', sans-serif;
+        }
+
+        /* Footer con versión */
+        .ver {
+            text-align: center;
+            font: 500 11px 'Source Sans 3', sans-serif;
+            color: rgba(44, 44, 44, 0.4);
+            padding: 4px 0 8px;
+            margin: 0;
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header class="hdr">
+            <h1 class="hdr__title">Agentes con estrategia</h1>
+            <span class="hdr__pill">LucAPI</span>
+        </header>
+
+        <section class="chat" id="chat" aria-live="polite"></section>
+
+        <form class="input" id="input-form" autocomplete="off">
+            <button class="input__scan" id="input-scan" type="button" aria-label="Escanear el texto con la c&aacute;mara" title="Escanear el texto">
+                <i class="ph-bold ph-camera"></i>
+            </button>
+            <input
+                class="input__field"
+                id="input-field"
+                type="text"
+                placeholder="Escribe aquí..."
+                aria-label="Tu mensaje"
+                autocomplete="off"
+                disabled
+            />
+            <button class="input__send" id="input-send" type="submit" aria-label="Enviar" disabled>
+                <i class="ph-bold ph-paper-plane-tilt"></i>
+            </button>
+        </form>
+
+        <p class="ver">v23.22.3</p>
+    </div>
+
+    <!-- ======================================================
+         MODAL DE ESCANEO (cámara)
+         ====================================================== -->
+    <div class="scan-modal" id="scan-modal" hidden>
+        <button class="scan-modal__close" id="scan-close" aria-label="Cerrar c&aacute;mara" title="Cerrar">
+            <i class="ph-bold ph-x"></i>
+        </button>
+
+        <div class="scan-viewport">
+            <video id="scan-video" playsinline autoplay muted></video>
+
+            <!-- Guías visuales encima del viewfinder -->
+            <div class="scan-frame" aria-hidden="true">
+                <span class="scan-frame__corner scan-frame__corner--tl"></span>
+                <span class="scan-frame__corner scan-frame__corner--tr"></span>
+                <span class="scan-frame__corner scan-frame__corner--bl"></span>
+                <span class="scan-frame__corner scan-frame__corner--br"></span>
+                <span class="scan-frame__line"></span>
+            </div>
+
+            <p class="scan-hint">Apunta al t&iacute;tulo del texto</p>
+        </div>
+
+        <button class="scan-capture" id="scan-capture" aria-label="Capturar">
+            <span class="scan-capture__inner"></span>
+        </button>
+
+        <!-- Preview de la foto capturada (oculto hasta captura) -->
+        <div class="scan-preview" id="scan-preview" hidden>
+            <img id="scan-preview-img" alt="Texto capturado" />
+            <div class="scan-preview__actions" id="scan-preview-actions">
+                <button class="scan-preview__btn scan-preview__btn--retry" id="scan-retry">
+                    <i class="ph-bold ph-arrow-counter-clockwise"></i> Repetir
+                </button>
+                <button class="scan-preview__btn scan-preview__btn--ok" id="scan-ok">
+                    <i class="ph-bold ph-check"></i> Usar esta
+                </button>
+            </div>
+
+            <!-- Overlay de OCR en curso -->
+            <div class="scan-ocr" id="scan-ocr" hidden>
+                <div class="scan-ocr__spinner" aria-hidden="true"></div>
+                <p class="scan-ocr__text" id="scan-ocr-text">Analizando texto&hellip;</p>
+            </div>
+        </div>
+
+        <!-- Canvas oculto para extraer frame del video -->
+        <canvas id="scan-canvas" hidden></canvas>
+    </div>
+
+    <script>
+    (() => {
+        const chat = document.getElementById('chat');
+        const form = document.getElementById('input-form');
+        const field = document.getElementById('input-field');
+        const sendBtn = document.getElementById('input-send');
+        const scanBtn = document.getElementById('input-scan');
+
+        let ws = null;
+        let currentBubble = null;
+        let streaming = false;
+
+        // --- Parser de OPCIONES en la respuesta del LLM ---
+        // El LLM termina su mensaje con "OPCIONES: A / B / C" cuando hay opciones cerradas.
+        // Devuelve { text, options } — text sin el marcador, options array (puede ser vacío).
+        function parseOptions(fullText) {
+            if (!fullText) return { text: '', options: [] };
+            const match = fullText.match(/(?:^|\n)\s*OPCIONES\s*:\s*([^\n]+)\s*$/i);
+            if (!match) return { text: fullText.trim(), options: [] };
+            const optsRaw = match[1];
+            const options = optsRaw
+                .split(/\s*\/\s*/)
+                .map(o => o.trim())
+                .filter(Boolean);
+            const text = fullText.replace(match[0], '').trim();
+            return { text, options };
+        }
+
+        // --- Renderiza un grupo de botones de opción debajo de la última burbuja de LucAPI ---
+        let currentOptionsRow = null;
+        function addOptions(options) {
+            // Limpia opciones previas (por si LucAPI manda nuevas)
+            removeOptions();
+            if (!options || !options.length) return;
+            const row = document.createElement('div');
+            row.className = 'options';
+            row.id = 'current-options';
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.addEventListener('click', () => {
+                    if (streaming || btn.classList.contains('is-disabled')) return;
+                    // Marca seleccionada y deshabilita el resto
+                    Array.from(row.children).forEach(other => {
+                        if (other === btn) other.classList.add('is-selected');
+                        else other.classList.add('is-disabled');
+                    });
+                    sendToLLM(opt);
+                });
+                row.appendChild(btn);
+            });
+            chat.appendChild(row);
+            chat.scrollTop = chat.scrollHeight;
+            currentOptionsRow = row;
+        }
+
+        function removeOptions() {
+            document.getElementById('current-options')?.remove();
+            currentOptionsRow = null;
+        }
+
+        // --- UI helpers ---
+        function addBubble(role, initialText = '') {
+            const row = document.createElement('div');
+            row.className = `row row--${role}`;
+            if (role === 'luca') {
+                const av = document.createElement('div');
+                av.className = 'avatar';
+                av.textContent = 'LC';
+                row.appendChild(av);
+            }
+            const b = document.createElement('div');
+            b.className = `bubble bubble--${role}`;
+            b.textContent = initialText;
+            row.appendChild(b);
+            chat.appendChild(row);
+            chat.scrollTop = chat.scrollHeight;
+            return b;
+        }
+
+        function addTyping() {
+            const row = document.createElement('div');
+            row.className = 'row row--luca';
+            row.id = 'typing-row';
+            const av = document.createElement('div');
+            av.className = 'avatar';
+            av.textContent = 'LC';
+            row.appendChild(av);
+            const b = document.createElement('div');
+            b.className = 'bubble bubble--luca';
+            const dots = document.createElement('span');
+            dots.className = 'typing';
+            dots.innerHTML = '<span></span><span></span><span></span>';
+            b.appendChild(dots);
+            row.appendChild(b);
+            chat.appendChild(row);
+            chat.scrollTop = chat.scrollHeight;
+            return row;
+        }
+
+        function removeTyping() {
+            document.getElementById('typing-row')?.remove();
+        }
+
+        function setInputEnabled(on) {
+            field.disabled = !on;
+            sendBtn.disabled = !on;
+            if (on) field.focus();
+        }
+
+        // --- WebSocket ---
+        function connect() {
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(`${wsProtocol}//${location.host}/ws/chat`);
+
+            ws.onopen = () => {
+                console.log('[lucapi] WS conectado');
+                // Disparar el saludo inicial con un mensaje "system cue" al LLM
+                sendToLLM('(El estudiante acaba de abrir el chat. Saluda y arranca la fase de bienvenida.)', { hidden: true });
+            };
+
+            ws.onmessage = (ev) => {
+                let msg;
+                try { msg = JSON.parse(ev.data); } catch { return; }
+
+                if (msg.type === 'token') {
+                    if (!currentBubble) {
+                        removeTyping();
+                        currentBubble = addBubble('luca', '');
+                    }
+                    currentBubble.textContent += msg.content;
+                    chat.scrollTop = chat.scrollHeight;
+                } else if (msg.type === 'end') {
+                    removeTyping();
+                    // Parsear OPCIONES del mensaje completo y reemplazar el contenido
+                    // de la última burbuja por el texto sin el marcador.
+                    const { text, options } = parseOptions(msg.full_response || '');
+                    if (currentBubble) currentBubble.textContent = text;
+                    addOptions(options);
+                    // Detectar si la respuesta de LucAPI pide escanear — si sí, hacer que el botón pulse
+                    maybePulseScan(text);
+                    currentBubble = null;
+                    streaming = false;
+                    setInputEnabled(true);
+                } else if (msg.type === 'error') {
+                    removeTyping();
+                    addBubble('luca', '[Error: ' + (msg.message || 'algo ha ido mal') + ']');
+                    currentBubble = null;
+                    streaming = false;
+                    setInputEnabled(true);
+                }
+            };
+
+            ws.onclose = () => {
+                console.log('[lucapi] WS cerrado');
+                setInputEnabled(false);
+                if (!streaming) {
+                    addBubble('luca', '[Conexión cerrada. Recarga la página.]');
+                }
+            };
+
+            ws.onerror = (err) => {
+                console.error('[lucapi] WS error', err);
+            };
+        }
+
+        function sendToLLM(text, opts = {}) {
+            if (!ws || ws.readyState !== WebSocket.OPEN) return;
+            if (streaming) return;
+            streaming = true;
+            setInputEnabled(false);
+            // Quitar opciones tappables previas (el estudiante ya respondió)
+            removeOptions();
+
+            if (!opts.hidden) {
+                addBubble('user', text);
+            }
+            addTyping();
+
+            ws.send(JSON.stringify({
+                type: 'chat',
+                message: text,
+                activity_mode: 'lucapi',
+                response_mode: 'short'
+            }));
+        }
+
+        // --- Form handler ---
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = field.value.trim();
+            if (!text) return;
+            field.value = '';
+            sendToLLM(text);
+        });
+
+        // --- Scan handler: abre el modal de cámara ---
+        const scanModal = document.getElementById('scan-modal');
+        const scanVideo = document.getElementById('scan-video');
+        const scanCanvas = document.getElementById('scan-canvas');
+        const scanCapture = document.getElementById('scan-capture');
+        const scanClose = document.getElementById('scan-close');
+        const scanPreview = document.getElementById('scan-preview');
+        const scanPreviewImg = document.getElementById('scan-preview-img');
+        const scanRetry = document.getElementById('scan-retry');
+        const scanOk = document.getElementById('scan-ok');
+
+        let scanStream = null;
+        let capturedBlob = null;
+
+        async function openScanModal() {
+            scanModal.hidden = false;
+            scanPreview.hidden = true;
+            try {
+                // Preferir cámara trasera en móvil (environment)
+                scanStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: { ideal: 'environment' },
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    },
+                    audio: false
+                });
+                scanVideo.srcObject = scanStream;
+            } catch (err) {
+                console.error('[lucapi] getUserMedia error:', err);
+                let msg = 'No hemos podido activar la cámara.';
+                if (err.name === 'NotAllowedError') {
+                    msg = 'Has denegado el permiso de la cámara. Concédelo desde la configuración del navegador.';
+                } else if (err.name === 'NotFoundError') {
+                    msg = 'No hay cámara disponible en este dispositivo.';
+                } else if (location.protocol !== 'https:' && location.hostname !== 'localhost' && !location.hostname.startsWith('127.')) {
+                    msg = 'La cámara solo funciona en HTTPS o en localhost. Usa ngrok o prueba en el ordenador.';
+                }
+                showScanError(msg);
+            }
+        }
+
+        function showScanError(text) {
+            // Reemplaza el viewport por un mensaje de error
+            const viewport = scanModal.querySelector('.scan-viewport');
+            viewport.innerHTML = '';
+            const err = document.createElement('div');
+            err.className = 'scan-error';
+            err.textContent = text;
+            viewport.appendChild(err);
+            scanCapture.style.display = 'none';
+        }
+
+        function closeScanModal() {
+            if (scanStream) {
+                scanStream.getTracks().forEach(t => t.stop());
+                scanStream = null;
+            }
+            scanModal.hidden = true;
+            scanPreview.hidden = true;
+            capturedBlob = null;
+            // Restaurar capture button por si hubo error
+            scanCapture.style.display = '';
+        }
+
+        function captureFrame() {
+            const w = scanVideo.videoWidth;
+            const h = scanVideo.videoHeight;
+            if (!w || !h) return;
+            scanCanvas.width = w;
+            scanCanvas.height = h;
+            const ctx = scanCanvas.getContext('2d');
+            ctx.drawImage(scanVideo, 0, 0, w, h);
+            scanCanvas.toBlob((blob) => {
+                capturedBlob = blob;
+                const url = URL.createObjectURL(blob);
+                scanPreviewImg.src = url;
+                scanPreview.hidden = false;
+            }, 'image/jpeg', 0.9);
+        }
+
+        // ────────────────────────────────────────────────────────
+        // OCR + identificación por palabras distintivas
+        // ────────────────────────────────────────────────────────
+        // Cada texto tiene una lista de palabras únicas que SOLO aparecen en él (o
+        // que son fuertemente identificativas de su contenido). El match cuenta
+        // cuántas de esas palabras aparecen en el OCR — el texto con más hits gana.
+        // Esto es mucho más flexible que matching por título y funciona aunque el
+        // estudiante apunte a cualquier fragmento del texto.
+        const TEXT_CANDIDATES = [
+            {
+                id: 'texto_a',
+                titulo: 'Familia pequeña',
+                tematica: 'la familia',
+                normalized: 'familia pequena',
+                distinctive: [
+                    'familia pequena', 'familia',
+                    'sara', 'luis', 'javier',
+                    'banquero', 'ama de casa',
+                    'rubio', 'morena', 'delgada',
+                    'deberes', 'videojuegos', 'tenis',
+                    'hermana', 'mayor', 'mas alta'
+                ]
+            },
+            {
+                id: 'texto_b',
+                titulo: 'Mi día',
+                tematica: 'la rutina diaria',
+                normalized: 'mi dia',
+                distinctive: [
+                    'mi dia',
+                    'maria perez', 'periodismo',
+                    'granada', 'malaga',
+                    'levanto', 'universidad',
+                    'discoteca', 'pizza',
+                    'pasear', 'animales',
+                    'diecinueve', 'siete y media'
+                ]
+            }
+        ];
+
+        function normalizeText(s) {
+            return (s || '')
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[̀-ͯ]/g, '') // quita acentos/diacríticos
+                .replace(/[^a-z0-9 ]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        // Extrae la primera línea "de título" del OCR.
+        // Los títulos suelen ocupar las primeras líneas, cortas (2-5 palabras).
+        // Descartamos líneas que sean claramente cuerpo de texto (muy largas).
+        function extractLikelyTitle(ocrRaw) {
+            if (!ocrRaw) return '';
+            const lines = ocrRaw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+            if (!lines.length) return '';
+            // Primera línea con 2-6 palabras y ≤ 60 chars — candidato ideal de título
+            for (const line of lines) {
+                const words = line.split(/\s+/).length;
+                if (line.length >= 3 && line.length <= 60 && words >= 1 && words <= 6) {
+                    return line;
+                }
+            }
+            // Fallback: primeros 60 chars del OCR
+            return ocrRaw.slice(0, 60);
+        }
+
+        // Distancia de Levenshtein clásica
+        function levenshtein(a, b) {
+            if (!a.length) return b.length;
+            if (!b.length) return a.length;
+            const m = [];
+            for (let i = 0; i <= b.length; i++) m[i] = [i];
+            for (let j = 0; j <= a.length; j++) m[0][j] = j;
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    const cost = a[j - 1] === b[i - 1] ? 0 : 1;
+                    m[i][j] = Math.min(m[i - 1][j] + 1, m[i][j - 1] + 1, m[i - 1][j - 1] + cost);
+                }
+            }
+            return m[b.length][a.length];
+        }
+
+        /**
+         * Dado un string OCR (puede ser título, cuerpo, o ambos), decide qué texto
+         * candidato encaja mejor contando palabras DISTINTIVAS de cada uno.
+         * Devuelve { best, hits, scores } donde hits es el número de coincidencias
+         * del ganador y scores es el detalle por candidato (para debug).
+         */
+        function matchTitleFromOCR(ocrRaw) {
+            const ocr = normalizeText(ocrRaw);
+            if (!ocr) return { best: null, hits: 0, scores: [] };
+
+            const scores = TEXT_CANDIDATES.map(c => {
+                const matched = c.distinctive.filter(kw => ocr.includes(kw));
+                return { id: c.id, titulo: c.titulo, hits: matched.length, matched };
+            });
+
+            // Ganador: el que más hits tenga; si hay empate, el primero
+            let best = null;
+            let bestHits = 0;
+            for (let i = 0; i < scores.length; i++) {
+                if (scores[i].hits > bestHits) {
+                    bestHits = scores[i].hits;
+                    best = TEXT_CANDIDATES[i];
+                }
+            }
+            console.log('[lucapi] match scores:', scores);
+            console.log('[lucapi] OCR normalizado:', ocr.slice(0, 200));
+            return { best, hits: bestHits, scores };
+        }
+
+        async function runOCR(blob) {
+            try {
+                const result = await Tesseract.recognize(blob, 'spa', {
+                    logger: m => {
+                        if (m.status === 'recognizing text' && m.progress) {
+                            const pct = Math.round(m.progress * 100);
+                            document.getElementById('scan-ocr-text').textContent = `Analizando texto… ${pct}%`;
+                        }
+                    }
+                });
+                return result?.data?.text || '';
+            } catch (err) {
+                console.error('[lucapi] OCR error:', err);
+                return '';
+            }
+        }
+
+        async function acceptCapture() {
+            if (!capturedBlob) return;
+            // Mostrar overlay de OCR y deshabilitar botones
+            const ocrOverlay = document.getElementById('scan-ocr');
+            ocrOverlay.hidden = false;
+            document.getElementById('scan-preview-actions').style.visibility = 'hidden';
+
+            const ocrText = await runOCR(capturedBlob);
+            console.log('[lucapi] OCR raw:', ocrText);
+
+            const { best, hits } = matchTitleFromOCR(ocrText);
+            console.log('[lucapi] best match:', best?.titulo, 'hits:', hits);
+
+            // Cerrar modal
+            ocrOverlay.hidden = true;
+            document.getElementById('scan-preview-actions').style.visibility = '';
+            closeScanModal();
+            scanBtn.classList.remove('is-pulsing');
+
+            // Confianza basada en número de coincidencias de palabras distintivas
+            //   hits >= 2 → alta confianza
+            //   hits == 1 → media confianza (preguntamos cortésmente)
+            //   hits == 0 → no reconocido (pedimos reintento)
+            let cue;
+            if (!best || hits === 0) {
+                cue = '(El estudiante ha escaneado el texto pero no se ha podido identificar de qué texto se trata. Pídele con amabilidad y EN LA LENGUA ELEGIDA que lo intente otra vez, enfocando una zona donde se vea bien el texto.)';
+                addBubble('user', '[Imagen enviada — no reconocida]');
+            } else if (hits === 1) {
+                cue = `(El estudiante ha escaneado el texto. La identificación tiene poca confianza pero la mejor hipótesis es el texto titulado "${best.titulo}" (temática: ${best.tematica}). Pregúntale cortésmente y EN LA LENGUA ELEGIDA si su texto habla de ${best.tematica}, sin mostrar el título literal — por ejemplo: "Creo que tu texto habla de ${best.tematica}, ¿es correcto?")`;
+                addBubble('user', '[Imagen enviada]');
+            } else {
+                cue = `(El estudiante ha escaneado el texto. Se ha identificado con alta confianza que su texto es el titulado "${best.titulo}" (temática: ${best.tematica}). Suelta una frase cálida EN LA LENGUA ELEGIDA que introduzca la temática SIN mencionar el título literal, por ejemplo en español: "¡Genial! Hoy vamos a hablar de ${best.tematica}. Vas a ver algo muy interesante.")`;
+                addBubble('user', '[Imagen enviada]');
+            }
+            sendToLLM(cue, { hidden: true });
+        }
+
+        scanBtn.addEventListener('click', openScanModal);
+        scanClose.addEventListener('click', closeScanModal);
+        scanCapture.addEventListener('click', captureFrame);
+        scanRetry.addEventListener('click', () => {
+            scanPreview.hidden = true;
+            capturedBlob = null;
+        });
+        scanOk.addEventListener('click', acceptCapture);
+
+        // --- Detectar cuándo activar el pulso del botón de escaneo ---
+        // Heurística simple: si LucAPI menciona "escanea", "scan", "zeskanuj", "scanne"... en su último turno,
+        // el botón empieza a pulsar para guiar visualmente al estudiante.
+        const SCAN_HINTS = ['escanea', 'escanear', 'scan ', 'scanne', 'scanner ', 'scanna', 'scansiona', 'zeskanuj', 'zeskanować', 'skenni', 'scannen', 'skenovat', 'szkenneld'];
+        function maybePulseScan(text) {
+            const low = (text || '').toLowerCase();
+            if (SCAN_HINTS.some(h => low.includes(h))) {
+                scanBtn.classList.add('is-pulsing');
+            }
+        }
+
+        // --- Boot ---
+        connect();
+    })();
+    </script>
+</body>
+</html>

@@ -1,5 +1,31 @@
 # Changelog — AgentiaELE
 
+## v23.22.3 — 2026-04-25 — Chat móvil LucAPI · OCR · opciones tappables (fases 1-6 + escaneo)
+Primera versión funcional del chat de LucAPI accesible vía `/lucapi`. Es la experiencia que verán los alumnos al escanear el QR de la diapo 7 desde su móvil. Funciona también en desktop.
+
+**Funcionalidades**:
+1. **Chat conversacional** con LLM real (streaming, mismo `/ws/chat` con `activity_mode: "lucapi"`).
+2. **Avatar "LC"** en círculo mostaza para LucAPI; burbujas alternadas con paleta v23.
+3. **Flujo de 6 fases**:
+   - F1: saludo (español).
+   - F2: pregunta de lengua (sugerencias para Viena: Deutsch, Polski, Čeština, Magyar… acepta cualquier lengua del mundo).
+   - F3: confirmación en la lengua elegida + petición de escaneo.
+   - F4: tras escaneo, frase de enganche con la temática detectada (sin citar título).
+   - F5: predicción personal adaptada al texto (familia pequeña/grande o día ocupado/tranquilo).
+   - F6: reacción cálida a la predicción.
+4. **OCR real con Tesseract.js** (CDN). Identifica el texto contando palabras distintivas — funciona aunque solo se escanee un fragmento del cuerpo.
+5. **Modal de cámara full-screen** con guías mostaza, scan-line animada, capture + preview con "repetir/usar esta".
+6. **Opciones tappables**: convención `OPCIONES: A / B / C` en respuestas del LLM → cliente las parsea y renderiza como pildoritas (lavanda) bajo la burbuja. Tocar una envía como respuesta.
+
+**Cambios técnicos**:
+- `main.py`: nuevo `ACTIVITY_PROMPTS["lucapi"]` con las 6 fases detalladas + convención OPCIONES. Nueva ruta `GET /lucapi`.
+- `static/lucapi_mobile.html` (NUEVO): app móvil — header mostaza, chat streaming, modal cámara, OCR Tesseract, parser de opciones, botones tappables.
+- `docs/`: 3 MDs nuevos (diapo-ia-para-estudiantes, diapo-ia-para-profes, diapo-pildoras-formativas) — contenido editorial de las diapos hermanas.
+
+**Pendiente**: fases 16.2 paso 2-4, 16.3 vocab, 16.4 lectura global, 16.5 fichas, 16.6 chat inferencia, 16.7 opinión, 16.8 cierre. Conectar QR diapo 7 → URL móvil. Probar móvil real vía ngrok (cámara requiere HTTPS).
+
+Versionado sync → v23.22.3 (`index.html`, `juego3_mobile.html`, `lucapi_mobile.html`).
+
 ## v23.22.2 — 2026-04-25 — Diapo 7: textos reales A y B del usuario
 Sustitución de los placeholders inventados por los textos reales proporcionados por el usuario.
 
