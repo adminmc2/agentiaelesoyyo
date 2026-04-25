@@ -1,5 +1,24 @@
 # Changelog — AgentiaELE
 
+## v23.22.2 — 2026-04-25 — Diapo 7: textos reales A y B del usuario
+Sustitución de los placeholders inventados por los textos reales proporcionados por el usuario.
+
+**Texto A — "Familia pequeña"** (A1, ~150 palabras)
+- Extiende el spec original añadiendo descripciones físicas y nombres explícitos (Javier, María, Sara, Luis).
+- Incluye: familia de 4 + perro, descripción física (padre alto y rubio, madre morena y delgada, hermana más alta y mayor que ella), rutina (desayuno juntos, deberes, compras los viernes).
+- Encaja con el stat "Familia + descripción física".
+
+**Texto B — "Mi día" (María)** (A1, ~120 palabras)
+- María Pérez, 19 años, nacida en Málaga, vive en Granada, estudiante de Periodismo.
+- Cubre rutina semanal completa: lunes-viernes (universidad), fines de semana (Málaga familia, perro, paseos, ocio).
+- Nuevo stat "Rutina semanal" (antes "rutina diaria" no reflejaba la estructura del texto).
+
+**Cambios**:
+- `static/app.js`: `DIAPO7_TEXTS.a.body` y `.b.body` actualizados con los textos íntegros. Stats actualizados (palabras 80→150 para A, 75→120 para B, "rutina diaria"→"Rutina semanal" para B).
+- `static/index.html`: previews (`diapo7-card__excerpt`) reemplazados por las primeras frases reales de cada texto. Pills de stats sincronizadas con los nuevos valores.
+
+Versionado sync → v23.22.2.
+
 ## v23.22.1 — 2026-04-25 — Diapo 7: título "Agentes con estrategia" + modal textos + cards grandes
 Ajustes pedidos por el usuario tras v23.20.1:
 

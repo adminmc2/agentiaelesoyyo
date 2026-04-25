@@ -5697,36 +5697,36 @@ const DIAPO7_TEXTS = {
         title: 'Familia pequeña',
         stats: [
             { icon: 'ph-fill ph-chalkboard-teacher', text: 'Nivel A1' },
-            { icon: 'ph-fill ph-text-aa',            text: '~80 palabras' },
+            { icon: 'ph-fill ph-text-aa',            text: '~150 palabras' },
             { icon: 'ph-fill ph-users-three',        text: 'Familia + descripción física' }
         ],
-        body: `Mi familia es pequeña. Somos cuatro en casa: mi padre, mi madre, mi hermana Sara y yo.
+        body: `Mi familia no es muy grande, somos solo cuatro personas: mi padre, mi madre, mi hermana y yo. También tenemos un perro.
 
-Mi padre se llama Luis. Es alto, moreno y tiene los ojos verdes. Lleva barba.
+Yo soy mayor que mi hermana, pero ella es más alta. Yo tengo doce años y ella once. Mis padres se llaman Javier y María, mi hermana se llama Sara y yo Luis. Vivimos todos juntos en una casa muy bonita.
 
-Mi madre se llama Ana. Es baja, rubia y tiene los ojos azules. Lleva gafas.
+Mi padre es banquero y mi madre ama de casa. Por la mañana, desayunamos juntos en la cocina. Me gusta desayunar con mi familia. Además, por las mañanas siempre tengo hambre. Después del colegio, mi madre prepara una comida deliciosa. Por la tarde, mi madre queda con sus amigas, y mi padre juega al tenis. Mi hermana y yo hacemos los deberes, y después vemos la televisión. Los viernes por la tarde vamos los cuatro de compras.
 
-Mi hermana Sara tiene diez años. Es morena, como mi padre, y tiene el pelo largo.
-
-Yo soy alto como mi padre, pero rubio como mi madre. Nos queremos mucho.`
+Mi padre es alto y rubio, y mi madre es morena y delgada. A mi hermana le gusta quedar con sus amigas en el parque. Yo me divierto mucho más jugando a los videojuegos en casa.`
     },
     b: {
         label: 'TEXTO B',
         title: 'Mi día',
         stats: [
             { icon: 'ph-fill ph-chalkboard-teacher', text: 'Nivel A1' },
-            { icon: 'ph-fill ph-text-aa',            text: '~75 palabras' },
-            { icon: 'ph-fill ph-clock',              text: 'Rutina diaria' }
+            { icon: 'ph-fill ph-text-aa',            text: '~120 palabras' },
+            { icon: 'ph-fill ph-clock',              text: 'Rutina semanal' }
         ],
-        body: `Me levanto a las siete de la mañana. Desayuno café con leche y tostadas.
+        body: `Me llamo María Pérez, tengo diecinueve años. Nací en Málaga, pero vivo en Granada. Soy estudiante de primer curso de Periodismo.
 
-Voy al trabajo en autobús. A las nueve empiezo en la oficina.
+De lunes a viernes me levanto a las siete y media, desayuno y camino hasta la universidad. Entro en clase a las nueve y salgo a la una.
 
-A la una como con mis compañeros en un restaurante cerca.
+Al medio día como la comida en mi casa y veo la televisión. Por la tarde, estudio hasta las siete y después quedo con mis amigas.
 
-Por la tarde trabajo hasta las seis. Cuando vuelvo a casa, ceno con mi familia.
+A nosotras nos gusta mucho el cine, el teatro y la música. Los viernes por la noche cenamos pizza y bailamos en la discoteca.
 
-Después veo la tele o leo un libro. A las once me acuesto. Estoy muy cansado.`
+Todos los sábados visito a mi familia en Málaga.
+
+El domingo por la tarde regreso a Granada y, si hace sol, salgo con mi perro a dar un paseo. ¡Me encantan los animales!`
     }
 };
 
