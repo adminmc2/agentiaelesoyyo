@@ -174,6 +174,9 @@ const elements = {
     // Diapo 5 screen
     diapo5Screen: document.getElementById('diapo5-screen'),
 
+    // Diapo 6 screen (IA para estudiantes / Strategos) — v23.18.0
+    diapo6Screen: document.getElementById('diapo6-screen'),
+
     // Diapo 7 screen
     diapo7Screen: document.getElementById('diapo7-screen'),
 
@@ -5439,20 +5442,149 @@ function replayJuego() {
 
 
 // ============================================
-// DIAPO 6 — (v23.17.0) MIAU ELIMINADA — placeholder
+// DIAPO 6 — IA para estudiantes (Strategos) — v23.18.0
+// 4 pasos secuenciales con transiciones slide horizontal.
+// Arquitectura clonada de DIAPO 5. Contenido de los pasos pendiente.
 // ============================================
-// El contenido completo de la diapo 6 "Agentes MIAU" (grid de 8 gatos,
-// chat activity_mode 'miau', votación en tiempo real, dashboard de
-// barras, encuesta móvil) se eliminó en v23.17.0. El identificador
-// showDiapo6Screen se conserva como stub inofensivo porque la diapo 5
-// lo invoca (bypass móvil y transición tras el último paso). Cuando se
-// implemente la nueva diapo 6 "IA para estudiantes" se sustituirá este
-// stub por la función real.
+
+const DIAPO6_TOTAL_STEPS = 4;
+
+// State module-level
+let _diapo6Step = 1;
+let _diapo6ElianaInit = false;
+
 function showDiapo6Screen() {
-    return;
+    // Solo escritorio (bypass en móvil como la 5)
+    if (isMobile()) {
+        console.warn('[Diapo6] Solo escritorio — bypass en móvil');
+        return;
+    }
+    stopTTS();
+    elements.loginScreen?.classList.add('hidden');
+    elements.conoceScreen?.classList.add('hidden');
+    elements.chatScreen?.classList.add('hidden');
+    elements.welcomeScreen?.classList.add('hidden');
+    elements.planScreen?.classList.add('hidden');
+    elements.profileScreen?.classList.add('hidden');
+    elements.blindaScreen?.classList.add('hidden');
+    elements.juegoScreen?.classList.add('hidden');
+    elements.diapo5Screen?.classList.add('hidden');
+
+    const screen = document.getElementById('diapo6-screen');
+    if (!screen) return;
+    screen.classList.remove('hidden');
+    screen.classList.remove('fade-out');
+
+    // Reset al paso 1 sin transición
+    _diapo6Step = 1;
+    document.querySelectorAll('#diapo6-stage .diapo6-step').forEach(el => {
+        el.classList.remove('is-active', 'is-leaving');
+    });
+    document.querySelector('#diapo6-stage .diapo6-step[data-step="1"]')?.classList.add('is-active');
+
+    // Widget Eliana flotante global (mismo patrón que diapo 5)
+    const elianaWidget = document.getElementById('eliana-widget');
+    if (elianaWidget) {
+        elianaWidget.classList.remove('hidden');
+        if (typeof setWidgetState === 'function') setWidgetState('fab');
+        if (!_diapo6ElianaInit && typeof initWidgetListeners === 'function') {
+            initWidgetListeners();
+            _diapo6ElianaInit = true;
+        }
+    }
+
+    _diapo6RunStep(1);
 }
-function hideDiapo6Screen() {}
-function isOnDiapo6Screen() { return false; }
+
+function hideDiapo6Screen() {
+    _diapo6StopAll();
+    stopTTS();
+    const screen = document.getElementById('diapo6-screen');
+    if (!screen) return;
+    screen.classList.add('fade-out');
+    setTimeout(() => {
+        screen.classList.add('hidden');
+        screen.classList.remove('fade-out');
+        if (typeof showDiapo5Screen === 'function') showDiapo5Screen();
+    }, 300);
+}
+
+function isOnDiapo6Screen() {
+    const screen = document.getElementById('diapo6-screen');
+    return !!screen && !screen.classList.contains('hidden');
+}
+
+// ──────────── Navegación entre pasos ────────────
+function diapo6NextStep() {
+    if (_diapo6Step >= DIAPO6_TOTAL_STEPS) {
+        // Último paso: salir a pantalla final (diapo 7 ya no existe)
+        _diapo6StopAll();
+        const screen = document.getElementById('diapo6-screen');
+        screen?.classList.add('fade-out');
+        setTimeout(() => {
+            screen?.classList.add('hidden');
+            screen?.classList.remove('fade-out');
+            if (typeof showFinalScreen === 'function') showFinalScreen();
+        }, 300);
+        return;
+    }
+    _diapo6GoToStep(_diapo6Step + 1);
+}
+
+function diapo6PrevStep() {
+    if (_diapo6Step <= 1) {
+        hideDiapo6Screen();
+        return;
+    }
+    _diapo6GoToStep(_diapo6Step - 1);
+}
+
+function _diapo6GoToStep(target) {
+    if (!isOnDiapo6Screen()) return;
+    if (target < 1 || target > DIAPO6_TOTAL_STEPS) return;
+    if (target === _diapo6Step) return;
+
+    const stage = document.getElementById('diapo6-stage');
+    if (!stage) return;
+
+    _diapo6StopStep(_diapo6Step);
+
+    const outgoing = stage.querySelector(`.diapo6-step[data-step="${_diapo6Step}"]`);
+    const incoming = stage.querySelector(`.diapo6-step[data-step="${target}"]`);
+
+    outgoing?.classList.remove('is-active');
+    outgoing?.classList.add('is-leaving');
+    incoming?.classList.remove('is-leaving');
+    void incoming?.offsetWidth;
+    incoming?.classList.add('is-active');
+
+    setTimeout(() => outgoing?.classList.remove('is-leaving'), 700);
+
+    _diapo6Step = target;
+    setTimeout(() => _diapo6RunStep(target), 120);
+}
+
+function _diapo6RunStep(step) {
+    // Arquitectura vacía en v23.18.0 — los pasos no tienen contenido
+    // ni animaciones internas todavía. Cuando se implementen los UIs
+    // (layout-text-flip, focus-cards, 3d-card + progress, comic-text +
+    // AnimatedButton) este switch arrancará cada una.
+}
+
+function _diapo6StopStep(step) {
+    // Placeholder
+}
+
+function _diapo6StopAll() {
+    // Placeholder
+}
+
+// Sincroniza _diapo6Step para el deep-link snap directo
+function _diapo6SyncStep(n) {
+    if (typeof n === 'number' && n >= 1 && n <= DIAPO6_TOTAL_STEPS) {
+        _diapo6Step = n;
+    }
+}
 
 // ============================================
 // DIAPO 8 — Construye tu Agente (Plataforma)
@@ -5837,54 +5969,7 @@ function renderDiapo7Workshop() {
 
 // ============================================
 // ============================================
-// ENCUESTA EMBEBIDA (móvil) — iframe dentro de la presentación
-// ============================================
-function showMobileEncuesta() {
-    stopTTS();
-    document.querySelectorAll('.main-content').forEach(s => s.classList.add('hidden'));
-
-    // Crear pantalla con iframe si no existe
-    let screen = document.getElementById('mobile-encuesta-screen');
-    if (!screen) {
-        screen = document.createElement('main');
-        screen.id = 'mobile-encuesta-screen';
-        screen.className = 'main-content';
-        screen.style.cssText = 'position:fixed;inset:0;z-index:50;background:#FDFAF5;display:flex;flex-direction:column;padding:0;';
-
-        // Flecha atrás
-        const backBtn = document.createElement('button');
-        backBtn.className = 'blinda-nav-btn blinda-nav-btn--back';
-        backBtn.style.cssText = 'position:fixed;top:0.5rem;left:0.5rem;z-index:60;';
-        backBtn.innerHTML = '<i class="ph ph-arrow-left"></i>';
-        backBtn.addEventListener('click', () => {
-            screen.classList.add('hidden');
-            showDiapo6Screen();
-        });
-        screen.appendChild(backBtn);
-
-        // Flecha siguiente → pantalla final
-        const nextBtn = document.createElement('button');
-        nextBtn.className = 'blinda-nav-btn blinda-nav-btn--next';
-        nextBtn.style.cssText = 'position:fixed;top:0.5rem;right:0.5rem;z-index:60;';
-        nextBtn.innerHTML = '<i class="ph ph-arrow-right"></i>';
-        nextBtn.addEventListener('click', () => {
-            screen.classList.add('hidden');
-            showFinalScreen();
-        });
-        screen.appendChild(nextBtn);
-
-        // Iframe
-        const iframe = document.createElement('iframe');
-        iframe.src = '/encuesta';
-        iframe.style.cssText = 'flex:1;width:100%;border:none;';
-        iframe.setAttribute('allow', 'microphone');
-        screen.appendChild(iframe);
-
-        document.body.appendChild(screen);
-    }
-
-    screen.classList.remove('hidden');
-}
+// (Función showMobileEncuesta eliminada: encuesta legacy retirada en v23.17.1)
 
 // DIAPOSITIVA FINAL — Gracias / Ačiū
 // ============================================
@@ -6973,7 +7058,13 @@ function init() {
     document.getElementById('diapo5-side-prev')?.addEventListener('click', diapo5PrevStep);
     document.getElementById('diapo5-side-next')?.addEventListener('click', diapo5NextStep);
 
-    // Diapo 6 MIAU eliminada en v23.17.0 — listeners removidos
+    // Diapo 6 — IA para estudiantes (Strategos) — v23.18.0
+    // Flechas del header y flechas laterales navegan entre los 4 pasos.
+    // En el paso 1 ← sale a diapo 5. En el paso 4 → va a pantalla final.
+    document.getElementById('diapo6-nav-back')?.addEventListener('click', diapo6PrevStep);
+    document.getElementById('diapo6-nav-next')?.addEventListener('click', diapo6NextStep);
+    document.getElementById('diapo6-side-prev')?.addEventListener('click', diapo6PrevStep);
+    document.getElementById('diapo6-side-next')?.addEventListener('click', diapo6NextStep);
 
     // Diapo 8 — Construye tu Agente
     document.getElementById('diapo7-nav-back')?.addEventListener('click', () => {
@@ -7343,6 +7434,32 @@ function init() {
             // Mostrar la pantalla solicitada
             if (screenParam === 'juego') showJuegoScreen();
             // 'miau' eliminado en v23.17.0 junto con la diapo 6 MIAU
+            else if (screenParam === 'strategos' && typeof showDiapo6Screen === 'function') {
+                showDiapo6Screen();
+                // Si bypass móvil, no tocar nada más
+                if (!isOnDiapo6Screen()) return;
+                const stepParam = parseInt(urlParams.get('step') || '1', 10);
+                if (stepParam >= 2 && stepParam <= 4) {
+                    if (typeof _diapo6StopAll === 'function') _diapo6StopAll();
+                    const stage = document.getElementById('diapo6-stage');
+                    if (stage) {
+                        stage.classList.add('diapo6-stage--no-transition');
+                        document.querySelectorAll('#diapo6-stage .diapo6-step').forEach(el => {
+                            el.classList.remove('is-active', 'is-leaving');
+                        });
+                        const target = document.querySelector(`#diapo6-stage .diapo6-step[data-step="${stepParam}"]`);
+                        target?.classList.add('is-active');
+                        void stage.offsetHeight;
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                stage.classList.remove('diapo6-stage--no-transition');
+                            });
+                        });
+                    }
+                    if (typeof _diapo6SyncStep === 'function') _diapo6SyncStep(stepParam);
+                    if (typeof _diapo6RunStep === 'function') _diapo6RunStep(stepParam);
+                }
+            }
             else if (screenParam === 'juego-intro') showJuegoIntroScreen();
             else if (screenParam === 'diapo5' && typeof showDiapo5Screen === 'function') {
                 showDiapo5Screen();

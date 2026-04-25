@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.17.2">
+    <link rel="stylesheet" href="/static/style.css?v=23.18.0">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -713,7 +713,64 @@
             </div>
         </main>
 
-        <!-- v23.17.0: bloque #diapo6-screen (MIAU) ELIMINADO por completo. La diapo 6 queda libre para un nuevo contenido ("IA para estudiantes"). -->
+        <!-- ============================================
+             DIAPO 6 — IA para estudiantes (Strategos) — v23.18.0
+             Arquitectura clonada de la diapo 5: 4 pasos secuenciales
+             con transiciones slide horizontal, header fijo, flechas
+             laterales overlay, light-rays, hook permanente tricolon.
+             Contenido de los pasos pendiente de implementar.
+             ============================================ -->
+        <main class="main-content diapo6-screen hidden" id="diapo6-screen">
+            <header class="slide-header">
+                <button class="slide-nav-btn slide-nav-btn--back" id="diapo6-nav-back" title="Volver">
+                    <i class="ph-bold ph-arrow-left"></i>
+                </button>
+                <div class="slide-header__title">
+                    <span class="slide-header__num">06</span>
+                    <h1 class="slide-header__text">IA para estudiantes</h1>
+                </div>
+                <button class="slide-nav-btn slide-nav-btn--next" id="diapo6-nav-next" title="Siguiente">
+                    <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </header>
+
+            <div class="diapo6-stage" id="diapo6-stage">
+                <!-- Light-rays decorativos de fondo -->
+                <div class="diapo6-rays" aria-hidden="true"></div>
+
+                <!-- Flechas laterales overlay -->
+                <button class="diapo6-side-arrow diapo6-side-arrow--prev" id="diapo6-side-prev" title="Paso anterior" aria-label="Paso anterior">
+                    <i class="ph-bold ph-caret-left"></i>
+                </button>
+                <button class="diapo6-side-arrow diapo6-side-arrow--next" id="diapo6-side-next" title="Siguiente paso" aria-label="Siguiente paso">
+                    <i class="ph-bold ph-caret-right"></i>
+                </button>
+
+                <!-- ============ PASO 1 — Hook + Qué es Strategos (layout-text-flip) ============ -->
+                <section class="diapo6-step is-active" data-step="1" id="diapo6-step-1">
+                    <h2 class="diapo6-hook">Una tarjeta · Un agente · Una <span class="diapo6-hook__key">estrategia</span>.</h2>
+                    <p class="diapo6-step__placeholder">[Paso 1 — pendiente de contenido]</p>
+                </section>
+
+                <!-- ============ PASO 2 — Cómo funciona en clase (focus-cards) ============ -->
+                <section class="diapo6-step" data-step="2" id="diapo6-step-2">
+                    <h2 class="diapo6-hook">Una tarjeta · Un agente · Una <span class="diapo6-hook__key">estrategia</span>.</h2>
+                    <p class="diapo6-step__placeholder">[Paso 2 — pendiente de contenido]</p>
+                </section>
+
+                <!-- ============ PASO 3 — La tarjeta + LucAPI (3d-card + circular-progress) ============ -->
+                <section class="diapo6-step" data-step="3" id="diapo6-step-3">
+                    <h2 class="diapo6-hook">Una tarjeta · Un agente · Una <span class="diapo6-hook__key">estrategia</span>.</h2>
+                    <p class="diapo6-step__placeholder">[Paso 3 — pendiente de contenido]</p>
+                </section>
+
+                <!-- ============ PASO 4 — Filosofía + CTA Strategos (comic-text + AnimatedButton + QR) ============ -->
+                <section class="diapo6-step" data-step="4" id="diapo6-step-4">
+                    <h2 class="diapo6-hook">Una tarjeta · Un agente · Una <span class="diapo6-hook__key">estrategia</span>.</h2>
+                    <p class="diapo6-step__placeholder">[Paso 4 — pendiente de contenido]</p>
+                </section>
+            </div>
+        </main>
 
         <!-- v23.17.2: bloque #diapo7-screen eliminado. -->
 
@@ -1233,6 +1290,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.17.2"></script>
+    <script src="/static/app.js?v=23.18.0"></script>
 </body>
 </html>

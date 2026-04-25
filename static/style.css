@@ -7359,7 +7359,162 @@ body[data-mood-active] .message.assistant {
     .juego-discuss-list li::before { left: var(--space-4); top: 7px; width: 5px; height: 5px; }
 }
 
-/* v23.17.0: sección DIAPO 6 (MIAU) ELIMINADA del CSS. */
+/* ============================================
+   DIAPO 6 — IA para estudiantes (Strategos) — v23.18.0
+   Arquitectura clonada de DIAPO 5: 4 pasos slide horizontal.
+   ============================================ */
+.diapo6-screen {
+    padding: 78px 0 0 0 !important;
+    overflow: visible;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    transition: opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate);
+}
+.diapo6-screen.fade-out { opacity: 0; }
+#diapo6-screen > .slide-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
+    display: flex !important;
+}
+
+.diapo6-stage {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    overflow: hidden;
+    background: transparent;
+}
+.diapo6-rays {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+        radial-gradient(ellipse 55% 75% at 18% 5%, rgba(201, 166, 50, 0.18), transparent 60%),
+        radial-gradient(ellipse 45% 65% at 90% 35%, rgba(208, 170, 209, 0.25), transparent 65%),
+        radial-gradient(ellipse 70% 45% at 50% 100%, rgba(140, 190, 178, 0.35), transparent 70%);
+    animation: diapo6RaysDrift 18s ease-in-out infinite alternate;
+}
+@keyframes diapo6RaysDrift {
+    0%   { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-2%, 1%) scale(1.04); }
+}
+
+.diapo6-side-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(201, 166, 50, 0.3);
+    background: rgba(255, 255, 255, 0.85);
+    color: #8A6A1C;
+    font-size: 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    box-shadow: 0 6px 20px -6px rgba(138, 106, 28, 0.35);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+.diapo6-side-arrow:hover {
+    background: #C9A632;
+    color: #fff;
+    transform: translateY(-50%) scale(1.08);
+    box-shadow: 0 10px 28px -8px rgba(201, 166, 50, 0.6);
+}
+.diapo6-side-arrow:active { transform: translateY(-50%) scale(0.95); }
+.diapo6-side-arrow--prev { left: 28px; }
+.diapo6-side-arrow--next { right: 28px; }
+.diapo6-side-arrow.is-disabled { opacity: 0.35; pointer-events: none; }
+
+.diapo6-step {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 32px 80px;
+    gap: 36px;
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateX(100%);
+    transition:
+        opacity 500ms ease,
+        filter 500ms ease,
+        transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+    z-index: 1;
+}
+.diapo6-step.is-active {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateX(0);
+    pointer-events: auto;
+    z-index: 2;
+}
+.diapo6-step.is-leaving {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateX(-100%);
+    pointer-events: none;
+    z-index: 1;
+}
+.diapo6-stage--no-transition .diapo6-step {
+    transition: none !important;
+}
+
+.diapo6-hook {
+    font: 800 clamp(28px, 3.2vw, 48px) 'Dosis', sans-serif;
+    color: #2c2c2c;
+    margin: 0 0 8px;
+    letter-spacing: -0.4px;
+    line-height: 1.15;
+    max-width: 1280px;
+}
+.diapo6-hook__key {
+    color: #8A6A1C;
+    background: linear-gradient(180deg, transparent 58%, rgba(201, 166, 50, 0.42) 58%);
+    padding: 0 10px;
+    border-radius: 4px;
+    font-weight: 900;
+}
+
+.diapo6-step__placeholder {
+    font: 600 clamp(18px, 1.4vw, 22px) 'Source Sans 3', sans-serif;
+    color: #8A6A1C;
+    background: rgba(255, 255, 255, 0.78);
+    border: 2px dashed rgba(201, 166, 50, 0.4);
+    border-radius: 14px;
+    padding: 24px 36px;
+    max-width: 800px;
+    margin: 0;
+    letter-spacing: 0.3px;
+}
+
+@media (max-width: 1100px) {
+    .diapo6-step { padding: 20px 24px; gap: 22px; }
+}
+@media (max-width: 720px) {
+    .diapo6-step { padding: 16px 14px; gap: 16px; }
+    .diapo6-side-arrow { width: 44px; height: 44px; font-size: 22px; }
+    .diapo6-side-arrow--prev { left: 12px; }
+    .diapo6-side-arrow--next { right: 12px; }
+}
+@media (max-height: 760px) {
+    .diapo6-screen { padding-top: 70px !important; }
+    .diapo6-step { padding: 16px 24px; gap: 16px; }
+}
 
 /* ============================================
    DIAPO 5 — Saca el agente que llevas dentro (v23.16.4)

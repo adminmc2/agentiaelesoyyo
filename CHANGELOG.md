@@ -1,5 +1,25 @@
 # Changelog — AgentiaELE
 
+## v23.18.0 — 2026-04-25 — Nueva diapo 6 "IA para estudiantes" (Strategos) — arquitectura vacía
+Se crea desde cero la nueva diapo 6 **"IA para estudiantes"** (producto Strategos) sustituyendo a la MIAU eliminada en v23.17.2. Esta versión entrega solo el **scaffolding** (arquitectura vacía) clonando el patrón de la diapo 5. El contenido de los 4 pasos se implementará en próximas iteraciones.
+
+**HTML**: nuevo `<main id="diapo6-screen">` con header 06 "IA para estudiantes", `.diapo6-stage`, `.diapo6-rays`, flechas laterales overlay y 4 `.diapo6-step` que solo contienen el hook permanente ("Una tarjeta · Un agente · Una **estrategia**.") + un placeholder provisional.
+
+**CSS**: sección `.diapo6-*` clonada de `.diapo5-*` (screen, stage, rays con drift 18s, side-arrow caret, step con transición slide horizontal 700ms, hook con highlighter mostaza sobre "estrategia", placeholder dashed, `--no-transition` para snap del deep-link, responsive 1100/720/760h). Regla defensiva `#diapo6-screen > .slide-header` con `!important + z-index: 9999` (misma lección de diapo 5).
+
+**JS**: sustituido el stub de v23.17.2 por funciones reales — `showDiapo6Screen`, `hideDiapo6Screen`, `isOnDiapo6Screen`, `diapo6NextStep`, `diapo6PrevStep`, `_diapo6GoToStep`, `_diapo6SyncStep`, `_diapo6RunStep` (no-op), `_diapo6StopStep` (no-op), `_diapo6StopAll` (no-op). Constante `DIAPO6_TOTAL_STEPS = 4`. State module-level `_diapo6Step`, `_diapo6ElianaInit`. Bypass móvil con `isMobile()`. Widget Eliana global activado al entrar con patrón juego3. Restaurado `elements.diapo6Screen`. Listeners `diapo6-nav-back/next` y `diapo6-side-prev/next` → `diapo6PrevStep/NextStep`. Deep-link `?screen=strategos` con sub-param `&step=N` (snap directo sin transición).
+
+**CLAUDE.md**: sección diapo 6 reescrita como "EN CONSTRUCCIÓN" con descripción del estado actual y próximos pasos (UIs de sgel por paso + prompt `"strategos"` + chat contextual).
+
+**Pendiente próximas iteraciones**:
+- Paso 1 — `layout-text-flip` (TARJETA ↔ AGENTE ↔ ESTRATEGIA).
+- Paso 2 — `focus-cards` (3 cards: atención diferenciada / del papel a la pantalla / agente opcional).
+- Paso 3 — `3d-card` (tarjeta Cara A/B) + `animated-circular-progress-bar` (LucAPI 4 pasos).
+- Paso 4 — `comic-text` ("El profesor no desaparece. Se multiplica.") + `AnimatedButton` + QR a `https://strategos.up.railway.app/`.
+- Backend: prompt `"strategos"` en `main.py` + `activity_mode` dinámico en `sendBlindaMessage` + mensaje inicial del chat.
+
+Versionado sync → v23.18.0 (index.html CSS+JS, juego3_mobile.html).
+
 ## v23.17.2 — 2026-04-25 — Eliminación de la diapo 7
 Se elimina la diapositiva 7 del proyecto y se simplifica el flujo para evitar ejecución innecesaria.
 
@@ -12,18 +32,21 @@ Se elimina la diapositiva 7 del proyecto y se simplifica el flujo para evitar ej
   - `showDiapo5Screen()` en móvil salta a pantalla final.
   - `diapo5NextStep()` en el último paso salta a pantalla final.
 
-## v23.17.1 — 2026-04-25 — Limpieza final diapo6 legacy (MIAU)
-Revisión de cierre del desmontaje de la diapo 6 antigua para reducir ruido y evitar ejecución residual.
+
+## v23.17.1 — 2026-04-25 — Limpieza final diapo6 legacy (MIAU) y eliminación de encuesta móvil
+Revisión de cierre del desmontaje de la diapo 6 antigua para reducir ruido y evitar ejecución residual. Se elimina también la función muerta `showMobileEncuesta` y toda la lógica de encuesta móvil.
 
 **Verificado**:
 - `static/encuesta.html` eliminado.
 - `static/imagenes/qr-encuesta.svg` no existe.
 - `static/imagenes/qr-miau.svg` no existe.
 - Bloque `#diapo6-screen` eliminado de `static/index.html` (queda solo comentario de retirada).
+- Función `showMobileEncuesta` eliminada de `static/app.js`.
 
 **Ajustes finales**:
 - `static/app.js`:
   - eliminadas referencias residuales a `elements.diapo6Screen` en navegación.
+  - eliminada función `showMobileEncuesta` y toda referencia a encuesta móvil.
   - `showDiapo6Screen()` queda como stub totalmente inofensivo (no-op).
   - `hideDiapo6Screen()` e `isOnDiapo6Screen()` se mantienen como compatibilidad mínima.
 - `static/index.html`:

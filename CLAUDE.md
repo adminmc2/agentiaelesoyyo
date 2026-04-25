@@ -105,12 +105,25 @@ Esto incluye:
 
 **Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
 
-### Diapositiva 6 — ELIMINADA en v23.17.0
-La antigua diapo 6 "Agentes MIAU" (8 gatos, votación en tiempo real, encuesta móvil, chat con prompt `miau`, dashboard de barras) se eliminó por completo del proyecto. La nueva diapo 6 "IA para estudiantes" (Strategos) se implementará a continuación — **mientras tanto**, `showDiapo6Screen()` existe como stub inofensivo en `app.js` que solo oculta la diapo 5 y genera un `console.warn`. No hay que protegerla hasta que se implemente la nueva versión.
 
-Restos defensivos que se quedan (se eliminarán al implementar la nueva):
-- Stub `showDiapo6Screen` + `hideDiapo6Screen` + `isOnDiapo6Screen` en `app.js`.
-- Llamadas desde `showDiapo5Screen` (bypass móvil) y `diapo5NextStep` (último paso) al stub.
+### Diapositiva 6 (IA para estudiantes — Strategos — v23.18.0 · EN CONSTRUCCIÓN)
+La antigua diapo 6 "Agentes MIAU" se eliminó en v23.17.1 (ver histórico CHANGELOG). En v23.18.0 se ha creado desde cero la nueva diapo 6 **"IA para estudiantes"** (producto Strategos) con la arquitectura vacía — scaffolding de 4 pasos clonado del patrón de la diapo 5. Los pasos aún no tienen contenido implementado.
+
+**Estado actual (arquitectura vacía, no protegida todavía)**:
+- HTML: `#diapo6-screen` en `static/index.html` con header fijo, `.diapo6-stage`, `.diapo6-rays`, flechas laterales overlay, 4 `.diapo6-step` con `data-step="1..4"` que solo contienen el hook permanente y un placeholder provisional.
+- CSS: sección `/* DIAPO 6 — IA para estudiantes */` en `static/style.css` con `.diapo6-*` (screen, stage, rays, side-arrow, step con transición slide horizontal, hook__key, placeholder, responsive).
+- JS: `showDiapo6Screen`, `hideDiapo6Screen`, `isOnDiapo6Screen`, `diapo6NextStep`, `diapo6PrevStep`, `_diapo6GoToStep`, `_diapo6RunStep` (no-op), `_diapo6StopStep` (no-op), `_diapo6StopAll` (no-op), `_diapo6SyncStep`. Widget Eliana global activado al entrar. Bypass móvil.
+- Deep-link: `?screen=strategos` (con sub-param `&step=N` para snap directo sin transición).
+- Listeners: `diapo6-nav-back/next`, `diapo6-side-prev/next`.
+
+**Próximos pasos planeados** (implementación de contenido):
+- Paso 1 — Hook + Qué es Strategos → `layout-text-flip` (alternando TARJETA ↔ AGENTE ↔ ESTRATEGIA).
+- Paso 2 — Cómo funciona en clase → `focus-cards` (3 cards con hover-desenfoca-otras).
+- Paso 3 — Tarjeta + LucAPI → `3d-card` volteable (Cara A/B) + `animated-circular-progress-bar` para los 4 pasos LucAPI.
+- Paso 4 — Filosofía + CTA → `comic-text` ("El profesor no desaparece. Se multiplica.") + `AnimatedButton` + QR `https://strategos.up.railway.app/`.
+- Eliana: prompt `"strategos"` en `main.py` (pendiente) y `activity_mode` dinámico en `sendBlindaMessage` para que Eliana hable del contenido de Strategos.
+
+**Esta diapo NO está protegida hasta que se termine la implementación de contenido.** Cuando lo esté, se reescribirá esta sección como bloque PROHIBIDO ABSOLUTAMENTE.
 
 ---
 
