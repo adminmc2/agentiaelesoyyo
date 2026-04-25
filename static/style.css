@@ -8303,6 +8303,65 @@ body[data-mood-active] .message.assistant {
     .diapo5-terminal__body { padding: 18px 22px; min-height: 200px; }
 }
 
+/* Pantallas de portátil frecuentes (1366x768 / 1536x864 / 1600x900):
+   compactación ligera para evitar recortes verticales sin cambiar la narrativa. */
+@media (min-width: 1200px) and (max-height: 900px) {
+    .diapo5-step { padding: 18px 34px; gap: 18px; }
+    .diapo5-hook { font-size: clamp(30px, 3.2vw, 46px); }
+    .diapo5-step__pre { font-size: clamp(20px, 1.9vw, 30px); }
+    .diapo5-step__post { font-size: clamp(15px, 1.1vw, 20px); }
+    .diapo5-morph { height: clamp(120px, 16vw, 210px); }
+    .diapo5-morph__text { font-size: clamp(58px, 8.5vw, 138px); }
+    .diapo5-terminal { max-height: 66vh; }
+    .diapo5-terminal__body {
+        min-height: 320px;
+        padding: 24px 28px 26px;
+        font-size: clamp(14px, 1.15vw, 18px);
+    }
+    .diapo5-terminal__line { margin-bottom: 16px; padding-bottom: 10px; }
+    .diapo5-neon-card__inner { padding: 36px 42px 34px; gap: 18px; }
+    .diapo5-qr { width: clamp(240px, 25vw, 340px); }
+}
+
+/* Proyector/TV Full HD y superior:
+   restringe el ancho util para evitar sensacion de contenido "desparramado". */
+@media (min-width: 1920px) and (min-height: 960px) {
+    .diapo5-step {
+        padding-left: clamp(84px, 9vw, 220px);
+        padding-right: clamp(84px, 9vw, 220px);
+    }
+    .diapo5-hook,
+    .diapo5-step__pre,
+    .diapo5-step__post,
+    .diapo5-morph,
+    .diapo5-split,
+    .diapo5-terminal,
+    .diapo5-neon-card {
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .diapo5-hook { max-width: 1320px; }
+    .diapo5-step__pre,
+    .diapo5-step__post { max-width: 1160px; }
+    .diapo5-split { max-width: 1460px; }
+    .diapo5-terminal { width: min(1320px, 84vw); }
+    .diapo5-neon-card { width: min(1220px, 82vw); }
+    .diapo5-qr { width: clamp(340px, 22vw, 420px); }
+}
+
+/* 4K y ultrawide: escala tipografia con techo para lectura a distancia sin exagerar. */
+@media (min-width: 2560px) and (min-height: 1200px) {
+    .diapo5-hook { font-size: clamp(42px, 2.3vw, 62px); }
+    .diapo5-step__pre { font-size: clamp(30px, 1.7vw, 42px); }
+    .diapo5-step__post { font-size: clamp(20px, 1.05vw, 26px); }
+    .diapo5-morph__text { font-size: clamp(118px, 8.1vw, 220px); }
+    .diapo5-split__side-label { font-size: clamp(28px, 1.55vw, 38px); }
+    .diapo5-split__list li { font-size: clamp(19px, 1vw, 24px); }
+    .diapo5-terminal__body { font-size: clamp(20px, 1.05vw, 25px); }
+    .diapo5-neon-card__title { font-size: clamp(40px, 2.2vw, 64px); }
+    .diapo5-neon-card__sub { font-size: clamp(24px, 1.2vw, 32px); }
+}
+
 /* ============================================
    DIAPO 8 — Construye tu Agente (Plataforma)
    ============================================ */

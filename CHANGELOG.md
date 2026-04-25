@@ -1,5 +1,22 @@
 # Changelog — AgentiaELE
 
+## v23.16.11 — 2026-04-25 — Endurecimiento responsive diapo5 para TV/proyector y portátiles Windows
+Refuerzo CSS en diapo 5 para priorizar visualización en pantalla grande (TV/proyector) sin afectar la lógica ni el flujo de pasos.
+
+**Objetivo**:
+- Evitar composición "desparramada" en pantallas muy anchas.
+- Mejorar legibilidad a distancia en 1080p/QHD/4K.
+- Reducir riesgo de recorte vertical en resoluciones de portátil frecuentes (1366x768, 1536x864, 1600x900).
+
+**Cambios**:
+- `static/style.css`:
+  - Nuevo bloque `@media (min-width: 1200px) and (max-height: 900px)` para compactación vertical suave (padding/gaps/tipografías/terminal/QR).
+  - Nuevo bloque `@media (min-width: 1920px) and (min-height: 960px)` para limitar ancho útil y recentrar contenido en proyector/TV Full HD+.
+  - Nuevo bloque `@media (min-width: 2560px) and (min-height: 1200px)` con escalado tipográfico controlado para 4K/ultrawide.
+- Sin cambios en JS de navegación ni en la orquestación de pasos.
+
+Versionado sync → v23.16.11.
+
 ## v23.16.10 — 2026-04-25 — Fix observación "medium" del reviser: deep-link diapo5 en móvil
 El reviser detectó que tras v23.16.9 el handler del deep-link `?screen=diapo5` seguía procesando `stepParam` y llamando a `_diapo5SyncStep` / `_diapo5RunStep` incluso cuando `showDiapo5Screen()` había hecho bypass a diapo 6 por estar en móvil.
 
