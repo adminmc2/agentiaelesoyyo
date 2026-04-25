@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.19.6">
+    <link rel="stylesheet" href="/static/style.css?v=23.22.0">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -882,81 +882,69 @@
         </main>
 
         <!-- ============================================
-             PANTALLA 07 — LucAPI · Comprensión Lectora (esqueleto · v23.19.0)
+             PANTALLA 07 — LucAPI · Comprensión lectora (v23.20.0)
+             Proyector estático: QR a /lucapi + dos textos visibles con tilt 3D.
+             Sin pasos internos, sin modal, sin chat — el ponente no interactúa.
+             La experiencia interactiva vive en /lucapi (lucapi_mobile.html).
              ============================================ -->
         <main class="main-content diapo7-screen hidden" id="diapo7-screen">
             <header class="slide-header">
-                <button class="slide-nav-btn slide-nav-btn--back" id="diapo7-nav-back" title="Volver a la diapo 6">
+                <button class="slide-nav-btn slide-nav-btn--back" id="diapo7-nav-back" title="Volver">
                     <i class="ph-bold ph-arrow-left"></i>
                 </button>
                 <div class="slide-header__title">
                     <span class="slide-header__num">07</span>
-                    <h1 class="slide-header__text">Agentes con estrategia</h1>
+                    <h1 class="slide-header__text">LucAPI · Comprensión lectora</h1>
                 </div>
                 <button class="slide-nav-btn slide-nav-btn--next" id="diapo7-nav-next" title="Siguiente">
                     <i class="ph-bold ph-arrow-right"></i>
                 </button>
             </header>
 
-            <div class="diapo7-stage" id="diapo7-stage">
-                <!-- Light-rays decorativos de fondo -->
+            <div class="diapo7-stage">
                 <div class="diapo7-rays" aria-hidden="true"></div>
 
-                <!-- Flechas laterales overlay -->
-                <button class="diapo7-side-arrow diapo7-side-arrow--prev" id="diapo7-side-prev" title="Paso anterior" aria-label="Paso anterior">
-                    <i class="ph-bold ph-caret-left"></i>
-                </button>
-                <button class="diapo7-side-arrow diapo7-side-arrow--next" id="diapo7-side-next" title="Siguiente paso" aria-label="Siguiente paso">
-                    <i class="ph-bold ph-caret-right"></i>
-                </button>
+                <div class="diapo7-layout">
+                    <!-- Izquierda: QR + call -->
+                    <aside class="diapo7-qr-side">
+                        <h2 class="diapo7-qr-side__title">Escanea y prueba</h2>
+                        <p class="diapo7-qr-side__sub">Coge uno de los textos impresos y abre LucAPI en tu móvil.</p>
+                        <div class="diapo7-qr-card">
+                            <div class="diapo7-qr" id="diapo7-qr" aria-label="QR para abrir LucAPI en el móvil"></div>
+                            <span class="diapo7-qr__hint">Escanea para abrir</span>
+                        </div>
+                    </aside>
 
-                <!-- ============ PASO 1 — Saludo y preparación ============ -->
-                <section class="diapo7-step is-active" data-step="1" id="diapo7-step-1">
-                    <h2 class="diapo7-hook">LucAPI te acompa&ntilde;a a <span class="diapo7-hook__key">leer</span>.</h2>
-                    <p class="diapo7-step__placeholder">[Paso 1 &mdash; Saludo y preparaci&oacute;n]</p>
-                </section>
+                    <!-- Derecha: 2 textos con tilt 3D (siempre visibles) -->
+                    <section class="diapo7-texts">
+                        <h2 class="diapo7-texts__title">Dos lecturas a elegir <span class="diapo7-texts__sub">· A1</span></h2>
+                        <div class="diapo7-cards" id="diapo7-cards">
+                            <article class="diapo7-card diapo7-card--a" data-tilt>
+                                <span class="diapo7-card__pill">TEXTO A</span>
+                                <div class="diapo7-card__icon"><i class="ph-fill ph-house-line"></i></div>
+                                <h3 class="diapo7-card__title">Familia pequeña</h3>
+                                <div class="diapo7-card__stats">
+                                    <span><i class="ph-fill ph-chalkboard-teacher"></i>Nivel A1</span>
+                                    <span><i class="ph-fill ph-text-aa"></i>~80 palabras</span>
+                                    <span><i class="ph-fill ph-users-three"></i>4 personajes</span>
+                                </div>
+                                <p class="diapo7-card__excerpt">«Los padres trabajan, los hijos van a la escuela, los hermanos juegan en casa…»</p>
+                            </article>
 
-                <!-- ============ PASO 2 — Predicción desde el título ============ -->
-                <section class="diapo7-step" data-step="2" id="diapo7-step-2">
-                    <h2 class="diapo7-hook">LucAPI te acompa&ntilde;a a <span class="diapo7-hook__key">leer</span>.</h2>
-                    <p class="diapo7-step__placeholder">[Paso 2 &mdash; Predicci&oacute;n desde el t&iacute;tulo]</p>
-                </section>
-
-                <!-- ============ PASO 3 — Vocabulario del texto ============ -->
-                <section class="diapo7-step" data-step="3" id="diapo7-step-3">
-                    <h2 class="diapo7-hook">LucAPI te acompa&ntilde;a a <span class="diapo7-hook__key">leer</span>.</h2>
-                    <p class="diapo7-step__placeholder">[Paso 3 &mdash; Vocabulario del texto]</p>
-                </section>
-
-                <!-- ============ PASO 4 — Lectura global tranquila ============ -->
-                <section class="diapo7-step" data-step="4" id="diapo7-step-4">
-                    <h2 class="diapo7-hook">LucAPI te acompa&ntilde;a a <span class="diapo7-hook__key">leer</span>.</h2>
-                    <p class="diapo7-step__placeholder">[Paso 4 &mdash; Lectura global tranquila]</p>
-                </section>
-
-                <!-- ============ PASO 5 — Fichas de personajes ============ -->
-                <section class="diapo7-step" data-step="5" id="diapo7-step-5">
-                    <h2 class="diapo7-hook">LucAPI te acompa&ntilde;a a <span class="diapo7-hook__key">leer</span>.</h2>
-                    <p class="diapo7-step__placeholder">[Paso 5 &mdash; Fichas de personajes]</p>
-                </section>
-
-                <!-- ============ PASO 6 — Chat familiar de inferencia ============ -->
-                <section class="diapo7-step" data-step="6" id="diapo7-step-6">
-                    <h2 class="diapo7-hook">LucAPI te acompa&ntilde;a a <span class="diapo7-hook__key">leer</span>.</h2>
-                    <p class="diapo7-step__placeholder">[Paso 6 &mdash; Chat familiar de inferencia]</p>
-                </section>
-
-                <!-- ============ PASO 7 — Opinión con una palabra ============ -->
-                <section class="diapo7-step" data-step="7" id="diapo7-step-7">
-                    <h2 class="diapo7-hook">LucAPI te acompa&ntilde;a a <span class="diapo7-hook__key">leer</span>.</h2>
-                    <p class="diapo7-step__placeholder">[Paso 7 &mdash; Opini&oacute;n con una palabra]</p>
-                </section>
-
-                <!-- ============ PASO 8 — Cierre cálido con logros ============ -->
-                <section class="diapo7-step" data-step="8" id="diapo7-step-8">
-                    <h2 class="diapo7-hook">LucAPI te acompa&ntilde;a a <span class="diapo7-hook__key">leer</span>.</h2>
-                    <p class="diapo7-step__placeholder">[Paso 8 &mdash; Cierre c&aacute;lido con logros]</p>
-                </section>
+                            <article class="diapo7-card diapo7-card--b" data-tilt>
+                                <span class="diapo7-card__pill">TEXTO B</span>
+                                <div class="diapo7-card__icon"><i class="ph-fill ph-sun-horizon"></i></div>
+                                <h3 class="diapo7-card__title">Mi día</h3>
+                                <div class="diapo7-card__stats">
+                                    <span><i class="ph-fill ph-chalkboard-teacher"></i>Nivel A1</span>
+                                    <span><i class="ph-fill ph-text-aa"></i>~75 palabras</span>
+                                    <span><i class="ph-fill ph-clock"></i>rutina diaria</span>
+                                </div>
+                                <p class="diapo7-card__excerpt">«Me levanto a las siete, desayuno café con leche, voy al trabajo en autobús…»</p>
+                            </article>
+                        </div>
+                    </section>
+                </div>
             </div>
         </main>
 
@@ -1476,6 +1464,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.19.6"></script>
+    <script src="/static/app.js?v=23.22.0"></script>
 </body>
 </html>

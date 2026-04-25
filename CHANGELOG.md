@@ -1,5 +1,33 @@
 # Changelog — AgentiaELE
 
+## v23.20.1 — 2026-04-25 — Diapo 7 LucAPI · proyector estático (QR + 2 cards tilt 3D)
+Se sustituye el esqueleto de 8 pasos placeholder por la versión definitiva: **pantalla estática, una única visualización, sin pasos, sin modal, sin chat**. La experiencia interactiva vive en `/lucapi` (otro scope, mobile chat del otro agente).
+
+**Layout**: header mostaza "07 · LucAPI · Comprensión lectora" + 2 columnas. Izquierda QR grande (280-400px responsive) con QR dinámico via `window.qrcode` apuntando a `${location.origin}/lucapi`. Derecha 2 cards tilt 3D (Familia pequeña mostaza + Mi día lavanda) con stats y fragmento citado.
+
+**Cambios**:
+- `static/index.html`: `#diapo7-screen` reescrito con `.diapo7-layout` 2 cols, `.diapo7-qr-card` y 2 `.diapo7-card[data-tilt]`. Sin pasos, sin flechas laterales.
+- `static/style.css`: sección DIAPO 7 reescrita desde cero (neobrutalism 5px + shadow 10×10, perspective 1400px, preserve-3d, responsive 1100/720).
+- `static/app.js`: eliminado todo el esqueleto (constantes DIAPO7_INGREDIENTS/ACTIVITY_TYPES/STRUCTURES, funciones _diapo7GoToStep/PrevStep/NextStep/updateStep/renderIngredients/etc, state _diapo7Ws/_diapo7ContextSent, diapo7MicBtn de updateRecordingUI, diapo7-voice-btn, rama wake-word). Sustituido por: `showDiapo7Screen` (bypass móvil + QR + tilt), `hideDiapo7Screen`, `isOnDiapo7Screen`, `initDiapo7QR` (idempotente), `initDiapo7Tilt` (rotateY/X idempotente).
+- Listeners: `diapo7-nav-back` → `showDiapo6Screen`, `diapo7-nav-next` → `showFinalScreen`. Eliminados chat/mic/voice/laterales.
+- `CLAUDE.md`: nueva sección protegida "Diapositiva 7 (LucAPI · Comprensión lectora — v23.20.0 · proyector estático)".
+
+Fuera de scope: `static/lucapi_mobile.html` y ruta `/lucapi` las crea el otro agente (ver v23.20.0 del chat móvil).
+
+Versionado sync → v23.20.1.
+
+## v23.20.0 — 2026-04-25 — Chat móvil LucAPI (fase 16.1 — saludo)
+Se añade el chat móvil de LucAPI (agente de comprensión lectora A1) como ruta `/lucapi` servida por FastAPI. Es la experiencia que verán los alumnos al escanear el QR de la diapo 7 en su móvil. Desde el ordenador, se puede abrir directamente en `http://localhost:9000/lucapi` para testear.
+
+**Alcance**: solo la **fase 16.1 (Saludo)** del spec. LucAPI saluda al abrir el chat, responde al estudiante y lo prepara para el siguiente paso. Fases 16.2–16.8 se apilan en iteraciones siguientes.
+
+**Cambios**:
+- `main.py`: nueva ruta `GET /lucapi` → sirve `static/lucapi_mobile.html`. Nuevo prompt `ACTIVITY_PROMPTS["lucapi"]` con reglas de estilo A1 y la fase de saludo.
+- `static/lucapi_mobile.html`: nuevo archivo. Chat móvil full-screen con paleta v23 (header mostaza, bubbles, avatar "LC" mostaza en las intervenciones de LucAPI). Conectado al WebSocket `/ws/chat` con streaming real. Disparo automático del saludo al conectar.
+- Sin OCR · sin selector de texto A/B · sin mic/STT · sin TTS.
+
+Versionado sync → v23.20.0 (`index.html`, `juego3_mobile.html`, `lucapi_mobile.html`).
+
 ## v23.19.6 — 2026-04-25 — Diapo 6: Eliana habla de Strategos (prompt + chat contextual)
 Fase 6/6 — la diapo 6 "IA para estudiantes" (Strategos) cierra con Eliana contextualizada para que hable solo del contenido de esta diapo cuando el usuario abra el widget flotante.
 

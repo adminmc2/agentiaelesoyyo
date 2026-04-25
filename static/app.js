@@ -123,10 +123,7 @@ const state = {
     // Eliana Widget
     elianaWidgetState: 'fab',  // 'fab' | 'floating' | 'docked' | 'expanded'
     // Diapo 7 — Plataforma
-    _diapo7Ws: null,
-    _diapo7ContextSent: false,
-    _diapo7SmdParser: null,
-    _diapo7CurrentMsg: ''
+    // Diapo 7 sin chat/ws en v23.20.0 (pantalla estática solo QR + cards)
 };
 
 // Elementos
@@ -1796,16 +1793,7 @@ function updateRecordingUI(recording, processing = false) {
 
     // Diapo 6 MIAU eliminada en v23.17.0
 
-    // Diapo7 screen
-    const diapo7MicBtn = document.getElementById('diapo7-mic-btn');
-    if (diapo7MicBtn) {
-        diapo7MicBtn.classList.toggle('recording', recording);
-        const icon = diapo7MicBtn.querySelector('.ph');
-        if (icon) {
-            icon.className = recording ? 'ph ph-stop-circle' : 'ph ph-microphone';
-        }
-        diapo7MicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
-    }
+    // Diapo 7 sin mic (v23.20.0 pantalla estática)
 
     // Orb 3D
     if (window.orbSetListening) window.orbSetListening(recording);
@@ -1918,9 +1906,8 @@ async function transcribeAudio(audioBlob, extension = 'webm') {
 
             // Diapo 6 MIAU eliminada en v23.17.0
 
-            // Si estamos en Diapo 8, enviar al chat de Diapo 8
+            // Diapo 7 estática (v23.20.0) — ignorar voz en esa pantalla
             if (isOnDiapo7Screen()) {
-                sendDiapo7Message(cleanText);
                 updateRecordingUI(false);
                 resumeWakeWordAfterRecording();
                 return;
@@ -2744,21 +2731,8 @@ function onWakeWordDetected(transcript = '') {
 
     // Diapo 6 MIAU eliminada en v23.17.0
 
-    // Si estamos en Diapo 7, misma logica que Diapo 5
+    // Diapo 7 pantalla estática (v23.20.0) — ignorar wake-word
     if (elements.diapo7Screen && !elements.diapo7Screen.classList.contains('hidden')) {
-        console.log('[WakeWord] En Diapo7 — interaccion en contexto');
-        const diapo7Orb = document.getElementById('diapo7-orb-container');
-        if (diapo7Orb && window.orbSetListening) window.orbSetListening(true);
-
-        const diapo7Text = stripWakeWordForBlinda(transcript);
-        if (diapo7Text) {
-            console.log('[WakeWord] Diapo7 text:', diapo7Text);
-            sendDiapo7Message(diapo7Text);
-            if (window.orbSetListening) window.orbSetListening(false);
-            resumeWakeWordAfterRecording();
-        } else {
-            startRecording();
-        }
         return;
     }
 
@@ -2957,7 +2931,7 @@ function forceEnableTTS() {
  */
 function updateVoiceButton(enabled) {
     // Update both chat and blinda voice buttons
-    ['chat-voice-btn', 'blinda-voice-btn', 'juego-voice-btn', 'diapo7-voice-btn'].forEach(id => {
+    ['chat-voice-btn', 'blinda-voice-btn', 'juego-voice-btn'].forEach(id => {
         const btn = document.getElementById(id);
         if (!btn) return;
         if (enabled) {
@@ -5708,433 +5682,93 @@ function _diapo6SyncStep(n) {
 }
 
 // ============================================
-// DIAPO 8 — Construye tu Agente (Plataforma)
+// DIAPO 7 — LucAPI · Comprensión lectora (v23.20.0)
+// Proyector estático: QR a /lucapi + 2 cards de los textos con tilt 3D.
+// No hay pasos internos ni interactividad compleja. Todo en una única pantalla.
 // ============================================
-const DIAPO7_INGREDIENTS = [
-    { icon: 'ph-fill ph-identification-badge', label: 'Nombre y descripción', desc: 'Identidad del agente: qué hace y para qué sirve', color: '#7EC8E3' },
-    { icon: 'ph-fill ph-brain', label: 'System Prompt', desc: 'El cerebro: instrucciones que definen su personalidad y comportamiento', color: '#D0AAD1' },
-    { icon: 'ph-fill ph-cpu', label: 'Modelo de IA', desc: 'El motor: qué modelo de lenguaje usa (DeepSeek, GPT, Claude...)', color: '#D0E8E9' },
-    { icon: 'ph-fill ph-thermometer-simple', label: 'Temperatura', desc: 'Creatividad vs precisión: de 0 (exacto) a 2 (creativo)', color: '#F48FB1' },
-    { icon: 'ph-fill ph-graduation-cap', label: 'Nivel MCER', desc: 'A1, A2, B1... el agente adapta su lenguaje al nivel del alumno', color: '#81C784' },
-    { icon: 'ph-fill ph-sliders-horizontal', label: 'Adherencia al nivel', desc: 'Cuánto debe ceñirse al nivel: flexible o estricto', color: '#FFB74D' }
-];
 
-const DIAPO7_ACTIVITY_TYPES = [
-    { icon: 'ph-fill ph-chat-circle-text', label: 'Expresión oral', color: '#7EC8E3' },
-    { icon: 'ph-fill ph-book-open-text', label: 'Comprensión lectora', color: '#D0E8E9' },
-    { icon: 'ph-fill ph-text-aa', label: 'Vocabulario', color: '#81C784' },
-    { icon: 'ph-fill ph-headphones', label: 'Comprensión auditiva', color: '#B39DDB' },
-    { icon: 'ph-fill ph-pencil-line', label: 'Gramática', color: '#F48FB1' },
-    { icon: 'ph-fill ph-pen-nib', label: 'Escritura', color: '#FFB74D' },
-    { icon: 'ph-fill ph-speaker-high', label: 'Pronunciación', color: '#2A9FCC' },
-    { icon: 'ph-fill ph-check-square', label: 'Autoevaluación', color: '#D0AAD1' },
-    { icon: 'ph-fill ph-users-three', label: 'Interacción oral', color: '#6B8F71' },
-    { icon: 'ph-fill ph-textbox', label: 'Ortografía', color: '#C9A632' }
-];
-
-const DIAPO7_STRUCTURES = [
-    'Opción múltiple', 'Completar huecos', 'Verdadero/Falso', 'Relacionar',
-    'Ordenar', 'Respuesta corta', 'Diálogo', 'Redacción', 'Respuesta abierta'
-];
-
-// v23.19.0 — Diapo 7 · LucAPI Comprensión lectora (8 fases del spec)
-const DIAPO7_TOTAL_STEPS = 8;
-let _diapo7Step = 1;
+const DIAPO7_LUCAPI_URL = '/lucapi';  // el chat móvil se sirve en esta ruta (otro scope)
 
 function showDiapo7Screen() {
-    // Clon de la estructura diapo 6: stage + rays + side arrows + steps
-    if (typeof hideAllScreens === 'function') hideAllScreens();
-    elements.diapo7Screen = document.getElementById('diapo7-screen');
-    elements.diapo7Screen?.classList.remove('hidden', 'fade-out');
-    elements.diapo7Screen?.scrollTo?.(0, 0);
-    // Resetear siempre al paso 1 al entrar
-    _diapo7GoToStep(1, { instant: true });
-}
-
-function _diapo7GoToStep(newStep, opts = {}) {
-    if (newStep < 1 || newStep > DIAPO7_TOTAL_STEPS) return;
-    const stage = document.getElementById('diapo7-stage');
-    const oldStep = _diapo7Step;
-    const oldSection = document.getElementById(`diapo7-step-${oldStep}`);
-    const newSection = document.getElementById(`diapo7-step-${newStep}`);
-    if (!newSection) return;
-    if (opts.instant) {
-        stage?.classList.add('diapo7-stage--no-transition');
-        document.querySelectorAll('.diapo7-step').forEach(s => {
-            s.classList.remove('is-active', 'is-leaving');
-        });
-        newSection.classList.add('is-active');
-        // forzar reflow y quitar clase no-transition en el siguiente tick
-        void stage?.offsetWidth;
-        setTimeout(() => stage?.classList.remove('diapo7-stage--no-transition'), 20);
-    } else if (oldSection && oldSection !== newSection) {
-        oldSection.classList.remove('is-active');
-        oldSection.classList.add('is-leaving');
-        newSection.classList.add('is-active');
-        setTimeout(() => oldSection.classList.remove('is-leaving'), 700);
-    } else {
-        newSection.classList.add('is-active');
+    if (isMobile()) {
+        console.warn('[Diapo7] Solo escritorio — bypass en móvil');
+        return;
     }
-    _diapo7Step = newStep;
-    _diapo7UpdateSideArrows();
-}
+    stopTTS();
+    elements.loginScreen?.classList.add('hidden');
+    elements.conoceScreen?.classList.add('hidden');
+    elements.chatScreen?.classList.add('hidden');
+    elements.welcomeScreen?.classList.add('hidden');
+    elements.planScreen?.classList.add('hidden');
+    elements.profileScreen?.classList.add('hidden');
+    elements.blindaScreen?.classList.add('hidden');
+    elements.juegoScreen?.classList.add('hidden');
+    elements.diapo5Screen?.classList.add('hidden');
+    document.getElementById('diapo6-screen')?.classList.add('hidden');
 
-function _diapo7UpdateSideArrows() {
-    const prev = document.getElementById('diapo7-side-prev');
-    const next = document.getElementById('diapo7-side-next');
-    prev?.classList.toggle('is-disabled', _diapo7Step <= 1);
-    next?.classList.toggle('is-disabled', _diapo7Step >= DIAPO7_TOTAL_STEPS);
-}
+    const screen = document.getElementById('diapo7-screen');
+    if (!screen) return;
+    screen.classList.remove('hidden');
+    screen.classList.remove('fade-out');
 
-function diapo7PrevStep() { _diapo7GoToStep(_diapo7Step - 1); }
-function diapo7NextStep() { _diapo7GoToStep(_diapo7Step + 1); }
+    initDiapo7QR();
+    initDiapo7Tilt();
+}
 
 function hideDiapo7Screen() {
-    elements.diapo7Screen?.classList.add('fade-out');
+    const screen = document.getElementById('diapo7-screen');
+    if (!screen) return;
+    screen.classList.add('fade-out');
     setTimeout(() => {
-        elements.diapo7Screen?.classList.add('hidden');
-        elements.diapo7Screen?.classList.remove('fade-out');
+        screen.classList.add('hidden');
+        screen.classList.remove('fade-out');
     }, 300);
 }
 
 function isOnDiapo7Screen() {
-    return elements.diapo7Screen && !elements.diapo7Screen.classList.contains('hidden');
+    const screen = document.getElementById('diapo7-screen');
+    return !!screen && !screen.classList.contains('hidden');
 }
 
-function addDiapo7ChatBubble(text, role) {
-    const container = document.getElementById('diapo7-chat-messages');
-    if (!container) return;
-    const bubble = document.createElement('div');
-    bubble.className = `blinda-chat__bubble blinda-chat__bubble--${role}`;
-    bubble.textContent = text;
-    container.appendChild(bubble);
-    container.scrollTop = container.scrollHeight;
-    return bubble;
-}
-
-function sendDiapo7Message(message) {
-    addDiapo7ChatBubble(message, 'user');
-
-    // Check if user message (Román) triggers advance
-    checkDiapo7AdvanceFromUser(message);
-
-    const messages = document.getElementById('diapo7-chat-messages');
-    const typing = document.createElement('div');
-    typing.className = 'blinda-chat__bubble blinda-chat__bubble--assistant blinda-chat__typing';
-    typing.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
-    messages.appendChild(typing);
-    messages.scrollTop = messages.scrollHeight;
-
-    state._diapo7CurrentMsg = '';
-    _diapo7AdvancedThisMsg = false;
-    let assistantBubble = null;
-
-    const doSend = () => {
-        const payload = { message, response_mode: 'full', activity_mode: 'plataforma' };
-        if (!state._diapo7ContextSent) {
-            payload.prior_context = {
-                question: 'Eliana, vamos a enseñar cómo se construye un agente en AgentiaELE.',
-                answer: 'Ahora viene lo mejor: os voy a enseñar cómo se construye un agente.'
-            };
-            state._diapo7ContextSent = true;
-        }
-        state._diapo7Ws.send(JSON.stringify(payload));
-    };
-
-    const handleDiapo7Message = (event) => {
-        const data = JSON.parse(event.data);
-
-        if (data.type === 'token') {
-            if (!assistantBubble) {
-                typing.remove();
-                assistantBubble = addDiapo7ChatBubble('', 'assistant');
-                if (window.smd && assistantBubble) {
-                    const renderer = window.smd.default_renderer(assistantBubble);
-                    state._diapo7SmdParser = window.smd.parser(renderer);
-                } else {
-                    state._diapo7SmdParser = null;
-                }
-            }
-            state._diapo7CurrentMsg += data.content;
-            if (state._diapo7SmdParser) {
-                window.smd.parser_write(state._diapo7SmdParser, data.content);
-            } else if (assistantBubble) {
-                assistantBubble.innerHTML = typeof renderMarkdown === 'function'
-                    ? renderMarkdown(state._diapo7CurrentMsg, false) : state._diapo7CurrentMsg;
-            }
-            messages.scrollTop = messages.scrollHeight;
-            checkDiapo7Advance(state._diapo7CurrentMsg);
-        }
-        else if (data.type === 'end') {
-            if (state._diapo7SmdParser) {
-                window.smd.parser_end(state._diapo7SmdParser);
-                state._diapo7SmdParser = null;
-            }
-            if (state._diapo7CurrentMsg && (state.ttsEnabled || state.voiceTriggered)) {
-                playTTS(state._diapo7CurrentMsg, true);
-            }
-            if (state._diapo7CurrentMsg) {
-                checkDiapo7Advance(state._diapo7CurrentMsg);
-            }
-            assistantBubble = null;
-            resumeWakeWordAfterRecording();
-        }
-        else if (data.type === 'error') {
-            typing.remove();
-            addDiapo7ChatBubble('Error: ' + data.message, 'assistant');
-            assistantBubble = null;
-        }
-    };
-
-    if (state._diapo7Ws && state._diapo7Ws.readyState === WebSocket.OPEN) {
-        state._diapo7Ws.onmessage = handleDiapo7Message;
-        doSend();
+// ──────────── QR a /lucapi ────────────
+function initDiapo7QR() {
+    const container = document.getElementById('diapo7-qr');
+    if (!container || container.dataset.rendered === 'true') return;
+    if (typeof window.qrcode !== 'function') {
+        console.warn('[Diapo7] qrcode-generator no cargado');
         return;
     }
-
-    if (state._diapo7Ws) {
-        state._diapo7Ws.close();
-        state._diapo7Ws = null;
-        state._diapo7ContextSent = false;
-    }
-
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    state._diapo7Ws = new WebSocket(`${wsProtocol}//${window.location.host}/ws/chat`);
-    state._diapo7Ws.onopen = doSend;
-    state._diapo7Ws.onmessage = handleDiapo7Message;
-    state._diapo7Ws.onerror = () => {
-        typing.remove();
-        addDiapo7ChatBubble('Error de conexión', 'assistant');
-    };
-}
-
-const DIAPO7_KEYWORD_MAP = [
-    { step: 1, patterns: ['dale al siguiente', 'más fácil de lo que pensáis', 'mas facil de lo que pensais', 'dos minutos'] },
-    { step: 2, patterns: ['traductor', 'ejemplo', 'ficha', 'así de sencillo', 'asi de sencillo'] },
-    { step: 3, patterns: ['actividades', 'no van solos', 'viven dentro'] },
-    { step: 4, patterns: ['taller', 'mayo', 'inscripción', 'inscripcion'] }
-];
-
-let _diapo7AdvancedThisMsg = false;
-
-const DIAPO7_USER_KEYWORDS = [
-    { step: 2, patterns: ['siguiente', 'ejemplo', 'traductor', 'enséñanos', 'muéstranos', 'cómo se ve'] },
-    { step: 3, patterns: ['siguiente', 'actividades', 'qué más', 'continúa', 'adelante'] },
-    { step: 4, patterns: ['siguiente', 'taller', 'último', 'continúa', 'adelante'] }
-];
-
-function checkDiapo7AdvanceFromUser(userMsg) {
-    const lower = userMsg.toLowerCase();
-    const nextStep = diapo7Step + 1;
-    const mapping = DIAPO7_USER_KEYWORDS.find(m => m.step === nextStep);
-    if (!mapping) return;
-    for (const pat of mapping.patterns) {
-        if (lower.includes(pat)) {
-            updateDiapo7Step(nextStep);
-            return;
-        }
+    try {
+        // URL absoluta con el host actual → funciona desde el móvil del público
+        const url = `${window.location.origin}${DIAPO7_LUCAPI_URL}`;
+        const qr = window.qrcode(0, 'M');
+        qr.addData(url);
+        qr.make();
+        container.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+        container.dataset.rendered = 'true';
+    } catch (err) {
+        console.error('[Diapo7] Error generando QR:', err);
     }
 }
 
-function checkDiapo7Advance(fullText) {
-    if (_diapo7AdvancedThisMsg) return; // max 1 step per message
-    const lower = fullText.toLowerCase();
-    const nextStep = diapo7Step + 1;
-    const mapping = DIAPO7_KEYWORD_MAP.find(m => m.step === nextStep);
-    if (!mapping) return;
-    for (const pat of mapping.patterns) {
-        if (lower.includes(pat)) {
-            _diapo7AdvancedThisMsg = true;
-            updateDiapo7Step(nextStep);
-            return;
-        }
-    }
-}
-
-function initDiapo7() {
-    diapo7Step = 0;
-    _diapo7ContextSent = false;
-    renderDiapo7Ingredients();
-    renderDiapo7Example();
-    renderDiapo7Activities();
-    renderDiapo7Workshop();
-    updateDiapo7Step(0);
-}
-
-function updateDiapo7Step(step) {
-    diapo7Step = step;
-    document.querySelectorAll('[data-diapo7-step]').forEach(el => {
-        el.classList.toggle('diapo7-demo__step--active', parseInt(el.dataset.diapo7Step) === step);
-    });
-    document.querySelectorAll('[data-diapo7-dot]').forEach(dot => {
-        dot.classList.toggle('demo-stepper__dot--active', parseInt(dot.dataset.diapo7Dot) === step);
+// ──────────── Tilt 3D en las 2 cards (idempotente) ────────────
+function initDiapo7Tilt() {
+    const cards = document.querySelectorAll('#diapo7-cards .diapo7-card[data-tilt]');
+    cards.forEach(card => {
+        if (card.dataset.tiltInit === 'true') return;
+        card.dataset.tiltInit = 'true';
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = (e.clientX - rect.left - rect.width / 2) / 20;
+            const y = (e.clientY - rect.top - rect.height / 2) / 20;
+            card.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+        });
     });
 }
 
-function renderDiapo7Ingredients() {
-    const container = document.getElementById('diapo7-ingredients');
-    if (!container) return;
-    container.innerHTML = `
-        <h3 class="diapo7-section-title">
-            <i class="ph-fill ph-puzzle-piece" style="background: rgba(153,78,149,0.15); color: #D0AAD1"></i>
-            Los ingredientes de un agente
-        </h3>
-        <div class="diapo7-ingredients__grid">
-            ${DIAPO7_INGREDIENTS.map(ing => `
-                <div class="diapo7-ingredient-card" style="background: linear-gradient(160deg, ${ing.color}22 0%, rgba(239,237,247,0.5) 100%); border-color: ${ing.color}33">
-                    <div class="diapo7-ingredient-card__icon" style="background: ${ing.color}22; color: ${ing.color}">
-                        <i class="${ing.icon}"></i>
-                    </div>
-                    <div class="diapo7-ingredient-card__text">
-                        <strong>${ing.label}</strong>
-                        <span>${ing.desc}</span>
-                    </div>
-                </div>
-            `).join('')}
-        </div>
-    `;
-}
-
-function renderDiapo7Example() {
-    const container = document.getElementById('diapo7-example');
-    if (!container) return;
-    container.innerHTML = `
-        <h3 class="diapo7-section-title">
-            <i class="ph-fill ph-magnifying-glass" style="background: rgba(126,200,227,0.15); color: #7EC8E3"></i>
-            Ejemplo: Agente Traductor
-        </h3>
-        <div class="diapo7-agent-ficha">
-            <div class="diapo7-agent-ficha__header">
-                <img class="diapo7-agent-ficha__img" src="/static/imagenes/traduccion.png" alt="Traductor">
-                <div>
-                    <h4 class="diapo7-agent-ficha__name">Ag. Traducción</h4>
-                    <p class="diapo7-agent-ficha__desc">Traduce del español a otra lengua según el contexto y nivel</p>
-                </div>
-            </div>
-            <div class="diapo7-agent-ficha__fields">
-                <div class="diapo7-ficha-field">
-                    <span class="diapo7-ficha-field__label"><i class="ph-fill ph-brain"></i> System Prompt</span>
-                    <span class="diapo7-ficha-field__value diapo7-ficha-field__value--prompt">Eres un traductor pedagógico. Traduces vocabulario adaptado al contexto de aprendizaje y al nivel MCER del estudiante. Usas ejemplos de la vida cotidiana.</span>
-                </div>
-                <div class="diapo7-ficha-field diapo7-ficha-field--row">
-                    <div class="diapo7-ficha-field__item">
-                        <span class="diapo7-ficha-field__label"><i class="ph-fill ph-cpu"></i> Modelo</span>
-                        <span class="diapo7-ficha-field__value">DeepSeek</span>
-                    </div>
-                    <div class="diapo7-ficha-field__item">
-                        <span class="diapo7-ficha-field__label"><i class="ph-fill ph-thermometer-simple"></i> Temp.</span>
-                        <span class="diapo7-ficha-field__value">0.3</span>
-                    </div>
-                    <div class="diapo7-ficha-field__item">
-                        <span class="diapo7-ficha-field__label"><i class="ph-fill ph-graduation-cap"></i> Nivel</span>
-                        <span class="diapo7-ficha-field__value">A1</span>
-                    </div>
-                    <div class="diapo7-ficha-field__item">
-                        <span class="diapo7-ficha-field__label"><i class="ph-fill ph-sliders-horizontal"></i> Adherencia</span>
-                        <span class="diapo7-ficha-field__value">Alta</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <p class="diapo7-example-note"><i class="ph-fill ph-lightbulb"></i> Así de sencillo: defines qué hace, cómo habla y a qué nivel.</p>
-        <a href="https://agentiaele.netlify.app/demo/agents" target="_blank" rel="noopener" class="diapo7-demo-link">
-            <i class="ph-fill ph-arrow-square-out"></i> Ver demo en AgentiaELE
-        </a>
-    `;
-}
-
-function renderDiapo7Activities() {
-    const container = document.getElementById('diapo7-activities');
-    if (!container) return;
-    container.innerHTML = `
-        <h3 class="diapo7-section-title">
-            <i class="ph-fill ph-stack" style="background: rgba(129,199,132,0.15); color: #81C784"></i>
-            Los agentes viven en actividades
-        </h3>
-        <p class="diapo7-activities__subtitle">El profe diseña actividades y elige qué agentes ofrece al alumno en cada una</p>
-        <div class="diapo7-ingredients__grid">
-            <div class="diapo7-ingredient-card" style="background: linear-gradient(160deg, #D0AAD122 0%, rgba(239,237,247,0.5) 100%); border-color: #D0AAD133">
-                <div class="diapo7-ingredient-card__icon" style="background: #D0AAD122; color: #D0AAD1">
-                    <i class="ph-fill ph-list-bullets"></i>
-                </div>
-                <div class="diapo7-ingredient-card__text">
-                    <strong>10 tipos de actividad</strong>
-                    <span>Expresión oral, comprensión lectora, vocabulario, gramática, escritura, pronunciación, autoevaluación, interacción oral, ortografía, comprensión auditiva</span>
-                </div>
-            </div>
-            <div class="diapo7-ingredient-card" style="background: linear-gradient(160deg, #D0E8E922 0%, rgba(239,237,247,0.5) 100%); border-color: #D0E8E933">
-                <div class="diapo7-ingredient-card__icon" style="background: #D0E8E922; color: #D0E8E9">
-                    <i class="ph-fill ph-grid-four"></i>
-                </div>
-                <div class="diapo7-ingredient-card__text">
-                    <strong>9 estructuras</strong>
-                    <span>Opción múltiple, completar huecos, verdadero/falso, relacionar, ordenar, respuesta corta, diálogo, redacción, respuesta abierta</span>
-                </div>
-            </div>
-            <div class="diapo7-ingredient-card" style="background: linear-gradient(160deg, #2A9FCC22 0%, rgba(239,237,247,0.5) 100%); border-color: #2A9FCC33">
-                <div class="diapo7-ingredient-card__icon" style="background: #2A9FCC22; color: #2A9FCC">
-                    <i class="ph-fill ph-users-three"></i>
-                </div>
-                <div class="diapo7-ingredient-card__text">
-                    <strong>Agentes a la carta</strong>
-                    <span>El profe elige qué agentes están disponibles para el alumno en cada actividad: traductor, expansor, enfocado, improvisador y más</span>
-                </div>
-            </div>
-        </div>
-        <a href="https://agentiaele.netlify.app/demo/activities/f58292a6-163b-43e8-aeff-54a4cea13e93" target="_blank" rel="noopener" class="diapo7-demo-link">
-            <i class="ph-fill ph-arrow-square-out"></i> Ver demo de actividad
-        </a>
-    `;
-}
-
-function renderDiapo7Workshop() {
-    const container = document.getElementById('diapo7-workshop');
-    if (!container) return;
-    container.innerHTML = `
-        <h3 class="diapo7-section-title">
-            <i class="ph-fill ph-chalkboard-teacher" style="background: rgba(212,130,106,0.15); color: #C9A632"></i>
-            Taller online — Mayo 2026
-        </h3>
-        <p class="diapo7-activities__subtitle">Crea tus propios agentes para tu manual y tus alumnos</p>
-        <div class="diapo7-ingredients__grid">
-            <div class="diapo7-ingredient-card" style="background: linear-gradient(160deg, #7EC8E322 0%, rgba(239,237,247,0.5) 100%); border-color: #7EC8E333">
-                <div class="diapo7-ingredient-card__icon" style="background: #7EC8E322; color: #7EC8E3">
-                    <i class="ph-fill ph-wrench"></i>
-                </div>
-                <div class="diapo7-ingredient-card__text">
-                    <strong>Construye agentes para TU manual</strong>
-                    <span>Diseña agentes adaptados a tu libro de texto, tu programa y tus objetivos de clase</span>
-                </div>
-            </div>
-            <div class="diapo7-ingredient-card" style="background: linear-gradient(160deg, #81C78422 0%, rgba(239,237,247,0.5) 100%); border-color: #81C78433">
-                <div class="diapo7-ingredient-card__icon" style="background: #81C78422; color: #81C784">
-                    <i class="ph-fill ph-user-focus"></i>
-                </div>
-                <div class="diapo7-ingredient-card__text">
-                    <strong>Adapta a TU nivel y TUS alumnos</strong>
-                    <span>Personaliza el nivel MCER, la temperatura y el comportamiento para cada grupo</span>
-                </div>
-            </div>
-            <div class="diapo7-ingredient-card" style="background: linear-gradient(160deg, #B39DDB22 0%, rgba(239,237,247,0.5) 100%); border-color: #B39DDB33">
-                <div class="diapo7-ingredient-card__icon" style="background: #B39DDB22; color: #B39DDB">
-                    <i class="ph-fill ph-play-circle"></i>
-                </div>
-                <div class="diapo7-ingredient-card__text">
-                    <strong>Pruébalos en clase al día siguiente</strong>
-                    <span>Agentes listos para usar con tus alumnos desde el primer momento</span>
-                </div>
-            </div>
-        </div>
-        <div class="diapo7-workshop__cta">
-            <i class="ph-fill ph-envelope-simple"></i>
-            <span>Indícalo en el formulario de inscripción de la mesa</span>
-        </div>
-    `;
-}
-
-// ============================================
-// ============================================
-// (Función showMobileEncuesta eliminada: encuesta legacy retirada en v23.17.1)
 
 // DIAPOSITIVA FINAL — Gracias / Ačiū
 // ============================================
@@ -7267,38 +6901,16 @@ function init() {
     document.getElementById('diapo6-side-prev')?.addEventListener('click', diapo6PrevStep);
     document.getElementById('diapo6-side-next')?.addEventListener('click', diapo6NextStep);
 
-    // Diapo 7 — LucAPI · Comprensión lectora (v23.19.0)
-    // Flechas del header: back → diapo 6 · next → pantalla final (por ahora).
-    // Flechas laterales: navegan entre los 8 pasos del flujo.
+    // Diapo 7 — LucAPI · Comprensión lectora (v23.20.0)
+    // Pantalla estática del proyector: solo 2 flechas de header, sin pasos.
+    // Back → diapo 6, Next → pantalla final.
     document.getElementById('diapo7-nav-back')?.addEventListener('click', () => {
         hideDiapo7Screen();
-        setTimeout(() => showDiapo6Screen(), 300);
+        setTimeout(() => { if (typeof showDiapo6Screen === 'function') showDiapo6Screen(); }, 300);
     });
     document.getElementById('diapo7-nav-next')?.addEventListener('click', () => {
         hideDiapo7Screen();
-        setTimeout(() => showFinalScreen(), 300);
-    });
-    document.getElementById('diapo7-side-prev')?.addEventListener('click', diapo7PrevStep);
-    document.getElementById('diapo7-side-next')?.addEventListener('click', diapo7NextStep);
-    document.querySelectorAll('[data-diapo7-dot]').forEach(dot => {
-        dot.addEventListener('click', () => updateDiapo7Step(parseInt(dot.dataset.diapo7Dot)));
-    });
-    document.getElementById('diapo7-chat-send')?.addEventListener('click', () => {
-        const input = document.getElementById('diapo7-chat-input');
-        const text = input?.value.trim();
-        if (!text) return;
-        input.value = '';
-        sendDiapo7Message(text);
-    });
-    document.getElementById('diapo7-chat-input')?.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('diapo7-chat-send')?.click(); }
-    });
-    document.getElementById('diapo7-mic-btn')?.addEventListener('click', () => {
-        enableTTS(); state.voiceTriggered = true;
-        if (state.isRecording) { state._discardRecording = true; stopRecording(); } else { startRecording(); }
-    });
-    document.getElementById('diapo7-voice-btn')?.addEventListener('click', () => {
-        if (state.ttsEnabled) disableTTS(); else enableTTS();
+        setTimeout(() => { if (typeof showFinalScreen === 'function') showFinalScreen(); }, 300);
     });
 
     // Conoce screen — back/next/logout

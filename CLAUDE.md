@@ -133,6 +133,28 @@ Esto incluye:
 
 **Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
 
+### Diapositiva 7 (LucAPI · Comprensión lectora — v23.20.0 · proyector estático)
+**PROHIBIDO ABSOLUTAMENTE** modificar cualquier código relacionado con la diapositiva 7. No importa el contexto: refactor, limpieza, mejora, bug fix general, cambio de diseño — NADA justifica tocar la diapo 7 salvo que el usuario diga EXPLÍCITAMENTE "modifica la diapo 7" o "cambia esto de la diapo 7".
+
+Concepto: pantalla **ESTÁTICA** del proyector. Una sola vista. Sin pasos internos. Sin modal. Sin chat. Sin interactividad compleja. El ponente no escanea y no hay flujo interno — los profes escanean con su móvil y la experiencia interactiva vive en `/lucapi` (lucapi_mobile.html, scope aparte).
+
+Layout en 2 columnas:
+- **Izquierda — QR**: título "Escanea y prueba" + subtítulo + QR-card neobrutalism (blanco + borde negro 5px + shadow 10×10) con QR dinámico generado en runtime con `window.qrcode` apuntando a `${location.origin}/lucapi` (URL absoluta para que el QR funcione desde móvil).
+- **Derecha — 2 textos**: título "Dos lecturas a elegir · A1" + grid 2 cards con **tilt 3D** (mouse-follow con `rotateY/rotateX`, transform-style preserve-3d, perspective 1400px en el wrapper). Cada card SIEMPRE visible con: pill mostaza/violeta ("TEXTO A/B"), icon cuadrado con borde y shadow, título grande, stats pills (nivel, palabras, tema), fragmento citado italic. Card A (Familia pequeña, icon `ph-house-line`, fondo crema-mostaza). Card B (Mi día, icon `ph-sun-horizon`, fondo lavanda).
+
+Esto incluye:
+- `showDiapo7Screen()`, `hideDiapo7Screen()`, `isOnDiapo7Screen()` — mostrar/ocultar/detectar. Bypass móvil con `isMobile()`.
+- `initDiapo7QR()` — genera el SVG del QR vía `window.qrcode`. Idempotente con `dataset.rendered`.
+- `initDiapo7Tilt()` — añade listeners `mousemove`/`mouseleave` a las cards para el efecto 3D tilt. Idempotente con `dataset.tiltInit`.
+- Constante `DIAPO7_LUCAPI_URL = '/lucapi'`.
+- Todo el HTML de `#diapo7-screen` (header, `.diapo7-stage`, `.diapo7-rays`, `.diapo7-layout`, `.diapo7-qr-side`, `.diapo7-texts`, 2 `.diapo7-card[data-tilt]`).
+- Todo el CSS `.diapo7-*` (screen con padding-top 78px, stage flex center, rays drift 18s, qr-side con título Dosis 32-56, qr-card neobrutalism, texts con perspective 1400px, cards-grid 2 cols, card neobrutalism con preserve-3d, pill mostaza/violeta, stats pills).
+- Listeners: `diapo7-nav-back` (→ `showDiapo6Screen`), `diapo7-nav-next` (→ `showFinalScreen`). SIN flechas laterales (no hay pasos).
+- Navegación entrante: la flecha superior-derecha de la diapo 6 salta a `showDiapo7Screen()`; el `diapo6NextStep` en el paso 3 también lleva a diapo 7.
+- **La experiencia interactiva NO vive aquí** — el archivo `static/lucapi_mobile.html` y la ruta `/lucapi` son otro scope (mobile chat de LucAPI, en construcción por otro agente). Esta diapo solo apunta al QR.
+
+**Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
+
 ---
 
 ## Sistema de diseño v23 — Paleta pastel (Combo 3)

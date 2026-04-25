@@ -8586,287 +8586,233 @@ body[data-mood-active] .message.assistant {
 }
 
 /* ============================================
-   DIAPO 8 — Construye tu Agente (Plataforma)
+   DIAPO 7 — LucAPI · Comprensión lectora (v23.20.0)
+   Pantalla estática del proyector: QR + 2 cards con tilt 3D.
    ============================================ */
 .diapo7-screen {
-    padding: 0 !important;
-    overflow: hidden;
-    transition:
-        opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate),
-        transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate);
-}
-.diapo7-screen.fade-out {
-    opacity: 0;
-    transform: scale(0.98);
-}
-.diapo7-page {
-    width: 100%;
-    min-height: 100vh;
-    min-height: 100dvh;
-    display: grid;
-    grid-template-columns: 45% 55%;
-    background: var(--md-sys-color-surface);
-    overflow: hidden;
-}
-.diapo7-left {
-    padding: 2rem 1.5rem 1.5rem;
+    padding: 78px 0 0 0 !important;
+    overflow: visible;
+    background: transparent;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    position: relative;
-    min-height: 0;
+    transition: opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate);
 }
-.diapo7-right {
+.diapo7-screen.fade-out { opacity: 0; }
+#diapo7-screen > .slide-header {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important; right: 0 !important;
+    z-index: 9999 !important;
+    display: flex !important;
+}
+.diapo7-stage {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    overflow: hidden;
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 3rem;
-    position: relative;
-    overflow: hidden;
-    margin: 1cm;
-    border-radius: 12px;
-    background: var(--md-sys-color-surface-container-high);
-    box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.06),
-        inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+    padding: clamp(24px, 2.6vw, 48px) clamp(28px, 3vw, 64px);
 }
-.diapo7-demo {
-    width: 100%;
-    max-width: 600px;
-    position: relative;
-}
-.diapo7-demo__step {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    animation: blindaSlideUp 0.4s var(--md-sys-motion-easing-emphasized-decelerate) both;
-}
-.diapo7-demo__step--active {
-    display: flex;
-}
-.diapo7-demo__stepper {
+.diapo7-rays {
     position: absolute;
-    bottom: 1.5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 8px;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+        radial-gradient(ellipse 55% 75% at 15% 10%, rgba(201, 166, 50, 0.18), transparent 62%),
+        radial-gradient(ellipse 50% 70% at 90% 40%, rgba(208, 170, 209, 0.22), transparent 65%),
+        radial-gradient(ellipse 70% 45% at 50% 100%, rgba(140, 190, 178, 0.32), transparent 70%);
+    animation: diapo7RaysDrift 18s ease-in-out infinite alternate;
 }
-.diapo7-intro {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: var(--space-24);
-    max-width: 420px;
-}
-
-/* ── Section titles (same pattern as diapo5 cap__name) ── */
-.diapo7-section-title {
-    font: 600 24px 'Dosis', sans-serif;
-    color: var(--md-sys-color-on-surface);
-    display: flex;
-    align-items: center;
-    gap: var(--space-12);
-    margin: 0 0 var(--space-20);
-}
-.diapo7-section-title i {
-    width: 42px; height: 42px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-    flex-shrink: 0;
+@keyframes diapo7RaysDrift {
+    0%   { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-2%, 1%) scale(1.04); }
 }
 
-/* ── Step 1: Ingredients (like activity-cards from diapo 2) ── */
-.diapo7-ingredients__grid {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-12);
-}
-.diapo7-ingredient-card {
-    display: flex;
+.diapo7-layout {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(380px, 0.85fr) minmax(500px, 1.3fr);
+    gap: clamp(36px, 4vw, 80px);
     align-items: center;
-    gap: var(--space-20);
-    padding: var(--space-20) var(--space-24);
-    background: rgba(239, 237, 247, 0.6);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-radius: var(--md-sys-shape-extra-large);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: var(--md-sys-elevation-1);
-}
-.diapo7-ingredient-card__icon {
-    width: 52px; height: 52px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 24px;
-    flex-shrink: 0;
-}
-.diapo7-ingredient-card__text {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-}
-.diapo7-ingredient-card__text strong {
-    font: 600 18px 'Dosis', sans-serif;
-    color: var(--md-sys-color-on-surface);
-}
-.diapo7-ingredient-card__text span {
-    font: 400 14px 'Inconsolata', monospace;
-    color: var(--md-sys-color-on-surface-variant);
-    line-height: 1.4;
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
 }
 
-/* ── Step 2: Agent Ficha (like diapo5 cap cards) ── */
-.diapo7-agent-ficha {
-    background: rgba(239, 237, 247, 0.6);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-radius: var(--md-sys-shape-extra-large);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: var(--md-sys-elevation-1);
-    overflow: hidden;
-}
-.diapo7-agent-ficha__header {
+/* ── Izquierda: QR grande ── */
+.diapo7-qr-side {
     display: flex;
-    align-items: center;
-    gap: var(--space-16);
-    padding: var(--space-20) var(--space-24);
-    background: var(--md-sys-color-primary);
-    border-radius: var(--md-sys-shape-extra-large);
-    margin: var(--space-12);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(16px, 1.6vw, 26px);
 }
-.diapo7-agent-ficha__img {
-    width: 56px; height: 56px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid rgba(255, 255, 255, 0.4);
-}
-.diapo7-agent-ficha__name {
-    font: 800 22px 'Dosis', sans-serif;
-    color: #fff;
+.diapo7-qr-side__title {
+    font: 900 clamp(32px, 3.6vw, 56px) 'Dosis', sans-serif;
+    color: #2c2c2c;
     margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: -0.6px;
+    line-height: 1.05;
 }
-.diapo7-agent-ficha__desc {
-    font: 400 14px 'Dosis', sans-serif;
-    color: rgba(255, 255, 255, 0.85);
-    margin: 4px 0 0;
-}
-.diapo7-agent-ficha__fields {
-    padding: var(--space-16) var(--space-24) var(--space-24);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-12);
-}
-.diapo7-ficha-field {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-}
-.diapo7-ficha-field--row {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: var(--space-10);
-}
-.diapo7-ficha-field__item {
-    flex: 1; min-width: 80px;
-    padding: var(--space-12) var(--space-16);
-    background: rgba(255, 255, 255, 0.85);
-    border-radius: var(--md-sys-shape-large);
-    border: 1.5px solid rgba(0, 0, 0, 0.04);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-}
-.diapo7-ficha-field__label {
-    font: 700 11px 'Dosis', sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    color: var(--md-sys-color-outline);
-    display: flex; align-items: center; gap: 4px;
-}
-.diapo7-ficha-field__label i {
-    font-size: 14px;
-    color: var(--md-sys-color-primary);
-}
-.diapo7-ficha-field__value {
-    font: 400 15px 'Dosis', sans-serif;
-    color: var(--md-sys-color-on-surface);
-}
-.diapo7-ficha-field__value--prompt {
-    font: 400 14px 'Inconsolata', monospace;
-    line-height: 1.5;
-    color: var(--md-sys-color-on-surface-variant);
-    padding: var(--space-12) var(--space-16);
-    background: rgba(255, 255, 255, 0.85);
-    border-radius: var(--md-sys-shape-large);
-    border: 1.5px solid rgba(0, 0, 0, 0.04);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-}
-.diapo7-example-note {
-    font: 600 15px 'Dosis', sans-serif;
-    color: var(--md-sys-color-primary);
-    margin-top: var(--space-16);
-    display: flex; align-items: center;
-    gap: var(--space-8);
-    padding: var(--space-12) var(--space-20);
-    background: rgba(212, 130, 106, 0.08);
-    border-radius: var(--md-sys-shape-extra-large);
-}
-.diapo7-example-note i { font-size: 20px; }
-
-.diapo7-demo-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-8);
-    margin-top: var(--space-16);
-    padding: var(--space-12) var(--space-24);
-    font: 700 15px 'Dosis', sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #fff;
-    background: linear-gradient(135deg, #D0AAD1 0%, #D0E8E9 100%);
-    border-radius: var(--md-sys-shape-extra-large);
-    text-decoration: none;
-    box-shadow: var(--md-sys-elevation-1);
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-.diapo7-demo-link:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--md-sys-elevation-2);
-}
-.diapo7-demo-link i { font-size: 18px; }
-
-/* ── Step 3: Activities ── */
-.diapo7-activities__subtitle {
-    font: 400 15px 'Dosis', sans-serif;
-    color: var(--md-sys-color-on-surface-variant);
-    margin: -8px 0 var(--space-16);
+.diapo7-qr-side__sub {
+    font: 600 clamp(18px, 1.5vw, 24px) 'Source Sans 3', sans-serif;
+    color: #3a3a3a;
+    margin: 0;
     line-height: 1.4;
+    max-width: 460px;
+}
+.diapo7-qr-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: clamp(16px, 1.5vw, 24px);
+    background: #FFFFFF;
+    border: 5px solid #2c2c2c;
+    border-radius: 26px;
+    box-shadow: 10px 10px 0 rgba(44, 44, 44, 0.9);
+}
+.diapo7-qr {
+    width: clamp(280px, 28vw, 400px);
+    aspect-ratio: 1 / 1;
+    background: #FFFFFF;
+    display: block;
+}
+.diapo7-qr svg, .diapo7-qr img, .diapo7-qr canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+.diapo7-qr__hint {
+    font: 800 14px 'Source Sans 3', sans-serif;
+    color: #8A6A1C;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
-/* ── Step 4: Workshop ── */
-.diapo7-workshop__cta {
+/* ── Derecha: 2 tarjetas tilt 3D ── */
+.diapo7-texts {
     display: flex;
+    flex-direction: column;
+    gap: clamp(18px, 2vw, 32px);
+    perspective: 1400px;
+    width: 100%;
+}
+.diapo7-texts__title {
+    font: 900 clamp(26px, 2.4vw, 40px) 'Dosis', sans-serif;
+    color: #2c2c2c;
+    margin: 0;
+    letter-spacing: -0.3px;
+    line-height: 1.15;
+}
+.diapo7-texts__sub {
+    font-weight: 600;
+    color: #8A6A1C;
+}
+.diapo7-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(16px, 1.8vw, 28px);
+}
+.diapo7-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 1vw, 16px);
+    padding: clamp(20px, 2vw, 32px) clamp(20px, 1.8vw, 30px);
+    background: #FFFFFF;
+    border: 5px solid #2c2c2c;
+    border-radius: 24px;
+    box-shadow: 10px 10px 0 rgba(44, 44, 44, 0.9);
+    transform-style: preserve-3d;
+    transition: transform 0.2s ease-out, box-shadow 0.3s ease;
+    min-height: clamp(280px, 28vw, 380px);
+    text-align: left;
+}
+.diapo7-card:hover {
+    box-shadow: 14px 14px 0 rgba(44, 44, 44, 0.9);
+}
+.diapo7-card--a {
+    background: linear-gradient(145deg, #FFE7C1 0%, #FFFFFF 60%);
+}
+.diapo7-card--b {
+    background: linear-gradient(145deg, rgba(208, 170, 209, 0.28) 0%, #FFFFFF 60%);
+}
+.diapo7-card__pill {
+    font: 900 12px 'Source Sans 3', sans-serif;
+    color: #FFFFFF;
+    background: #C9A632;
+    padding: 5px 14px;
+    border-radius: 999px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    align-self: flex-start;
+}
+.diapo7-card--b .diapo7-card__pill {
+    background: #6B2F6D;
+}
+.diapo7-card__icon {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-10);
-    margin-top: var(--space-16);
-    padding: var(--space-14) var(--space-32);
-    background: linear-gradient(135deg, #C9A632 0%, #D0AAD1 100%);
-    color: #fff;
-    border-radius: var(--md-sys-shape-extra-large);
-    font: 700 15px 'Dosis', sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 4px 16px rgba(212, 130, 106, 0.3);
+    width: clamp(60px, 5.5vw, 80px);
+    height: clamp(60px, 5.5vw, 80px);
+    border-radius: 20px;
+    background: #C9A632;
+    border: 4px solid #2c2c2c;
+    box-shadow: 5px 5px 0 rgba(44, 44, 44, 0.9);
+    color: #FFFFFF;
+    font-size: clamp(30px, 2.8vw, 44px);
 }
-.diapo7-workshop__cta i { font-size: 20px; }
+.diapo7-card--b .diapo7-card__icon {
+    background: #6B2F6D;
+}
+.diapo7-card__title {
+    font: 900 clamp(22px, 2.2vw, 34px) 'Dosis', sans-serif;
+    color: #2c2c2c;
+    margin: 0;
+    letter-spacing: -0.3px;
+    line-height: 1.1;
+}
+.diapo7-card__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(8px, 1vw, 16px);
+    margin: 4px 0;
+}
+.diapo7-card__stats span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: 700 clamp(13px, 1.15vw, 16px) 'Source Sans 3', sans-serif;
+    color: #6B2F6D;
+    background: rgba(107, 47, 109, 0.08);
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+.diapo7-card__stats i {
+    font-size: 15px;
+    color: #8A6A1C;
+}
+.diapo7-card__excerpt {
+    font: 500 clamp(15px, 1.3vw, 20px) 'Source Sans 3', sans-serif;
+    color: #3a3a3a;
+    margin: auto 0 0;
+    line-height: 1.5;
+    font-style: italic;
+}
+
+@media (max-width: 1100px) {
+    .diapo7-layout { grid-template-columns: 1fr; gap: 28px; }
+    .diapo7-qr-side { align-items: center; text-align: center; }
+    .diapo7-qr-side__sub { max-width: 520px; }
+}
+@media (max-width: 720px) {
+    .diapo7-cards { grid-template-columns: 1fr; }
+}
 
 /* ======================================================
    DIAPOSITIVA FINAL — Gracias / Ačiū
