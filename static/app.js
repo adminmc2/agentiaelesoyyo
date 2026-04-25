@@ -5449,9 +5449,15 @@ function replayJuego() {
 
 const DIAPO6_TOTAL_STEPS = 4;
 
+// Paso 1 — layout-text-flip
+const DIAPO6_FLIP_WORDS = ['una TARJETA', 'un AGENTE', 'una ESTRATEGIA'];
+const DIAPO6_FLIP_INTERVAL_MS = 3000;
+
 // State module-level
 let _diapo6Step = 1;
 let _diapo6ElianaInit = false;
+let _diapo6FlipTimer = null;
+let _diapo6FlipIndex = 0;
 
 function showDiapo6Screen() {
     // Solo escritorio (bypass en móvil como la 5)
@@ -5565,18 +5571,63 @@ function _diapo6GoToStep(target) {
 }
 
 function _diapo6RunStep(step) {
-    // Arquitectura vacía en v23.18.0 — los pasos no tienen contenido
-    // ni animaciones internas todavía. Cuando se implementen los UIs
-    // (layout-text-flip, focus-cards, 3d-card + progress, comic-text +
-    // AnimatedButton) este switch arrancará cada una.
+    if (step === 1) _diapo6StartFlipLayout();
+    // pasos 2, 3, 4 pendientes
 }
 
 function _diapo6StopStep(step) {
-    // Placeholder
+    if (step === 1) _diapo6StopFlipLayout();
 }
 
 function _diapo6StopAll() {
-    // Placeholder
+    _diapo6StopFlipLayout();
+}
+
+// ──────────── PASO 1 — Layout text flip cycling (v23.18.1) ────────────
+function _diapo6StartFlipLayout() {
+    _diapo6StopFlipLayout();
+    const pill = document.getElementById('diapo6-flip-pill');
+    if (!pill) return;
+
+    _diapo6FlipIndex = 0;
+    // Asegura palabra inicial visible sin animación
+    let current = pill.querySelector('.diapo6-flip-layout__word');
+    if (current) {
+        current.textContent = DIAPO6_FLIP_WORDS[0];
+        current.classList.remove('is-entering', 'is-exiting');
+    }
+
+    _diapo6FlipTimer = setInterval(() => {
+        if (!isOnDiapo6Screen() || _diapo6Step !== 1) {
+            _diapo6StopFlipLayout();
+            return;
+        }
+        const pillEl = document.getElementById('diapo6-flip-pill');
+        if (!pillEl) return;
+        const outgoing = pillEl.querySelector('.diapo6-flip-layout__word:not(.is-exiting)');
+        if (!outgoing) return;
+
+        _diapo6FlipIndex = (_diapo6FlipIndex + 1) % DIAPO6_FLIP_WORDS.length;
+        const nextText = DIAPO6_FLIP_WORDS[_diapo6FlipIndex];
+
+        // Saliente: animar exit y quitar al terminar
+        outgoing.classList.add('is-exiting');
+        setTimeout(() => outgoing.remove(), 520);
+
+        // Entrante: crear nuevo span justo detrás (mismo momento para solape visual)
+        const incoming = document.createElement('span');
+        incoming.className = 'diapo6-flip-layout__word is-entering';
+        incoming.textContent = nextText;
+        pillEl.appendChild(incoming);
+        setTimeout(() => incoming.classList.remove('is-entering'), 520);
+    }, DIAPO6_FLIP_INTERVAL_MS);
+}
+
+function _diapo6StopFlipLayout() {
+    if (_diapo6FlipTimer) {
+        clearInterval(_diapo6FlipTimer);
+        _diapo6FlipTimer = null;
+    }
 }
 
 // Sincroniza _diapo6Step para el deep-link snap directo

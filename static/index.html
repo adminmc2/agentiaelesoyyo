@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.18.0">
+    <link rel="stylesheet" href="/static/style.css?v=23.18.1">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -749,7 +749,21 @@
                 <!-- ============ PASO 1 — Hook + Qué es Strategos (layout-text-flip) ============ -->
                 <section class="diapo6-step is-active" data-step="1" id="diapo6-step-1">
                     <h2 class="diapo6-hook">Una tarjeta · Un agente · Una <span class="diapo6-hook__key">estrategia</span>.</h2>
-                    <p class="diapo6-step__placeholder">[Paso 1 — pendiente de contenido]</p>
+
+                    <div class="diapo6-flip-layout">
+                        <span class="diapo6-flip-layout__pre">Strategos es</span>
+                        <span class="diapo6-flip-layout__pill" id="diapo6-flip-pill">
+                            <span class="diapo6-flip-layout__word" id="diapo6-flip-word">una TARJETA</span>
+                        </span>
+                    </div>
+
+                    <div class="diapo6-step1-desc">
+                        <p class="diapo6-step1-desc__main">Una colección de <strong>tarjetas pedagógicas</strong> con <strong>agentes de IA</strong> dentro.</p>
+                        <p class="diapo6-step1-desc__duo">
+                            <span>La <strong>tarjeta</strong> enseña la estrategia.</span>
+                            <span>El <strong>agente</strong> la practica contigo.</span>
+                        </p>
+                    </div>
                 </section>
 
                 <!-- ============ PASO 2 — Cómo funciona en clase (focus-cards) ============ -->
@@ -1290,6 +1304,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.18.0"></script>
+    <script src="/static/app.js?v=23.18.1"></script>
 </body>
 </html>

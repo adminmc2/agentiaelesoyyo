@@ -1,5 +1,25 @@
 # Changelog — AgentiaELE
 
+## v23.18.1 — 2026-04-25 — Diapo 6 paso 1 (layout-text-flip)
+Fase 2/6 de la diapo 6 "IA para estudiantes". Se implementa el **paso 1** con el UI `layout-text-flip` (adaptado a vanilla JS desde `/proyecto_sgel/src/components/ui/layout-text-flip.tsx`).
+
+**Estructura del paso 1**:
+- Hook permanente arriba (ya existía desde v23.18.0): "Una tarjeta · Un agente · Una **estrategia**."
+- Layout flip central:
+  - Texto fijo a la izquierda: "Strategos es".
+  - Pill blanco con borde negro grueso (4px) + shadow duro (`8px 8px 0 rgba(44,44,44,0.9)`) estilo `layout-text-flip`. Dentro: palabra que cambia cada 3s alternando **una TARJETA**, **un AGENTE**, **una ESTRATEGIA**.
+  - Transición: saliente `translateY(0→50px) + blur(0→10px) + opacity 1→0` en 500ms; entrante simétrico desde `translateY(-40px)`.
+- Descripción debajo:
+  - Frase principal: "Una colección de **tarjetas pedagógicas** con **agentes de IA** dentro." (con bold violeta).
+  - Par "la tarjeta enseña / el agente practica" en mostaza bold.
+
+**Cambios**:
+- `static/index.html`: paso 1 con `.diapo6-flip-layout` + `.diapo6-step1-desc` (reemplaza el placeholder).
+- `static/style.css`: nueva sección `/* PASO 1 — Layout text flip */` con `.diapo6-flip-layout*`, keyframes `diapo6FlipWordIn`/`Out`, `.diapo6-step1-desc*`.
+- `static/app.js`: constantes `DIAPO6_FLIP_WORDS` y `DIAPO6_FLIP_INTERVAL_MS`. Funciones `_diapo6StartFlipLayout`, `_diapo6StopFlipLayout`. Cableadas a `_diapo6RunStep(1)` / `_diapo6StopStep(1)` / `_diapo6StopAll`. Guarda `isOnDiapo6Screen && _diapo6Step===1` dentro del timer para evitar fugas si el usuario navega.
+
+Versionado sync → v23.18.1.
+
 ## v23.18.0 — 2026-04-25 — Nueva diapo 6 "IA para estudiantes" (Strategos) — arquitectura vacía
 Se crea desde cero la nueva diapo 6 **"IA para estudiantes"** (producto Strategos) sustituyendo a la MIAU eliminada en v23.17.2. Esta versión entrega solo el **scaffolding** (arquitectura vacía) clonando el patrón de la diapo 5. El contenido de los 4 pasos se implementará en próximas iteraciones.
 
