@@ -1,5 +1,22 @@
 # Changelog — AgentiaELE
 
+## v23.23.2 — 2026-04-25 — Diapo 7: responsive reforzado (laptop FHD, Mac, TV grande, proyector)
+El usuario reporta que la diapo 7 no se ve bien en todas las pantallas. Se añaden media queries específicos por rango de resolución.
+
+**Ajustes base** en `static/style.css`:
+- `.diapo7-layout`: max-width 1600 → **1800**. Gap reducido ligeramente en rango bajo para respirar mejor (clamp 36→28 min).
+- `.diapo7-qr`: clamp(280-400) → **clamp(240-440)** para que escale más hacia arriba en pantallas grandes sin ser intrusivo en chicas.
+
+**Nuevos media queries**:
+- `max-height: 820px` → compacta TODO verticalmente (QR, títulos, cards, padding). Evita scroll en portátiles 1366×768, 1440×900 sin reducir lo útil.
+- `min-width: 1440 & min-height: 820 & max-width: 1919px` → optimización Mac Retina 13-15" (QR 300-400).
+- `min-width: 1920 & min-height: 960` → proyectores/monitores FHD+ (layout max 1900, QR 360-460, título 40-56, cards 420-540, excerpt 20-26).
+- `min-width: 2560` → TV 4K/QHD (layout max 2400, QR 420-560, título 52-72, cards 520-620, iconos 100-140). Escala generosa para que se vea bien desde lejos.
+- `min-width: 1600 & max-height: 960` → ultrawide/TV baja altura: compacta cards con `-webkit-line-clamp: 4` en el excerpt para no desbordar verticalmente.
+- `max-width: 1100px` → apila en 1 columna con scroll vertical.
+
+Versionado sync → v23.23.2.
+
 ## v23.23.0 — 2026-04-25 — Nueva diapo 8 "Píldoras formativas" + fix diapo 3 "Continuar"
 Dos cambios en paralelo:
 
