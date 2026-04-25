@@ -8721,20 +8721,34 @@ body[data-mood-active] .message.assistant {
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: clamp(10px, 1vw, 16px);
-    padding: clamp(20px, 2vw, 32px) clamp(20px, 1.8vw, 30px);
+    gap: clamp(14px, 1.3vw, 22px);
+    padding: clamp(28px, 2.6vw, 44px) clamp(26px, 2.4vw, 40px);
     background: #FFFFFF;
     border: 5px solid #2c2c2c;
-    border-radius: 24px;
+    border-radius: 26px;
     box-shadow: 10px 10px 0 rgba(44, 44, 44, 0.9);
     transform-style: preserve-3d;
     transition: transform 0.2s ease-out, box-shadow 0.3s ease;
-    min-height: clamp(280px, 28vw, 380px);
+    min-height: clamp(360px, 36vw, 520px);
     text-align: left;
+    cursor: pointer;
 }
 .diapo7-card:hover {
     box-shadow: 14px 14px 0 rgba(44, 44, 44, 0.9);
 }
+.diapo7-card::after {
+    content: 'Ver texto completo →';
+    position: absolute;
+    bottom: clamp(14px, 1.4vw, 22px);
+    right: clamp(20px, 2vw, 30px);
+    font: 800 clamp(12px, 1vw, 14px) 'Source Sans 3', sans-serif;
+    color: #8A6A1C;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.7;
+    transition: opacity 0.25s ease;
+}
+.diapo7-card:hover::after { opacity: 1; }
 .diapo7-card--a {
     background: linear-gradient(145deg, #FFE7C1 0%, #FFFFFF 60%);
 }
@@ -8758,23 +8772,23 @@ body[data-mood-active] .message.assistant {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: clamp(60px, 5.5vw, 80px);
-    height: clamp(60px, 5.5vw, 80px);
-    border-radius: 20px;
+    width: clamp(80px, 7vw, 120px);
+    height: clamp(80px, 7vw, 120px);
+    border-radius: 24px;
     background: #C9A632;
-    border: 4px solid #2c2c2c;
-    box-shadow: 5px 5px 0 rgba(44, 44, 44, 0.9);
+    border: 5px solid #2c2c2c;
+    box-shadow: 6px 6px 0 rgba(44, 44, 44, 0.9);
     color: #FFFFFF;
-    font-size: clamp(30px, 2.8vw, 44px);
+    font-size: clamp(40px, 3.6vw, 60px);
 }
 .diapo7-card--b .diapo7-card__icon {
     background: #6B2F6D;
 }
 .diapo7-card__title {
-    font: 900 clamp(22px, 2.2vw, 34px) 'Dosis', sans-serif;
+    font: 900 clamp(28px, 2.8vw, 44px) 'Dosis', sans-serif;
     color: #2c2c2c;
     margin: 0;
-    letter-spacing: -0.3px;
+    letter-spacing: -0.4px;
     line-height: 1.1;
 }
 .diapo7-card__stats {
@@ -8786,23 +8800,144 @@ body[data-mood-active] .message.assistant {
 .diapo7-card__stats span {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font: 700 clamp(13px, 1.15vw, 16px) 'Source Sans 3', sans-serif;
+    gap: 8px;
+    font: 800 clamp(15px, 1.3vw, 19px) 'Source Sans 3', sans-serif;
     color: #6B2F6D;
-    background: rgba(107, 47, 109, 0.08);
-    padding: 4px 10px;
+    background: rgba(107, 47, 109, 0.1);
+    padding: 6px 14px;
     border-radius: 999px;
 }
 .diapo7-card__stats i {
-    font-size: 15px;
+    font-size: clamp(17px, 1.4vw, 22px);
     color: #8A6A1C;
 }
 .diapo7-card__excerpt {
-    font: 500 clamp(15px, 1.3vw, 20px) 'Source Sans 3', sans-serif;
+    font: 500 clamp(18px, 1.6vw, 24px) 'Source Sans 3', sans-serif;
     color: #3a3a3a;
     margin: auto 0 0;
     line-height: 1.5;
     font-style: italic;
+    padding-right: 140px;
+}
+
+/* ── Modal con texto completo (v23.20.2) ── */
+.diapo7-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(20px, 3vw, 60px);
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+.diapo7-modal.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+.diapo7-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(28, 28, 30, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    cursor: pointer;
+}
+.diapo7-modal__panel {
+    position: relative;
+    width: min(860px, 94vw);
+    max-height: 90vh;
+    overflow: auto;
+    background: #FFFFFF;
+    border: 6px solid #2c2c2c;
+    border-radius: 28px;
+    box-shadow: 16px 16px 0 rgba(44, 44, 44, 0.9);
+    padding: clamp(36px, 3.6vw, 64px) clamp(32px, 3.2vw, 56px) clamp(36px, 3.6vw, 64px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(14px, 1.4vw, 22px);
+    transform: scale(1);
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.diapo7-modal.hidden .diapo7-modal__panel {
+    transform: scale(0.96);
+}
+.diapo7-modal__close {
+    position: absolute;
+    top: clamp(14px, 1.4vw, 22px);
+    right: clamp(14px, 1.4vw, 22px);
+    width: clamp(44px, 3.6vw, 56px);
+    height: clamp(44px, 3.6vw, 56px);
+    border-radius: 50%;
+    background: #2c2c2c;
+    color: #FFFFFF;
+    border: 4px solid #2c2c2c;
+    font-size: clamp(20px, 1.8vw, 26px);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+.diapo7-modal__close:hover {
+    background: #C9A632;
+    border-color: #C9A632;
+    transform: scale(1.08) rotate(90deg);
+}
+.diapo7-modal__pill {
+    font: 900 clamp(13px, 1.1vw, 15px) 'Source Sans 3', sans-serif;
+    color: #FFFFFF;
+    background: #C9A632;
+    padding: 6px 18px;
+    border-radius: 999px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    align-self: flex-start;
+}
+.diapo7-modal--b .diapo7-modal__pill {
+    background: #6B2F6D;
+}
+.diapo7-modal__title {
+    font: 900 clamp(32px, 3.4vw, 54px) 'Dosis', sans-serif;
+    color: #2c2c2c;
+    margin: 0;
+    letter-spacing: -0.5px;
+    line-height: 1.08;
+}
+.diapo7-modal__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(8px, 1vw, 14px);
+}
+.diapo7-modal__stats span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font: 800 clamp(15px, 1.3vw, 18px) 'Source Sans 3', sans-serif;
+    color: #6B2F6D;
+    background: rgba(107, 47, 109, 0.1);
+    padding: 6px 14px;
+    border-radius: 999px;
+}
+.diapo7-modal__stats i {
+    font-size: clamp(17px, 1.4vw, 20px);
+    color: #8A6A1C;
+}
+.diapo7-modal__text {
+    font: 500 clamp(20px, 1.8vw, 28px) 'Source Sans 3', sans-serif;
+    color: #2c2c2c;
+    line-height: 1.55;
+    margin: 0;
+    padding: clamp(20px, 2vw, 32px);
+    background: linear-gradient(145deg, rgba(255, 231, 193, 0.45) 0%, #FFFFFF 70%);
+    border: 3px dashed rgba(201, 166, 50, 0.45);
+    border-radius: 18px;
+    white-space: pre-line;
+}
+.diapo7-modal--b .diapo7-modal__text {
+    background: linear-gradient(145deg, rgba(208, 170, 209, 0.22) 0%, #FFFFFF 70%);
+    border-color: rgba(107, 47, 109, 0.4);
 }
 
 @media (max-width: 1100px) {

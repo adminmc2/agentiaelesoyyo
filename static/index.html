@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.22.0">
+    <link rel="stylesheet" href="/static/style.css?v=23.22.1">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -894,7 +894,7 @@
                 </button>
                 <div class="slide-header__title">
                     <span class="slide-header__num">07</span>
-                    <h1 class="slide-header__text">LucAPI · Comprensión lectora</h1>
+                    <h1 class="slide-header__text">Agentes con estrategia</h1>
                 </div>
                 <button class="slide-nav-btn slide-nav-btn--next" id="diapo7-nav-next" title="Siguiente">
                     <i class="ph-bold ph-arrow-right"></i>
@@ -926,7 +926,7 @@
                                 <div class="diapo7-card__stats">
                                     <span><i class="ph-fill ph-chalkboard-teacher"></i>Nivel A1</span>
                                     <span><i class="ph-fill ph-text-aa"></i>~80 palabras</span>
-                                    <span><i class="ph-fill ph-users-three"></i>4 personajes</span>
+                                    <span><i class="ph-fill ph-users-three"></i>Familia + descripción física</span>
                                 </div>
                                 <p class="diapo7-card__excerpt">«Los padres trabajan, los hijos van a la escuela, los hermanos juegan en casa…»</p>
                             </article>
@@ -944,6 +944,20 @@
                             </article>
                         </div>
                     </section>
+                </div>
+
+                <!-- Modal del texto completo (v23.20.2) — se abre al click en una card -->
+                <div class="diapo7-modal hidden" id="diapo7-modal" role="dialog" aria-modal="true" aria-hidden="true">
+                    <div class="diapo7-modal__backdrop" id="diapo7-modal-backdrop"></div>
+                    <div class="diapo7-modal__panel" id="diapo7-modal-panel">
+                        <button class="diapo7-modal__close" id="diapo7-modal-close" aria-label="Cerrar">
+                            <i class="ph-bold ph-x"></i>
+                        </button>
+                        <span class="diapo7-modal__pill" id="diapo7-modal-pill">TEXTO A</span>
+                        <h3 class="diapo7-modal__title" id="diapo7-modal-title">Familia pequeña</h3>
+                        <div class="diapo7-modal__stats" id="diapo7-modal-stats"></div>
+                        <article class="diapo7-modal__text" id="diapo7-modal-text"></article>
+                    </div>
                 </div>
             </div>
         </main>
@@ -1464,6 +1478,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.22.0"></script>
+    <script src="/static/app.js?v=23.22.1"></script>
 </body>
 </html>

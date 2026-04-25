@@ -1,5 +1,25 @@
 # Changelog — AgentiaELE
 
+## v23.22.1 — 2026-04-25 — Diapo 7: título "Agentes con estrategia" + modal textos + cards grandes
+Ajustes pedidos por el usuario tras v23.20.1:
+
+1. **Título del header** cambia de "LucAPI · Comprensión lectora" → **"Agentes con estrategia"**.
+2. **Cards más grandes** (más protagonismo visual): padding 28/26 (antes 20/20), min-height 360-520 (antes 280-380), icon 80-120 (antes 60-80), título 28-44 (antes 22-34), stats 15-19 (antes 13-16), excerpt 18-24 (antes 15-20), borde-radius 26 (antes 24).
+3. **Click en card → modal con texto completo**. Nueva estructura `.diapo7-modal` con backdrop blur + panel neobrutalism (borde 6px + shadow 16×16). Muestra: pill TEXTO A/B, título grande, stats pills, texto completo con fondo temático (crema-mostaza para A, lavanda para B). Cierre con X, backdrop o tecla Escape. Animación scale(0.96→1) al abrir.
+4. **Stat de Familia pequeña** cambia de "4 personajes" → **"Familia + descripción física"**.
+
+**Textos placeholder** incluidos en `DIAPO7_TEXTS` (constante JS):
+- Texto A "Familia pequeña" (~80 palabras, familia de 4 con descripción física de cada miembro).
+- Texto B "Mi día" (~75 palabras, rutina diaria).
+Estos textos pueden ajustarse cambiando solo la constante.
+
+**Cambios técnicos**:
+- `static/index.html`: título + stat actualizados. Nuevo bloque `#diapo7-modal` con backdrop, panel, close-btn, pill, title, stats-container, text-container dentro de `#diapo7-screen`.
+- `static/style.css`: cards más grandes. Nueva sección modal (`.diapo7-modal*`) con z-index 10000, transiciones opacity + scale, variantes `--a`/`--b` por color. `.diapo7-card::after` añade hint "Ver texto completo →" en esquina inferior derecha que se opaca en hover.
+- `static/app.js`: nueva constante `DIAPO7_TEXTS` con datos estructurados. `initDiapo7Tilt` amplía: añade listener click en cada card que llama `openDiapo7Modal(key)`. Nuevos `openDiapo7Modal(key)` (inyecta contenido + quita `hidden`) y `closeDiapo7Modal()`. Listeners idempotentes para backdrop, close-btn y tecla Escape.
+
+Versionado sync → v23.22.1.
+
 ## v23.20.1 — 2026-04-25 — Diapo 7 LucAPI · proyector estático (QR + 2 cards tilt 3D)
 Se sustituye el esqueleto de 8 pasos placeholder por la versión definitiva: **pantalla estática, una única visualización, sin pasos, sin modal, sin chat**. La experiencia interactiva vive en `/lucapi` (otro scope, mobile chat del otro agente).
 

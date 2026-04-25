@@ -5689,6 +5689,47 @@ function _diapo6SyncStep(n) {
 
 const DIAPO7_LUCAPI_URL = '/lucapi';  // el chat móvil se sirve en esta ruta (otro scope)
 
+// Textos completos para el modal (v23.20.2). Nivel A1, texto placeholder
+// mientras el usuario/otro scope no provee los definitivos.
+const DIAPO7_TEXTS = {
+    a: {
+        label: 'TEXTO A',
+        title: 'Familia pequeña',
+        stats: [
+            { icon: 'ph-fill ph-chalkboard-teacher', text: 'Nivel A1' },
+            { icon: 'ph-fill ph-text-aa',            text: '~80 palabras' },
+            { icon: 'ph-fill ph-users-three',        text: 'Familia + descripción física' }
+        ],
+        body: `Mi familia es pequeña. Somos cuatro en casa: mi padre, mi madre, mi hermana Sara y yo.
+
+Mi padre se llama Luis. Es alto, moreno y tiene los ojos verdes. Lleva barba.
+
+Mi madre se llama Ana. Es baja, rubia y tiene los ojos azules. Lleva gafas.
+
+Mi hermana Sara tiene diez años. Es morena, como mi padre, y tiene el pelo largo.
+
+Yo soy alto como mi padre, pero rubio como mi madre. Nos queremos mucho.`
+    },
+    b: {
+        label: 'TEXTO B',
+        title: 'Mi día',
+        stats: [
+            { icon: 'ph-fill ph-chalkboard-teacher', text: 'Nivel A1' },
+            { icon: 'ph-fill ph-text-aa',            text: '~75 palabras' },
+            { icon: 'ph-fill ph-clock',              text: 'Rutina diaria' }
+        ],
+        body: `Me levanto a las siete de la mañana. Desayuno café con leche y tostadas.
+
+Voy al trabajo en autobús. A las nueve empiezo en la oficina.
+
+A la una como con mis compañeros en un restaurante cerca.
+
+Por la tarde trabajo hasta las seis. Cuando vuelvo a casa, ceno con mi familia.
+
+Después veo la tele o leo un libro. A las once me acuesto. Estoy muy cansado.`
+    }
+};
+
 function showDiapo7Screen() {
     if (isMobile()) {
         console.warn('[Diapo7] Solo escritorio — bypass en móvil');
@@ -5751,7 +5792,7 @@ function initDiapo7QR() {
     }
 }
 
-// ──────────── Tilt 3D en las 2 cards (idempotente) ────────────
+// ──────────── Tilt 3D + click-to-modal en las 2 cards (v23.20.2) ────────────
 function initDiapo7Tilt() {
     const cards = document.querySelectorAll('#diapo7-cards .diapo7-card[data-tilt]');
     cards.forEach(card => {
@@ -5766,7 +5807,63 @@ function initDiapo7Tilt() {
         card.addEventListener('mouseleave', () => {
             card.style.transform = '';
         });
+        // Click → abre modal con el texto completo
+        card.addEventListener('click', () => {
+            const key = card.classList.contains('diapo7-card--a') ? 'a' : 'b';
+            openDiapo7Modal(key);
+        });
     });
+
+    // Listeners del modal (idempotentes)
+    const backdrop = document.getElementById('diapo7-modal-backdrop');
+    const closeBtn = document.getElementById('diapo7-modal-close');
+    if (backdrop && backdrop.dataset.init !== 'true') {
+        backdrop.dataset.init = 'true';
+        backdrop.addEventListener('click', closeDiapo7Modal);
+    }
+    if (closeBtn && closeBtn.dataset.init !== 'true') {
+        closeBtn.dataset.init = 'true';
+        closeBtn.addEventListener('click', closeDiapo7Modal);
+    }
+    if (!window._diapo7EscInit) {
+        window._diapo7EscInit = true;
+        document.addEventListener('keydown', (e) => {
+            const modal = document.getElementById('diapo7-modal');
+            if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+                closeDiapo7Modal();
+            }
+        });
+    }
+}
+
+function openDiapo7Modal(key) {
+    const data = DIAPO7_TEXTS[key];
+    if (!data) return;
+    const modal = document.getElementById('diapo7-modal');
+    if (!modal) return;
+    // Contenido
+    const pill  = document.getElementById('diapo7-modal-pill');
+    const title = document.getElementById('diapo7-modal-title');
+    const stats = document.getElementById('diapo7-modal-stats');
+    const text  = document.getElementById('diapo7-modal-text');
+    if (pill)  pill.textContent  = data.label;
+    if (title) title.textContent = data.title;
+    if (stats) {
+        stats.innerHTML = data.stats.map(s => `<span><i class="${s.icon}"></i>${s.text}</span>`).join('');
+    }
+    if (text)  text.textContent  = data.body;
+    // Clase para variante de color (A mostaza / B violeta)
+    modal.classList.remove('diapo7-modal--a', 'diapo7-modal--b');
+    modal.classList.add(`diapo7-modal--${key}`);
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeDiapo7Modal() {
+    const modal = document.getElementById('diapo7-modal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden', 'true');
 }
 
 
