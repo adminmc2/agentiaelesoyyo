@@ -1,5 +1,39 @@
 # Changelog — AgentiaELE
 
+## v23.16.4 — 2026-04-25 — Diapo 5: rediseño completo en 4 pasos secuenciales
+Tras el feedback duro del usuario sobre v23.16.0-3 ("una diapo 2×2 apretada con cuatro recuadros pegados rompe el estilo de la presentación, no usa los UIs de sgel que te pasé"), se rehace toda la diapo 5 como una **secuencia de 4 pasos full-screen** con transiciones fade-blur entre uno y otro, avance manual con flechas, sin indicador de progreso. Cada paso usa un UI diferente de sgel adaptado a vanilla JS.
+
+**Estructura**
+- `.diapo5-stage` con `position: relative` y `light-rays` decorativos de fondo (radial-gradients drift 18s).
+- 4 `<section class="diapo5-step" data-step="1..4">`. Solo uno con `is-active` a la vez. Transición 600ms cubic-bezier(.22,1,.36,1) para opacity + filter blur(14px) + translateY 40px.
+
+**Pasos**
+1. **Ingredientes** — `morphing-text` con `requestAnimationFrame`. Palabra GIGANTE 132px Dosis #8A6A1C que se transforma a la siguiente con blur cycling. Pre/post text estáticos.
+2. **Dualidad** — `container-text-flip` 3D. Caja central con dos caras (front mostaza "EN CLASE", back violeta "CON TU ALUMNO") rotando en X cada 3.5s. Frase-ejemplo debajo cambia con blur en sync.
+3. **ELITE** — `terminal` typing. Pseudo-terminal macOS (3 dots, título) tecleando 5 líneas con cursor parpadeante. Spans coloreados: prompt mostaza, letra mostaza bold, palabra blanca bold, glosa gris itálica. Velocidad ~30ms/char + pausas 280ms entre líneas.
+4. **Comunidad + QR** — `neon-gradient-card`. Card con border gradient cónico animado (8s loop con `@property --neon-angle`), inner blanco. QR Hablandis 168px + orb de Eliana 120px lado a lado.
+
+**Navegación**
+- `diapo5-nav-next` → `diapo5NextStep()`. En el paso 4 hace fade-out + `showDiapo6Screen()`.
+- `diapo5-nav-back` → `diapo5PrevStep()`. En el paso 1 hace `hideDiapo5Screen()` y vuelve a la diapo 3.
+
+**Limpieza**
+- Eliminados: `DIAPO5_CHIP_WORDS`, `DIAPO5_CHIP_INTERVAL_MS`, `DIAPO5_TTS_TEXT`, `initDiapo5ChipRotator/rotate/stop`, `initDiapo5Reveals`, todo el highlighter del hook ELITE viejo, focus cards, slogan highlight, lista ELITE acrónimo apretada, hook fixed.
+- Eliminado el TTS automático al abrir (Eliana ya no habla en esta diapo — Román lleva la narración paso a paso).
+- Estado limpio: variables module-level `_diapo5Step`, `_diapo5MorphRAF`, `_diapo5FlipTimer`, `_diapo5FlipIndex`, `_diapo5TerminalTimer`.
+
+**Ficheros**
+- `static/index.html`: bloque `<div class="diapo5-stage">` reescrito con 4 sections.
+- `static/style.css`: 420 líneas reemplazadas (todo el bloque diapo 5).
+- `static/app.js`: bloque diapo 5 reescrito completo + listeners de las flechas → `diapo5PrevStep`/`diapo5NextStep`.
+- `CLAUDE.md`: sección protección diapo 5 actualizada con la nueva estructura de 4 pasos.
+- Versión sync v23.16.3 → v23.16.4 en index, encuesta, juego3_mobile.
+
+**Pendiente / consciente**
+- `docs/diapo5-spec.md` queda stale — describe la versión 2×2 anterior. Reescribir cuando el diseño se congele.
+- TTS desactivado en esta diapo. Si se quiere reintroducir, decidir cuándo (¿paso 1 al abrir? ¿en cada paso? ¿solo paso 4?).
+- El reviser debe validar: contraste paso 3 (terminal oscuro sobre fondo claro), accesibilidad de las transiciones (`prefers-reduced-motion`), `@property --neon-angle` (Safari ≤15 no soporta — fallback aceptable).
+
 ## v23.16.3 — 2026-04-25 — Diapo 5: cambio de título (paso 1 de rediseño)
 Usuario inicia un rediseño paso a paso de la diapo 5 (considera el actual un desastre). Primer paso: cambiar el título del header mostaza.
 

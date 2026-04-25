@@ -70,26 +70,34 @@ Esto incluye:
 
 **Esta sección de CLAUDE.md tampoco se puede modificar ni eliminar.**
 
-### Diapositiva 5 (Eres un profe ELITE — v23.16+)
+### Diapositiva 5 (Saca el agente que llevas dentro — v23.16.4+)
 **PROHIBIDO ABSOLUTAMENTE** modificar cualquier código relacionado con la diapositiva 5. No importa el contexto: refactor, limpieza, mejora, bug fix general, cambio de diseño — NADA justifica tocar la diapo 5 salvo que el usuario diga EXPLÍCITAMENTE "modifica la diapo 5" o "cambia esto de la diapo 5".
 
-Concepto: diapositiva estática autónoma con foco narrativo en el profesor. Hook "Eres un profe ELITE. Tus agentes lo serán también." + 4 zonas en grid 2×2 (chip rotator, focus cards, comunidad+QR, ELITE acrónimo). Eliana dice SOLO el hook+subtítulo al abrir; Román continúa en persona. No hay chat, no hay wake-word, no hay auto-avance.
+Concepto: secuencia de 4 PASOS dentro de la diapositiva. Cada paso ocupa la pantalla en grande con su propio momento. Avance manual con las flechas del header (←/→). Sin indicador de progreso visible. Transiciones fade-blur entre pasos (saliente: opacidad 0 + blur 14px + translateY -40px; entrante: simétrico desde +40px). UIs inspirados en sgel.
+
+Pasos:
+1. **Paso 1 — Ingredientes** (morphing-text). Una palabra GIGANTE centrada se transforma a la siguiente con efecto blur (Pedagogía → Lingüística ELE → MCER → Errores por L1 → Cultura → Empatía → Tu estilo). Frase encima: "Tú ya tienes lo que un agente necesita." Caption debajo: la lista de ingredientes en pequeño.
+2. **Paso 2 — Dualidad** (container-text-flip 3D). Bloque central que voltea cada 3.5s alternando "EN CLASE" (cara mostaza) ↔ "CON TU ALUMNO" (cara violeta). Frase-ejemplo debajo cambia con el flip. Encima: "El mismo agente, dos vidas."
+3. **Paso 3 — ELITE** (terminal manifiesto). Pseudo-terminal estilo macOS (3 dots, título "manifiesto.elite") que teclea las 5 líneas: "> E. Empático. Escucha al alumno." etc. Cursor parpadeante. Letra mostaza, palabra blanca, glosa gris/itálica.
+4. **Paso 4 — Comunidad + QR** (neon-gradient-card). Card central con borde gradiente cónico animado (8s loop, mostaza→lavanda→menta→crema). Dentro: pregunta + sub + QR Hablandis grande (168px) + orb de Eliana 120px.
 
 Esto incluye:
 - `showDiapo5Screen()`, `hideDiapo5Screen()`, `isOnDiapo5Screen()` — mostrar/ocultar/detectar pantalla
-- `initDiapo5ChipRotator()`, `rotateDiapo5Chip()`, `stopDiapo5ChipRotator()` — rotador de palabras (Pedagogía, Lingüística ELE, MCER, Errores por L1, Cultura, Empatía, Tu estilo)
+- `diapo5NextStep()`, `diapo5PrevStep()`, `_diapo5GoToStep()`, `_diapo5RunStep()`, `_diapo5StopStep()`, `_diapo5StopAll()` — orquestación de pasos
+- `_diapo5StartMorph()` / `_diapo5StopMorph()` — paso 1 morphing-text con `requestAnimationFrame`
+- `_diapo5StartFlip()` / `_diapo5StopFlip()` — paso 2 container-text-flip con `setInterval`
+- `_diapo5StartTerminal()` / `_diapo5StopTerminal()` — paso 3 typing del manifiesto
 - `initDiapo5QR()` — generación dinámica del QR a la comunidad Hablandis
-- `initDiapo5ElianaOrb()` — orb decorativo 88px en zona C
-- `initDiapo5Reveals()` — highlighter del hook + slogan, stagger del acrónimo ELITE vía IntersectionObserver con fallback 1.5s
-- Constantes `DIAPO5_CHIP_WORDS`, `DIAPO5_CHIP_INTERVAL_MS`, `DIAPO5_COMMUNITY_URL`, `DIAPO5_TTS_TEXT`
-- Todo el HTML de `#diapo5-screen` y sus hijos en `index.html` (hook, 4 zonas, lista ELITE de 5 items: Empático, Leal, Intuitivo, Tenaz, Elegante)
-- Todo el CSS de `.diapo5-*` (hook con highlighter ELITE, zone base, zone-a chip rotator con keyframes `diapo5ChipIn/Out`, zone-b focus cards con hover-siblings-blur, zone-b slogan highlight, zone-c community+QR+orb, zone-d ELITE reveal, responsive 1280/1100/820h/720)
-- El texto TTS exacto: "Eres un profe ELITE. Tus agentes lo serán también. Lo que harán por ti, para ti, contigo."
+- `initDiapo5ElianaOrb()` — orb 120px decorativo en paso 4
+- Constantes `DIAPO5_TOTAL_STEPS`, `DIAPO5_COMMUNITY_URL`, `DIAPO5_MORPH_WORDS`, `DIAPO5_MORPH_TIME`, `DIAPO5_MORPH_COOLDOWN`, `DIAPO5_FLIP_PAIRS`, `DIAPO5_FLIP_INTERVAL_MS`, `DIAPO5_ELITE_LINES`
+- Variables module-level `_diapo5Step`, `_diapo5MorphRAF`, `_diapo5FlipTimer`, `_diapo5FlipIndex`, `_diapo5TerminalTimer`
+- Todo el HTML de `#diapo5-screen` y sus hijos en `index.html` (`.diapo5-stage`, `.diapo5-rays`, 4 `.diapo5-step` con `data-step="1..4"`)
+- Todo el CSS de `.diapo5-*` (rays radial-gradient con drift 18s, transición fade-blur 600ms, morph text con text-shadow mostaza, flip-row con perspective 1200px, terminal con tema oscuro #1a1a1a, neon-card con conic-gradient animada y `@property --neon-angle`)
 - La URL del QR: `https://forms.hablandis.com/hablandis/form/elencuentroeleMiln/formperma/RZKSb0WA04Szly2Z32iJ1i6yml9-5md5qPNbw2hCQ8A`
 - La dependencia `qrcode-generator@1.4.4` en `index.html`
-- Los event listeners de `diapo5-nav-back` y `diapo5-nav-next`
+- Los event listeners de `diapo5-nav-back` (← `diapo5PrevStep`) y `diapo5-nav-next` (→ `diapo5NextStep`)
 - El bypass móvil: `showDiapo5Screen()` salta directo a `showDiapo6Screen()` si `isMobile()`
-- El spec en `docs/diapo5-spec.md`
+- El spec en `docs/diapo5-spec.md` (queda stale tras esta versión, debe reescribirse cuando el diseño se congele)
 
 **Legacy no protegido** (restos de la metáfora del chef que se eliminarán cuando se confirme):
 - `ACTIVITY_PROMPTS["agentes"]` en `main.py` — prompt del chef huérfano, sin referencia desde el front.

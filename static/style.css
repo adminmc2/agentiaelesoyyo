@@ -7782,7 +7782,9 @@ body[data-mood-active] .message.assistant {
 }
 
 /* ============================================
-   DIAPO 5 — Eres un profe ELITE (v23.16)
+   DIAPO 5 — Saca el agente que llevas dentro (v23.16.4)
+   4 pasos secuenciales con transiciones fade-blur.
+   Avance manual con flechas del header.
    ============================================ */
 .diapo5-screen {
     padding: 0 !important;
@@ -7792,300 +7794,290 @@ body[data-mood-active] .message.assistant {
         opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate),
         transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-accelerate);
 }
-.diapo5-screen.fade-out {
-    opacity: 0;
-    transform: scale(0.98);
-}
+.diapo5-screen.fade-out { opacity: 0; transform: scale(0.98); }
 
-.diapo5-page {
+.diapo5-stage {
+    position: relative;
     width: 100%;
     min-height: 100vh;
     min-height: 100dvh;
-    padding: 90px 48px 48px;
-    display: grid;
-    grid-template-columns: 1.15fr 1fr;
-    grid-template-rows: auto auto;
-    grid-template-areas:
-        "hook hook"
-        "a    b"
-        "c    d";
-    gap: 28px;
-    background: transparent;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-/* ──────────────────────────────────────────── HOOK ── */
-.diapo5-hook {
-    grid-area: hook;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 20px 28px 22px;
-    border-radius: 22px;
-    background: linear-gradient(135deg, rgba(255, 231, 193, 0.85), rgba(208, 232, 233, 0.75));
-    border: 1.5px solid rgba(201, 166, 50, 0.22);
-    box-shadow: 0 10px 28px -18px rgba(138, 106, 28, 0.35);
-}
-.diapo5-hook__title {
-    font: 800 clamp(28px, 3.2vw, 44px) 'Dosis', sans-serif;
-    color: #2c2c2c;
-    margin: 0;
-    line-height: 1.12;
-    letter-spacing: -0.5px;
-    position: relative;
-    z-index: 0;
-}
-.diapo5-hook__elite {
-    position: relative;
-    color: #8A6A1C;
-    font-weight: 900;
-    padding: 0 4px;
-    white-space: nowrap;
-}
-.diapo5-hook__elite::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -2px;
-    height: 8px;
-    background: rgba(201, 166, 50, 0.35);
-    border-radius: 4px;
-    z-index: -1;
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.diapo5-hook__elite.is-lit::after {
-    transform: scaleX(1);
-}
-.diapo5-hook__subtitle {
-    font: 600 clamp(16px, 1.35vw, 20px) 'Source Sans 3', sans-serif;
-    color: #4a4a4a;
-    margin: 0;
-    letter-spacing: 0.2px;
-}
-.diapo5-hook__accent {
-    font-weight: 800;
-    color: #6B2F6D;
-}
-
-/* ──────────────────────────────────────────── ZONE BASE ── */
-.diapo5-zone {
-    display: flex;
-    flex-direction: column;
-    padding: 22px 24px;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.82);
-    border: 1.5px solid rgba(0, 0, 0, 0.06);
-    box-shadow: 0 6px 24px -20px rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-}
-.diapo5-zone-a { grid-area: a; gap: 14px; }
-.diapo5-zone-b { grid-area: b; gap: 16px; }
-.diapo5-zone-c { grid-area: c; gap: 14px; position: relative; overflow: hidden; }
-.diapo5-zone-d { grid-area: d; gap: 12px; }
-
-/* ──────────────────────────────────────────── ZONE A — CHIP ROTATOR ── */
-.diapo5-zone-a__intro {
-    font: 600 clamp(15px, 1.2vw, 18px) 'Dosis', sans-serif;
-    color: #2c2c2c;
-    margin: 0;
-    line-height: 1.45;
-}
-.diapo5-zone-a__ingredient-label {
-    font: 700 13px 'Source Sans 3', sans-serif;
-    color: #8A6A1C;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    margin: 0;
-}
-.diapo5-chip-rotator {
-    display: inline-flex;
-    align-self: flex-start;
-    align-items: center;
-    min-height: 52px;
-    padding: 10px 22px;
-    border-radius: 999px;
-    background: linear-gradient(135deg, #C9A632, #D9B94A);
-    box-shadow: 0 6px 18px -8px rgba(201, 166, 50, 0.55);
+    padding-top: 78px;
     overflow: hidden;
-    position: relative;
-}
-.diapo5-chip {
-    font: 800 clamp(18px, 1.8vw, 26px) 'Dosis', sans-serif;
-    color: #fff;
-    letter-spacing: 0.3px;
-    white-space: nowrap;
-    display: inline-block;
-}
-.diapo5-chip.is-out {
-    animation: diapo5ChipOut 350ms cubic-bezier(0.5, 0, 0.75, 0) forwards;
-}
-.diapo5-chip.is-in {
-    animation: diapo5ChipIn 450ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-@keyframes diapo5ChipOut {
-    0%   { opacity: 1; filter: blur(0); transform: translateY(0); }
-    100% { opacity: 0; filter: blur(8px); transform: translateY(-10px); }
-}
-@keyframes diapo5ChipIn {
-    0%   { opacity: 0; filter: blur(8px); transform: translateY(10px); }
-    100% { opacity: 1; filter: blur(0); transform: translateY(0); }
+    background: transparent;
 }
 
-/* ──────────────────────────────────────────── ZONE B — FOCUS CARDS ── */
-.diapo5-focus-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-}
-.diapo5-card {
-    padding: 16px 16px 14px;
-    border-radius: 16px;
-    background: #fff;
-    border: 1.5px solid rgba(0, 0, 0, 0.07);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    cursor: pointer;
-    transition:
-        filter 0.35s ease,
-        transform 0.35s ease,
-        box-shadow 0.35s ease,
-        border-color 0.35s ease;
-    will-change: filter, transform;
-}
-.diapo5-card__head {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.diapo5-card__icon {
-    font-size: 26px;
-    color: #8A6A1C;
-    flex-shrink: 0;
-}
-.diapo5-card__title {
-    font: 800 clamp(16px, 1.3vw, 20px) 'Dosis', sans-serif;
-    color: #2c2c2c;
-    margin: 0;
-    line-height: 1.2;
-}
-.diapo5-card__list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-.diapo5-card__list li {
-    font: 400 clamp(13px, 1.05vw, 15px) 'Source Sans 3', sans-serif;
-    color: #3a3a3a;
-    line-height: 1.45;
-    padding-left: 16px;
-    position: relative;
-}
-.diapo5-card__list li::before {
-    content: '';
+/* Light rays decorativos de fondo (sutiles) */
+.diapo5-rays {
     position: absolute;
-    left: 4px;
-    top: 9px;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: #C9A632;
-}
-.diapo5-card__list strong {
-    color: #6B2F6D;
-    font-weight: 700;
-}
-.diapo5-card__foot {
-    font: 700 12px 'Source Sans 3', sans-serif;
-    color: #8A6A1C;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin: 4px 0 0;
-}
-/* focus-card hover: siblings blur */
-.diapo5-focus-grid:hover .diapo5-card {
-    filter: blur(2px) brightness(0.92);
-    transform: scale(0.98);
-}
-.diapo5-focus-grid .diapo5-card:hover {
-    filter: blur(0) brightness(1);
-    transform: scale(1.02);
-    border-color: #C9A632;
-    box-shadow: 0 14px 30px -18px rgba(138, 106, 28, 0.45);
-}
-.diapo5-zone-b__slogan {
-    margin: 0;
-    text-align: center;
-    font: 700 clamp(14px, 1.1vw, 17px) 'Source Sans 3', sans-serif;
-    color: #2c2c2c;
-}
-.diapo5-highlight {
-    position: relative;
-    display: inline-block;
-    padding: 2px 6px;
+    inset: 0;
+    pointer-events: none;
     z-index: 0;
+    background:
+        radial-gradient(ellipse 60% 80% at 20% 0%, rgba(201, 166, 50, 0.10), transparent 60%),
+        radial-gradient(ellipse 50% 70% at 90% 30%, rgba(208, 170, 209, 0.12), transparent 65%),
+        radial-gradient(ellipse 80% 50% at 50% 100%, rgba(208, 232, 233, 0.30), transparent 70%);
+    animation: diapo5RaysDrift 18s ease-in-out infinite alternate;
 }
-.diapo5-highlight::before {
-    content: '';
-    position: absolute;
-    inset: 2px 0;
-    background: rgba(208, 170, 209, 0.55);
-    border-radius: 4px;
-    z-index: -1;
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.diapo5-highlight.is-lit::before {
-    transform: scaleX(1);
+@keyframes diapo5RaysDrift {
+    0%   { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-2%, 1%) scale(1.04); }
 }
 
-/* ──────────────────────────────────────────── ZONE C — COMMUNITY + QR + ORB ── */
-.diapo5-community {
+/* ──────────────── PASOS — base + transición fade+blur ──────────────── */
+.diapo5-step {
+    position: absolute;
+    inset: 78px 0 0 0;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    position: relative;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px 40px;
+    gap: 28px;
+    opacity: 0;
+    filter: blur(14px);
+    transform: translateY(40px);
+    transition:
+        opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+        filter  600ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
     z-index: 1;
 }
-.diapo5-community__title {
-    font: 800 clamp(17px, 1.4vw, 22px) 'Dosis', sans-serif;
+.diapo5-step.is-active {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+    pointer-events: auto;
+    z-index: 2;
+}
+.diapo5-step.is-leaving {
+    opacity: 0;
+    filter: blur(14px);
+    transform: translateY(-40px);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.diapo5-step__pre {
+    font: 700 clamp(18px, 1.6vw, 26px) 'Dosis', sans-serif;
     color: #6B2F6D;
     margin: 0;
-    line-height: 1.2;
-    max-width: 85%;
+    letter-spacing: 0.3px;
+    max-width: 880px;
 }
-.diapo5-community__body {
-    font: 400 clamp(13px, 1.05vw, 15px) 'Source Sans 3', sans-serif;
-    color: #3a3a3a;
+.diapo5-step__post {
+    font: 400 clamp(13px, 1.05vw, 16px) 'Source Sans 3', sans-serif;
+    color: #555;
     margin: 0;
-    line-height: 1.5;
+    max-width: 920px;
+    letter-spacing: 0.4px;
 }
-.diapo5-community__cta {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-top: 6px;
+
+/* ──────────────── PASO 1 — Morphing text ──────────────── */
+.diapo5-morph {
+    position: relative;
+    width: 100%;
+    max-width: 1100px;
+    height: clamp(120px, 18vw, 220px);
+    margin: 0 auto;
+    pointer-events: none;
 }
-.diapo5-qr {
-    width: 96px;
-    height: 96px;
-    border-radius: 12px;
-    background: #fff;
-    padding: 6px;
-    box-shadow: 0 4px 14px -6px rgba(0, 0, 0, 0.25);
-    border: 1.5px solid rgba(0, 0, 0, 0.06);
+.diapo5-morph__text {
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    font: 900 clamp(54px, 8vw, 132px) 'Dosis', sans-serif;
+    color: #8A6A1C;
+    letter-spacing: -1px;
+    line-height: 1;
+    text-align: center;
+    opacity: 0;
+    filter: blur(0);
+    will-change: opacity, filter;
+    text-shadow: 0 6px 24px rgba(138, 106, 28, 0.18);
+}
+
+/* ──────────────── PASO 2 — Container text flip 3D ──────────────── */
+.diapo5-flip-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    perspective: 1200px;
+}
+.diapo5-flip__prefix {
+    font: 800 clamp(36px, 5vw, 72px) 'Dosis', sans-serif;
+    color: #2c2c2c;
+    letter-spacing: -0.5px;
+}
+.diapo5-flip {
+    position: relative;
+    display: inline-block;
+    min-width: clamp(280px, 36vw, 520px);
+    height: clamp(56px, 7vw, 96px);
+    transform-style: preserve-3d;
+    transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.diapo5-flip.is-flipped {
+    transform: rotateX(180deg);
+}
+.diapo5-flip__face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 22px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #C9A632, #D9B94A);
+    color: #fff;
+    font: 900 clamp(28px, 4vw, 56px) 'Dosis', sans-serif;
+    letter-spacing: 0.5px;
+    box-shadow: 0 12px 28px -12px rgba(138, 106, 28, 0.45);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    white-space: nowrap;
+}
+.diapo5-flip__face.is-back {
+    transform: rotateX(180deg);
+    background: linear-gradient(135deg, #6B2F6D, #8E4D90);
+}
+.diapo5-flip__example {
+    font: 600 clamp(16px, 1.5vw, 22px) 'Source Sans 3', sans-serif;
+    color: #3a3a3a;
+    margin: 0;
+    max-width: 760px;
+    line-height: 1.5;
+    transition: opacity 350ms ease, filter 350ms ease;
+}
+.diapo5-flip__example.is-swapping {
+    opacity: 0;
+    filter: blur(8px);
+}
+
+/* ──────────────── PASO 3 — Terminal manifiesto ──────────────── */
+.diapo5-terminal {
+    width: min(820px, 90vw);
+    max-height: 70vh;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #1a1a1a;
+    box-shadow:
+        0 30px 60px -20px rgba(0, 0, 0, 0.45),
+        0 0 0 1px rgba(255, 255, 255, 0.04);
+    text-align: left;
+}
+.diapo5-terminal__bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 16px;
+    background: #2b2b2b;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.diapo5-terminal__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.diapo5-terminal__dot--r { background: #ff5f56; }
+.diapo5-terminal__dot--y { background: #ffbd2e; }
+.diapo5-terminal__dot--g { background: #27c93f; }
+.diapo5-terminal__title {
+    margin-left: 12px;
+    color: rgba(255, 255, 255, 0.55);
+    font: 500 12px 'Inconsolata', 'Source Code Pro', monospace;
+    letter-spacing: 0.4px;
+}
+.diapo5-terminal__body {
+    padding: 28px 32px 32px;
+    color: #f0e6c8;
+    font: 600 clamp(14px, 1.2vw, 19px) 'Inconsolata', 'Source Code Pro', monospace;
+    line-height: 1.85;
+    letter-spacing: 0.2px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 320px;
+}
+.diapo5-terminal__line { display: block; }
+.diapo5-terminal__line .prompt { color: #C9A632; margin-right: 8px; }
+.diapo5-terminal__line .letter { color: #C9A632; font-weight: 800; }
+.diapo5-terminal__line .word   { color: #fff; font-weight: 700; }
+.diapo5-terminal__line .gloss  { color: rgba(255, 255, 255, 0.6); font-style: italic; }
+.diapo5-terminal__cursor {
+    display: inline-block;
+    width: 10px;
+    background: #C9A632;
+    margin-left: 2px;
+    animation: diapo5TerminalBlink 1s steps(2, start) infinite;
+}
+@keyframes diapo5TerminalBlink {
+    50% { background: transparent; }
+}
+
+/* ──────────────── PASO 4 — Neon gradient card ──────────────── */
+.diapo5-neon-card {
+    position: relative;
+    border-radius: 24px;
+    padding: 4px;
+    background: conic-gradient(
+        from var(--neon-angle, 0deg),
+        #C9A632, #D0AAD1, #8CBEB2, #FFE7C1, #C9A632
+    );
+    width: min(880px, 92vw);
+    box-shadow: 0 30px 60px -20px rgba(138, 106, 28, 0.25);
+    animation: diapo5NeonRotate 8s linear infinite;
+}
+@property --neon-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+@keyframes diapo5NeonRotate {
+    to { --neon-angle: 360deg; }
+}
+.diapo5-neon-card__inner {
+    background: #fff;
+    border-radius: 21px;
+    padding: 38px 44px 34px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+}
+.diapo5-neon-card__title {
+    font: 800 clamp(22px, 2.4vw, 36px) 'Dosis', sans-serif;
+    color: #6B2F6D;
+    margin: 0;
+    line-height: 1.2;
+    max-width: 720px;
+}
+.diapo5-neon-card__sub {
+    font: 600 clamp(15px, 1.2vw, 18px) 'Source Sans 3', sans-serif;
+    color: #4a4a4a;
+    margin: 0;
+    max-width: 620px;
+}
+.diapo5-neon-card__cta {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    margin-top: 8px;
+}
+.diapo5-qr {
+    width: 168px;
+    height: 168px;
+    border-radius: 14px;
+    background: #fff;
+    padding: 8px;
+    box-shadow: 0 6px 20px -8px rgba(0, 0, 0, 0.2);
+    border: 1.5px solid rgba(0, 0, 0, 0.06);
     flex-shrink: 0;
 }
 .diapo5-qr img, .diapo5-qr canvas, .diapo5-qr svg {
@@ -8097,109 +8089,36 @@ body[data-mood-active] .message.assistant {
     font: 700 12px 'Source Sans 3', sans-serif;
     color: #8A6A1C;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.4px;
 }
 .diapo5-eliana-orb {
-    position: absolute;
-    right: 16px;
-    bottom: 16px;
-    width: 88px;
-    height: 88px;
+    width: 120px;
+    height: 120px;
+    flex-shrink: 0;
     pointer-events: none;
-    z-index: 0;
-    opacity: 0.85;
 }
 
-/* ──────────────────────────────────────────── ZONE D — ELITE REVEAL ── */
-.diapo5-elite-title {
-    font: 800 clamp(16px, 1.3vw, 20px) 'Dosis', sans-serif;
-    color: #2c2c2c;
-    margin: 0 0 4px;
-}
-.diapo5-elite-title__word {
-    color: #8A6A1C;
-    letter-spacing: 2px;
-}
-.diapo5-elite-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    counter-reset: elite;
-}
-.diapo5-elite-item {
-    display: grid;
-    grid-template-columns: 38px 1fr;
-    grid-template-rows: auto auto;
-    column-gap: 12px;
-    align-items: baseline;
-    padding: 8px 12px;
-    border-radius: 12px;
-    background: rgba(255, 231, 193, 0.45);
-    border-left: 4px solid #C9A632;
-    opacity: 0;
-    transform: translateX(-14px);
-    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.diapo5-elite-item.is-revealed {
-    opacity: 1;
-    transform: translateX(0);
-}
-.diapo5-elite-item__letter {
-    grid-row: 1 / span 2;
-    font: 900 30px 'Dosis', sans-serif;
-    color: #8A6A1C;
-    line-height: 1;
-    text-align: center;
-}
-.diapo5-elite-item__word {
-    font: 800 clamp(15px, 1.2vw, 18px) 'Dosis', sans-serif;
-    color: #2c2c2c;
-    letter-spacing: 0.2px;
-}
-.diapo5-elite-item__gloss {
-    font: 400 clamp(12px, 1vw, 14px) 'Source Sans 3', sans-serif;
-    color: #555;
-    line-height: 1.35;
-    grid-column: 2;
-}
-
-/* ──────────────────────────────────────────── RESPONSIVE ── */
-@media (max-width: 1280px) {
-    .diapo5-page {
-        padding: 88px 28px 36px;
-        gap: 20px;
-    }
-}
+/* ──────────────── RESPONSIVE ──────────────── */
 @media (max-width: 1100px) {
-    .diapo5-page {
-        grid-template-columns: 1fr;
-        grid-template-areas:
-            "hook"
-            "a"
-            "b"
-            "c"
-            "d";
-    }
-}
-@media (max-height: 820px) {
-    .diapo5-page { padding-top: 80px; gap: 18px; }
-    .diapo5-hook { padding: 14px 22px 16px; }
-    .diapo5-zone { padding: 16px 20px; }
-    .diapo5-elite-item { padding: 6px 10px; }
-    .diapo5-elite-item__letter { font-size: 26px; }
+    .diapo5-step { padding: 20px 24px; gap: 22px; }
+    .diapo5-flip-row { gap: 12px; }
 }
 @media (max-width: 720px) {
-    .diapo5-page { padding: 84px 16px 28px; gap: 16px; }
-    .diapo5-focus-grid { grid-template-columns: 1fr; }
-    .diapo5-eliana-orb { width: 64px; height: 64px; right: 10px; bottom: 10px; opacity: 0.6; }
-    .diapo5-community__title { max-width: 100%; }
+    .diapo5-step { padding: 16px 14px; gap: 16px; }
+    .diapo5-morph { height: clamp(96px, 22vw, 160px); }
+    .diapo5-terminal { width: 96vw; }
+    .diapo5-terminal__body { padding: 18px 18px 22px; min-height: 240px; }
+    .diapo5-neon-card__inner { padding: 24px 18px; }
+    .diapo5-neon-card__cta { flex-direction: column; gap: 16px; }
+    .diapo5-qr { width: 140px; height: 140px; }
+    .diapo5-eliana-orb { width: 88px; height: 88px; }
 }
-
-/* (v23.16) Los estilos antiguos de diapo5 (demo/stepper/wordcloud/chef-intro/cap/closing/song)
-   se eliminaron al reemplazar la metáfora del chef por "Eres un profe ELITE". */
+@media (max-height: 760px) {
+    .diapo5-stage { padding-top: 70px; }
+    .diapo5-step { inset: 70px 0 0 0; padding: 16px 24px; gap: 16px; }
+    .diapo5-terminal { max-height: 60vh; }
+    .diapo5-terminal__body { padding: 18px 22px; min-height: 200px; }
+}
 
 /* ============================================
    DIAPO 8 — Construye tu Agente (Plataforma)

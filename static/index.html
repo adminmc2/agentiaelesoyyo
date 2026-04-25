@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.16.3">
+    <link rel="stylesheet" href="/static/style.css?v=23.16.4">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -659,116 +659,59 @@
                 </button>
             </header>
 
-            <div class="diapo5-page">
-                <!-- HOOK TÍTULO — narrado por Eliana al abrir la diapo -->
-                <section class="diapo5-hook">
-                    <h2 class="diapo5-hook__title">
-                        Eres un profe <span class="diapo5-hook__elite" id="diapo5-elite-highlight">ELITE</span>.
-                        Tus agentes lo serán también.
-                    </h2>
-                    <p class="diapo5-hook__subtitle">
-                        Lo que harán <span class="diapo5-hook__accent">por ti</span>
-                        · <span class="diapo5-hook__accent">para ti</span>
-                        · <span class="diapo5-hook__accent">contigo</span>.
-                    </p>
+            <div class="diapo5-stage" id="diapo5-stage">
+                <!-- Light rays decorativos de fondo -->
+                <div class="diapo5-rays" aria-hidden="true"></div>
+
+                <!-- ============ PASO 1 — Ingredientes (morphing-text) ============ -->
+                <section class="diapo5-step is-active" data-step="1" id="diapo5-step-1">
+                    <p class="diapo5-step__pre">Tú ya tienes lo que un agente necesita.</p>
+                    <div class="diapo5-morph" id="diapo5-morph" aria-live="polite">
+                        <span class="diapo5-morph__text diapo5-morph__text--a"></span>
+                        <span class="diapo5-morph__text diapo5-morph__text--b"></span>
+                    </div>
+                    <p class="diapo5-step__post">Pedagogía · Lingüística ELE · MCER · Errores por L1 · Cultura · Empatía · Tu estilo</p>
                 </section>
 
-                <!-- ZONA A — ingredientes que SOLO tú tienes (chip rotator) -->
-                <section class="diapo5-zone diapo5-zone-a" data-zone="a">
-                    <p class="diapo5-zone-a__intro">
-                        Tú sabes enseñar. Tú sabes de lengua. Tú conoces a tus alumnos.
-                    </p>
-                    <p class="diapo5-zone-a__ingredient-label">Ingredientes que SOLO tú tienes:</p>
-                    <div class="diapo5-chip-rotator" id="diapo5-chip-rotator" aria-live="polite">
-                        <span class="diapo5-chip" id="diapo5-chip-word">Pedagogía</span>
+                <!-- ============ PASO 2 — Dualidad (container-text-flip) ============ -->
+                <section class="diapo5-step" data-step="2" id="diapo5-step-2">
+                    <p class="diapo5-step__pre">El mismo agente, dos vidas.</p>
+                    <div class="diapo5-flip-row">
+                        <span class="diapo5-flip__prefix">Contigo,</span>
+                        <span class="diapo5-flip" id="diapo5-flip">
+                            <span class="diapo5-flip__face is-front">EN CLASE</span>
+                            <span class="diapo5-flip__face is-back">CON TU ALUMNO</span>
+                        </span>
+                    </div>
+                    <p class="diapo5-flip__example" id="diapo5-flip-example">Corrige 27 redacciones con tu rúbrica en 1 minuto.</p>
+                </section>
+
+                <!-- ============ PASO 3 — ELITE (terminal manifest) ============ -->
+                <section class="diapo5-step" data-step="3" id="diapo5-step-3">
+                    <div class="diapo5-terminal" id="diapo5-terminal">
+                        <div class="diapo5-terminal__bar">
+                            <span class="diapo5-terminal__dot diapo5-terminal__dot--r"></span>
+                            <span class="diapo5-terminal__dot diapo5-terminal__dot--y"></span>
+                            <span class="diapo5-terminal__dot diapo5-terminal__dot--g"></span>
+                            <span class="diapo5-terminal__title">manifiesto.elite</span>
+                        </div>
+                        <div class="diapo5-terminal__body" id="diapo5-terminal-body" aria-live="polite"></div>
                     </div>
                 </section>
 
-                <!-- ZONA B — focus cards: un agente, dos vidas -->
-                <section class="diapo5-zone diapo5-zone-b" data-zone="b">
-                    <div class="diapo5-focus-grid" id="diapo5-focus-grid">
-                        <article class="diapo5-card" data-diapo5-card="clase">
-                            <div class="diapo5-card__head">
-                                <i class="ph-fill ph-chalkboard-teacher diapo5-card__icon"></i>
-                                <h3 class="diapo5-card__title">Contigo, en clase</h3>
+                <!-- ============ PASO 4 — Comunidad + QR (neon-gradient-card) ============ -->
+                <section class="diapo5-step" data-step="4" id="diapo5-step-4">
+                    <div class="diapo5-neon-card">
+                        <div class="diapo5-neon-card__inner">
+                            <h2 class="diapo5-neon-card__title">¿Por qué no sacas ese agente que llevas dentro?</h2>
+                            <p class="diapo5-neon-card__sub">Únete a la comunidad ELE — sin código, solo tu expertise.</p>
+                            <div class="diapo5-neon-card__cta">
+                                <div class="diapo5-qr" id="diapo5-qr" aria-label="QR del formulario para unirte a la comunidad"></div>
+                                <div class="diapo5-eliana-orb" id="diapo5-eliana-orb" aria-hidden="true"></div>
                             </div>
-                            <ul class="diapo5-card__list">
-                                <li>Genera el quiz del texto que subiste.</li>
-                                <li>Corrige 27 redacciones con <strong>tu rúbrica</strong>.</li>
-                                <li>Redacta correos a 25 familias en 1 minuto.</li>
-                                <li>Detecta el error grupal del día.</li>
-                            </ul>
-                            <p class="diapo5-card__foot">Lo construyes una vez.</p>
-                        </article>
-
-                        <article class="diapo5-card" data-diapo5-card="alumno">
-                            <div class="diapo5-card__head">
-                                <i class="ph-fill ph-graduation-cap diapo5-card__icon"></i>
-                                <h3 class="diapo5-card__title">Después, con tu alumno</h3>
-                            </div>
-                            <ul class="diapo5-card__list">
-                                <li>Practica fuera de clase.</li>
-                                <li>Explica con <strong>tus ejemplos</strong>.</li>
-                                <li>Corrige como <strong>tú</strong> lo harías.</li>
-                                <li>Nunca se impacienta. Disponible a las 23:00.</li>
-                            </ul>
-                            <p class="diapo5-card__foot">Lo recibe — con tu voz dentro.</p>
-                        </article>
-                    </div>
-
-                    <p class="diapo5-zone-b__slogan">
-                        <span class="diapo5-highlight" id="diapo5-slogan-highlight">Construyes una vez. Se usa dos veces.</span>
-                    </p>
-                </section>
-
-                <!-- ZONA C — comunidad + QR + Eliana -->
-                <section class="diapo5-zone diapo5-zone-c" data-zone="c">
-                    <div class="diapo5-community">
-                        <h3 class="diapo5-community__title">
-                            ¿Por qué no sacas ese agente que llevas dentro?
-                        </h3>
-                        <p class="diapo5-community__body">
-                            Te ayudamos. Únete a la comunidad ELE.
-                            <br>Sin código — solo tu expertise.
-                        </p>
-                        <div class="diapo5-community__cta">
-                            <div class="diapo5-qr" id="diapo5-qr" aria-label="QR del formulario para unirte a la comunidad"></div>
                             <span class="diapo5-qr__hint">Escanea para unirte</span>
                         </div>
                     </div>
-                    <div class="diapo5-eliana-orb" id="diapo5-eliana-orb" aria-hidden="true"></div>
-                </section>
-
-                <!-- ZONA D — ELITE acrónimo (reveal final) -->
-                <section class="diapo5-zone diapo5-zone-d" data-zone="d">
-                    <h3 class="diapo5-elite-title">Qué significa ser <span class="diapo5-elite-title__word">ELITE</span></h3>
-                    <ol class="diapo5-elite-list" id="diapo5-elite-list">
-                        <li class="diapo5-elite-item" data-letter="E">
-                            <span class="diapo5-elite-item__letter">E</span>
-                            <span class="diapo5-elite-item__word">Empático</span>
-                            <span class="diapo5-elite-item__gloss">escucha al alumno · lee el contexto</span>
-                        </li>
-                        <li class="diapo5-elite-item" data-letter="L">
-                            <span class="diapo5-elite-item__letter">L</span>
-                            <span class="diapo5-elite-item__word">Leal</span>
-                            <span class="diapo5-elite-item__gloss">fiel a tu criterio · a tu rúbrica</span>
-                        </li>
-                        <li class="diapo5-elite-item" data-letter="I">
-                            <span class="diapo5-elite-item__letter">I</span>
-                            <span class="diapo5-elite-item__word">Intuitivo</span>
-                            <span class="diapo5-elite-item__gloss">sabe qué pasa · actúa sin dictado</span>
-                        </li>
-                        <li class="diapo5-elite-item" data-letter="T">
-                            <span class="diapo5-elite-item__letter">T</span>
-                            <span class="diapo5-elite-item__word">Tenaz</span>
-                            <span class="diapo5-elite-item__gloss">no abandona · termina lo empezado</span>
-                        </li>
-                        <li class="diapo5-elite-item" data-letter="E">
-                            <span class="diapo5-elite-item__letter">E</span>
-                            <span class="diapo5-elite-item__word">Elegante</span>
-                            <span class="diapo5-elite-item__gloss">explica con gracia · entrega pulido</span>
-                        </li>
-                    </ol>
                 </section>
             </div>
         </main>
@@ -1542,6 +1485,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.16.3"></script>
+    <script src="/static/app.js?v=23.16.4"></script>
 </body>
 </html>
