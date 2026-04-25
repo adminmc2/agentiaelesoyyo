@@ -1,3 +1,128 @@
+@media (min-width: 1600px) {
+    .diapo5-terminal {
+        max-width: 900px;
+        font-size: 1.7rem;
+    }
+}
+
+@media (min-width: 1920px) {
+    .diapo5-terminal {
+        max-width: 1100px;
+        font-size: 1.85rem;
+    }
+}
+/* ============================================
+     DIAPO 7 — RESPONSIVE QR Y CARDS
+     ============================================ */
+.diapo7-layout {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 2vw;
+}
+
+.diapo7-qr-side {
+    flex: 1 1 320px;
+    min-width: 280px;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
+}
+
+.diapo7-qr-card {
+    width: 100%;
+    max-width: 340px;
+    min-width: 220px;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.2rem auto;
+    box-sizing: border-box;
+}
+
+.diapo7-texts {
+    flex: 2 1 420px;
+    min-width: 320px;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    box-sizing: border-box;
+}
+
+.diapo7-cards-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    width: 100%;
+    justify-content: center;
+    margin-top: 1.2rem;
+}
+
+.diapo7-card {
+    flex: 1 1 260px;
+    min-width: 220px;
+    max-width: 320px;
+    box-sizing: border-box;
+}
+
+@media (max-width: 1100px) {
+    .diapo7-layout { flex-direction: column; align-items: center; padding: 0 1vw; }
+    .diapo7-qr-side, .diapo7-texts { max-width: 98vw; }
+    .diapo7-qr-card { max-width: 300px; }
+    .diapo7-card { max-width: 98vw; }
+}
+
+@media (max-width: 700px) {
+    .diapo7-layout { padding: 0 0.5vw; }
+    .diapo7-qr-card { max-width: 220px; }
+    .diapo7-card { min-width: 160px; max-width: 98vw; }
+}
+/* ============================================
+     DIAPO 6 — RESPONSIVE (PANTALLAS ANCHAS Y PORTÁTILES)
+     ============================================ */
+.diapo6-stage {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 2vw;
+}
+
+.diapo6-step {
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 2.5rem 2vw;
+}
+
+@media (max-width: 1280px) {
+    .diapo6-stage { max-width: 98vw; padding: 0 1vw; }
+    .diapo6-step { max-width: 98vw; padding: 2rem 1vw; }
+}
+
+@media (max-width: 900px) {
+    .diapo6-stage { padding: 0 0.5vw; }
+    .diapo6-step { padding: 1.2rem 0.5vw; }
+}
+
+@media (min-width: 1800px) {
+    .diapo6-stage { max-width: 1400px; }
+    .diapo6-step { max-width: 1100px; }
+}
 /* ============================================
      DIAPO 5 — TERMINAL MANIFIESTO (RESPONSIVE)
      ============================================ */

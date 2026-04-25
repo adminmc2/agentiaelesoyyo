@@ -199,6 +199,98 @@
             box-shadow: 0 4px 14px rgba(138, 106, 28, 0.4);
         }
 
+        /* Botón confirmar (multi-select) */
+        .option-btn--confirm {
+            border-color: #8CBEB2;
+            background: #8CBEB2;
+            color: #fff;
+            font-weight: 800;
+            gap: 6px;
+        }
+        .option-btn--confirm:hover:not(:disabled) {
+            background: #6FA897;
+            border-color: #6FA897;
+        }
+        .option-btn--confirm:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: #ccc;
+            border-color: #ccc;
+        }
+        .option-btn--confirm i {
+            font-size: 18px;
+        }
+
+        /* ──────────────────────────────────────────────
+           Reading card (fase 16.4 — el texto a leer)
+           ────────────────────────────────────────────── */
+        .reading-card {
+            margin: 12px 12px 8px 0;
+            background: #FFFFFF;
+            border: 1.5px solid rgba(201, 166, 50, 0.25);
+            border-radius: 18px;
+            padding: 18px 20px;
+            box-shadow: 0 6px 20px rgba(138, 106, 28, 0.1);
+            animation: rowIn 360ms ease;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .reading-card__head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #8A6A1C;
+        }
+        .reading-card__head i {
+            font-size: 22px;
+        }
+        .reading-card__title {
+            margin: 0;
+            font: 900 17px 'Dosis', sans-serif;
+            color: #2c2c2c;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .reading-card__body {
+            font: 500 15px/1.6 'Source Sans 3', sans-serif;
+            color: #2c2c2c;
+            white-space: pre-wrap;
+            max-height: 50vh;
+            overflow-y: auto;
+            padding: 4px 2px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding-top: 12px;
+            padding-bottom: 12px;
+        }
+        .reading-card__ok {
+            align-self: flex-end;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: #C9A632;
+            color: #fff;
+            border: none;
+            font: 800 14px 'Source Sans 3', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(138, 106, 28, 0.35);
+            transition: transform 0.15s ease, background 0.2s ease;
+        }
+        .reading-card__ok:hover:not(:disabled) {
+            background: #8A6A1C;
+            transform: translateY(-1px);
+        }
+        .reading-card__ok:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .reading-card__ok i {
+            font-size: 18px;
+        }
+
         /* Typing indicator */
         .typing {
             display: inline-flex;
@@ -546,7 +638,7 @@
             </button>
         </form>
 
-        <p class="ver">v23.22.3</p>
+        <p class="ver">v23.23.0</p>
     </div>
 
     <!-- ======================================================
@@ -611,47 +703,112 @@
         let currentBubble = null;
         let streaming = false;
 
-        // --- Parser de OPCIONES en la respuesta del LLM ---
-        // El LLM termina su mensaje con "OPCIONES: A / B / C" cuando hay opciones cerradas.
-        // Devuelve { text, options } — text sin el marcador, options array (puede ser vacío).
+        // --- Parser de marcadores en la respuesta del LLM ---
+        // Formatos:
+        //   "OPCIONES: A / B / C"            → opciones single-select
+        //   "OPCIONES_MULTI: A / B / C"      → opciones multi-select (con botón confirmar)
+        //   "MOSTRAR_TEXTO"                  → muestra el cuerpo del texto cargado
+        // Devuelve { text, options, multi, showText } — text sin marcadores, etc.
+        function parseMarkers(fullText) {
+            if (!fullText) return { text: '', options: [], multi: false, showText: false };
+
+            let text = fullText;
+            let options = [];
+            let multi = false;
+            let showText = false;
+
+            // MOSTRAR_TEXTO marker (al final, sola en línea o con dos puntos)
+            const mt = text.match(/(?:^|\n)\s*MOSTRAR_TEXTO\s*:?\s*\n?$/i);
+            if (mt) {
+                showText = true;
+                text = text.replace(mt[0], '').trim();
+            }
+
+            // OPCIONES_MULTI marker (multi-select, prioridad sobre OPCIONES simple)
+            const om = text.match(/(?:^|\n)\s*OPCIONES_MULTI\s*:\s*([^\n]+)\s*$/i);
+            if (om) {
+                options = om[1].split(/\s*\/\s*/).map(o => o.trim()).filter(Boolean);
+                multi = true;
+                text = text.replace(om[0], '').trim();
+            } else {
+                const oo = text.match(/(?:^|\n)\s*OPCIONES\s*:\s*([^\n]+)\s*$/i);
+                if (oo) {
+                    options = oo[1].split(/\s*\/\s*/).map(o => o.trim()).filter(Boolean);
+                    text = text.replace(oo[0], '').trim();
+                }
+            }
+
+            return { text, options, multi, showText };
+        }
+
+        // --- Compatibilidad: parseOptions ahora envuelve parseMarkers para no romper nada ---
         function parseOptions(fullText) {
-            if (!fullText) return { text: '', options: [] };
-            const match = fullText.match(/(?:^|\n)\s*OPCIONES\s*:\s*([^\n]+)\s*$/i);
-            if (!match) return { text: fullText.trim(), options: [] };
-            const optsRaw = match[1];
-            const options = optsRaw
-                .split(/\s*\/\s*/)
-                .map(o => o.trim())
-                .filter(Boolean);
-            const text = fullText.replace(match[0], '').trim();
+            const { text, options } = parseMarkers(fullText);
             return { text, options };
         }
 
-        // --- Renderiza un grupo de botones de opción debajo de la última burbuja de LucAPI ---
+        // --- Renderiza opciones (single-select o multi-select) debajo de la última burbuja ---
         let currentOptionsRow = null;
-        function addOptions(options) {
-            // Limpia opciones previas (por si LucAPI manda nuevas)
+        function addOptions(options, multi = false) {
             removeOptions();
+            removeTextCard();
             if (!options || !options.length) return;
             const row = document.createElement('div');
             row.className = 'options';
             row.id = 'current-options';
+            row.dataset.multi = multi ? '1' : '0';
+
+            const selected = new Set();
+
             options.forEach(opt => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'option-btn';
                 btn.textContent = opt;
                 btn.addEventListener('click', () => {
-                    if (streaming || btn.classList.contains('is-disabled')) return;
-                    // Marca seleccionada y deshabilita el resto
-                    Array.from(row.children).forEach(other => {
-                        if (other === btn) other.classList.add('is-selected');
-                        else other.classList.add('is-disabled');
-                    });
-                    sendToLLM(opt);
+                    if (streaming) return;
+
+                    if (multi) {
+                        // Toggle de selección sin disparar todavía
+                        if (selected.has(opt)) {
+                            selected.delete(opt);
+                            btn.classList.remove('is-selected');
+                        } else {
+                            selected.add(opt);
+                            btn.classList.add('is-selected');
+                        }
+                        confirmBtn.disabled = selected.size === 0;
+                    } else {
+                        // Single-select: dispara inmediatamente
+                        if (btn.classList.contains('is-disabled')) return;
+                        Array.from(row.children).forEach(other => {
+                            if (other === btn) other.classList.add('is-selected');
+                            else other.classList.add('is-disabled');
+                        });
+                        sendToLLM(opt);
+                    }
                 });
                 row.appendChild(btn);
             });
+
+            // Para multi-select, añadimos un botón de confirmar
+            let confirmBtn = null;
+            if (multi) {
+                confirmBtn = document.createElement('button');
+                confirmBtn.type = 'button';
+                confirmBtn.className = 'option-btn option-btn--confirm';
+                confirmBtn.disabled = true;
+                confirmBtn.innerHTML = '<i class="ph-bold ph-check"></i> Confirmar';
+                confirmBtn.addEventListener('click', () => {
+                    if (streaming || !selected.size) return;
+                    // Deshabilitar todos los botones
+                    Array.from(row.children).forEach(b => b.classList.add('is-disabled'));
+                    const value = Array.from(selected).join(', ');
+                    sendToLLM(value);
+                });
+                row.appendChild(confirmBtn);
+            }
+
             chat.appendChild(row);
             chat.scrollTop = chat.scrollHeight;
             currentOptionsRow = row;
@@ -661,6 +818,63 @@
             document.getElementById('current-options')?.remove();
             currentOptionsRow = null;
         }
+
+        // --- Tarjeta para mostrar el texto completo (fase 16.4 lectura) ---
+        // Aparece como una card grande con el cuerpo del texto + botón "Ya está".
+        let currentTextCard = null;
+        function addTextCard(textData) {
+            removeTextCard();
+            if (!textData) return;
+            const card = document.createElement('div');
+            card.className = 'reading-card';
+            card.id = 'current-reading-card';
+
+            const head = document.createElement('div');
+            head.className = 'reading-card__head';
+            const ic = document.createElement('i');
+            ic.className = 'ph-fill ph-book-open-text';
+            head.appendChild(ic);
+            const ttl = document.createElement('h3');
+            ttl.className = 'reading-card__title';
+            ttl.textContent = textData.titulo;
+            head.appendChild(ttl);
+            card.appendChild(head);
+
+            const body = document.createElement('div');
+            body.className = 'reading-card__body';
+            // El texto se conserva con saltos de línea
+            body.textContent = textData.body;
+            card.appendChild(body);
+
+            const okBtn = document.createElement('button');
+            okBtn.type = 'button';
+            okBtn.className = 'reading-card__ok';
+            okBtn.innerHTML = '<i class="ph-bold ph-check-circle"></i> Ya está';
+            okBtn.addEventListener('click', () => {
+                if (streaming) return;
+                okBtn.disabled = true;
+                sendToLLM('(El estudiante ha terminado de leer el texto. Continúa con la siguiente fase.)', { hidden: true });
+            });
+            card.appendChild(okBtn);
+
+            chat.appendChild(card);
+            chat.scrollTop = chat.scrollHeight;
+            currentTextCard = card;
+        }
+
+        function removeTextCard() {
+            document.getElementById('current-reading-card')?.remove();
+            currentTextCard = null;
+        }
+
+        // --- Identifica qué texto cargó el estudiante mirando el historial ---
+        // El último cue OCR exitoso menciona el título; con eso buscamos en TEXT_CANDIDATES.
+        function getCurrentText() {
+            // Buscamos en el chat (DOM) el último mensaje "user" oculto que sea de OCR exitoso.
+            // Más simple: lo guardamos en una variable global cuando el OCR hace match.
+            return loadedText;
+        }
+        let loadedText = null;
 
         // --- UI helpers ---
         function addBubble(role, initialText = '') {
@@ -735,11 +949,13 @@
                     chat.scrollTop = chat.scrollHeight;
                 } else if (msg.type === 'end') {
                     removeTyping();
-                    // Parsear OPCIONES del mensaje completo y reemplazar el contenido
-                    // de la última burbuja por el texto sin el marcador.
-                    const { text, options } = parseOptions(msg.full_response || '');
+                    // Parsear marcadores del mensaje completo: OPCIONES, OPCIONES_MULTI, MOSTRAR_TEXTO
+                    const { text, options, multi, showText } = parseMarkers(msg.full_response || '');
                     if (currentBubble) currentBubble.textContent = text;
-                    addOptions(options);
+                    addOptions(options, multi);
+                    if (showText && loadedText) {
+                        addTextCard(loadedText);
+                    }
                     // Detectar si la respuesta de LucAPI pide escanear — si sí, hacer que el botón pulse
                     maybePulseScan(text);
                     currentBubble = null;
@@ -899,7 +1115,14 @@
                     'rubio', 'morena', 'delgada',
                     'deberes', 'videojuegos', 'tenis',
                     'hermana', 'mayor', 'mas alta'
-                ]
+                ],
+                body: `Mi familia no es muy grande, somos solo cuatro personas: mi padre, mi madre, mi hermana y yo. También tenemos un perro.
+
+Yo soy mayor que mi hermana, pero ella es más alta. Yo tengo doce años y ella once. Mis padres se llaman Javier y María, mi hermana se llama Sara y yo Luis. Vivimos todos juntos en una casa muy bonita.
+
+Mi padre es banquero y mi madre ama de casa. Por la mañana, desayunamos juntos en la cocina. Me gusta desayunar con mi familia. Además, por las mañanas siempre tengo hambre. Después del colegio, mi madre prepara una comida deliciosa. Por la tarde, mi madre queda con sus amigas, y mi padre juega al tenis. Mi hermana y yo hacemos los deberes, y después vemos la televisión. Los viernes por la tarde vamos los cuatro de compras.
+
+Mi padre es alto y rubio, y mi madre es morena y delgada. A mi hermana le gusta quedar con sus amigas en el parque. Yo me divierto mucho más jugando a los videojuegos en casa.`
             },
             {
                 id: 'texto_b',
@@ -914,7 +1137,18 @@
                     'discoteca', 'pizza',
                     'pasear', 'animales',
                     'diecinueve', 'siete y media'
-                ]
+                ],
+                body: `Me llamo María Pérez, tengo diecinueve años. Nací en Málaga, pero vivo en Granada. Soy estudiante de primer curso de Periodismo.
+
+De lunes a viernes me levanto a las siete y media, desayuno y camino hasta la universidad. Entro en clase a las nueve y salgo a la una.
+
+Al medio día como la comida en mi casa y veo la televisión. Por la tarde, estudio hasta las siete y después quedo con mis amigas.
+
+A nosotras nos gusta mucho el cine, el teatro y la música. Los viernes por la noche cenamos pizza y bailamos en la discoteca.
+
+Todos los sábados visito a mi familia en Málaga.
+
+El domingo por la tarde regreso a Granada y, si hace sol, salgo con mi perro a dar un paseo. ¡Me encantan los animales!`
             }
         ];
 
@@ -1036,9 +1270,11 @@
                 cue = '(El estudiante ha escaneado el texto pero no se ha podido identificar de qué texto se trata. Pídele con amabilidad y EN LA LENGUA ELEGIDA que lo intente otra vez, enfocando una zona donde se vea bien el texto.)';
                 addBubble('user', '[Imagen enviada — no reconocida]');
             } else if (hits === 1) {
+                loadedText = best;
                 cue = `(El estudiante ha escaneado el texto. La identificación tiene poca confianza pero la mejor hipótesis es el texto titulado "${best.titulo}" (temática: ${best.tematica}). Pregúntale cortésmente y EN LA LENGUA ELEGIDA si su texto habla de ${best.tematica}, sin mostrar el título literal — por ejemplo: "Creo que tu texto habla de ${best.tematica}, ¿es correcto?")`;
                 addBubble('user', '[Imagen enviada]');
             } else {
+                loadedText = best;
                 cue = `(El estudiante ha escaneado el texto. Se ha identificado con alta confianza que su texto es el titulado "${best.titulo}" (temática: ${best.tematica}). Suelta una frase cálida EN LA LENGUA ELEGIDA que introduzca la temática SIN mencionar el título literal, por ejemplo en español: "¡Genial! Hoy vamos a hablar de ${best.tematica}. Vas a ver algo muy interesante.")`;
                 addBubble('user', '[Imagen enviada]');
             }
