@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.19.2">
+    <link rel="stylesheet" href="/static/style.css?v=23.19.3">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -768,8 +768,39 @@
 
                 <!-- ============ PASO 2 — Cómo funciona en clase (focus-cards) ============ -->
                 <section class="diapo6-step" data-step="2" id="diapo6-step-2">
-                    <h2 class="diapo6-hook">Una tarjeta · Un agente · Una <span class="diapo6-hook__key">estrategia</span>.</h2>
-                    <p class="diapo6-step__placeholder">[Paso 2 — pendiente de contenido]</p>
+                    <h2 class="diapo6-hook">Cómo funciona <span class="diapo6-hook__key">en clase</span>.</h2>
+
+                    <div class="diapo6-focus-grid" id="diapo6-focus-grid">
+                        <article class="diapo6-focus-card" data-card="1">
+                            <div class="diapo6-focus-card__icon-wrap">
+                                <i class="ph-fill ph-users-three diapo6-focus-card__icon"></i>
+                            </div>
+                            <h3 class="diapo6-focus-card__title">Atención diferenciada</h3>
+                            <p class="diapo6-focus-card__desc">
+                                El profe reparte la tarjeta al estudiante que la necesita. Los estudiantes también pueden cogerla ellos mismos del <strong>rincón de tarjetas</strong>.
+                            </p>
+                        </article>
+
+                        <article class="diapo6-focus-card" data-card="2">
+                            <div class="diapo6-focus-card__icon-wrap">
+                                <i class="ph-fill ph-qr-code diapo6-focus-card__icon"></i>
+                            </div>
+                            <h3 class="diapo6-focus-card__title">Del papel a la pantalla</h3>
+                            <p class="diapo6-focus-card__desc">
+                                Cada tarjeta lleva un <strong>pequeño enlace</strong> al agente de IA que la acompaña. El estudiante entra cuando quiere.
+                            </p>
+                        </article>
+
+                        <article class="diapo6-focus-card" data-card="3">
+                            <div class="diapo6-focus-card__icon-wrap">
+                                <i class="ph-fill ph-sparkle diapo6-focus-card__icon"></i>
+                            </div>
+                            <h3 class="diapo6-focus-card__title">El agente es opcional</h3>
+                            <p class="diapo6-focus-card__desc">
+                                La tarjeta <strong>funciona sola</strong>. El agente es para quien quiera ir más lejos.
+                            </p>
+                        </article>
+                    </div>
                 </section>
 
                 <!-- ============ PASO 3 — La tarjeta + LucAPI (3d-card + circular-progress) ============ -->
@@ -803,12 +834,65 @@
                 </button>
             </header>
 
-            <div class="diapo7-stage">
-                <div class="diapo7-placeholder">
-                    <h2 class="diapo7-placeholder__title">En construcci&oacute;n</h2>
-                    <p class="diapo7-placeholder__text">Aqu&iacute; ir&aacute;n las 8 fases del acompa&ntilde;amiento de comprensi&oacute;n lectora con LucAPI.</p>
-                    <p class="diapo7-placeholder__hint">Ver <code>docs/diapo7-lucapi-comprension-spec.md</code> para el spec completo.</p>
-                </div>
+            <div class="diapo7-stage" id="diapo7-stage">
+                <!-- Light-rays decorativos de fondo -->
+                <div class="diapo7-rays" aria-hidden="true"></div>
+
+                <!-- Flechas laterales overlay -->
+                <button class="diapo7-side-arrow diapo7-side-arrow--prev" id="diapo7-side-prev" title="Paso anterior" aria-label="Paso anterior">
+                    <i class="ph-bold ph-caret-left"></i>
+                </button>
+                <button class="diapo7-side-arrow diapo7-side-arrow--next" id="diapo7-side-next" title="Siguiente paso" aria-label="Siguiente paso">
+                    <i class="ph-bold ph-caret-right"></i>
+                </button>
+
+                <!-- ============ PASO 1 — Saludo y preparación ============ -->
+                <section class="diapo7-step is-active" data-step="1" id="diapo7-step-1">
+                    <h2 class="diapo7-hook">LucAPI te acompa&ntilde;a a <span class="diapo7-hook__key">leer</span>.</h2>
+                    <p class="diapo7-step__placeholder">[Paso 1 &mdash; Saludo y preparaci&oacute;n]</p>
+                </section>
+
+                <!-- ============ PASO 2 — Predicción desde el título ============ -->
+                <section class="diapo7-step" data-step="2" id="diapo7-step-2">
+                    <h2 class="diapo7-hook">LucAPI te acompa&ntilde;a a <span class="diapo7-hook__key">leer</span>.</h2>
+                    <p class="diapo7-step__placeholder">[Paso 2 &mdash; Predicci&oacute;n desde el t&iacute;tulo]</p>
+                </section>
+
+                <!-- ============ PASO 3 — Vocabulario del texto ============ -->
+                <section class="diapo7-step" data-step="3" id="diapo7-step-3">
+                    <h2 class="diapo7-hook">LucAPI te acompa&ntilde;a a <span class="diapo7-hook__key">leer</span>.</h2>
+                    <p class="diapo7-step__placeholder">[Paso 3 &mdash; Vocabulario del texto]</p>
+                </section>
+
+                <!-- ============ PASO 4 — Lectura global tranquila ============ -->
+                <section class="diapo7-step" data-step="4" id="diapo7-step-4">
+                    <h2 class="diapo7-hook">LucAPI te acompa&ntilde;a a <span class="diapo7-hook__key">leer</span>.</h2>
+                    <p class="diapo7-step__placeholder">[Paso 4 &mdash; Lectura global tranquila]</p>
+                </section>
+
+                <!-- ============ PASO 5 — Fichas de personajes ============ -->
+                <section class="diapo7-step" data-step="5" id="diapo7-step-5">
+                    <h2 class="diapo7-hook">LucAPI te acompa&ntilde;a a <span class="diapo7-hook__key">leer</span>.</h2>
+                    <p class="diapo7-step__placeholder">[Paso 5 &mdash; Fichas de personajes]</p>
+                </section>
+
+                <!-- ============ PASO 6 — Chat familiar de inferencia ============ -->
+                <section class="diapo7-step" data-step="6" id="diapo7-step-6">
+                    <h2 class="diapo7-hook">LucAPI te acompa&ntilde;a a <span class="diapo7-hook__key">leer</span>.</h2>
+                    <p class="diapo7-step__placeholder">[Paso 6 &mdash; Chat familiar de inferencia]</p>
+                </section>
+
+                <!-- ============ PASO 7 — Opinión con una palabra ============ -->
+                <section class="diapo7-step" data-step="7" id="diapo7-step-7">
+                    <h2 class="diapo7-hook">LucAPI te acompa&ntilde;a a <span class="diapo7-hook__key">leer</span>.</h2>
+                    <p class="diapo7-step__placeholder">[Paso 7 &mdash; Opini&oacute;n con una palabra]</p>
+                </section>
+
+                <!-- ============ PASO 8 — Cierre cálido con logros ============ -->
+                <section class="diapo7-step" data-step="8" id="diapo7-step-8">
+                    <h2 class="diapo7-hook">LucAPI te acompa&ntilde;a a <span class="diapo7-hook__key">leer</span>.</h2>
+                    <p class="diapo7-step__placeholder">[Paso 8 &mdash; Cierre c&aacute;lido con logros]</p>
+                </section>
             </div>
         </main>
 
@@ -1328,6 +1412,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.19.2"></script>
+    <script src="/static/app.js?v=23.19.3"></script>
 </body>
 </html>

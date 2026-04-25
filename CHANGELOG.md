@@ -1,5 +1,24 @@
 # Changelog — AgentiaELE
 
+## v23.19.3 — 2026-04-25 — Diapo 6 paso 2 (focus-cards)
+Fase 3/6 de la diapo 6 "IA para estudiantes". Se implementa el **paso 2** con el UI `focus-cards` (adaptado de sgel a vanilla JS, efecto CSS puro sin React).
+
+**Paso 2 — Cómo funciona en clase**:
+- Hook actualizado: "Cómo funciona **en clase**." (highlighter mostaza sobre "en clase").
+- Grid de 3 cards estilo neobrutalism (border negro 5px + shadow duro `10px 10px 0`) con los 3 bloques del spec:
+  1. **Atención diferenciada** (icon `ph-users-three`, fondo mostaza) — reparto del profe + rincón de tarjetas.
+  2. **Del papel a la pantalla** (icon `ph-qr-code`, fondo lavanda) — enlace al agente de IA.
+  3. **El agente es opcional** (icon `ph-sparkle`, fondo verde menta) — la tarjeta funciona sola.
+- Icon wraps con cuadro de color + borde negro + shadow duro.
+- **Efecto focus-cards**: `.diapo6-focus-grid:hover .diapo6-focus-card` aplica `blur(4px) + scale(0.98) + opacity 0.72` a todas; la card que el ratón sobrevuela (`:hover :hover`) revierte a `blur(0) + scale(1.03) + shadow aumentada`. Hover desenfoca siblings — el foco guía al lector card por card.
+
+**Cambios**:
+- `static/index.html`: paso 2 con `.diapo6-focus-grid` + 3 `<article class="diapo6-focus-card">`.
+- `static/style.css`: nueva sección `/* PASO 2 — Focus cards */` con `.diapo6-focus-grid`, `.diapo6-focus-card*`, regla hover siblings-blur. Tamaños grandes (title clamp 24-36, desc 17-24, icon wrap 72-108, shadow 10×10→14×14 en hover). Responsive a 1 columna bajo 1000px.
+- `app.js`: sin cambios — paso 2 es estático (solo CSS hover), el `_diapo6RunStep(2)` y `_diapo6StopStep(2)` ya son no-op.
+
+Versionado sync → v23.19.3.
+
 ## v23.19.2 — 2026-04-25 — Diapo 6: agrandar componentes al nivel de diapo 5
 El usuario reporta que los componentes de la diapo 6 se ven pequeños comparados con la diapo 5. Se aplica la misma escala tipográfica aprobada para diapo 5 (y que se mantendrá en los próximos pasos 2, 3, 4 pendientes).
 

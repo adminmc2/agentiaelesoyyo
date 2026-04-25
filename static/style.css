@@ -7589,6 +7589,95 @@ body[data-mood-active] .message.assistant {
     font-weight: 800;
 }
 
+/* ──────────── PASO 2 — Focus cards (v23.19.3) ──────────── */
+.diapo6-focus-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(22px, 2.2vw, 40px);
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+}
+.diapo6-focus-card {
+    position: relative;
+    background: #FFFFFF;
+    border: 5px solid #2c2c2c;
+    border-radius: 26px;
+    box-shadow: 10px 10px 0 rgba(44, 44, 44, 0.9);
+    padding: clamp(28px, 2.6vw, 44px) clamp(24px, 2.4vw, 40px);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(16px, 1.4vw, 24px);
+    transition:
+        transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 0.35s ease,
+        box-shadow 0.35s ease,
+        opacity 0.35s ease;
+    cursor: pointer;
+    text-align: left;
+    min-height: clamp(320px, 34vw, 480px);
+    will-change: transform, filter;
+}
+.diapo6-focus-card__icon-wrap {
+    width: clamp(72px, 6.5vw, 108px);
+    height: clamp(72px, 6.5vw, 108px);
+    background: #C9A632;
+    border: 4px solid #2c2c2c;
+    border-radius: 20px;
+    box-shadow: 6px 6px 0 rgba(44, 44, 44, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.diapo6-focus-card:nth-child(2) .diapo6-focus-card__icon-wrap {
+    background: #D0AAD1;
+}
+.diapo6-focus-card:nth-child(3) .diapo6-focus-card__icon-wrap {
+    background: #8CBEB2;
+}
+.diapo6-focus-card__icon {
+    font-size: clamp(36px, 3.4vw, 58px);
+    color: #FFFFFF;
+    line-height: 1;
+}
+.diapo6-focus-card__title {
+    font: 900 clamp(24px, 2.3vw, 36px) 'Dosis', sans-serif;
+    color: #2c2c2c;
+    margin: 0;
+    line-height: 1.15;
+    letter-spacing: -0.3px;
+}
+.diapo6-focus-card__desc {
+    font: 500 clamp(17px, 1.5vw, 24px) 'Source Sans 3', sans-serif;
+    color: #3a3a3a;
+    margin: 0;
+    line-height: 1.45;
+}
+.diapo6-focus-card__desc strong {
+    color: #8A6A1C;
+    font-weight: 800;
+}
+
+/* Efecto focus-cards: hover en una → el resto se desenfoca y reduce */
+.diapo6-focus-grid:hover .diapo6-focus-card {
+    filter: blur(4px) brightness(0.92);
+    transform: scale(0.98);
+    opacity: 0.72;
+}
+.diapo6-focus-grid:hover .diapo6-focus-card:hover {
+    filter: blur(0) brightness(1);
+    transform: scale(1.03);
+    opacity: 1;
+    box-shadow: 14px 14px 0 rgba(44, 44, 44, 0.9);
+}
+
+@media (max-width: 1000px) {
+    .diapo6-focus-grid { grid-template-columns: 1fr; gap: 16px; }
+    .diapo6-focus-card { min-height: auto; }
+}
+
 @media (max-width: 1100px) {
     .diapo6-step { padding: 20px 24px; gap: 22px; }
 }
@@ -10158,12 +10247,12 @@ body[data-mood-active] .message.assistant {
 
 /* ============================================
    DIAPO 7 — LucAPI · Comprensión Lectora (esqueleto fase A · v23.19.0)
-   Paralela a diapo 5 y 6: header fijo + stage transparente sobre fondo menta del body.
-   Overrides neutralizan el CSS legacy .diapo7-* (era de "Construye tu Agente" eliminada).
+   Clon exacto de la estructura .diapo6-*: stage + rays + side arrows + steps con fade-blur.
+   Overrides neutralizan el CSS legacy .diapo7-page (grid 45/55 antiguo, eliminado).
    ============================================ */
 .diapo7-screen {
     padding: 78px 0 0 0 !important;
-    overflow: auto;
+    overflow: visible;
     background: transparent;
     display: flex;
     flex-direction: column;
@@ -10171,61 +10260,137 @@ body[data-mood-active] .message.assistant {
 }
 .diapo7-screen.fade-out { opacity: 0; }
 
-/* Neutralizar reglas legacy .diapo7-page (aunque ya no hay wrapper .diapo7-page,
-   el selector podría colarse si vuelve) */
+/* Neutralizar reglas legacy de .diapo7-page (grid 45/55 eliminado) */
 .diapo7-page { all: unset; }
 
 .diapo7-stage {
+    position: relative;
+    width: 100%;
     flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 32px 40px;
+    overflow: hidden;
     background: transparent;
 }
 
-.diapo7-placeholder {
-    max-width: 720px;
+.diapo7-rays {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+        radial-gradient(ellipse 55% 75% at 18% 5%, rgba(201, 166, 50, 0.18), transparent 60%),
+        radial-gradient(ellipse 45% 65% at 90% 35%, rgba(208, 170, 209, 0.25), transparent 65%),
+        radial-gradient(ellipse 70% 45% at 50% 100%, rgba(140, 190, 178, 0.35), transparent 70%);
+    animation: diapo7RaysDrift 18s ease-in-out infinite alternate;
+}
+@keyframes diapo7RaysDrift {
+    0%   { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-2%, 1%) scale(1.04); }
+}
+
+.diapo7-side-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(201, 166, 50, 0.3);
+    background: rgba(255, 255, 255, 0.85);
+    color: #8A6A1C;
+    font-size: 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    box-shadow: 0 6px 20px -6px rgba(138, 106, 28, 0.35);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+.diapo7-side-arrow:hover {
+    background: #C9A632;
+    color: #fff;
+    transform: translateY(-50%) scale(1.08);
+    box-shadow: 0 10px 28px -8px rgba(201, 166, 50, 0.6);
+}
+.diapo7-side-arrow:active { transform: translateY(-50%) scale(0.95); }
+.diapo7-side-arrow--prev { left: 28px; }
+.diapo7-side-arrow--next { right: 28px; }
+.diapo7-side-arrow.is-disabled { opacity: 0.35; pointer-events: none; }
+
+.diapo7-step {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    padding: 48px 32px;
+    padding: 32px 80px;
+    gap: 36px;
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateX(100%);
+    transition:
+        opacity 500ms ease,
+        filter 500ms ease,
+        transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+    z-index: 1;
+}
+.diapo7-step.is-active {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateX(0);
+    pointer-events: auto;
+    z-index: 2;
+}
+.diapo7-step.is-leaving {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateX(-100%);
+    pointer-events: none;
+    z-index: 1;
+}
+.diapo7-stage--no-transition .diapo7-step {
+    transition: none !important;
 }
 
-.diapo7-placeholder__title {
-    font-family: 'Dosis', sans-serif;
+.diapo7-hook {
+    font: 800 clamp(32px, 3.6vw, 56px) 'Dosis', sans-serif;
+    color: #2c2c2c;
+    margin: 0 0 8px;
+    letter-spacing: -0.6px;
+    line-height: 1.12;
+    max-width: 1280px;
+}
+.diapo7-hook__key {
+    color: #8A6A1C;
+    background: linear-gradient(180deg, transparent 58%, rgba(201, 166, 50, 0.42) 58%);
+    padding: 0 10px;
+    border-radius: 4px;
     font-weight: 900;
-    font-size: clamp(32px, 4vw, 48px);
-    color: #2c2c2c;
-    margin: 0 0 20px;
-    letter-spacing: 0.02em;
 }
 
-.diapo7-placeholder__text {
-    font-family: 'Source Sans 3', sans-serif;
-    font-size: clamp(18px, 1.6vw, 22px);
-    color: #2c2c2c;
-    margin: 0 0 24px;
-    line-height: 1.55;
-    opacity: 0.85;
-}
-
-.diapo7-placeholder__hint {
-    font-family: 'Source Sans 3', sans-serif;
-    font-size: 14px;
+.diapo7-step__placeholder {
+    font: 500 clamp(18px, 1.6vw, 22px) 'Source Sans 3', sans-serif;
     color: #6b5a20;
+    opacity: 0.6;
     margin: 0;
-    opacity: 0.7;
-}
-
-.diapo7-placeholder__hint code {
-    background: rgba(201, 166, 50, 0.18);
-    padding: 2px 8px;
-    border-radius: 6px;
-    font-family: 'Inconsolata', monospace;
-    font-size: 13px;
+    font-style: italic;
 }
 
 @media (max-width: 900px) {
+    .diapo7-step { padding: 20px 24px; gap: 22px; }
+}
+@media (max-width: 720px) {
+    .diapo7-step { padding: 16px 14px; gap: 16px; }
+    .diapo7-side-arrow { width: 44px; height: 44px; font-size: 22px; }
+    .diapo7-side-arrow--prev { left: 12px; }
+    .diapo7-side-arrow--next { right: 12px; }
+}
+@media (max-height: 760px) {
     .diapo7-screen { padding-top: 70px !important; }
-    .diapo7-stage { padding: 24px 16px; }
-    .diapo7-placeholder { padding: 32px 12px; }
+    .diapo7-step { padding: 16px 24px; gap: 16px; }
 }
