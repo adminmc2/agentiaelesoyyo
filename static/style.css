@@ -9477,6 +9477,26 @@ body[data-mood-active] .message.assistant {
     .diapo8-side-arrow--prev { left: 12px; }
     .diapo8-side-arrow--next { right: 12px; }
 }
+/* Laptop FHD 1920×1080 — compactar paso 2 que se cortaba abajo */
+@media (min-height: 821px) and (max-height: 1120px) {
+    .diapo8-step { padding: 18px 64px; gap: 18px; }
+    .diapo8-hook { font-size: clamp(26px, 2.4vw, 40px); margin-bottom: 4px; }
+    .diapo8-step__pre { font-size: clamp(18px, 1.5vw, 26px); }
+    .diapo8-team { padding: 16px 18px; gap: 10px; }
+    .diapo8-team__title { font-size: clamp(18px, 1.5vw, 24px); }
+    .diapo8-team__sub { font-size: clamp(13px, 1vw, 16px); }
+    .diapo8-team__list { gap: 8px; }
+    .diapo8-team-card { padding: 8px 12px; gap: 12px; }
+    .diapo8-team-card__icon { width: 42px; height: 42px; font-size: 22px; }
+    .diapo8-team-card__img { width: 60px; height: 60px; }
+    .diapo8-team-card__body strong { font-size: clamp(14px, 1.15vw, 17px); }
+    .diapo8-team-card__body span { font-size: clamp(12px, 1vw, 14px); }
+    .diapo8-teams__divider { padding: 12px 0; }
+    .diapo8-teams__divider-label { font-size: 12px; padding: 8px 14px; }
+    .diapo8-step1-desc { font-size: clamp(15px, 1.2vw, 19px); }
+    .diapo8-flip-layout__pre { font-size: clamp(32px, 3.2vw, 52px); }
+    .diapo8-flip-layout__pill { font-size: clamp(32px, 3.2vw, 52px); min-height: clamp(64px, 6vw, 92px); padding: 10px 28px; }
+}
 @media (max-height: 820px) {
     .diapo8-screen { padding-top: 70px !important; }
     .diapo8-step { padding: 14px 24px; gap: 14px; }
