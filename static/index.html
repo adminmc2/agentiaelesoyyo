@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.23.5">
+    <link rel="stylesheet" href="/static/style.css?v=23.23.6">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -1146,21 +1146,19 @@
              ============================================ -->
         <main class="main-content final-screen hidden" id="final-screen">
             <div class="final-page">
-                <div class="final-content">
-                    <h1 class="final-title">
-                        <span class="final-title__gracias">Muchas gracias</span>
-                        <span class="final-title__aciu">شكراً</span>
-                    </h1>
-                    <p class="final-subtitle">Destino ELE VIENA</p>
+                <h1 class="final-title">
+                    <span class="final-title__gracias">Muchas gracias</span>
+                </h1>
 
-                    <!-- Reproductor de canción -->
-                    <div class="final-song">
+                <div class="final-grid">
+                    <!-- Columna izquierda: canción -->
+                    <section class="final-card final-card--song">
                         <div class="final-song__header">
                             <i class="ph-fill ph-music-notes"></i>
                             <span>La canción del agente</span>
                         </div>
                         <div class="final-song__player">
-                            <button class="final-song__play-btn" id="final-song-btn">
+                            <button class="final-song__play-btn" id="final-song-btn" aria-label="Reproducir">
                                 <i class="ph-fill ph-play"></i>
                             </button>
                             <div class="final-song__progress">
@@ -1168,21 +1166,33 @@
                             </div>
                             <span class="final-song__time" id="final-song-time">0:00</span>
                         </div>
-                    </div>
-
-                    <!-- QR central -->
-                    <div class="final-qr-section">
-                        <div class="final-company__qr final-company__qr--desktop">
-                            <img src="/static/imagenes/qr-suena.svg" alt="QR Sueña con tu agente" style="width:180px;height:180px;border-radius:12px;">
+                        <div class="final-song__lyrics">
+                            <p class="final-song__line final-song__line--intro">¡Atención profes! Esto no es un chatbot cualquiera.</p>
+                            <p class="final-song__line">Primero te miro, te leo, te escucho</p>
+                            <p class="final-song__line"><strong class="lyric-k k1">Percibo</strong> tu mundo, entiendo tu asunto</p>
+                            <p class="final-song__line">Después me lo pienso, <strong class="lyric-k k2">razono</strong> un ratito</p>
+                            <p class="final-song__line">Elijo el camino, con calma y con rumbo</p>
+                            <p class="final-song__line">¡Y ahora sí, <strong class="lyric-k k3">actúo</strong> con ganas!</p>
+                            <p class="final-song__line final-song__line--chorus"><strong class="lyric-k k1">Percibo</strong>, <strong class="lyric-k k2">razono</strong>, y luego <strong class="lyric-k k3">actúo</strong></p>
+                            <p class="final-song__line final-song__line--chorus">Con mis <strong class="lyric-k k4">herramientas</strong> soy un agentazo</p>
+                            <p class="final-song__line final-song__line--chorus">Y si vuelves mañana yo me acuerdo de todo</p>
+                            <p class="final-song__line final-song__line--chorus">¡<strong class="lyric-k k5">Memoria</strong> de profe, pero sin el cansancio!</p>
                         </div>
-                        <p style="font:600 15px 'Dosis',sans-serif;color:var(--md-sys-color-on-surface-variant);margin-top:8px;text-align:center;">Sueña con tu agente</p>
-                    </div>
+                    </section>
 
-                    <!-- Logo Prisma -->
-                    <div class="final-prisma">
-                        <img src="/static/prisma-logo.svg" alt="Prisma Consul" class="final-prisma__logo">
-                        <p class="final-prisma__contact">Armando Cruz &middot; info@prismaconsul.com</p>
-                    </div>
+                    <!-- Columna derecha: QR comunidad + Prisma -->
+                    <aside class="final-side">
+                        <section class="final-card final-card--qr">
+                            <span class="final-qr__label">Únete a la comunidad</span>
+                            <div class="final-qr__code" id="final-qr-code"></div>
+                            <span class="final-qr__sub">Hablandis · Encuentro ELE</span>
+                        </section>
+
+                        <div class="final-prisma">
+                            <img src="/static/prisma-logo.svg" alt="Prisma Consul" class="final-prisma__logo">
+                            <p class="final-prisma__contact">Armando Cruz · info@prismaconsul.com</p>
+                        </div>
+                    </aside>
                 </div>
             </div>
         </main>
@@ -1657,6 +1667,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.23.5"></script>
+    <script src="/static/app.js?v=23.23.6"></script>
 </body>
 </html>

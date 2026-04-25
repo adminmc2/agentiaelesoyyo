@@ -6064,6 +6064,23 @@ function closeDiapo7Modal() {
 
 // DIAPOSITIVA FINAL — Gracias / Ačiū
 // ============================================
+const FINAL_COMMUNITY_URL = 'https://forms.hablandis.com/hablandis/form/elencuentroeleMiln/formperma/RZKSb0WA04Szly2Z32iJ1i6yml9-5md5qPNbw2hCQ8A';
+
+function initFinalQR() {
+    const host = document.getElementById('final-qr-code');
+    if (!host || host.dataset.rendered === 'true') return;
+    if (typeof window.qrcode !== 'function') return;
+    try {
+        const qr = window.qrcode(0, 'M');
+        qr.addData(FINAL_COMMUNITY_URL);
+        qr.make();
+        host.innerHTML = qr.createSvgTag({ scalable: true, margin: 0 });
+        host.dataset.rendered = 'true';
+    } catch (e) {
+        console.warn('[final QR]', e);
+    }
+}
+
 function showFinalScreen() {
     stopTTS();
     document.querySelectorAll('.main-content').forEach(s => s.classList.add('hidden'));
@@ -6073,6 +6090,7 @@ function showFinalScreen() {
         el.classList.remove('fade-out');
     }
     initFinalSongPlayer();
+    initFinalQR();
 }
 
 function hideFinalScreen() {
