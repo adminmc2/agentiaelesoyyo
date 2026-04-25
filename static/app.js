@@ -122,10 +122,6 @@ const state = {
     juegoAnswers: [],
     // Eliana Widget
     elianaWidgetState: 'fab',  // 'fab' | 'floating' | 'docked' | 'expanded'
-    // Diapo 6 — MIAU
-    _diapo6Ws: null,
-    _diapo6ContextSent: false,
-    _diapo6SmdParser: null,
     // Diapo 7 — Plataforma
     _diapo7Ws: null,
     _diapo7ContextSent: false,
@@ -177,9 +173,6 @@ const elements = {
 
     // Diapo 5 screen
     diapo5Screen: document.getElementById('diapo5-screen'),
-
-    // Diapo 6 screen
-    diapo6Screen: document.getElementById('diapo6-screen'),
 
     // Diapo 7 screen
     diapo7Screen: document.getElementById('diapo7-screen'),
@@ -1798,16 +1791,7 @@ function updateRecordingUI(recording, processing = false) {
 
     // Diapo 5 ya no tiene mic (v23.16)
 
-    // Diapo6 screen
-    const diapo6MicBtn = document.getElementById('diapo6-mic-btn');
-    if (diapo6MicBtn) {
-        diapo6MicBtn.classList.toggle('recording', recording);
-        const icon = diapo6MicBtn.querySelector('.ph');
-        if (icon) {
-            icon.className = recording ? 'ph ph-stop-circle' : 'ph ph-microphone';
-        }
-        diapo6MicBtn.title = recording ? 'Parar grabación' : 'Grabar voz';
-    }
+    // Diapo 6 MIAU eliminada en v23.17.0
 
     // Diapo7 screen
     const diapo7MicBtn = document.getElementById('diapo7-mic-btn');
@@ -1929,13 +1913,7 @@ async function transcribeAudio(audioBlob, extension = 'webm') {
                 return;
             }
 
-            // Si estamos en Diapo 6, enviar al chat de Diapo 6
-            if (isOnDiapo6Screen()) {
-                sendDiapo6Message(cleanText);
-                updateRecordingUI(false);
-                resumeWakeWordAfterRecording();
-                return;
-            }
+            // Diapo 6 MIAU eliminada en v23.17.0
 
             // Si estamos en Diapo 8, enviar al chat de Diapo 8
             if (isOnDiapo7Screen()) {
@@ -2761,25 +2739,9 @@ function onWakeWordDetected(transcript = '') {
         return;
     }
 
-    // Si estamos en Diapo 6, misma logica que Diapo 5
-    if (elements.diapo6Screen && !elements.diapo6Screen.classList.contains('hidden')) {
-        console.log('[WakeWord] En Diapo6 — interaccion en contexto');
-        const diapo6Orb = document.getElementById('diapo6-orb-container');
-        if (diapo6Orb && window.orbSetListening) window.orbSetListening(true);
+    // Diapo 6 MIAU eliminada en v23.17.0
 
-        const diapo6Text = stripWakeWordForBlinda(transcript);
-        if (diapo6Text) {
-            console.log('[WakeWord] Diapo6 text:', diapo6Text);
-            sendDiapo6Message(diapo6Text);
-            if (window.orbSetListening) window.orbSetListening(false);
-            resumeWakeWordAfterRecording();
-        } else {
-            startRecording();
-        }
-        return;
-    }
-
-    // Si estamos en Diapo 7, misma logica que Diapo 5/6
+    // Si estamos en Diapo 7, misma logica que Diapo 5
     if (elements.diapo7Screen && !elements.diapo7Screen.classList.contains('hidden')) {
         console.log('[WakeWord] En Diapo7 — interaccion en contexto');
         const diapo7Orb = document.getElementById('diapo7-orb-container');
@@ -2992,7 +2954,7 @@ function forceEnableTTS() {
  */
 function updateVoiceButton(enabled) {
     // Update both chat and blinda voice buttons
-    ['chat-voice-btn', 'blinda-voice-btn', 'juego-voice-btn', 'diapo6-voice-btn', 'diapo7-voice-btn'].forEach(id => {
+    ['chat-voice-btn', 'blinda-voice-btn', 'juego-voice-btn', 'diapo7-voice-btn'].forEach(id => {
         const btn = document.getElementById(id);
         if (!btn) return;
         if (enabled) {
@@ -3520,7 +3482,6 @@ function showJuegoIntroScreen() {
     elements.blindaScreen?.classList.add('hidden');
     elements.juegoScreen?.classList.add('hidden');
     elements.diapo5Screen?.classList.add('hidden');
-    elements.diapo6Screen?.classList.add('hidden');
     elements.diapo7Screen?.classList.add('hidden');
 
     const screen = document.getElementById('juego-intro-screen');
@@ -4757,7 +4718,7 @@ let _diapo5MorphRAF = null;
 let _diapo5TerminalTimer = null;
 
 function showDiapo5Screen() {
-    if (isMobile()) { showDiapo6Screen(); return; }
+    if (isMobile()) { showFinalScreen(); return; }
     stopTTS();
     elements.loginScreen?.classList.add('hidden');
     elements.conoceScreen?.classList.add('hidden');
@@ -4823,13 +4784,13 @@ function isOnDiapo5Screen() {
 // ──────────── Navegación entre pasos ────────────
 function diapo5NextStep() {
     if (_diapo5Step >= DIAPO5_TOTAL_STEPS) {
-        // Último paso → diapo 6
+        // Último paso → pantalla final (diapo 7 eliminada)
         _diapo5StopAll();
         elements.diapo5Screen?.classList.add('fade-out');
         setTimeout(() => {
             elements.diapo5Screen?.classList.add('hidden');
             elements.diapo5Screen?.classList.remove('fade-out');
-            if (typeof showDiapo6Screen === 'function') showDiapo6Screen();
+            showFinalScreen();
         }, 300);
         return;
     }
@@ -5476,378 +5437,22 @@ function replayJuego() {
     startJuegoGame();
 }
 
+
 // ============================================
-// DIAPO 6 — Elige tu agente
+// DIAPO 6 — (v23.17.0) MIAU ELIMINADA — placeholder
 // ============================================
-const DIAPO6_AGENTS = {
-    act1: [
-        { id: 'traduccion', img: 'traduccion.png', name: 'Traducción', displayName: 'Traducir vocabulario', desc: 'Traducción pedagógica: adapta la traducción al contexto de aprendizaje y al nivel del estudiante' },
-        { id: 'expansor', img: 'expansor.png', name: 'Expansor', displayName: 'Más vocabulario', desc: 'Genera vocabulario adicional adaptado a la edad y contexto del estudiante' },
-        { id: 'enfocado', img: 'enfocado.png', name: 'Enfocado', displayName: 'Mis palabras', desc: 'Trabaja solo las palabras que el usuario elige, personaliza el aprendizaje' },
-        { id: 'improvisador', img: 'improvisador.png', name: 'Improvisador', displayName: 'Sorpréndeme', desc: 'El estudiante no sabe qué le espera: genera una actividad sorpresa basada en su perfil' }
-    ],
-    act2: [
-        { id: 'masticador', img: 'masticador.png', name: 'Masticador', displayName: 'Aprender del texto', desc: 'Analiza el texto y extrae vocabulario clave para trabajar en contexto' },
-        { id: 'aprobador', img: 'aprobador.png', name: 'Aprobador', displayName: 'Gramapop', desc: 'Píldoras de gramática con MARS/EARS, gramática de las construcciones y Van Patten' },
-        { id: 'miron', img: 'miron.png', name: 'Mirón', displayName: 'Comprensión global visual', desc: 'Genera actividades visuales de comprensión lectora a partir del texto' },
-        { id: 'explorador', img: 'explorador.png', name: 'Explorador', displayName: 'Mapa mental', desc: 'Crea mapas mentales y organiza ideas visualmente a partir del contenido' }
-    ]
-};
-
-const DIAPO6_TOTAL_STEPS = 5;
-let diapo6Step = 0;
-
-function initDiapo6() {
-    diapo6Step = 0;
-
-    renderDiapo6CatsGrid();
-    renderDiapo6AgentCards('diapo6-agents-act1', DIAPO6_AGENTS.act1);
-    renderDiapo6AgentCards('diapo6-agents-act2', DIAPO6_AGENTS.act2);
-    renderDiapo6Bars();
-    connectDiapo6Dashboard();
-    updateDiapo6Step(0);
-
-    // Stepper dot clicks
-    document.querySelectorAll('[data-diapo6-dot]').forEach(dot => {
-        dot.addEventListener('click', () => {
-            const step = parseInt(dot.dataset.diapo6Dot);
-            updateDiapo6Step(step);
-        });
-    });
-}
-
-function renderDiapo6CatsGrid() {
-    const grid = document.getElementById('diapo6-cats-grid');
-    if (!grid) return;
-    const allAgents = [...DIAPO6_AGENTS.act1, ...DIAPO6_AGENTS.act2];
-    grid.innerHTML = allAgents.map(a => `
-        <div class="diapo6-cat-mini" data-agent-id="${a.id}">
-            <img class="diapo6-cat-mini__img" src="/static/imagenes/${a.img}" alt="${a.name}">
-            <span class="diapo6-cat-mini__name">???</span>
-        </div>
-    `).join('');
-}
-
-function renderDiapo6AgentCards(containerId, agents) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    const allNames = [...DIAPO6_AGENTS.act1, ...DIAPO6_AGENTS.act2].map(a => a.name);
-    // Shuffle names for each render
-    const shuffled = [...allNames].sort(() => Math.random() - 0.5);
-
-    container.innerHTML = agents.map(a => `
-        <div class="diapo6-agent-card" data-agent-id="${a.id}">
-            <img class="diapo6-agent-card__img" src="/static/imagenes/${a.img}" alt="">
-            <div class="diapo6-agent-card__desc">${a.desc}</div>
-            <select class="diapo6-agent-card__select" data-correct="${a.name}">
-                <option value="" disabled selected>Elige nombre...</option>
-                ${shuffled.map(n => `<option value="${n}">${n}</option>`).join('')}
-            </select>
-            <div class="diapo6-agent-card__result"></div>
-        </div>
-    `).join('');
-
-    container.querySelectorAll('.diapo6-agent-card__select').forEach(select => {
-        select.addEventListener('change', () => {
-            checkDiapo6AgentAnswer(select);
-        });
-    });
-}
-
-function checkDiapo6AgentAnswer(select) {
-    const card = select.closest('.diapo6-agent-card');
-    const correct = select.dataset.correct;
-    const chosen = select.value;
-    const resultEl = card.querySelector('.diapo6-agent-card__result');
-    const agentId = card.dataset.agentId;
-
-    if (chosen === correct) {
-        card.classList.add('diapo6-agent-card--correct');
-        card.classList.remove('diapo6-agent-card--wrong');
-        select.disabled = true;
-        if (resultEl) resultEl.textContent = correct;
-        // Wake up the cat in the intro grid
-        const miniCat = document.querySelector(`.diapo6-cat-mini[data-agent-id="${agentId}"]`);
-        if (miniCat) {
-            miniCat.classList.add('diapo6-cat-mini--awake');
-            const nameSpan = miniCat.querySelector('.diapo6-cat-mini__name');
-            if (nameSpan) nameSpan.textContent = correct;
-        }
-    } else {
-        card.classList.add('diapo6-agent-card--wrong');
-        if (resultEl) resultEl.textContent = 'Intenta de nuevo';
-        setTimeout(() => {
-            card.classList.remove('diapo6-agent-card--wrong');
-            if (resultEl) resultEl.textContent = '';
-            select.value = '';
-        }, 1200);
-    }
-}
-
-const DIAPO6_OPINION_LABELS = {
-    convencido: 'Me ha convencido',
-    potencial: 'Tiene potencial',
-    no_convencido: 'No me ha convencido'
-};
-
-function renderDiapo6Bars() {
-    // Barras de agentes
-    const agentsContainer = document.getElementById('diapo6-bars-agents');
-    if (agentsContainer) {
-        const allAgents = [...DIAPO6_AGENTS.act1, ...DIAPO6_AGENTS.act2];
-        agentsContainer.innerHTML = allAgents.map(a => `
-            <div class="diapo6-bar" data-agent-name="${a.name}">
-                <span class="diapo6-bar__label">${a.name}</span>
-                <div class="diapo6-bar__track">
-                    <div class="diapo6-bar__fill" style="width: 0%"></div>
-                </div>
-                <span class="diapo6-bar__count">0</span>
-            </div>
-        `).join('');
-    }
-    // Barras de opinión
-    const opinionsContainer = document.getElementById('diapo6-bars-opinions');
-    if (opinionsContainer) {
-        opinionsContainer.innerHTML = Object.entries(DIAPO6_OPINION_LABELS).map(([key, label]) => `
-            <div class="diapo6-bar" data-opinion="${key}">
-                <span class="diapo6-bar__label">${label}</span>
-                <div class="diapo6-bar__track">
-                    <div class="diapo6-bar__fill diapo6-bar__fill--${key}" style="width: 0%"></div>
-                </div>
-                <span class="diapo6-bar__count">0</span>
-            </div>
-        `).join('');
-    }
-}
-
-function connectDiapo6Dashboard() {
-    const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${protocol}//${location.host}/ws/encuesta-dashboard`);
-    ws.onmessage = (e) => {
-        try {
-            const data = JSON.parse(e.data);
-            updateDiapo6Dashboard(data);
-        } catch (err) { /* ignore */ }
-    };
-    ws.onclose = () => {
-        // Reconectar tras 3s
-        setTimeout(connectDiapo6Dashboard, 3000);
-    };
-}
-
-function updateDiapo6Dashboard(data) {
-    const total = data.total || 0;
-    const countEl = document.getElementById('diapo6-vote-count');
-    if (countEl) countEl.textContent = total;
-
-    // Actualizar barras de agentes
-    if (data.agents) {
-        const maxAgent = Math.max(1, ...Object.values(data.agents));
-        Object.entries(data.agents).forEach(([name, count]) => {
-            const bar = document.querySelector(`.diapo6-bar[data-agent-name="${name}"]`);
-            if (!bar) return;
-            const fill = bar.querySelector('.diapo6-bar__fill');
-            const countSpan = bar.querySelector('.diapo6-bar__count');
-            if (fill) fill.style.width = `${(count / maxAgent) * 100}%`;
-            if (countSpan) countSpan.textContent = count;
-        });
-    }
-
-    // Actualizar barras de opinión
-    if (data.opinions) {
-        const maxOp = Math.max(1, ...Object.values(data.opinions));
-        Object.entries(data.opinions).forEach(([key, count]) => {
-            const bar = document.querySelector(`.diapo6-bar[data-opinion="${key}"]`);
-            if (!bar) return;
-            const fill = bar.querySelector('.diapo6-bar__fill');
-            const countSpan = bar.querySelector('.diapo6-bar__count');
-            if (fill) fill.style.width = `${(count / maxOp) * 100}%`;
-            if (countSpan) countSpan.textContent = count;
-        });
-    }
-}
-
-function updateDiapo6Step(step) {
-    diapo6Step = step;
-    // Toggle steps
-    document.querySelectorAll('[data-diapo6-step]').forEach(el => {
-        el.classList.toggle('diapo6-demo__step--active', parseInt(el.dataset.diapo6Step) === step);
-    });
-    // Toggle stepper dots
-    document.querySelectorAll('[data-diapo6-dot]').forEach(dot => {
-        dot.classList.toggle('demo-stepper__dot--active', parseInt(dot.dataset.diapo6Dot) === step);
-    });
-}
-
-function advanceDiapo6() {
-    if (diapo6Step < DIAPO6_TOTAL_STEPS - 1) {
-        updateDiapo6Step(diapo6Step + 1);
-    }
-}
-
+// El contenido completo de la diapo 6 "Agentes MIAU" (grid de 8 gatos,
+// chat activity_mode 'miau', votación en tiempo real, dashboard de
+// barras, encuesta móvil) se eliminó en v23.17.0. El identificador
+// showDiapo6Screen se conserva como stub inofensivo porque la diapo 5
+// lo invoca (bypass móvil y transición tras el último paso). Cuando se
+// implemente la nueva diapo 6 "IA para estudiantes" se sustituirá este
+// stub por la función real.
 function showDiapo6Screen() {
-    stopTTS();
-    elements.loginScreen?.classList.add('hidden');
-    elements.conoceScreen?.classList.add('hidden');
-    elements.chatScreen?.classList.add('hidden');
-    elements.welcomeScreen?.classList.add('hidden');
-    elements.planScreen?.classList.add('hidden');
-    elements.profileScreen?.classList.add('hidden');
-    elements.blindaScreen?.classList.add('hidden');
-    elements.juegoScreen?.classList.add('hidden');
-    elements.diapo5Screen?.classList.add('hidden');
-
-    elements.diapo6Screen?.classList.remove('hidden');
-    elements.diapo6Screen?.classList.remove('fade-out');
-
-    const orbContainer = document.getElementById('diapo6-orb-container');
-    if (orbContainer && window.orbCreateInElement) {
-        const orbSize = window.innerWidth <= 480 ? 64 : window.innerWidth <= 968 ? 80 : 120;
-        window.orbCreateInElement(orbContainer, orbSize);
-    }
-
-    initDiapo6();
+    return;
 }
-
-function hideDiapo6Screen() {
-    elements.diapo6Screen?.classList.add('fade-out');
-    setTimeout(() => {
-        elements.diapo6Screen?.classList.add('hidden');
-        elements.diapo6Screen?.classList.remove('fade-out');
-    }, 300);
-}
-
-function isOnDiapo6Screen() {
-    return elements.diapo6Screen && !elements.diapo6Screen.classList.contains('hidden');
-}
-
-const DIAPO6_KEYWORD_MAP = [
-    { step: 1, patterns: ['descubrir', 'dos actividades', 'sacad los móviles', 'sacad los moviles', 'adivinar', 'actividad 1'] },
-    { step: 2, patterns: ['segunda', 'actividad 2', 'siguiente actividad', 'pasemos', 'diálogo', 'dialogo', 'texto y gramática', 'texto y gramatica'] },
-    { step: 3, patterns: ['probar', 'qr', 'materiaele', 'escaneáis', 'escaneais'] },
-    { step: 4, patterns: ['resultados', 'encuesta', 'pantalla', 'cuáles os han gustado', 'cuales os han gustado', 'votad'] }
-];
-
-function addDiapo6ChatBubble(text, role) {
-    const messages = document.getElementById('diapo6-chat-messages');
-    if (!messages) return null;
-    const bubble = document.createElement('div');
-    bubble.className = `blinda-chat__bubble blinda-chat__bubble--${role}`;
-    if (role === 'assistant' && text) {
-        bubble.innerHTML = typeof renderMarkdown === 'function' ? renderMarkdown(text) : text;
-    } else {
-        bubble.textContent = text;
-    }
-    messages.appendChild(bubble);
-    messages.scrollTop = messages.scrollHeight;
-    return bubble;
-}
-
-function sendDiapo6Message(message) {
-    addDiapo6ChatBubble(message, 'user');
-
-    const messages = document.getElementById('diapo6-chat-messages');
-    const typing = document.createElement('div');
-    typing.className = 'blinda-chat__bubble blinda-chat__bubble--assistant blinda-chat__typing';
-    typing.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
-    messages.appendChild(typing);
-    messages.scrollTop = messages.scrollHeight;
-
-    state.currentMessage = '';
-    let assistantBubble = null;
-
-    const doSend = () => {
-        const payload = { message, response_mode: 'full', activity_mode: 'miau' };
-        if (!state._diapo6ContextSent) {
-            payload.prior_context = {
-                question: 'Eliana, estos gatos son los agentes MIAU, cuéntanos.',
-                answer: 'Estos son los agentes MIAU. ¿Por qué gatos? Porque son independientes, curiosos y siempre caen de pie. Como un buen agente IA.'
-            };
-            state._diapo6ContextSent = true;
-        }
-        state._diapo6Ws.send(JSON.stringify(payload));
-    };
-
-    const handleDiapo6Message = (event) => {
-        const data = JSON.parse(event.data);
-
-        if (data.type === 'token') {
-            if (!assistantBubble) {
-                typing.remove();
-                assistantBubble = addDiapo6ChatBubble('', 'assistant');
-                if (window.smd && assistantBubble) {
-                    const renderer = window.smd.default_renderer(assistantBubble);
-                    state._diapo6SmdParser = window.smd.parser(renderer);
-                } else {
-                    state._diapo6SmdParser = null;
-                }
-            }
-            state.currentMessage += data.content;
-            if (state._diapo6SmdParser) {
-                window.smd.parser_write(state._diapo6SmdParser, data.content);
-            } else if (assistantBubble) {
-                assistantBubble.innerHTML = typeof renderMarkdown === 'function'
-                    ? renderMarkdown(state.currentMessage, false) : state.currentMessage;
-            }
-            messages.scrollTop = messages.scrollHeight;
-            // Live auto-advance: detect keywords while Eliana speaks
-            checkDiapo6Advance(state.currentMessage);
-        }
-        else if (data.type === 'end') {
-            if (state._diapo6SmdParser) {
-                window.smd.parser_end(state._diapo6SmdParser);
-                state._diapo6SmdParser = null;
-            }
-            if (state.currentMessage && (state.ttsEnabled || state.voiceTriggered)) {
-                playTTS(state.currentMessage, true);
-            }
-            if (state.currentMessage) {
-                checkDiapo6Advance(state.currentMessage);
-            }
-            assistantBubble = null;
-            resumeWakeWordAfterRecording();
-        }
-        else if (data.type === 'error') {
-            typing.remove();
-            addDiapo6ChatBubble('Error: ' + data.message, 'assistant');
-            assistantBubble = null;
-        }
-    };
-
-    if (state._diapo6Ws && state._diapo6Ws.readyState === WebSocket.OPEN) {
-        state._diapo6Ws.onmessage = handleDiapo6Message;
-        doSend();
-        return;
-    }
-
-    if (state._diapo6Ws) {
-        state._diapo6Ws.close();
-        state._diapo6Ws = null;
-        state._diapo6ContextSent = false;
-    }
-
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    state._diapo6Ws = new WebSocket(`${wsProtocol}//${window.location.host}/ws/chat`);
-    state._diapo6Ws.onopen = doSend;
-    state._diapo6Ws.onmessage = handleDiapo6Message;
-    state._diapo6Ws.onerror = () => {
-        typing.remove();
-        addDiapo6ChatBubble('Error de conexion', 'assistant');
-    };
-}
-
-function checkDiapo6Advance(fullText) {
-    const lower = fullText.toLowerCase();
-    const nextStep = diapo6Step + 1;
-    const mapping = DIAPO6_KEYWORD_MAP.find(m => m.step === nextStep);
-    if (!mapping) return;
-    for (const pat of mapping.patterns) {
-        if (lower.includes(pat)) {
-            updateDiapo6Step(nextStep);
-            return;
-        }
-    }
-}
+function hideDiapo6Screen() {}
+function isOnDiapo6Screen() { return false; }
 
 // ============================================
 // DIAPO 8 — Construye tu Agente (Plataforma)
@@ -5883,30 +5488,8 @@ const DIAPO7_TOTAL_STEPS = 5;
 let diapo7Step = 0;
 
 function showDiapo7Screen() {
-    // Diapo 7 solo en escritorio — en móvil mostrar encuesta embebida
-    if (isMobile()) { showMobileEncuesta(); return; }
-    stopTTS();
-    elements.loginScreen?.classList.add('hidden');
-    elements.conoceScreen?.classList.add('hidden');
-    elements.chatScreen?.classList.add('hidden');
-    elements.welcomeScreen?.classList.add('hidden');
-    elements.planScreen?.classList.add('hidden');
-    elements.profileScreen?.classList.add('hidden');
-    elements.blindaScreen?.classList.add('hidden');
-    elements.juegoScreen?.classList.add('hidden');
-    elements.diapo5Screen?.classList.add('hidden');
-    elements.diapo6Screen?.classList.add('hidden');
-
-    elements.diapo7Screen?.classList.remove('hidden');
-    elements.diapo7Screen?.classList.remove('fade-out');
-
-    const orbContainer = document.getElementById('diapo7-orb-container');
-    if (orbContainer && window.orbCreateInElement) {
-        const orbSize = window.innerWidth <= 480 ? 64 : window.innerWidth <= 968 ? 80 : 120;
-        window.orbCreateInElement(orbContainer, orbSize);
-    }
-
-    initDiapo7();
+    // Diapo 7 eliminada: redirección segura a pantalla final.
+    showFinalScreen();
 }
 
 function hideDiapo7Screen() {
@@ -7390,32 +6973,7 @@ function init() {
     document.getElementById('diapo5-side-prev')?.addEventListener('click', diapo5PrevStep);
     document.getElementById('diapo5-side-next')?.addEventListener('click', diapo5NextStep);
 
-    // Diapo 6 — Elige tu agente
-    document.getElementById('diapo6-nav-back')?.addEventListener('click', () => {
-        hideDiapo6Screen();
-        setTimeout(() => showDiapo5Screen(), 300);
-    });
-    document.getElementById('diapo6-nav-next')?.addEventListener('click', () => {
-        hideDiapo6Screen();
-        setTimeout(() => showDiapo7Screen(), 300);
-    });
-    document.getElementById('diapo6-chat-send')?.addEventListener('click', () => {
-        const input = document.getElementById('diapo6-chat-input');
-        const text = input?.value.trim();
-        if (!text) return;
-        input.value = '';
-        sendDiapo6Message(text);
-    });
-    document.getElementById('diapo6-chat-input')?.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('diapo6-chat-send')?.click(); }
-    });
-    document.getElementById('diapo6-mic-btn')?.addEventListener('click', () => {
-        enableTTS(); state.voiceTriggered = true;
-        if (state.isRecording) { state._discardRecording = true; stopRecording(); } else { startRecording(); }
-    });
-    document.getElementById('diapo6-voice-btn')?.addEventListener('click', () => {
-        if (state.ttsEnabled) disableTTS(); else enableTTS();
-    });
+    // Diapo 6 MIAU eliminada en v23.17.0 — listeners removidos
 
     // Diapo 8 — Construye tu Agente
     document.getElementById('diapo7-nav-back')?.addEventListener('click', () => {
@@ -7784,7 +7342,7 @@ function init() {
             document.querySelectorAll('.main-content, #login-screen, #welcome-screen').forEach(el => el.classList.add('hidden'));
             // Mostrar la pantalla solicitada
             if (screenParam === 'juego') showJuegoScreen();
-            else if (screenParam === 'miau' && typeof showDiapo6Screen === 'function') showDiapo6Screen();
+            // 'miau' eliminado en v23.17.0 junto con la diapo 6 MIAU
             else if (screenParam === 'juego-intro') showJuegoIntroScreen();
             else if (screenParam === 'diapo5' && typeof showDiapo5Screen === 'function') {
                 showDiapo5Screen();

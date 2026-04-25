@@ -487,120 +487,7 @@ ESTILO TTS — Se lee en voz alta:
 - Conectores naturales orales.
 - PROHIBIDO: risas (jaja), interjecciones exageradas, onomatopeyas.""",
 
-    "miau": """Eres Eliana, co-presentadora de una conferencia de profesores de ELE junto a Román.
-
-CONTEXTO — Sección "Agentes MIAU" (presentación de 8 agentes IA con forma de gato):
-- Román y tú presentáis 8 agentes IA diseñados para trabajar con actividades de clase reales.
-- Cada agente es un gato con personalidad y una función pedagógica concreta.
-- La audiencia son profesores de español — NO son técnicos.
-- Hay una pantalla que cambia automáticamente cuando mencionas ciertas palabras clave.
-- El chat inicial ya dice: "Estos son los agentes MIAU. ¿Por qué gatos? Porque son independientes, curiosos y siempre caen de pie. Como un buen agente IA."
-- PROHIBIDO mencionar el nombre de ningún libro de texto, editorial ni unidad concreta. Habla siempre en genérico: "una actividad de vocabulario", "un diálogo cotidiano", etc.
-
-FLUJO — Secuencia ESTRICTA de 6 momentos. SIEMPRE avanzas, NUNCA retrocedes.
-
-REGLA CRÍTICA DE AVANCE:
-- Cada mensaje de Román (diga lo que diga) significa: AVANZA al siguiente momento.
-- NUNCA vuelvas a un momento anterior. Si ya hablaste de la actividad 2, NO vuelvas a la actividad 1.
-- Si Román dice algo ambiguo ("siguiente", "pasemos", "venga", "adelante", "continuamos"), avanza al momento que toque.
-- Adapta lo que diga Román al contenido del SIGUIENTE momento. Si dice "cuéntanos más" y estás en momento 3, habla del momento 4.
-- Lleva la cuenta internamente: tras cada respuesta tuya, sube un momento.
-
-MOMENTO 1 — ¿Por qué gatos? (reacciona a Román):
-Tu mensaje anterior ya dijo "son independientes, curiosos y siempre caen de pie". NO repitas eso. NO empieces con "Además".
-Escucha lo que dice Román y REACCIONA con naturalidad. NO uses "Exacto" ni "Buena pregunta" — suena a fórmula.
-Reformula lo que dijo Román con tus palabras y luego da tu contenido.
-Ejemplo: si Román dice "cuéntanos por qué gatos" → "A ver, pensadlo así: ¿qué hace un gato cuando le pones algo nuevo delante? Lo investiga, le da vueltas, lo tira al suelo y aprende. Un agente IA hace lo mismo: recibe lo que le das y trabaja con ello."
-Ideas que puedes usar (elige 2-3, NO las sueltes todas):
-- Un gato no espera órdenes: observa y actúa. Un agente se adapta al momento sin instrucciones rígidas.
-- Si algo sale mal, un gato se recoloca. Un agente reformula y vuelve a intentarlo.
-- Cada gato tiene su personalidad. Cada agente tiene su especialidad.
-- Los agentes no solo revisan textos: también crean materiales, generan actividades, adaptan contenido al nivel del alumno.
-- Y ponerles cara de gato ayuda a que los profes y los alumnos se acuerden de ellos.
-
-MOMENTO 2 — ¿Cómo funcionan? (intro + sacad móviles):
-Responde algo como: "Eso lo vais a descubrir vosotros. Hemos preparado dos actividades de ejemplo. En cada una hay cuatro gatos. Sacad los móviles y elegid sus nombres."
-KEYWORDS: incluye "descubrir" o "dos actividades" o "sacad los móviles" o "adivinar" o "actividad 1"
-
-MOMENTO 3 — Actividad 1: Vocabulario:
-Refuerza brevemente: "Ahí tenéis la primera actividad de vocabulario. Cuatro gatos, cada uno trabaja de una forma distinta. Leed la descripción y elegid su nombre."
-SIN KEYWORDS de avance — la pantalla ya muestra la actividad 1.
-
-MOMENTO 4 — Actividad 2: Texto y gramática:
-Presenta: "Venga, siguiente actividad. Ahora un diálogo cotidiano entre dos amigas. Otros cuatro gatos que trabajan el texto y la gramática. Mismo juego: leed lo que hacen y elegid el nombre."
-KEYWORDS: incluye "siguiente actividad" o "segunda" o "actividad 2" o "pasemos" o "diálogo" o "texto y gramática"
-
-MOMENTO 5 — Probar los agentes en el móvil:
-Invita: "Ahora viene lo bueno. Vamos a probar estos agentes de verdad. Escaneáis el QR y podéis usar los gatos con la actividad real en MaterIAELE."
-KEYWORDS: incluye "probar" o "QR" o "MaterIAELE" o "escaneáis"
-
-MOMENTO 6 — Encuesta y conversación:
-Invita: "Ahora tenéis una encuesta rápida en el móvil. Votad qué agente habéis probado y qué os ha parecido. Después os salen unas preguntas para comentar con el compañero de al lado."
-KEYWORDS: incluye "resultados" o "encuesta" o "cuáles os han gustado"
-
-LOS 8 AGENTES MIAU (para que los conozcas, NO menciones estos detalles técnicos al público):
-Actividad 1 — Vocabulario:
-- Traducción: traducción pedagógica adaptada al nivel
-- Expansor: genera vocabulario adicional por contexto y edad
-- Enfocado: trabaja solo las palabras que el alumno elige
-- Improvisador: actividad sorpresa basada en el perfil del alumno
-
-Actividad 2 — Texto y gramática:
-- Masticador: extrae vocabulario clave del texto
-- Aprobador: píldoras de gramática con MARS/EARS y Van Patten
-- Mirón: actividades visuales de comprensión lectora
-- Explorador: organiza ideas visualmente
-
-FORMATO DE RESPUESTA — OBLIGATORIO:
-- Solo texto hablado. NADA de acotaciones, instrucciones ni paréntesis.
-- PROHIBIDO: "Espera", "Pausa", "Escucha", puntos suspensivos ("...").
-- Máximo 4-5 oraciones por respuesta.
-
-CONTINUIDAD:
-- NO saludes — ya lo hiciste antes. Ve directo al contenido.
-- NUNCA empieces con "Además", "Exacto", "Buena pregunta" ni continúes tu frase anterior. Cada respuesta es NUEVA.
-- Reformula brevemente lo que dijo Román con tus palabras (no repitas textualmente), luego da tu contenido.
-- Si alguien pregunta fuera del tema, responde breve y vuelve.
-
-TONO — Conferencia, no clase:
-- Humor cercano, de profes entre profes.
-- NO dramatices. Nada de "increíble", "maravilloso", "fantástico".
-- Sé natural: "mira", "a ver", "fíjate", "venga".
-
-ESPAÑOL CORRECTO — Conferencia de profesores de ESPAÑOL. Tu gramática DEBE ser impecable:
-- Concordancia de género: "el subjuntivo" (no "la subjuntivo"), "el reto" (no "el reato")
-- NUNCA inventes palabras. Errores graves detectados que DEBES evitar:
-  * "nura" NO EXISTE → usa "mira", "oye", "fíjate"
-  * "igito" NO EXISTE → "igualito"
-  * "naden" NO EXISTE → "nadie"
-  * "reato" NO EXISTE → "reto"
-  * "substituir" NO EXISTE → "sustituir"
-  * "eloquente" NO EXISTE → "elocuente"
-  * "vosco" NO EXISTE → "voseo"
-- Antes de cada respuesta, revisa mentalmente que CADA palabra existe en español
-- Cuida preposiciones y artículos
-
-ESTILO TTS — Se lee en voz alta:
-- Frases cortas. Máximo 4-5 oraciones por respuesta.
-- Conectores naturales orales.
-- PROHIBIDO: risas (jaja), interjecciones exageradas, onomatopeyas.""",
-
-    "tts_activity": """Prepara este texto para ser LEÍDO EN VOZ ALTA por un sintetizador de voz. Tu trabajo es añadir marcas de ritmo y entonación.
-
-CAMBIOS PERMITIDOS:
-- Añadir comas para crear pausas naturales donde alguien haría una pausa al hablar
-- Añadir puntos suspensivos (...) para pausas dramáticas o pensativas
-- Partir frases muy largas en dos más cortas
-- Cambiar signos de exclamación por puntos si la frase no necesita tanto énfasis
-
-PROHIBIDO:
-- Cambiar el significado o el contenido
-- Añadir palabras, frases o comentarios que no estén en el original
-- Quitar información
-- Risas, interjecciones, onomatopeyas
-- Markdown o formato
-
-Devuelve SOLO el texto transformado, nada más.""",
+    # "miau": ELIMINADO en v23.17.0 junto con la diapo 6 MIAU
 
     "plataforma": """Eres Eliana, co-presentadora de una conferencia de profesores de ELE junto a Román.
 
@@ -682,7 +569,7 @@ DE QUÉ NO HABLAR:
 - NO hables del juego, las cartas, los puntos, los votos, ni "la actividad de la diapo".
 - NO hables del chef, ingredientes de cocina, mesas, comensales — esa metáfora se eliminó.
 - NO hables de "8 agentes", "Español en Marcha", "Familia MIAU".
-- NO menciones la diapo 6 ni la encuesta MIAU — eso es después.
+- NO menciones otras diapositivas — céntrate solo en lo que hay en esta.
 
 TONO:
 - Cercano, conversacional, en español de España. Sin "para nada", sin "siéntete libre", sin "asegúrate".
@@ -1044,7 +931,7 @@ async def save_message(conversation_id: str, role: str, content: str):
 
 # Aliases para fallback (apuntan al diccionario _DEFAULT_PROMPTS)
 ELIANA_SYSTEM_PROMPT = _DEFAULT_PROMPTS["eliana_main"]
-ACTIVITY_PROMPTS = {k: v for k, v in _DEFAULT_PROMPTS.items() if k in ("yo_nunca_nunca", "dime_algo", "pregunta_ia", "blinda", "juego3_chat", "juego3_final", "agentes", "miau", "plataforma", "diapo5")}
+ACTIVITY_PROMPTS = {k: v for k, v in _DEFAULT_PROMPTS.items() if k in ("yo_nunca_nunca", "dime_algo", "pregunta_ia", "blinda", "juego3_chat", "juego3_final", "agentes", "plataforma", "diapo5")}
 PROFILE_CARD_PROMPT = _DEFAULT_PROMPTS["profile_card"]
 
 # Anti-regresión: los prompts "blinda" y "juego3_chat" se usan para el juego actual.
@@ -1106,10 +993,7 @@ async def root():
     return FileResponse("static/index.html")
 
 
-@app.get("/encuesta")
-async def encuesta_page():
-    """Servir la página de encuesta móvil"""
-    return FileResponse("static/encuesta.html")
+# /encuesta endpoint ELIMINADO en v23.17.0 (junto con diapo 6 MIAU)
 
 
 @app.get("/suena")
@@ -1157,78 +1041,7 @@ async def suena_registro(request: Request):
     return JSONResponse({"ok": True})
 
 
-# ── Encuesta MIAU: votación en tiempo real ──
-_encuesta_votes: list[dict] = []
-_encuesta_dashboard_ws: set[WebSocket] = set()
-
-
-@app.websocket("/ws/encuesta")
-async def ws_encuesta_vote(websocket: WebSocket):
-    """Recibe un voto desde el móvil y lo reenvía al dashboard del presentador"""
-    global _encuesta_dashboard_ws
-    await websocket.accept()
-    try:
-        data = await websocket.receive_json()
-        agent = data.get("agent", "")
-        opinion = data.get("opinion", "")
-        if agent and opinion:
-            _encuesta_votes.append({"agent": agent, "opinion": opinion})
-            print(f"[Encuesta] Voto: {agent} / {opinion} — total: {len(_encuesta_votes)}, dashboards: {len(_encuesta_dashboard_ws)}")
-            # Notificar a todos los dashboards conectados
-            summary = _build_vote_summary()
-            dead = set()
-            for ws in _encuesta_dashboard_ws:
-                try:
-                    await ws.send_json(summary)
-                    print(f"[Encuesta] Dashboard notificado OK")
-                except Exception as e:
-                    print(f"[Encuesta] Error notificando dashboard: {e}")
-                    dead.add(ws)
-            _encuesta_dashboard_ws -= dead
-        else:
-            print(f"[Encuesta] Datos incompletos: agent={agent}, opinion={opinion}")
-    except Exception as e:
-        print(f"[Encuesta] Error recibiendo voto: {e}")
-    finally:
-        try:
-            await websocket.close()
-        except Exception:
-            pass
-
-
-@app.websocket("/ws/encuesta-dashboard")
-async def ws_encuesta_dashboard(websocket: WebSocket):
-    """El presentador se conecta aquí para recibir actualizaciones de votos"""
-    await websocket.accept()
-    _encuesta_dashboard_ws.add(websocket)
-    try:
-        # Enviar estado actual al conectar
-        await websocket.send_json(_build_vote_summary())
-        # Mantener conexión abierta
-        while True:
-            await websocket.receive_text()
-    except WebSocketDisconnect:
-        pass
-    finally:
-        _encuesta_dashboard_ws.discard(websocket)
-
-
-def _build_vote_summary() -> dict:
-    """Construye resumen de votos para el dashboard"""
-    agents = ["Traducción", "Expansor", "Enfocado", "Improvisador",
-              "Masticador", "Aprobador", "Mirón", "Explorador"]
-    agent_counts = {a: 0 for a in agents}
-    opinion_counts = {"convencido": 0, "potencial": 0, "no_convencido": 0}
-    for v in _encuesta_votes:
-        if v["agent"] in agent_counts:
-            agent_counts[v["agent"]] += 1
-        if v["opinion"] in opinion_counts:
-            opinion_counts[v["opinion"]] += 1
-    return {
-        "total": len(_encuesta_votes),
-        "agents": agent_counts,
-        "opinions": opinion_counts
-    }
+# ── Encuesta MIAU ELIMINADA en v23.17.0 junto con la diapo 6 ──
 
 
 # ── Juego 3: Descubre al agente ──

@@ -1,5 +1,34 @@
 # Changelog — AgentiaELE
 
+## v23.17.2 — 2026-04-25 — Eliminación de la diapo 7
+Se elimina la diapositiva 7 del proyecto y se simplifica el flujo para evitar ejecución innecesaria.
+
+**Cambios**:
+- `static/index.html`:
+  - eliminado el bloque completo `#diapo7-screen`.
+  - bump de `app.js` a `v23.17.2`.
+- `static/app.js`:
+  - `showDiapo7Screen()` queda como redirección segura a `showFinalScreen()`.
+  - `showDiapo5Screen()` en móvil salta a pantalla final.
+  - `diapo5NextStep()` en el último paso salta a pantalla final.
+
+## v23.17.1 — 2026-04-25 — Limpieza final diapo6 legacy (MIAU)
+Revisión de cierre del desmontaje de la diapo 6 antigua para reducir ruido y evitar ejecución residual.
+
+**Verificado**:
+- `static/encuesta.html` eliminado.
+- `static/imagenes/qr-encuesta.svg` no existe.
+- `static/imagenes/qr-miau.svg` no existe.
+- Bloque `#diapo6-screen` eliminado de `static/index.html` (queda solo comentario de retirada).
+
+**Ajustes finales**:
+- `static/app.js`:
+  - eliminadas referencias residuales a `elements.diapo6Screen` en navegación.
+  - `showDiapo6Screen()` queda como stub totalmente inofensivo (no-op).
+  - `hideDiapo6Screen()` e `isOnDiapo6Screen()` se mantienen como compatibilidad mínima.
+- `static/index.html`:
+  - cache-busting de `app.js` actualizado a `v23.17.1`.
+
 ## v23.16.11 — 2026-04-25 — Endurecimiento responsive diapo5 para TV/proyector y portátiles Windows
 Refuerzo CSS en diapo 5 para priorizar visualización en pantalla grande (TV/proyector) sin afectar la lógica ni el flujo de pasos.
 
