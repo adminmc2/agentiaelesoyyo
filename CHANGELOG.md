@@ -1,5 +1,12 @@
 # Changelog — AgentiaELE
 
+## v23.18.2 — 2026-04-25 — Fix navegación diapo 5 → diapo 6
+Bug: en v23.17.2 la diapo 7 se eliminó y al mismo tiempo la diapo 6 todavía no existía (solo había un stub), por lo que `diapo5NextStep` en el último paso se cableó directamente a `showFinalScreen()`. Ahora que la nueva diapo 6 "IA para estudiantes" (Strategos) ya está implementada desde v23.18.0, la flecha superior derecha de la diapo 5 debe avanzar a la diapo 6, no saltar a la pantalla final.
+
+**Fix**: `diapo5NextStep()` en el paso 4 llama a `showDiapo6Screen()` si existe; fallback a `showFinalScreen()` para defensa.
+
+Versionado sync → v23.18.2.
+
 ## v23.18.1 — 2026-04-25 — Diapo 6 paso 1 (layout-text-flip)
 Fase 2/6 de la diapo 6 "IA para estudiantes". Se implementa el **paso 1** con el UI `layout-text-flip` (adaptado a vanilla JS desde `/proyecto_sgel/src/components/ui/layout-text-flip.tsx`).
 

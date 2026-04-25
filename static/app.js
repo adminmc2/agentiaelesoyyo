@@ -4787,13 +4787,14 @@ function isOnDiapo5Screen() {
 // ──────────── Navegación entre pasos ────────────
 function diapo5NextStep() {
     if (_diapo5Step >= DIAPO5_TOTAL_STEPS) {
-        // Último paso → pantalla final (diapo 7 eliminada)
+        // Último paso → diapo 6 "IA para estudiantes" (Strategos)
         _diapo5StopAll();
         elements.diapo5Screen?.classList.add('fade-out');
         setTimeout(() => {
             elements.diapo5Screen?.classList.add('hidden');
             elements.diapo5Screen?.classList.remove('fade-out');
-            showFinalScreen();
+            if (typeof showDiapo6Screen === 'function') showDiapo6Screen();
+            else if (typeof showFinalScreen === 'function') showFinalScreen();
         }, 300);
         return;
     }
