@@ -1,5 +1,32 @@
 # Changelog — AgentiaELE
 
+## v23.19.4 — 2026-04-25 — Diapo 6 paso 3 (3d-card volteable + LucAPI circular progress)
+Fase 4/6 de la diapo 6 "IA para estudiantes". Paso 3 con dos UIs en paralelo adaptados de sgel:
+
+**Izquierda — Tarjeta pedagógica volteable en 3D** (adaptado de `3d-card.tsx`):
+- Contenedor con `perspective: 1400px` + card con `transform-style: preserve-3d`.
+- Hover → `transform: rotateY(180deg)` en 800ms cubic-bezier.
+- Dos caras con `backface-visibility: hidden`:
+  - **Cara A** ("Lee en Cuatro Pasos"): ol numerada con 4 pasos (Prepárate / Lee con una misión / Busca las pruebas / Conecta) con números circulares mostaza estilo neobrutalism.
+  - **Cara B** ("Los trucos del experto"): ul con iconos Phosphor (lightbulb, target, magnifying-glass, link) y los cuatro trucos del spec.
+- Pill "CARA A" / "CARA B" mostaza arriba-izquierda como marcador de lado.
+
+**Derecha — LucAPI circular progress**:
+- Header con avatar circular mostaza (icono `ph-book-open-text`) + "LucAPI · el agente estrella · Comprensión Lectora".
+- Ring SVG con 2 círculos (track gris mostaza + fill sólido mostaza) de r=42. stroke-dasharray animado via CSS variable `--progress` (0-1).
+- Centro del ring: "X / 4" (mostaza chico) + label del paso actual (Dosis 900 grande).
+- Descripción bajo el ring.
+- Cada 2.8s avanza al siguiente paso: actualiza `--progress` (animación CSS 700ms del stroke-dashoffset), label y desc con transición "is-swapping" (opacity + translateY). Loop al llegar al 4.
+
+**Cita inferior**: pill violeta con borde y shadow duro: "LucAPI **nunca da la respuesta**. Te ayuda a descubrirla."
+
+**Cambios**:
+- `static/index.html`: paso 3 con `.diapo6-duo-layout` (grid 2 columnas) + 3D-container + LucAPI ring + quote.
+- `static/style.css`: sección `/* PASO 3 — 3D card + LucAPI */` con `.diapo6-3d-container`, `.diapo6-3d-card*`, `.diapo6-lucapi*`, `.diapo6-step3-quote`. Tamaños grandes (title 22-34, icon wrap 60-88, ring 220-320, quote 20-30).
+- `static/app.js`: nuevas constantes `DIAPO6_LUCAPI_STEPS` (4 pasos) y `DIAPO6_LUCAPI_INTERVAL_MS = 2800`. State `_diapo6LucapiTimer`, `_diapo6LucapiIndex`. Funciones `_diapo6StartLucapi`, `_diapo6ApplyLucapiStep`, `_diapo6StopLucapi`. Cableado en `_diapo6RunStep(3)` / `_diapo6StopStep(3)` / `_diapo6StopAll`.
+
+Versionado sync → v23.19.4.
+
 ## v23.19.3 — 2026-04-25 — Diapo 6 paso 2 (focus-cards)
 Fase 3/6 de la diapo 6 "IA para estudiantes". Se implementa el **paso 2** con el UI `focus-cards` (adaptado de sgel a vanilla JS, efecto CSS puro sin React).
 

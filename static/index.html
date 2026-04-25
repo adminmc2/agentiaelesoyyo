@@ -19,7 +19,7 @@
     <script src="https://assets.codepen.io/35984/InertiaPlugin.min.js"></script>
     <script src="https://assets.codepen.io/35984/Physics2DPlugin.min.js"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="/static/style.css?v=23.19.3">
+    <link rel="stylesheet" href="/static/style.css?v=23.19.4">
     <!-- Favicon y iconos para iOS/Android/Windows/Mac -->
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=4.0.0">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=4.0.0">
@@ -805,8 +805,70 @@
 
                 <!-- ============ PASO 3 — La tarjeta + LucAPI (3d-card + circular-progress) ============ -->
                 <section class="diapo6-step" data-step="3" id="diapo6-step-3">
-                    <h2 class="diapo6-hook">Una tarjeta · Un agente · Una <span class="diapo6-hook__key">estrategia</span>.</h2>
-                    <p class="diapo6-step__placeholder">[Paso 3 — pendiente de contenido]</p>
+                    <h2 class="diapo6-hook">La tarjeta y su <span class="diapo6-hook__key">agente estrella</span>.</h2>
+
+                    <div class="diapo6-duo-layout">
+                        <!-- Izquierda: tarjeta 3D volteable (cara A pasos, cara B trucos) -->
+                        <div class="diapo6-3d-container" id="diapo6-3d-container">
+                            <div class="diapo6-3d-card">
+                                <div class="diapo6-3d-card__face diapo6-3d-card__face--front">
+                                    <span class="diapo6-3d-card__side-label">CARA A</span>
+                                    <h3 class="diapo6-3d-card__title">Lee en Cuatro Pasos</h3>
+                                    <ol class="diapo6-3d-card__list">
+                                        <li><span class="diapo6-3d-card__num">1</span>Prepárate</li>
+                                        <li><span class="diapo6-3d-card__num">2</span>Lee con una misión</li>
+                                        <li><span class="diapo6-3d-card__num">3</span>Busca las pruebas</li>
+                                        <li><span class="diapo6-3d-card__num">4</span>Conecta</li>
+                                    </ol>
+                                    <p class="diapo6-3d-card__hint">
+                                        <i class="ph-bold ph-arrow-clockwise"></i>
+                                        Pasa el ratón para ver los trucos
+                                    </p>
+                                </div>
+                                <div class="diapo6-3d-card__face diapo6-3d-card__face--back">
+                                    <span class="diapo6-3d-card__side-label">CARA B</span>
+                                    <h3 class="diapo6-3d-card__title">Los trucos del experto</h3>
+                                    <ul class="diapo6-3d-card__list diapo6-3d-card__list--tricks">
+                                        <li><i class="ph-fill ph-lightbulb"></i>Activa la cabeza antes de leer.</li>
+                                        <li><i class="ph-fill ph-target"></i>Busca <strong>una</strong> sola pregunta guía.</li>
+                                        <li><i class="ph-fill ph-magnifying-glass"></i>La respuesta está en el texto.</li>
+                                        <li><i class="ph-fill ph-link"></i>Conéctalo con tu vida.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Derecha: LucAPI con circular progress animado -->
+                        <div class="diapo6-lucapi">
+                            <div class="diapo6-lucapi__header">
+                                <div class="diapo6-lucapi__avatar">
+                                    <i class="ph-fill ph-book-open-text"></i>
+                                </div>
+                                <div class="diapo6-lucapi__id">
+                                    <h3 class="diapo6-lucapi__name">LucAPI</h3>
+                                    <p class="diapo6-lucapi__role">el agente estrella · Comprensión Lectora</p>
+                                </div>
+                            </div>
+
+                            <div class="diapo6-lucapi__progress" id="diapo6-lucapi-progress" style="--progress: 0.25;">
+                                <svg class="diapo6-lucapi__ring" viewBox="0 0 100 100" aria-hidden="true">
+                                    <circle class="diapo6-lucapi__track" cx="50" cy="50" r="42"></circle>
+                                    <circle class="diapo6-lucapi__fill" cx="50" cy="50" r="42"></circle>
+                                </svg>
+                                <div class="diapo6-lucapi__center">
+                                    <span class="diapo6-lucapi__step" id="diapo6-lucapi-step">1 / 4</span>
+                                    <span class="diapo6-lucapi__label" id="diapo6-lucapi-label">Prepárate</span>
+                                </div>
+                            </div>
+
+                            <p class="diapo6-lucapi__desc" id="diapo6-lucapi-desc">activa la cabeza antes de leer</p>
+                        </div>
+                    </div>
+
+                    <p class="diapo6-step3-quote">
+                        <span class="diapo6-step3-quote__icon"><i class="ph-fill ph-quotes"></i></span>
+                        LucAPI <strong>nunca da la respuesta</strong>. Te ayuda a descubrirla.
+                    </p>
                 </section>
 
                 <!-- ============ PASO 4 — Filosofía + CTA Strategos (comic-text + AnimatedButton + QR) ============ -->
@@ -1412,6 +1474,6 @@
             }
         });
     </script>
-    <script src="/static/app.js?v=23.19.3"></script>
+    <script src="/static/app.js?v=23.19.4"></script>
 </body>
 </html>

@@ -7678,6 +7678,278 @@ body[data-mood-active] .message.assistant {
     .diapo6-focus-card { min-height: auto; }
 }
 
+/* ──────────── PASO 3 — 3D card + LucAPI (v23.19.4) ──────────── */
+.diapo6-duo-layout {
+    display: grid;
+    grid-template-columns: minmax(340px, 1fr) minmax(340px, 1fr);
+    gap: clamp(28px, 3vw, 56px);
+    align-items: center;
+    justify-items: center;
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+/* ---- 3D Card volteable ---- */
+.diapo6-3d-container {
+    perspective: 1400px;
+    width: 100%;
+    max-width: 540px;
+    aspect-ratio: 5 / 6;
+}
+.diapo6-3d-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.diapo6-3d-container:hover .diapo6-3d-card {
+    transform: rotateY(180deg);
+}
+.diapo6-3d-card__face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border: 5px solid #2c2c2c;
+    border-radius: 26px;
+    box-shadow: 10px 10px 0 rgba(44, 44, 44, 0.9);
+    padding: clamp(26px, 2.6vw, 44px) clamp(24px, 2.4vw, 40px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(14px, 1.3vw, 22px);
+    text-align: left;
+    overflow: hidden;
+}
+.diapo6-3d-card__face--front {
+    background: linear-gradient(145deg, #FFE7C1 0%, #FFFFFF 60%);
+}
+.diapo6-3d-card__face--back {
+    background: linear-gradient(145deg, #FFFFFF 0%, #FFE7C1 100%);
+    transform: rotateY(180deg);
+}
+.diapo6-3d-card__side-label {
+    font: 800 clamp(13px, 1.1vw, 16px) 'Source Sans 3', sans-serif;
+    color: #8A6A1C;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    background: #C9A632;
+    color: #FFFFFF;
+    padding: 4px 14px;
+    border-radius: 999px;
+    align-self: flex-start;
+}
+.diapo6-3d-card__title {
+    font: 900 clamp(22px, 2.2vw, 34px) 'Dosis', sans-serif;
+    color: #2c2c2c;
+    margin: 0;
+    line-height: 1.1;
+    letter-spacing: -0.3px;
+}
+.diapo6-3d-card__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 1vw, 16px);
+}
+.diapo6-3d-card__list li {
+    font: 600 clamp(16px, 1.4vw, 22px) 'Source Sans 3', sans-serif;
+    color: #2c2c2c;
+    line-height: 1.35;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.diapo6-3d-card__num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(32px, 2.8vw, 44px);
+    height: clamp(32px, 2.8vw, 44px);
+    background: #C9A632;
+    color: #FFFFFF;
+    border: 3px solid #2c2c2c;
+    border-radius: 50%;
+    font: 900 clamp(14px, 1.2vw, 18px) 'Dosis', sans-serif;
+    box-shadow: 3px 3px 0 rgba(44, 44, 44, 0.9);
+    flex-shrink: 0;
+}
+.diapo6-3d-card__list--tricks li i {
+    font-size: clamp(22px, 2vw, 30px);
+    color: #8A6A1C;
+    flex-shrink: 0;
+}
+.diapo6-3d-card__list--tricks li strong {
+    color: #8A6A1C;
+    font-weight: 900;
+}
+.diapo6-3d-card__hint {
+    margin: auto 0 0;
+    font: 700 clamp(13px, 1.1vw, 16px) 'Source Sans 3', sans-serif;
+    color: #8A6A1C;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    opacity: 0.8;
+}
+
+/* ---- LucAPI circular progress ---- */
+.diapo6-lucapi {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(16px, 1.6vw, 26px);
+    width: 100%;
+    max-width: 520px;
+    padding: clamp(24px, 2.4vw, 40px);
+    background: #FFFFFF;
+    border: 5px solid #2c2c2c;
+    border-radius: 26px;
+    box-shadow: 10px 10px 0 rgba(44, 44, 44, 0.9);
+}
+.diapo6-lucapi__header {
+    display: flex;
+    align-items: center;
+    gap: clamp(12px, 1.2vw, 20px);
+    width: 100%;
+}
+.diapo6-lucapi__avatar {
+    width: clamp(60px, 5.5vw, 88px);
+    height: clamp(60px, 5.5vw, 88px);
+    border-radius: 50%;
+    background: linear-gradient(135deg, #C9A632, #D9B94A);
+    border: 4px solid #2c2c2c;
+    box-shadow: 5px 5px 0 rgba(44, 44, 44, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #FFFFFF;
+    font-size: clamp(30px, 2.8vw, 44px);
+}
+.diapo6-lucapi__id {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.diapo6-lucapi__name {
+    font: 900 clamp(26px, 2.4vw, 40px) 'Dosis', sans-serif;
+    color: #2c2c2c;
+    margin: 0;
+    letter-spacing: -0.3px;
+    line-height: 1;
+}
+.diapo6-lucapi__role {
+    font: 600 clamp(13px, 1.15vw, 17px) 'Source Sans 3', sans-serif;
+    color: #6B2F6D;
+    margin: 0;
+}
+.diapo6-lucapi__progress {
+    position: relative;
+    width: clamp(220px, 22vw, 320px);
+    height: clamp(220px, 22vw, 320px);
+    --progress: 0.25;
+}
+.diapo6-lucapi__ring {
+    width: 100%;
+    height: 100%;
+}
+.diapo6-lucapi__track {
+    fill: none;
+    stroke: rgba(201, 166, 50, 0.2);
+    stroke-width: 8;
+}
+.diapo6-lucapi__fill {
+    --circumference: 263.9;
+    fill: none;
+    stroke: #C9A632;
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: var(--circumference);
+    stroke-dashoffset: calc(var(--circumference) * (1 - var(--progress)));
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    transition: stroke-dashoffset 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.diapo6-lucapi__center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 12%;
+}
+.diapo6-lucapi__step {
+    font: 800 clamp(14px, 1.2vw, 18px) 'Source Sans 3', sans-serif;
+    color: #8A6A1C;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+}
+.diapo6-lucapi__label {
+    font: 900 clamp(22px, 2.2vw, 34px) 'Dosis', sans-serif;
+    color: #2c2c2c;
+    line-height: 1.1;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.diapo6-lucapi__label.is-swapping {
+    opacity: 0;
+    transform: translateY(6px);
+}
+.diapo6-lucapi__desc {
+    font: 600 clamp(16px, 1.4vw, 22px) 'Source Sans 3', sans-serif;
+    color: #3a3a3a;
+    margin: 0;
+    text-align: center;
+    line-height: 1.35;
+    min-height: clamp(44px, 4vw, 60px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.diapo6-lucapi__desc.is-swapping {
+    opacity: 0;
+    transform: translateY(6px);
+}
+
+/* Cita bajo el duo-layout */
+.diapo6-step3-quote {
+    font: 600 clamp(20px, 1.8vw, 30px) 'Dosis', sans-serif;
+    color: #6B2F6D;
+    margin: 0;
+    text-align: center;
+    max-width: 1100px;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    padding: clamp(14px, 1.4vw, 22px) clamp(22px, 2.2vw, 38px);
+    background: rgba(208, 170, 209, 0.25);
+    border: 3px solid #6B2F6D;
+    border-radius: 999px;
+    box-shadow: 6px 6px 0 rgba(107, 47, 109, 0.35);
+    letter-spacing: -0.2px;
+}
+.diapo6-step3-quote strong {
+    color: #8A6A1C;
+    font-weight: 900;
+}
+.diapo6-step3-quote__icon i {
+    font-size: clamp(22px, 2vw, 32px);
+    color: #8A6A1C;
+}
+
+@media (max-width: 1000px) {
+    .diapo6-duo-layout { grid-template-columns: 1fr; gap: 20px; }
+    .diapo6-3d-container { max-width: 440px; }
+    .diapo6-lucapi { max-width: 440px; }
+}
+
 @media (max-width: 1100px) {
     .diapo6-step { padding: 20px 24px; gap: 22px; }
 }

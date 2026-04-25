@@ -5454,11 +5454,22 @@ const DIAPO6_TOTAL_STEPS = 4;
 const DIAPO6_FLIP_WORDS = ['una TARJETA', 'un AGENTE', 'una ESTRATEGIA'];
 const DIAPO6_FLIP_INTERVAL_MS = 3000;
 
+// Paso 3 — LucAPI circular progress (v23.19.4)
+const DIAPO6_LUCAPI_STEPS = [
+    { n: 1, label: 'Prepárate',          desc: 'activa la cabeza antes de leer' },
+    { n: 2, label: 'Lee con una misión', desc: 'una sola pregunta que te guía' },
+    { n: 3, label: 'Busca las pruebas',  desc: 'la respuesta está en el texto' },
+    { n: 4, label: 'Conecta',            desc: 'vincula lo leído con tu vida' }
+];
+const DIAPO6_LUCAPI_INTERVAL_MS = 2800;
+
 // State module-level
 let _diapo6Step = 1;
 let _diapo6ElianaInit = false;
 let _diapo6FlipTimer = null;
 let _diapo6FlipIndex = 0;
+let _diapo6LucapiTimer = null;
+let _diapo6LucapiIndex = 0;
 
 function showDiapo6Screen() {
     // Solo escritorio (bypass en móvil como la 5)
@@ -5573,15 +5584,18 @@ function _diapo6GoToStep(target) {
 
 function _diapo6RunStep(step) {
     if (step === 1) _diapo6StartFlipLayout();
-    // pasos 2, 3, 4 pendientes
+    else if (step === 3) _diapo6StartLucapi();
+    // paso 2 estático (focus-cards CSS puro), paso 4 pendiente
 }
 
 function _diapo6StopStep(step) {
     if (step === 1) _diapo6StopFlipLayout();
+    else if (step === 3) _diapo6StopLucapi();
 }
 
 function _diapo6StopAll() {
     _diapo6StopFlipLayout();
+    _diapo6StopLucapi();
 }
 
 // ──────────── PASO 1 — Layout text flip cycling (v23.18.1) ────────────
@@ -5631,6 +5645,51 @@ function _diapo6StopFlipLayout() {
     }
 }
 
+// ──────────── PASO 3 — LucAPI circular progress cycling (v23.19.4) ────────────
+function _diapo6StartLucapi() {
+    _diapo6StopLucapi();
+    _diapo6LucapiIndex = 0;
+    _diapo6ApplyLucapiStep(0);
+
+    _diapo6LucapiTimer = setInterval(() => {
+        if (!isOnDiapo6Screen() || _diapo6Step !== 3) {
+            _diapo6StopLucapi();
+            return;
+        }
+        _diapo6LucapiIndex = (_diapo6LucapiIndex + 1) % DIAPO6_LUCAPI_STEPS.length;
+        _diapo6ApplyLucapiStep(_diapo6LucapiIndex);
+    }, DIAPO6_LUCAPI_INTERVAL_MS);
+}
+
+function _diapo6ApplyLucapiStep(idx) {
+    const step = DIAPO6_LUCAPI_STEPS[idx];
+    if (!step) return;
+    const progressEl = document.getElementById('diapo6-lucapi-progress');
+    const stepEl     = document.getElementById('diapo6-lucapi-step');
+    const labelEl    = document.getElementById('diapo6-lucapi-label');
+    const descEl     = document.getElementById('diapo6-lucapi-desc');
+
+    // Animar barra — fraction 1-basada (1/4, 2/4, 3/4, 4/4)
+    if (progressEl) {
+        progressEl.style.setProperty('--progress', ((idx + 1) / DIAPO6_LUCAPI_STEPS.length).toString());
+    }
+    // Swap label y desc con una pequeña animación (is-swapping oculta, luego aparece)
+    if (labelEl) labelEl.classList.add('is-swapping');
+    if (descEl)  descEl.classList.add('is-swapping');
+    setTimeout(() => {
+        if (stepEl)  stepEl.textContent  = `${step.n} / ${DIAPO6_LUCAPI_STEPS.length}`;
+        if (labelEl) { labelEl.textContent = step.label; labelEl.classList.remove('is-swapping'); }
+        if (descEl)  { descEl.textContent  = step.desc;  descEl.classList.remove('is-swapping');  }
+    }, 250);
+}
+
+function _diapo6StopLucapi() {
+    if (_diapo6LucapiTimer) {
+        clearInterval(_diapo6LucapiTimer);
+        _diapo6LucapiTimer = null;
+    }
+}
+
 // Sincroniza _diapo6Step para el deep-link snap directo
 function _diapo6SyncStep(n) {
     if (typeof n === 'number' && n >= 1 && n <= DIAPO6_TOTAL_STEPS) {
@@ -5668,16 +5727,57 @@ const DIAPO7_STRUCTURES = [
     'Ordenar', 'Respuesta corta', 'Diálogo', 'Redacción', 'Respuesta abierta'
 ];
 
-const DIAPO7_TOTAL_STEPS = 5;
-let diapo7Step = 0;
+// v23.19.0 — Diapo 7 · LucAPI Comprensión lectora (8 fases del spec)
+const DIAPO7_TOTAL_STEPS = 8;
+let _diapo7Step = 1;
 
 function showDiapo7Screen() {
-    // v23.19.0 — Diapo 7 · LucAPI Comprensión lectora (esqueleto — fase A)
+    // Clon de la estructura diapo 6: stage + rays + side arrows + steps
     if (typeof hideAllScreens === 'function') hideAllScreens();
     elements.diapo7Screen = document.getElementById('diapo7-screen');
     elements.diapo7Screen?.classList.remove('hidden', 'fade-out');
     elements.diapo7Screen?.scrollTo?.(0, 0);
+    // Resetear siempre al paso 1 al entrar
+    _diapo7GoToStep(1, { instant: true });
 }
+
+function _diapo7GoToStep(newStep, opts = {}) {
+    if (newStep < 1 || newStep > DIAPO7_TOTAL_STEPS) return;
+    const stage = document.getElementById('diapo7-stage');
+    const oldStep = _diapo7Step;
+    const oldSection = document.getElementById(`diapo7-step-${oldStep}`);
+    const newSection = document.getElementById(`diapo7-step-${newStep}`);
+    if (!newSection) return;
+    if (opts.instant) {
+        stage?.classList.add('diapo7-stage--no-transition');
+        document.querySelectorAll('.diapo7-step').forEach(s => {
+            s.classList.remove('is-active', 'is-leaving');
+        });
+        newSection.classList.add('is-active');
+        // forzar reflow y quitar clase no-transition en el siguiente tick
+        void stage?.offsetWidth;
+        setTimeout(() => stage?.classList.remove('diapo7-stage--no-transition'), 20);
+    } else if (oldSection && oldSection !== newSection) {
+        oldSection.classList.remove('is-active');
+        oldSection.classList.add('is-leaving');
+        newSection.classList.add('is-active');
+        setTimeout(() => oldSection.classList.remove('is-leaving'), 700);
+    } else {
+        newSection.classList.add('is-active');
+    }
+    _diapo7Step = newStep;
+    _diapo7UpdateSideArrows();
+}
+
+function _diapo7UpdateSideArrows() {
+    const prev = document.getElementById('diapo7-side-prev');
+    const next = document.getElementById('diapo7-side-next');
+    prev?.classList.toggle('is-disabled', _diapo7Step <= 1);
+    next?.classList.toggle('is-disabled', _diapo7Step >= DIAPO7_TOTAL_STEPS);
+}
+
+function diapo7PrevStep() { _diapo7GoToStep(_diapo7Step - 1); }
+function diapo7NextStep() { _diapo7GoToStep(_diapo7Step + 1); }
 
 function hideDiapo7Screen() {
     elements.diapo7Screen?.classList.add('fade-out');
@@ -7142,7 +7242,7 @@ function init() {
         }, 300);
     });
     document.getElementById('diapo6-nav-next')?.addEventListener('click', () => {
-        // Salta entera de diapo 6 → pantalla final (próxima diapo cuando exista)
+        // v23.19.0 — salta entera de diapo 6 → diapo 7 (LucAPI). Antes saltaba a la pantalla final.
         _diapo6StopAll();
         stopTTS();
         const screen = document.getElementById('diapo6-screen');
@@ -7150,13 +7250,16 @@ function init() {
         setTimeout(() => {
             screen?.classList.add('hidden');
             screen?.classList.remove('fade-out');
-            if (typeof showFinalScreen === 'function') showFinalScreen();
+            if (typeof showDiapo7Screen === 'function') showDiapo7Screen();
+            else if (typeof showFinalScreen === 'function') showFinalScreen();
         }, 300);
     });
     document.getElementById('diapo6-side-prev')?.addEventListener('click', diapo6PrevStep);
     document.getElementById('diapo6-side-next')?.addEventListener('click', diapo6NextStep);
 
-    // Diapo 8 — Construye tu Agente
+    // Diapo 7 — LucAPI · Comprensión lectora (v23.19.0)
+    // Flechas del header: back → diapo 6 · next → pantalla final (por ahora).
+    // Flechas laterales: navegan entre los 8 pasos del flujo.
     document.getElementById('diapo7-nav-back')?.addEventListener('click', () => {
         hideDiapo7Screen();
         setTimeout(() => showDiapo6Screen(), 300);
@@ -7165,6 +7268,8 @@ function init() {
         hideDiapo7Screen();
         setTimeout(() => showFinalScreen(), 300);
     });
+    document.getElementById('diapo7-side-prev')?.addEventListener('click', diapo7PrevStep);
+    document.getElementById('diapo7-side-next')?.addEventListener('click', diapo7NextStep);
     document.querySelectorAll('[data-diapo7-dot]').forEach(dot => {
         dot.addEventListener('click', () => updateDiapo7Step(parseInt(dot.dataset.diapo7Dot)));
     });
