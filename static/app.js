@@ -7788,6 +7788,10 @@ function init() {
             else if (screenParam === 'juego-intro') showJuegoIntroScreen();
             else if (screenParam === 'diapo5' && typeof showDiapo5Screen === 'function') {
                 showDiapo5Screen();
+                // Guarda: en móvil showDiapo5Screen bypass a showDiapo6Screen().
+                // Si tras la llamada la diapo 5 no está activa, no tocamos el snap
+                // (evita trabajo innecesario + _diapo5Step desincronizado en móvil).
+                if (!isOnDiapo5Screen()) return;
                 // ?screen=diapo5&step=N salta al paso N (snap directo, sin transición)
                 const stepParam = parseInt(urlParams.get('step') || '1', 10);
                 if (stepParam >= 2 && stepParam <= 4) {

@@ -1,5 +1,15 @@
 # Changelog — AgentiaELE
 
+## v23.16.10 — 2026-04-25 — Fix observación "medium" del reviser: deep-link diapo5 en móvil
+El reviser detectó que tras v23.16.9 el handler del deep-link `?screen=diapo5` seguía procesando `stepParam` y llamando a `_diapo5SyncStep` / `_diapo5RunStep` incluso cuando `showDiapo5Screen()` había hecho bypass a diapo 6 por estar en móvil.
+
+Impacto: en móvil se disparaba trabajo innecesario (setTimeout del terminal, swap de clases en DOM oculto) y `_diapo5Step` quedaba desincronizado.
+
+**Fix**:
+- `static/app.js`: tras `showDiapo5Screen()` en el handler del deep-link, guarda `if (!isOnDiapo5Screen()) return;`. Si la diapo 5 no quedó activa (bypass móvil), no se ejecuta el bloque del snap ni el sync de step.
+
+Versionado sync → v23.16.10.
+
 ## v23.16.9 — 2026-04-25 — Cierre 4 observaciones del reviser
 Atiende las 4 observaciones pendientes del reviser sobre v23.16.8:
 
